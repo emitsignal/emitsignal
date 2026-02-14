@@ -1,98 +1,169 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { useQuery } from "convex/react";
+import { Link } from "expo-router";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { api } from "@notify/convex";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
+interface Topic {
+    _id: string;
+    name: string;
+    displayName: string;
+    description?: string;
+    isPublic: boolean;
+    createdAt: number;
+}
+
+function TopicCard({ topic }: { topic: Topic }) {
+    const colorScheme = useColorScheme();
+
+    return (
+        <Link href={`/topics/${topic.name}`} asChild>
+            <TouchableOpacity>
+                <ThemedView style={styles.topicCard}>
+                    <ThemedView style={styles.topicHeader}>
+                        <ThemedText type="defaultSemiBold">
+                            #{topic.name}
+                        </ThemedText>
+                        {!topic.isPublic && (
+                            <IconSymbol
+                                name="lock.fill"
+                                size={14}
+                                color={
+                                    colorScheme === "dark"
+                                        ? Colors.dark.icon
+                                        : Colors.light.icon
+                                }
+                            />
+                        )}
+                    </ThemedView>
+                    <ThemedText style={styles.displayName}>
+                        {topic.displayName}
+                    </ThemedText>
+                    {topic.description && (
+                        <ThemedText
+                            style={styles.description}
+                            numberOfLines={2}
+                        >
+                            {topic.description}
+                        </ThemedText>
+                    )}
+                    <ThemedView style={styles.topicMeta}>
+                        <ThemedText style={styles.metaText}>
+                            {topic.isPublic ? "Public" : "Private"}
+                        </ThemedText>
+                    </ThemedView>
+                </ThemedView>
+            </TouchableOpacity>
         </Link>
+    );
+}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+function EmptyState() {
+    return (
+        <ThemedView style={styles.emptyContainer}>
+            <IconSymbol name="tray" size={48} color="#999" />
+            <ThemedText type="subtitle" style={styles.emptyTitle}>
+                No topics yet
+            </ThemedText>
+            <ThemedText style={styles.emptyText}>
+                Topics will appear here when they're created
+            </ThemedText>
+        </ThemedView>
+    );
+}
+
+export default function TopicsScreen() {
+    const topics = useQuery(api.queries.topics.list, {
+        // isPublic: true,
+        limit: 50,
+    });
+
+    return (
+        <ThemedView style={styles.container}>
+            <ThemedView style={styles.header}>
+                <ThemedText type="title">Topics</ThemedText>
+                <ThemedText style={styles.subtitle}>
+                    Browse and listen to message topics
+                </ThemedText>
+            </ThemedView>
+
+            <FlatList
+                data={topics || []}
+                keyExtractor={(item) => item._id}
+                renderItem={({ item }) => <TopicCard topic={item as Topic} />}
+                contentContainerStyle={styles.listContainer}
+                ListEmptyComponent={<EmptyState />}
+                showsVerticalScrollIndicator={false}
+            />
+        </ThemedView>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+    },
+    header: {
+        paddingHorizontal: 16,
+        paddingTop: 60,
+        paddingBottom: 16,
+    },
+    subtitle: {
+        marginTop: 4,
+        opacity: 0.6,
+    },
+    listContainer: {
+        padding: 16,
+        paddingTop: 0,
+    },
+    topicCard: {
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#e5e5e5",
+    },
+    topicHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 4,
+    },
+    displayName: {
+        fontSize: 14,
+        opacity: 0.8,
+        marginBottom: 8,
+    },
+    description: {
+        fontSize: 12,
+        opacity: 0.6,
+        marginBottom: 12,
+    },
+    topicMeta: {
+        flexDirection: "row",
+    },
+    metaText: {
+        fontSize: 12,
+        opacity: 0.5,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 32,
+        marginTop: 100,
+    },
+    emptyTitle: {
+        marginTop: 16,
+        marginBottom: 8,
+    },
+    emptyText: {
+        textAlign: "center",
+        opacity: 0.6,
+    },
 });
