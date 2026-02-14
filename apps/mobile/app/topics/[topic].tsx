@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from "expo-router";
-import { StyleSheet } from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { useQuery } from "convex/react";
 import { useState, useCallback } from "react";
 
@@ -7,7 +7,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { MessageList } from "@/components/message-list";
 import { api } from "@notify/convex";
-import { Colors } from "@/constants/theme";
+import { Colors, UI } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 
@@ -21,14 +21,17 @@ interface Message {
 }
 
 function EmptyState({ topicName }: { topicName: string }) {
+    const colorScheme = useColorScheme();
+    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
+
     return (
         <ThemedView style={styles.emptyContainer}>
-            <IconSymbol name="bell.slash" size={48} color="#999" />
+            <IconSymbol name="bell.slash" size={64} color={colors.icon} />
             <ThemedText type="subtitle" style={styles.emptyTitle}>
                 No messages yet
             </ThemedText>
             <ThemedText style={styles.emptyText}>
-                Waiting for messages in #{topicName}
+                Waiting for messages in {topicName}
             </ThemedText>
         </ThemedView>
     );
@@ -36,21 +39,40 @@ function EmptyState({ topicName }: { topicName: string }) {
 
 function Header({ topicName }: { topicName: string }) {
     const colorScheme = useColorScheme();
+    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
 
     return (
-        <ThemedView style={styles.header}>
-            <ThemedView
-                style={[
-                    styles.topicBadge,
-                    {
-                        backgroundColor:
-                            colorScheme === "dark"
-                                ? Colors.dark.tint
-                                : Colors.light.tint,
-                    },
-                ]}
-            >
-                <ThemedText style={styles.topicText}>#{topicName}</ThemedText>
+        <ThemedView
+            style={[styles.header, { borderBottomColor: colors.border }]}
+        >
+            <ThemedView style={styles.headerContent}>
+                <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={styles.backButton}
+                >
+                    <IconSymbol
+                        name="chevron.left"
+                        size={24}
+                        color={colors.icon}
+                    />
+                </TouchableOpacity>
+
+                <ThemedView style={styles.topicInfo}>
+                    <ThemedText type="defaultSemiBold" style={styles.topicName}>
+                        {topicName}
+                    </ThemedText>
+                    <ThemedText style={styles.topicSubtitle}>
+                        Daily backup status notifications
+                    </ThemedText>
+                </ThemedView>
+
+                <TouchableOpacity style={styles.headerAction}>
+                    <IconSymbol
+                        name="ellipsis.circle"
+                        size={24}
+                        color={colors.icon}
+                    />
+                </TouchableOpacity>
             </ThemedView>
         </ThemedView>
     );
@@ -92,14 +114,15 @@ export default function TopicListenerScreen() {
     }
 
     if (!topicData) {
+        const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
         return (
             <ThemedView style={styles.container}>
                 <Header topicName={topic} />
                 <ThemedView style={styles.centered}>
                     <IconSymbol
                         name="exclamationmark.triangle"
-                        size={48}
-                        color="#999"
+                        size={64}
+                        color={colors.icon}
                     />
                     <ThemedText type="subtitle" style={styles.emptyTitle}>
                         Topic not found
@@ -114,7 +137,7 @@ export default function TopicListenerScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <Header topicName={topicData.name} />
+            <Header topicName={topicData.displayName || topicData.name} />
             <MessageList
                 messages={(messages || []) as Message[]}
                 ListEmptyComponent={<EmptyState topicName={topicData.name} />}
@@ -128,39 +151,49 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingHorizontal: 16,
         paddingTop: 60,
-        paddingBottom: 16,
+        paddingBottom: UI.spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: "#e5e5e5",
     },
-    topicBadge: {
-        alignSelf: "flex-start",
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+    headerContent: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: UI.spacing.lg,
+        gap: UI.spacing.md,
     },
-    topicText: {
-        color: "#fff",
-        fontWeight: "600",
-        fontSize: 16,
+    backButton: {
+        padding: UI.spacing.xs,
+    },
+    topicInfo: {
+        flex: 1,
+    },
+    topicName: {
+        fontSize: 18,
+    },
+    topicSubtitle: {
+        fontSize: 12,
+        opacity: 0.6,
+        marginTop: 2,
+    },
+    headerAction: {
+        padding: UI.spacing.xs,
     },
     centered: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        padding: 32,
+        padding: UI.spacing.xxl,
     },
     emptyContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        padding: 32,
+        padding: UI.spacing.xxl,
         marginTop: 100,
     },
     emptyTitle: {
-        marginTop: 16,
-        marginBottom: 8,
+        marginTop: UI.spacing.lg,
+        marginBottom: UI.spacing.sm,
     },
     emptyText: {
         textAlign: "center",

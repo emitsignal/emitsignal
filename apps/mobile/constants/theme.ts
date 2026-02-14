@@ -5,25 +5,88 @@
 
 import { Platform } from "react-native";
 
-const tintColorLight = "#0a7ea4";
-const tintColorDark = "#fff";
+// Modern teal/green theme inspired by ntfy
+const tintColorLight = "#449139";
+const tintColorDark = "#1abc9c";
 
 export const Colors = {
     light: {
-        text: "#11181C",
-        background: "#fff",
+        text: "#2c3e50",
+        background: "#f8f9fa",
+        cardBackground: "#ffffff",
         tint: tintColorLight,
-        icon: "#687076",
-        tabIconDefault: "#687076",
+        icon: "#7f8c8d",
+        tabIconDefault: "#95a5a6",
         tabIconSelected: tintColorLight,
+        border: "#e1e8ed",
+        success: "#27ae60",
+        warning: "#f39c12",
+        error: "#e74c3c",
+        info: "#3498db",
     },
     dark: {
-        text: "#ECEDEE",
-        background: "#151718",
+        text: "#ecf0f1",
+        background: "#000000",
+        cardBackground: "#1C1C1E",
         tint: tintColorDark,
-        icon: "#9BA1A6",
-        tabIconDefault: "#9BA1A6",
+        icon: "#bdc3c7",
+        tabIconDefault: "#95a5a6",
         tabIconSelected: tintColorDark,
+        border: "#34495e",
+        success: "#2ecc71",
+        warning: "#f1c40f",
+        error: "#e74c3c",
+        info: "#3498db",
+    },
+};
+
+// Priority colors for notifications
+export const PriorityColors = {
+    1: "#95a5a6", // Min - Gray
+    2: "#3498db", // Low - Blue
+    3: "#f39c12", // Default - Orange
+    4: "#e67e22", // High - Dark Orange
+    5: "#e74c3c", // Max/Urgent - Red
+};
+
+// UI Constants
+export const UI = {
+    borderRadius: {
+        small: 8,
+        medium: 12,
+        large: 16,
+        full: 9999,
+    },
+    spacing: {
+        xs: 4,
+        sm: 8,
+        md: 12,
+        lg: 16,
+        xl: 20,
+        xxl: 24,
+    },
+    shadow: {
+        small: {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 2,
+        },
+        medium: {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+            elevation: 4,
+        },
+        large: {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 8,
+        },
     },
 };
 

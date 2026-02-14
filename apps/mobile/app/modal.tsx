@@ -1,29 +1,31 @@
-import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { StyleSheet } from "react-native";
+import { SubscribeModalContent } from "@/components/subscribe-modal";
+import { ThemedView } from "@/components/themed-view";
+import { router } from "expo-router";
 
 export default function ModalScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
-      <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
-      </Link>
-    </ThemedView>
-  );
+    const handleSubscribe = (topicName: string, description: string) => {
+        console.log("Subscribe to topic:", topicName, description);
+        // TODO: Implement actual subscription logic with Convex
+        router.back();
+    };
+
+    const handleClose = () => {
+        router.back();
+    };
+
+    return (
+        <ThemedView style={styles.container}>
+            <SubscribeModalContent
+                onSubscribe={handleSubscribe}
+                onClose={handleClose}
+            />
+        </ThemedView>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
+    container: {
+        flex: 1,
+    },
 });
