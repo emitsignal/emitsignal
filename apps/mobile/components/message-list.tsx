@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, StyleSheet, View, type ViewStyle } from "react-native";
+import { SectionList, StyleSheet, View, type ViewStyle } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { Colors, PriorityColors, UI } from "@/constants/theme";
@@ -20,44 +20,24 @@ interface MessageListProps {
     ListEmptyComponent?: React.ReactElement;
 }
 
-const priorityLabels: Record<number, string> = {
-    1: "min",
-    2: "low",
-    3: "default",
-    4: "high",
-    5: "urgent",
-};
-
 function formatTime(timestamp: number): string {
     const date = new Date(timestamp);
     return date.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: false,
     });
 }
 
-function formatDate(timestamp: number): string {
+function formatDateHeader(timestamp: number): string {
     const date = new Date(timestamp);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const isYesterday = date.toDateString() === yesterday.toDateString();
-
-    if (isToday) {
-        return "Today";
-    }
-
-    if (isYesterday) {
-        return "Yesterday";
-    }
-
-    return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-    });
+    return date
+        .toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+        })
+        .toUpperCase();
 }
 
 function MessageItem({ message }: { message: Message }) {
@@ -65,69 +45,59 @@ function MessageItem({ message }: { message: Message }) {
     const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
     const priorityColor = PriorityColors[message.priority];
 
+    // Priority 3 ("default") typically doesn't show a strong color in ntfy,
+    // but the user asked for a left border.
+    // Let's use the defined priority color.
+    // If priority is 1 (min) or 2 (low), maybe subtle?
+    // User mockup shows orange for warning.
+
     return (
         <ThemedView
             style={[
-                styles.messageCard,
+                styles.messageItem,
                 {
                     backgroundColor: colors.cardBackground,
-                    borderColor: colors.border,
+                    borderBottomColor: colors.border,
+                    borderLeftColor: priorityColor,
                 },
-                colorScheme === "light" && UI.shadow.small,
             ]}
         >
-            <View style={styles.messageHeader}>
-                <ThemedText type="defaultSemiBold" style={styles.title}>
-                    {message.title}
-                </ThemedText>
-                <ThemedText style={styles.timeText}>
-                    {formatTime(message.createdAt)}
-                </ThemedText>
-            </View>
-
-            <ThemedText style={styles.body} numberOfLines={3}>
-                {message.body}
-            </ThemedText>
-
-            <View style={styles.messageFooter}>
-                <View style={styles.tagsContainer}>
-                    {message.tags.slice(0, 3).map((tag, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.tag,
-                                {
-                                    backgroundColor:
-                                        colorScheme === "dark"
-                                            ? "#3a3a3a"
-                                            : "#f0f0f0",
-                                },
-                            ]}
-                        >
-                            <ThemedText style={styles.tagText}>
-                                {tag}
-                            </ThemedText>
-                        </View>
-                    ))}
-                    {message.tags.length > 3 && (
-                        <ThemedText style={styles.moreTagsText}>
-                            +{message.tags.length - 3}
-                        </ThemedText>
-                    )}
+            <View style={styles.messageContent}>
+                <View style={styles.messageHeader}>
+                    <ThemedText type="defaultSemiBold" style={styles.title}>
+                        {message.title}
+                    </ThemedText>
+                    <ThemedText style={styles.timeText}>
+                        {formatTime(message.createdAt)}
+                    </ThemedText>
                 </View>
 
-                <View style={styles.metaContainer}>
-                    <View
-                        style={[
-                            styles.priorityBadge,
-                            { backgroundColor: priorityColor },
-                        ]}
-                    >
-                        <ThemedText style={styles.priorityText}>
-                            {priorityLabels[message.priority]}
-                        </ThemedText>
+                <ThemedText style={styles.body} numberOfLines={10}>
+                    {message.body}
+                </ThemedText>
+
+                {message.tags.length > 0 && (
+                    <View style={styles.tagsContainer}>
+                        {message.tags.map((tag, index) => (
+                            <View
+                                key={index}
+                                style={[
+                                    styles.tag,
+                                    {
+                                        backgroundColor:
+                                            colorScheme === "dark"
+                                                ? "#3a3a3a"
+                                                : "#f0f0f0",
+                                    },
+                                ]}
+                            >
+                                <ThemedText style={styles.tagText}>
+                                    {tag}
+                                </ThemedText>
+                            </View>
+                        ))}
                     </View>
-                </View>
+                )}
             </View>
         </ThemedView>
     );
@@ -139,14 +109,48 @@ export function MessageList({
     ListEmptyComponent,
 }: MessageListProps) {
     const colorScheme = useColorScheme();
+    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
+
+    // Group messages by date
+    const sections = React.useMemo(() => {
+        const groups: { [key: string]: Message[] } = {};
+        messages.forEach((msg) => {
+            const dateKey = formatDateHeader(msg.createdAt);
+            if (!groups[dateKey]) {
+                groups[dateKey] = [];
+            }
+            groups[dateKey].push(msg);
+        });
+
+        return Object.keys(groups).map((date) => ({
+            title: date,
+            data: groups[date],
+        }));
+    }, [messages]);
+
+    if (messages.length === 0 && ListEmptyComponent) {
+        return <View style={style}>{ListEmptyComponent}</View>;
+    }
 
     return (
-        <FlatList
-            data={messages}
+        <SectionList
+            sections={sections}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => <MessageItem message={item} />}
+            renderSectionHeader={({ section: { title } }) => (
+                <View
+                    style={[
+                        styles.sectionHeader,
+                        { backgroundColor: colors.background },
+                    ]}
+                >
+                    <ThemedText style={styles.sectionHeaderText}>
+                        {title}
+                    </ThemedText>
+                </View>
+            )}
             contentContainerStyle={[styles.listContainer, style]}
-            ListEmptyComponent={ListEmptyComponent}
+            stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
         />
     );
@@ -154,74 +158,61 @@ export function MessageList({
 
 const styles = StyleSheet.create({
     listContainer: {
-        padding: UI.spacing.lg,
         paddingBottom: 100,
     },
-    messageCard: {
-        padding: UI.spacing.md,
-        marginBottom: UI.spacing.md,
-        borderRadius: UI.borderRadius.medium,
-        borderWidth: 1,
+    sectionHeader: {
+        paddingHorizontal: UI.spacing.lg,
+        paddingVertical: UI.spacing.md,
+    },
+    sectionHeaderText: {
+        fontSize: 13,
+        fontWeight: "600",
+        opacity: 0.5,
+        letterSpacing: 0.5,
+    },
+    messageItem: {
+        paddingVertical: UI.spacing.md,
+        paddingHorizontal: UI.spacing.lg,
+        borderBottomWidth: StyleSheet.hairlineWidth, // Thin separator
+        borderLeftWidth: 4, // Prominent priority indicator
+    },
+    messageContent: {
+        flex: 1,
     },
     messageHeader: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        marginBottom: UI.spacing.sm,
+        marginBottom: UI.spacing.xs,
     },
     title: {
+        fontSize: 16,
         flex: 1,
         marginRight: UI.spacing.sm,
-        fontSize: 16,
     },
     timeText: {
         fontSize: 12,
         opacity: 0.5,
+        fontVariant: ["tabular-nums"],
     },
     body: {
-        marginBottom: UI.spacing.md,
+        fontSize: 14,
         lineHeight: 20,
         opacity: 0.8,
-    },
-    messageFooter: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+        marginBottom: UI.spacing.sm,
     },
     tagsContainer: {
         flexDirection: "row",
         flexWrap: "wrap",
         gap: UI.spacing.xs,
-        flex: 1,
-        marginRight: UI.spacing.sm,
     },
     tag: {
         paddingHorizontal: UI.spacing.sm,
-        paddingVertical: 4,
+        paddingVertical: 2,
         borderRadius: UI.borderRadius.small,
     },
     tagText: {
         fontSize: 11,
         opacity: 0.7,
-    },
-    moreTagsText: {
-        fontSize: 11,
-        opacity: 0.5,
-        paddingHorizontal: UI.spacing.xs,
-    },
-    metaContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: UI.spacing.sm,
-    },
-    priorityBadge: {
-        paddingHorizontal: UI.spacing.sm,
-        paddingVertical: 4,
-        borderRadius: UI.borderRadius.small,
-    },
-    priorityText: {
-        fontSize: 10,
-        fontWeight: "600",
-        color: "#ffffff",
     },
 });

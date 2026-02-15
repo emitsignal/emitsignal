@@ -1,7 +1,6 @@
-import { useLocalSearchParams, router } from "expo-router";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { useLocalSearchParams, router, Stack } from "expo-router";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useQuery } from "convex/react";
-import { useState, useCallback } from "react";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -37,7 +36,13 @@ function EmptyState({ topicName }: { topicName: string }) {
     );
 }
 
-function Header({ topicName }: { topicName: string }) {
+function Header({
+    topicName,
+    description,
+}: {
+    topicName: string;
+    description?: string;
+}) {
     const colorScheme = useColorScheme();
     const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
 
@@ -51,27 +56,37 @@ function Header({ topicName }: { topicName: string }) {
                     style={styles.backButton}
                 >
                     <IconSymbol
-                        name="chevron.left"
+                        name="arrow.left"
                         size={24}
-                        color={colors.icon}
+                        color={colors.text}
                     />
                 </TouchableOpacity>
 
-                <ThemedView style={styles.topicInfo}>
+                <View
+                    style={[
+                        styles.topicIcon,
+                        { backgroundColor: colors.background },
+                    ]}
+                >
+                    <IconSymbol name="folder" size={24} color={colors.tint} />
+                </View>
+
+                <View style={styles.topicInfo}>
                     <ThemedText type="defaultSemiBold" style={styles.topicName}>
                         {topicName}
                     </ThemedText>
-                    <ThemedText style={styles.topicSubtitle}>
-                        Daily backup status notifications
-                    </ThemedText>
-                </ThemedView>
+                    {description && (
+                        <ThemedText
+                            style={styles.topicSubtitle}
+                            numberOfLines={1}
+                        >
+                            {description}
+                        </ThemedText>
+                    )}
+                </View>
 
                 <TouchableOpacity style={styles.headerAction}>
-                    <IconSymbol
-                        name="ellipsis.circle"
-                        size={24}
-                        color={colors.icon}
-                    />
+                    <IconSymbol name="ellipsis" size={24} color={colors.text} />
                 </TouchableOpacity>
             </ThemedView>
         </ThemedView>
@@ -81,7 +96,6 @@ function Header({ topicName }: { topicName: string }) {
 export default function TopicListenerScreen() {
     const { topic } = useLocalSearchParams<{ topic: string }>();
     const colorScheme = useColorScheme();
-    const [refreshing, setRefreshing] = useState(false);
 
     const topicData = useQuery(api.queries.topics.getByName, {
         name: topic,
@@ -97,14 +111,10 @@ export default function TopicListenerScreen() {
             : "skip",
     );
 
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-    }, []);
-
     if (!topicData && messages === undefined) {
         return (
             <ThemedView style={styles.container}>
+                <Stack.Screen options={{ headerShown: false }} />
                 <Header topicName={topic} />
                 <ThemedView style={styles.centered}>
                     <ThemedText>Loading...</ThemedText>
@@ -117,6 +127,7 @@ export default function TopicListenerScreen() {
         const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
         return (
             <ThemedView style={styles.container}>
+                <Stack.Screen options={{ headerShown: false }} />
                 <Header topicName={topic} />
                 <ThemedView style={styles.centered}>
                     <IconSymbol
@@ -137,7 +148,11 @@ export default function TopicListenerScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <Header topicName={topicData.displayName || topicData.name} />
+            <Stack.Screen options={{ headerShown: false }} />
+            <Header
+                topicName={topicData.displayName || topicData.name}
+                description={topicData.description}
+            />
             <MessageList
                 messages={(messages || []) as Message[]}
                 ListEmptyComponent={<EmptyState topicName={topicData.name} />}
@@ -154,15 +169,28 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         paddingBottom: UI.spacing.md,
         borderBottomWidth: 1,
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        zIndex: 10,
     },
     headerContent: {
         flexDirection: "row",
         alignItems: "center",
-        paddingHorizontal: UI.spacing.lg,
+        paddingHorizontal: UI.spacing.md,
         gap: UI.spacing.md,
     },
     backButton: {
         padding: UI.spacing.xs,
+    },
+    topicIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
     },
     topicInfo: {
         flex: 1,

@@ -6,8 +6,8 @@
 import { Platform } from "react-native";
 
 // Modern teal/green theme inspired by ntfy
-const tintColorLight = "#449139";
-const tintColorDark = "#1abc9c";
+const tintColorLight = "#393A4A";
+const tintColorDark = "#6B6C7E";
 
 export const Colors = {
     light: {
