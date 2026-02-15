@@ -26,7 +26,8 @@ export const createTopic = mutation({
         }
 
         const now = Date.now();
-        const topicId = await ctx.db.insert("topics", {
+
+        const topic = {
             name: args.name,
             displayName: args.displayName,
             description: args.description,
@@ -34,7 +35,9 @@ export const createTopic = mutation({
             isPublic: args.isPublic,
             createdAt: now,
             updatedAt: now,
-        });
+        };
+
+        const topicId = await ctx.db.insert("topics", topic);
 
         // Grant owner access
         await ctx.db.insert("topicAccess", {
@@ -44,6 +47,6 @@ export const createTopic = mutation({
             grantedAt: now,
         });
 
-        return topicId;
+        return { ...topic, _id: topicId };
     },
 });

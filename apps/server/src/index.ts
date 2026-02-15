@@ -1,13 +1,13 @@
 import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
-import { postTopic } from "./http/topic/post-topic";
+import { publishMessage } from "./http/topic/publish-message";
 
 const app = new Elysia()
     .onError(({ code, error }) => console.log(code, error))
     .use(cors({ allowedHeaders: "*" }))
     .get("/", () => "Hello Elysia")
-    .use(postTopic)
+    .use(publishMessage)
     .listen(3000);
 
 console.log(
