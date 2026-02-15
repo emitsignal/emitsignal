@@ -128,6 +128,7 @@ export default function TopicsScreen() {
     const colorScheme = useColorScheme();
     const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
     const [searchQuery, setSearchQuery] = useState("");
+    const [isSearchActive, setIsSearchActive] = useState(false);
 
     const topics = useQuery(api.queries.topics.list, {
         limit: 50,
@@ -146,6 +147,13 @@ export default function TopicsScreen() {
         router.push("/modal");
     };
 
+    const toggleSearch = () => {
+        setIsSearchActive(!isSearchActive);
+        if (isSearchActive) {
+            setSearchQuery("");
+        }
+    };
+
     return (
         <ThemedView style={styles.container}>
             <ThemedView
@@ -160,18 +168,40 @@ export default function TopicsScreen() {
                     <ThemedText type="title" style={styles.title}>
                         Notify
                     </ThemedText>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={toggleSearch}>
                         <IconSymbol
                             name="magnifyingglass"
                             size={24}
-                            color={colors.icon}
+                            color={isSearchActive ? colors.tint : colors.icon}
                         />
                     </TouchableOpacity>
                 </ThemedView>
 
-                <ThemedText style={styles.subtitle}>
-                    {topics?.length || 0} subscribed topics
-                </ThemedText>
+                {isSearchActive && (
+                    <ThemedView style={styles.searchContainer}>
+                        <TextInput
+                            style={[
+                                styles.searchInput,
+                                {
+                                    backgroundColor: colors.cardBackground,
+                                    borderColor: colors.border,
+                                    color: colors.text,
+                                },
+                            ]}
+                            placeholder="Search topics..."
+                            placeholderTextColor={colors.icon}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            autoFocus
+                        />
+                    </ThemedView>
+                )}
+
+                {!isSearchActive && (
+                    <ThemedText style={styles.subtitle}>
+                        {topics?.length || 0} subscribed topics
+                    </ThemedText>
+                )}
             </ThemedView>
 
             <FlatList

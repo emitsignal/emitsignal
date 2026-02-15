@@ -1,4 +1,12 @@
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import {
+    View,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    Keyboard,
+    Pressable,
+    Animated,
+} from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 import { Colors, UI } from "@/constants/theme";
@@ -20,6 +28,7 @@ export function SubscribeModalContent({
     const [description, setDescription] = useState("");
     const [selectedIcon, setSelectedIcon] = useState("bell");
     const [selectedColor, setSelectedColor] = useState(Colors.light.tint);
+    const [instantDelivery, setInstantDelivery] = useState(true);
 
     const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
 
@@ -57,7 +66,7 @@ export function SubscribeModalContent({
                 </TouchableOpacity>
             </ThemedView>
 
-            <ThemedView style={styles.content}>
+            <Pressable onPress={Keyboard.dismiss} style={styles.content}>
                 <ThemedView style={styles.inputGroup}>
                     <ThemedText style={styles.label}>Topic name</ThemedText>
                     <TextInput
@@ -185,12 +194,32 @@ export function SubscribeModalContent({
                             </ThemedText>
                         </ThemedView>
                     </ThemedView>
-                    <View
+                    <TouchableOpacity
                         style={[
                             styles.toggle,
-                            { backgroundColor: colors.tint },
+                            {
+                                backgroundColor: instantDelivery
+                                    ? colors.tint
+                                    : colors.icon,
+                            },
                         ]}
-                    />
+                        onPress={() => setInstantDelivery(!instantDelivery)}
+                        activeOpacity={0.8}
+                    >
+                        <View
+                            style={[
+                                styles.toggleKnob,
+                                {
+                                    transform: [
+                                        {
+                                            translateX: instantDelivery ? 20 : 2,
+                                        },
+                                    ],
+                                    backgroundColor: "#ffffff",
+                                },
+                            ]}
+                        />
+                    </TouchableOpacity>
                 </ThemedView>
 
                 <TouchableOpacity
@@ -205,7 +234,7 @@ export function SubscribeModalContent({
                         Subscribe
                     </ThemedText>
                 </TouchableOpacity>
-            </ThemedView>
+            </Pressable>
         </ThemedView>
     );
 }
@@ -305,6 +334,13 @@ const styles = StyleSheet.create({
         width: 48,
         height: 28,
         borderRadius: 14,
+        justifyContent: "center",
+    },
+    toggleKnob: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        position: "absolute",
     },
     subscribeButton: {
         paddingVertical: UI.spacing.lg,

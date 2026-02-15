@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { SubscribeModalContent } from "@/components/subscribe-modal";
 import { ThemedView } from "@/components/themed-view";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 
 export default function ModalScreen() {
     const handleSubscribe = (topicName: string, description: string) => {
@@ -15,12 +15,15 @@ export default function ModalScreen() {
     };
 
     return (
-        <ThemedView style={styles.container}>
-            <SubscribeModalContent
-                onSubscribe={handleSubscribe}
-                onClose={handleClose}
-            />
-        </ThemedView>
+        <>
+            <Stack.Screen options={{ headerShown: false }} />
+            <ThemedView style={styles.container}>
+                <SubscribeModalContent
+                    onSubscribe={handleSubscribe}
+                    onClose={handleClose}
+                />
+            </ThemedView>
+        </>
     );
 }
 
