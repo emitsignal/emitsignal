@@ -60,23 +60,29 @@ export default defineSchema({
 
     // Push notification tokens (Expo)
     pushTokens: defineTable({
-        userId: v.id("users"),
+        userId: v.optional(v.id("users")), // null for anonymous users
+        deviceId: v.string(), // Unique device identifier
         token: v.string(), // Expo push token
-        deviceInfo: v.optional(v.string()),
+        platform: v.string(), // ios, android, web
         createdAt: v.number(),
         updatedAt: v.number(),
     })
         .index("by_user", ["userId"])
-        .index("by_token", ["token"]),
+        .index("by_device", ["deviceId"])
+        .index("by_token", ["token"])
+        .index("by_device_user", ["deviceId", "userId"]),
 
-    // User subscriptions to topics
+    // User/device subscriptions to topics
     subscriptions: defineTable({
-        userId: v.id("users"),
+        userId: v.optional(v.id("users")), // null for anonymous users
+        deviceId: v.string(), // Unique device identifier
         topicId: v.id("topics"),
         pushEnabled: v.boolean(), // Whether to send push notifications
         createdAt: v.number(),
     })
         .index("by_user", ["userId"])
+        .index("by_device", ["deviceId"])
         .index("by_topic", ["topicId"])
+        .index("by_device_topic", ["deviceId", "topicId"])
         .index("by_user_topic", ["userId", "topicId"]),
 });

@@ -35,6 +35,15 @@ export const getByName = query({
     },
 });
 
+export const getById = query({
+    args: {
+        id: v.id("topics"),
+    },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    },
+});
+
 export const getMessages = query({
     args: {
         topicId: v.id("topics"),

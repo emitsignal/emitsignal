@@ -8,8 +8,12 @@
  * @module
  */
 
+import type * as actions_pushNotifications from "../actions/pushNotifications.js";
 import type * as mutations_messages from "../mutations/messages.js";
+import type * as mutations_subscriptions from "../mutations/subscriptions.js";
 import type * as mutations_topics from "../mutations/topics.js";
+import type * as queries_messages from "../queries/messages.js";
+import type * as queries_subscriptions from "../queries/subscriptions.js";
 import type * as queries_topics from "../queries/topics.js";
 
 import type {
@@ -19,8 +23,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "actions/pushNotifications": typeof actions_pushNotifications;
   "mutations/messages": typeof mutations_messages;
+  "mutations/subscriptions": typeof mutations_subscriptions;
   "mutations/topics": typeof mutations_topics;
+  "queries/messages": typeof queries_messages;
+  "queries/subscriptions": typeof queries_subscriptions;
   "queries/topics": typeof queries_topics;
 }>;
 
