@@ -5,7 +5,6 @@ import {
     TouchableOpacity,
     Keyboard,
     Pressable,
-    Animated,
 } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
@@ -15,13 +14,15 @@ import { IconSymbol } from "./ui/icon-symbol";
 import { useState } from "react";
 
 interface SubscribeModalContentProps {
-    onSubscribe: (topicName: string, description: string) => void;
+    onSubscribe: (topicName: string, description: string, instantDelivery: boolean) => void;
     onClose: () => void;
+    isLoading?: boolean;
 }
 
 export function SubscribeModalContent({
     onSubscribe,
     onClose,
+    isLoading = false,
 }: SubscribeModalContentProps) {
     const colorScheme = useColorScheme();
     const [topicName, setTopicName] = useState("");
@@ -51,9 +52,8 @@ export function SubscribeModalContent({
     ];
 
     const handleSubscribe = () => {
-        if (topicName.trim()) {
-            onSubscribe(topicName.trim(), description.trim());
-            onClose();
+        if (topicName.trim() && !isLoading) {
+            onSubscribe(topicName.trim(), description.trim(), instantDelivery);
         }
     };
 
@@ -225,13 +225,18 @@ export function SubscribeModalContent({
                 <TouchableOpacity
                     style={[
                         styles.subscribeButton,
-                        { backgroundColor: colors.tint },
+                        {
+                            backgroundColor: topicName.trim()
+                                ? colors.tint
+                                : colors.icon,
+                            opacity: isLoading ? 0.7 : 1,
+                        },
                     ]}
                     onPress={handleSubscribe}
-                    disabled={!topicName.trim()}
+                    disabled={!topicName.trim() || isLoading}
                 >
                     <ThemedText style={styles.subscribeButtonText}>
-                        Subscribe
+                        {isLoading ? "Subscribing..." : "Subscribe"}
                     </ThemedText>
                 </TouchableOpacity>
             </Pressable>

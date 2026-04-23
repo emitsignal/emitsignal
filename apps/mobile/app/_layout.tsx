@@ -9,7 +9,9 @@ import "react-native-reanimated";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useForegroundNotifications } from "@/hooks/use-foreground-notifications";
 import { ThemeProvider } from "@/ctx/theme";
+import { DeviceProvider } from "@/ctx/device";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!);
 
@@ -19,6 +21,9 @@ export const unstable_settings = {
 
 function RootLayoutContent() {
     const colorScheme = useColorScheme();
+
+    // Set up foreground notification handling
+    useForegroundNotifications();
 
     return (
         <NavigationThemeProvider
@@ -43,7 +48,9 @@ export default function RootLayout() {
     return (
         <ConvexProvider client={convex}>
             <ThemeProvider>
-                <RootLayoutContent />
+                <DeviceProvider>
+                    <RootLayoutContent />
+                </DeviceProvider>
             </ThemeProvider>
         </ConvexProvider>
     );

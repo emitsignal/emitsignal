@@ -4,8 +4,9 @@ import {
     TouchableOpacity,
     TextInput,
     View,
+    Alert,
 } from "react-native";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 
@@ -16,6 +17,7 @@ import { api } from "@notify/convex";
 import { Colors, UI } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useDevice } from "@/ctx/device";
 
 interface Topic {
     _id: string;
@@ -26,83 +28,79 @@ interface Topic {
     createdAt: number;
 }
 
-function TopicCard({ topic }: { topic: Topic }) {
+function TopicCard({ topic, messageCount, onUnsubscribe }: { topic: Topic; messageCount: number; onUnsubscribe: () => void }) {
     const colorScheme = useColorScheme();
     const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
 
-    // Mock notification count - replace with actual data
-    const notificationCount = Math.floor(Math.random() * 20);
-    const hasNotifications = notificationCount > 0;
-
-    // Mock timestamp - replace with actual last notification time
-    const timestamp = "10:21";
+    const hasMessages = messageCount > 0;
 
     return (
         <Link href={`/topics/${topic.name}`} asChild>
-            <TouchableOpacity>
-                <ThemedView
-                    style={[
-                        styles.topicCard,
-                        {
-                            backgroundColor: colors.cardBackground,
-                            borderColor: colors.border,
-                        },
-                        colorScheme === "light" && UI.shadow.small,
-                    ]}
-                >
-                    <View style={styles.topicCardContent}>
-                        <View
-                            style={[
-                                styles.iconContainer,
-                                { backgroundColor: colors.tint },
-                            ]}
-                        >
-                            <IconSymbol
-                                name="bell.fill"
-                                size={20}
-                                color="#ffffff"
-                            />
-                        </View>
+                <TouchableOpacity onPress={() => {}} onLongPress={onUnsubscribe}>
+                    <ThemedView
+                        style={[
+                            styles.topicCard,
+                            {
+                                backgroundColor: colors.cardBackground,
+                                borderColor: colors.border,
+                            },
+                            colorScheme === "light" && UI.shadow.small,
+                        ]}
+                    >
+                        <View style={styles.topicCardContent}>
+                            <View
+                                style={[
+                                    styles.iconContainer,
+                                    { backgroundColor: colors.tint },
+                                ]}
+                            >
+                                <IconSymbol
+                                    name="bell.fill"
+                                    size={20}
+                                    color="#ffffff"
+                                />
+                            </View>
 
-                        <View style={styles.topicInfo}>
-                            <View style={styles.topicHeader}>
+                            <View style={styles.topicInfo}>
                                 <ThemedText
                                     type="defaultSemiBold"
                                     style={styles.topicName}
                                 >
                                     {topic.displayName || topic.name}
                                 </ThemedText>
-                                {hasNotifications && (
-                                    <ThemedText style={styles.timestamp}>
-                                        {timestamp}
+
+                                {topic.description ? (
+                                    <ThemedText
+                                        style={styles.topicDescription}
+                                        numberOfLines={1}
+                                    >
+                                        {topic.description}
+                                    </ThemedText>
+                                ) : (
+                                    <ThemedText
+                                        style={styles.topicMeta}
+                                        numberOfLines={1}
+                                    >
+                                        {messageCount} message{messageCount !== 1 ? "s" : ""}
                                     </ThemedText>
                                 )}
                             </View>
 
-                            <ThemedText
-                                style={styles.topicDescription}
-                                numberOfLines={1}
-                            >
-                                {topic.description ||
-                                    `${notificationCount} notification${notificationCount !== 1 ? "s" : ""}`}
-                            </ThemedText>
+                            {hasMessages && (
+                                <View
+                                    style={[
+                                        styles.badge,
+                                        { backgroundColor: colors.tint },
+                                    ]}
+                                >
+                                    <ThemedText style={styles.badgeText}>
+                                        {messageCount}
+                                    </ThemedText>
+                                </View>
+                            )}
                         </View>
-
-                        {hasNotifications && (
-                            <View
-                                style={[
-                                    styles.badge,
-                                    { backgroundColor: colors.tint },
-                                ]}
-                            >
-                                <ThemedText style={styles.badgeText}>
-                                    {notificationCount}
-                                </ThemedText>
-                            </View>
-                        )}
-                    </View>
-                </ThemedView>
-            </TouchableOpacity>
+                    </ThemedView>
+                </TouchableOpacity>
         </Link>
     );
 }
@@ -129,19 +127,30 @@ export default function TopicsScreen() {
     const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchActive, setIsSearchActive] = useState(false);
+    const { deviceId } = useDevice();
+    const unsubscribeFromTopic = useMutation(api.mutations.subscriptions.unsubscribeFromTopic);
 
-    const topics = useQuery(api.queries.topics.list, {
-        limit: 50,
-    });
+    const subscriptions = useQuery(
+        api.queries.subscriptions.getDeviceSubscriptions,
+        deviceId ? { deviceId } : "skip"
+    );
 
-    const filteredTopics =
-        topics?.filter(
-            (topic) =>
-                topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                topic.displayName
-                    ?.toLowerCase()
-                    .includes(searchQuery.toLowerCase()),
-        ) || [];
+    // Extract topics from subscriptions
+    const subscribedTopics =
+        subscriptions?.map((sub: any) => sub.topic).filter(Boolean) || [];
+
+    // Get message counts for all subscribed topics
+    const topicIds = subscribedTopics.map((topic: Topic) => topic._id as any);
+    const messageCounts = useQuery(
+        api.queries.messages.getMessageCountsForTopics,
+        topicIds.length > 0 ? { topicIds } : "skip"
+    ) || {};
+
+    const filteredTopics = subscribedTopics.filter(
+        (topic: Topic) =>
+            topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            topic.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleAddTopic = () => {
         router.push("/modal");
@@ -152,6 +161,29 @@ export default function TopicsScreen() {
         if (isSearchActive) {
             setSearchQuery("");
         }
+    };
+
+    const handleUnsubscribe = async (topicId: string, topicName: string) => {
+        if (!deviceId) return;
+
+        Alert.alert(
+            "Unsubscribe",
+            `Are you sure you want to unsubscribe from "${topicName}"?`,
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Unsubscribe",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await unsubscribeFromTopic({ topicId: topicId as any, deviceId });
+                        } catch (error) {
+                            console.error("Failed to unsubscribe:", error);
+                        }
+                    },
+                },
+            ]
+        );
     };
 
     return (
@@ -199,7 +231,7 @@ export default function TopicsScreen() {
 
                 {!isSearchActive && (
                     <ThemedText style={styles.subtitle}>
-                        {topics?.length || 0} subscribed topics
+                        {subscribedTopics.length} subscribed topic{subscribedTopics.length !== 1 ? "s" : ""}
                     </ThemedText>
                 )}
             </ThemedView>
@@ -207,7 +239,13 @@ export default function TopicsScreen() {
             <FlatList
                 data={filteredTopics}
                 keyExtractor={(item) => item._id}
-                renderItem={({ item }) => <TopicCard topic={item as Topic} />}
+                renderItem={({ item }) => (
+                    <TopicCard
+                        topic={item as Topic}
+                        messageCount={messageCounts[item._id] || 0}
+                        onUnsubscribe={() => handleUnsubscribe(item._id as any, item.name)}
+                    />
+                )}
                 contentContainerStyle={styles.listContainer}
                 ListEmptyComponent={<EmptyState />}
                 showsVerticalScrollIndicator={false}
@@ -290,6 +328,10 @@ const styles = StyleSheet.create({
         opacity: 0.5,
     },
     topicDescription: {
+        fontSize: 14,
+        opacity: 0.6,
+    },
+    topicMeta: {
         fontSize: 14,
         opacity: 0.6,
     },

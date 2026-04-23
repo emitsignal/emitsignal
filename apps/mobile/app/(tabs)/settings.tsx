@@ -219,7 +219,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         padding: UI.spacing.md,
-        marginBottom: 1, // Minimal separator
         borderRadius: UI.borderRadius.medium,
         borderWidth: 1,
         marginBottom: UI.spacing.sm,

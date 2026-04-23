@@ -1,5 +1,6 @@
 import { useLocalSearchParams, router, Stack } from "expo-router";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { useEffect } from "react";
 import { useQuery } from "convex/react";
 
 import { ThemedText } from "@/components/themed-text";
@@ -8,6 +9,7 @@ import { MessageList } from "@/components/message-list";
 import { api } from "@notify/convex";
 import { Colors, UI } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useInAppNotifications } from "@/hooks/use-in-app-notifications";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 
 interface Message {
@@ -111,6 +113,17 @@ export default function TopicListenerScreen() {
             : "skip",
     );
 
+    // Set up native in-app notifications for new messages
+    const { detectAndNotify } = useInAppNotifications({
+        topicId: topicData?._id,
+        topicName: topicData?.displayName || topicData?.name || topic,
+    });
+
+    // Trigger notification when new messages arrive
+    useEffect(() => {
+        detectAndNotify(messages as Message[] | undefined);
+    }, [messages, detectAndNotify]);
+
     if (!topicData && messages === undefined) {
         return (
             <ThemedView style={styles.container}>
@@ -139,7 +152,7 @@ export default function TopicListenerScreen() {
                         Topic not found
                     </ThemedText>
                     <ThemedText style={styles.emptyText}>
-                        The topic "{topic}" doesn't exist
+                        The topic &quot;{topic}&quot; doesn&apos;t exist
                     </ThemedText>
                 </ThemedView>
             </ThemedView>
