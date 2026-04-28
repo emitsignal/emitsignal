@@ -1,42 +1,70 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import { StyleSheet } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { W } from "@/constants/theme";
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
-
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+                tabBarActiveTintColor: W.violet,
+                tabBarInactiveTintColor: W.fgDim,
                 headerShown: false,
                 tabBarButton: HapticTab,
+                tabBarStyle: {
+                    backgroundColor: W.bg,
+                    borderTopColor: W.bgLine,
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                },
+                tabBarLabelStyle: {
+                    fontSize: 10,
+                    fontWeight: "500",
+                },
             }}
         >
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Topics",
+                    title: "Feed",
+                    tabBarIcon: ({ color }) => (
+                        <IconSymbol size={22} name="bell" color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="channels"
+                options={{
+                    title: "Channels",
                     tabBarIcon: ({ color }) => (
                         <IconSymbol
-                            size={28}
-                            name="list.bullet"
+                            size={22}
+                            name="square.grid.2x2"
                             color={color}
                         />
                     ),
                 }}
             />
-
+            <Tabs.Screen
+                name="publish"
+                options={{
+                    title: "Publish",
+                    tabBarIcon: ({ color }) => (
+                        <IconSymbol
+                            size={22}
+                            name="terminal"
+                            color={color}
+                        />
+                    ),
+                }}
+            />
             <Tabs.Screen
                 name="settings"
                 options={{
                     title: "Settings",
                     tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="house.fill" color={color} />
+                        <IconSymbol size={22} name="gear" color={color} />
                     ),
                 }}
             />

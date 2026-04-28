@@ -1,60 +1,91 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from "react-native";
 
-// Modern teal/green theme inspired by ntfy
-const tintColorLight = "#393A4A";
-const tintColorDark = "#6B6C7E";
+// Whinsper — purple/violet dark with dev-native monospace accents.
+// Dark is the canonical surface; light mode falls back to a softer palette.
+
+export const W = {
+    // Backgrounds
+    bg: "#0f0a1a",
+    bgElev: "#1a1625",
+    bgElev2: "#231c33",
+    bgLine: "#2a2340",
+    bgChip: "#1f1930",
+
+    // Text
+    fg: "#f5f0ff",
+    fgMuted: "#b8a9d9",
+    fgDim: "#7a6d99",
+    fgFaint: "#4a4166",
+
+    // Accents
+    violet: "#a78bfa",
+    violetDim: "#7c3aed",
+    violetDeep: "#5b21b6",
+    violetBg: "rgba(124,58,237,0.12)",
+
+    // Semantic
+    green: "#4ade80",
+    amber: "#fbbf24",
+    red: "#f87171",
+    cyan: "#67e8f9",
+    pink: "#f0abfc",
+
+    // Severity dots (priority 1-5)
+    p1: "#818cf8",
+    p2: "#a78bfa",
+    p3: "#c4b5fd",
+    p4: "#fbbf24",
+    p5: "#f87171",
+};
+
+const tintLight = "#7c3aed";
+const tintDark = W.violet;
 
 export const Colors = {
     light: {
-        text: "#2c3e50",
-        background: "#f8f9fa",
+        text: "#1a1625",
+        background: "#f5f3ff",
         cardBackground: "#ffffff",
-        tint: tintColorLight,
-        icon: "#7f8c8d",
-        tabIconDefault: "#95a5a6",
-        tabIconSelected: tintColorLight,
-        border: "#e1e8ed",
-        success: "#27ae60",
-        warning: "#f39c12",
-        error: "#e74c3c",
-        info: "#3498db",
+        tint: tintLight,
+        icon: "#7a6d99",
+        tabIconDefault: "#9b8fb8",
+        tabIconSelected: tintLight,
+        border: "#e0d6f5",
+        success: W.green,
+        warning: W.amber,
+        error: W.red,
+        info: W.cyan,
     },
     dark: {
-        text: "#ecf0f1",
-        background: "#000000",
-        cardBackground: "#1C1C1E",
-        tint: tintColorDark,
-        icon: "#bdc3c7",
-        tabIconDefault: "#95a5a6",
-        tabIconSelected: tintColorDark,
-        border: "#34495e",
-        success: "#2ecc71",
-        warning: "#f1c40f",
-        error: "#e74c3c",
-        info: "#3498db",
+        text: W.fg,
+        background: W.bg,
+        cardBackground: W.bgElev,
+        tint: tintDark,
+        icon: W.fgDim,
+        tabIconDefault: W.fgDim,
+        tabIconSelected: tintDark,
+        border: W.bgLine,
+        success: W.green,
+        warning: W.amber,
+        error: W.red,
+        info: W.cyan,
     },
 };
 
-// Priority colors for notifications
+// Priority dot colors — match the design's 5-level scale.
 export const PriorityColors = {
-    1: "#95a5a6", // Min - Gray
-    2: "#3498db", // Low - Blue
-    3: "#f39c12", // Default - Orange
-    4: "#e67e22", // High - Dark Orange
-    5: "#e74c3c", // Max/Urgent - Red
-};
+    1: W.p1,
+    2: W.p2,
+    3: W.p3,
+    4: W.p4,
+    5: W.p5,
+} as const;
 
-// UI Constants
 export const UI = {
     borderRadius: {
-        small: 8,
-        medium: 12,
-        large: 16,
+        small: 6,
+        medium: 10,
+        large: 14,
         full: 9999,
     },
     spacing: {
@@ -92,13 +123,9 @@ export const UI = {
 
 export const Fonts = Platform.select({
     ios: {
-        /** iOS `UIFontDescriptorSystemDesignDefault` */
         sans: "system-ui",
-        /** iOS `UIFontDescriptorSystemDesignSerif` */
         serif: "ui-serif",
-        /** iOS `UIFontDescriptorSystemDesignRounded` */
         rounded: "ui-rounded",
-        /** iOS `UIFontDescriptorSystemDesignMonospaced` */
         mono: "ui-monospace",
     },
     default: {
@@ -108,10 +135,10 @@ export const Fonts = Platform.select({
         mono: "monospace",
     },
     web: {
-        sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+        sans: "Geist, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
         serif: "Georgia, 'Times New Roman', serif",
         rounded:
-            "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-        mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+            "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', sans-serif",
+        mono: "'Geist Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace",
     },
 });

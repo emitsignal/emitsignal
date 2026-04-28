@@ -1,366 +1,364 @@
+import { router } from "expo-router";
+import { useMemo, useState } from "react";
 import {
-    StyleSheet,
     FlatList,
-    TouchableOpacity,
-    TextInput,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
     View,
-    Alert,
 } from "react-native";
-import { useQuery, useMutation } from "convex/react";
-import { Link, router } from "expo-router";
-import { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { FloatingActionButton } from "@/components/floating-action-button";
-import { api } from "@notify/convex";
-import { Colors, UI } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useDevice } from "@/ctx/device";
+import {
+    WChip,
+    WLogo,
+    WTopicAvatar,
+    WDot,
+} from "@/components/whinsper";
+import { Fonts, PriorityColors, W } from "@/constants/theme";
+import { useFeed } from "@/hooks/use-whinsper";
+import type { Message, Subscription } from "@/lib/api";
 
-interface Topic {
-    _id: string;
-    name: string;
-    displayName: string;
-    description?: string;
-    isPublic: boolean;
-    createdAt: number;
-}
+const FILTERS = ["all", "p4+", "unread", "deploy", "alerts", "ci"] as const;
+type Filter = (typeof FILTERS)[number];
 
-function TopicCard({ topic, messageCount, onUnsubscribe }: { topic: Topic; messageCount: number; onUnsubscribe: () => void }) {
-    const colorScheme = useColorScheme();
-    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
+export default function FeedScreen() {
+    const { messages, subscriptions, loading, error, refresh } = useFeed();
+    const [filter, setFilter] = useState<Filter>("all");
 
-    const hasMessages = messageCount > 0;
+    const subscriptionMap = useMemo(() => {
+        const m = new Map<string, Subscription>();
+        for (const s of subscriptions) m.set(s.topic.id, s);
+        return m;
+    }, [subscriptions]);
+
+    const filtered = useMemo(() => {
+        if (filter === "all") return messages;
+        if (filter === "p4+") return messages.filter((m) => m.priority >= 4);
+        return messages.filter((m) => {
+            const sub = subscriptionMap.get(m.topicId);
+            return sub?.topic.name.includes(filter);
+        });
+    }, [filter, messages, subscriptionMap]);
+
+    const now = filtered.slice(0, 2);
+    const earlier = filtered.slice(2);
 
     return (
-        <Link href={`/topics/${topic.name}`} asChild>
-                <TouchableOpacity onPress={() => {}} onLongPress={onUnsubscribe}>
-                    <ThemedView
+        <SafeAreaView style={styles.root} edges={["top"]}>
+            <View style={styles.header}>
+                <View style={styles.headerTop}>
+                    <WLogo size={12} pulse />
+                    <Text style={styles.live}>● live</Text>
+                </View>
+                <Text style={styles.title}>Inbox</Text>
+                <Text style={styles.subtitle}>
+                    {messages.length} message{messages.length === 1 ? "" : "s"} ·{" "}
+                    {subscriptions.length} channel
+                    {subscriptions.length === 1 ? "" : "s"}
+                </Text>
+            </View>
+
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.filterScroll}
+                contentContainerStyle={styles.filterRow}
+            >
+                {FILTERS.map((f) => (
+                    <Pressable
+                        key={f}
+                        onPress={() => setFilter(f)}
                         style={[
-                            styles.topicCard,
-                            {
-                                backgroundColor: colors.cardBackground,
-                                borderColor: colors.border,
-                            },
-                            colorScheme === "light" && UI.shadow.small,
+                            styles.filterPill,
+                            f === filter && styles.filterPillActive,
                         ]}
                     >
-                        <View style={styles.topicCardContent}>
-                            <View
-                                style={[
-                                    styles.iconContainer,
-                                    { backgroundColor: colors.tint },
-                                ]}
-                            >
-                                <IconSymbol
-                                    name="bell.fill"
-                                    size={20}
-                                    color="#ffffff"
-                                />
-                            </View>
-
-                            <View style={styles.topicInfo}>
-                                <ThemedText
-                                    type="defaultSemiBold"
-                                    style={styles.topicName}
-                                >
-                                    {topic.displayName || topic.name}
-                                </ThemedText>
-
-                                {topic.description ? (
-                                    <ThemedText
-                                        style={styles.topicDescription}
-                                        numberOfLines={1}
-                                    >
-                                        {topic.description}
-                                    </ThemedText>
-                                ) : (
-                                    <ThemedText
-                                        style={styles.topicMeta}
-                                        numberOfLines={1}
-                                    >
-                                        {messageCount} message{messageCount !== 1 ? "s" : ""}
-                                    </ThemedText>
-                                )}
-                            </View>
-
-                            {hasMessages && (
-                                <View
-                                    style={[
-                                        styles.badge,
-                                        { backgroundColor: colors.tint },
-                                    ]}
-                                >
-                                    <ThemedText style={styles.badgeText}>
-                                        {messageCount}
-                                    </ThemedText>
-                                </View>
-                            )}
-                        </View>
-                    </ThemedView>
-                </TouchableOpacity>
-        </Link>
-    );
-}
-
-function EmptyState() {
-    const colorScheme = useColorScheme();
-    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
-
-    return (
-        <ThemedView style={styles.emptyContainer}>
-            <IconSymbol name="bell" size={64} color={colors.icon} />
-            <ThemedText type="subtitle" style={styles.emptyTitle}>
-                No subscribed topics
-            </ThemedText>
-            <ThemedText style={styles.emptyText}>
-                Tap the + button to subscribe to a topic
-            </ThemedText>
-        </ThemedView>
-    );
-}
-
-export default function TopicsScreen() {
-    const colorScheme = useColorScheme();
-    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
-    const [searchQuery, setSearchQuery] = useState("");
-    const [isSearchActive, setIsSearchActive] = useState(false);
-    const { deviceId } = useDevice();
-    const unsubscribeFromTopic = useMutation(api.mutations.subscriptions.unsubscribeFromTopic);
-
-    const subscriptions = useQuery(
-        api.queries.subscriptions.getDeviceSubscriptions,
-        deviceId ? { deviceId } : "skip"
-    );
-
-    // Extract topics from subscriptions
-    const subscribedTopics =
-        subscriptions?.map((sub: any) => sub.topic).filter(Boolean) || [];
-
-    // Get message counts for all subscribed topics
-    const topicIds = subscribedTopics.map((topic: Topic) => topic._id as any);
-    const messageCounts = useQuery(
-        api.queries.messages.getMessageCountsForTopics,
-        topicIds.length > 0 ? { topicIds } : "skip"
-    ) || {};
-
-    const filteredTopics = subscribedTopics.filter(
-        (topic: Topic) =>
-            topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            topic.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const handleAddTopic = () => {
-        router.push("/modal");
-    };
-
-    const toggleSearch = () => {
-        setIsSearchActive(!isSearchActive);
-        if (isSearchActive) {
-            setSearchQuery("");
-        }
-    };
-
-    const handleUnsubscribe = async (topicId: string, topicName: string) => {
-        if (!deviceId) return;
-
-        Alert.alert(
-            "Unsubscribe",
-            `Are you sure you want to unsubscribe from "${topicName}"?`,
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Unsubscribe",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            await unsubscribeFromTopic({ topicId: topicId as any, deviceId });
-                        } catch (error) {
-                            console.error("Failed to unsubscribe:", error);
-                        }
-                    },
-                },
-            ]
-        );
-    };
-
-    return (
-        <ThemedView style={styles.container}>
-            <ThemedView
-                style={[styles.header, { borderBottomColor: colors.border }]}
-            >
-                <ThemedView style={styles.headerTop}>
-                    <IconSymbol
-                        name="bell.badge.fill"
-                        size={28}
-                        color={colors.tint}
-                    />
-                    <ThemedText type="title" style={styles.title}>
-                        Notify
-                    </ThemedText>
-                    <TouchableOpacity onPress={toggleSearch}>
-                        <IconSymbol
-                            name="magnifyingglass"
-                            size={24}
-                            color={isSearchActive ? colors.tint : colors.icon}
-                        />
-                    </TouchableOpacity>
-                </ThemedView>
-
-                {isSearchActive && (
-                    <ThemedView style={styles.searchContainer}>
-                        <TextInput
+                        <Text
                             style={[
-                                styles.searchInput,
-                                {
-                                    backgroundColor: colors.cardBackground,
-                                    borderColor: colors.border,
-                                    color: colors.text,
-                                },
+                                styles.filterText,
+                                f === filter && styles.filterTextActive,
                             ]}
-                            placeholder="Search topics..."
-                            placeholderTextColor={colors.icon}
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            autoFocus
-                        />
-                    </ThemedView>
-                )}
-
-                {!isSearchActive && (
-                    <ThemedText style={styles.subtitle}>
-                        {subscribedTopics.length} subscribed topic{subscribedTopics.length !== 1 ? "s" : ""}
-                    </ThemedText>
-                )}
-            </ThemedView>
+                        >
+                            {f}
+                        </Text>
+                    </Pressable>
+                ))}
+            </ScrollView>
 
             <FlatList
-                data={filteredTopics}
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => (
-                    <TopicCard
-                        topic={item as Topic}
-                        messageCount={messageCounts[item._id] || 0}
-                        onUnsubscribe={() => handleUnsubscribe(item._id as any, item.name)}
+                data={[
+                    ...(now.length ? [{ kind: "label" as const, text: "NOW" }] : []),
+                    ...now.map((m) => ({ kind: "row" as const, message: m })),
+                    ...(earlier.length
+                        ? [{ kind: "label" as const, text: "EARLIER" }]
+                        : []),
+                    ...earlier.map((m) => ({ kind: "row" as const, message: m })),
+                ]}
+                keyExtractor={(item, i) =>
+                    item.kind === "label" ? `${item.text}-${i}` : item.message.id
+                }
+                renderItem={({ item }) =>
+                    item.kind === "label" ? (
+                        <SectionLabel>{item.text}</SectionLabel>
+                    ) : (
+                        <NotifRow
+                            message={item.message}
+                            topicName={
+                                subscriptionMap.get(item.message.topicId)?.topic
+                                    .name ?? "unknown"
+                            }
+                            onPress={() => router.push(`/messages/${item.message.id}`)}
+                        />
+                    )
+                }
+                ListEmptyComponent={
+                    !loading ? (
+                        <EmptyFeed message={error?.message} />
+                    ) : null
+                }
+                refreshControl={
+                    <RefreshControl
+                        refreshing={loading}
+                        onRefresh={refresh}
+                        tintColor={W.violet}
+                        colors={[W.violet]}
                     />
-                )}
-                contentContainerStyle={styles.listContainer}
-                ListEmptyComponent={<EmptyState />}
-                showsVerticalScrollIndicator={false}
+                }
+                contentContainerStyle={
+                    filtered.length === 0 ? { flex: 1 } : { paddingBottom: 40 }
+                }
             />
-
-            <FloatingActionButton onPress={handleAddTopic} />
-        </ThemedView>
+        </SafeAreaView>
     );
+}
+
+function SectionLabel({ children }: { children: string }) {
+    return (
+        <View style={styles.sectionLabelRow}>
+            <Text style={styles.sectionLabelText}>{children}</Text>
+            <View style={styles.sectionLabelLine} />
+        </View>
+    );
+}
+
+function NotifRow({
+    message,
+    topicName,
+    onPress,
+}: {
+    message: Message;
+    topicName: string;
+    onPress: () => void;
+}) {
+    return (
+        <Pressable onPress={onPress} style={styles.row}>
+            <View
+                style={[
+                    styles.priorityRibbon,
+                    {
+                        backgroundColor: PriorityColors[message.priority],
+                        opacity: message.priority >= 4 ? 1 : 0.4,
+                    },
+                ]}
+            />
+            <WTopicAvatar name={topicName} size={34} />
+            <View style={{ flex: 1, minWidth: 0 }}>
+                <View style={styles.rowMeta}>
+                    <Text style={styles.rowChannel}>{topicName}</Text>
+                    <Text style={styles.rowTime}>{relativeTime(message.createdAt)}</Text>
+                </View>
+                <Text style={styles.rowTitle}>{message.title}</Text>
+                <Text style={styles.rowBody} numberOfLines={2}>
+                    {message.body}
+                </Text>
+                {message.tags.length > 0 ? (
+                    <View style={styles.tagRow}>
+                        {message.tags.slice(0, 3).map((t) => (
+                            <WChip key={t}>{t}</WChip>
+                        ))}
+                    </View>
+                ) : null}
+            </View>
+        </Pressable>
+    );
+}
+
+function EmptyFeed({ message }: { message?: string }) {
+    return (
+        <View style={styles.empty}>
+            <WDot level={2} size={10} />
+            <Text style={styles.emptyTitle}>
+                {message ? "Could not load feed" : "No messages yet"}
+            </Text>
+            <Text style={styles.emptyBody}>
+                {message ?? "Subscribe to a channel to start receiving notifications."}
+            </Text>
+        </View>
+    );
+}
+
+function relativeTime(ts: number): string {
+    const diff = Date.now() - ts;
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return "now";
+    if (min < 60) return `${min}m`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h`;
+    const day = Math.floor(hr / 24);
+    return `${day}d`;
 }
 
 const styles = StyleSheet.create({
-    container: {
+    root: {
         flex: 1,
+        backgroundColor: W.bg,
     },
     header: {
-        paddingHorizontal: UI.spacing.lg,
-        paddingTop: 60,
-        paddingBottom: UI.spacing.lg,
-        borderBottomWidth: 1,
+        paddingHorizontal: 20,
+        paddingTop: 12,
+        paddingBottom: 16,
     },
     headerTop: {
         flexDirection: "row",
         alignItems: "center",
-        gap: UI.spacing.sm,
-        marginBottom: UI.spacing.xs,
+        marginBottom: 16,
+    },
+    live: {
+        marginLeft: "auto",
+        fontFamily: Fonts.mono,
+        fontSize: 10.5,
+        color: W.fgDim,
     },
     title: {
-        flex: 1,
+        fontSize: 28,
+        fontWeight: "600",
+        color: W.fg,
+        letterSpacing: -0.5,
     },
     subtitle: {
-        fontSize: 14,
-        opacity: 0.6,
+        marginTop: 4,
+        fontFamily: Fonts.mono,
+        fontSize: 12,
+        color: W.fgMuted,
     },
-    searchContainer: {
-        marginTop: UI.spacing.md,
+    filterScroll: {
+        flexGrow: 0,
+        flexShrink: 0,
     },
-    searchInput: {
-        borderWidth: 1,
-        borderRadius: UI.borderRadius.medium,
-        paddingHorizontal: UI.spacing.md,
-        paddingVertical: UI.spacing.sm,
-        fontSize: 16,
+    filterRow: {
+        paddingHorizontal: 20,
+        paddingBottom: 14,
+        gap: 6,
+        alignItems: "center",
     },
-    listContainer: {
-        padding: UI.spacing.lg,
-        paddingBottom: 100,
+    filterPill: {
+        paddingHorizontal: 11,
+        paddingVertical: 5,
+        borderRadius: 100,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: W.bgLine,
+        alignSelf: "flex-start",
     },
-    topicCard: {
-        marginBottom: UI.spacing.md,
-        borderRadius: UI.borderRadius.medium,
-        borderWidth: 1,
+    filterPillActive: {
+        backgroundColor: W.violetBg,
+        borderColor: `${W.violetDim}55`,
     },
-    topicCardContent: {
+    filterText: {
+        fontFamily: Fonts.mono,
+        fontSize: 11,
+        color: W.fgMuted,
+    },
+    filterTextActive: {
+        color: W.violet,
+    },
+    sectionLabelRow: {
         flexDirection: "row",
         alignItems: "center",
-        padding: UI.spacing.md,
-        gap: UI.spacing.md,
+        paddingHorizontal: 20,
+        paddingTop: 14,
+        paddingBottom: 6,
     },
-    iconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: UI.borderRadius.full,
-        justifyContent: "center",
-        alignItems: "center",
+    sectionLabelText: {
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        color: W.fgDim,
+        letterSpacing: 1.5,
+        fontWeight: "500",
     },
-    topicInfo: {
+    sectionLabelLine: {
         flex: 1,
+        height: 1,
+        marginLeft: 10,
+        backgroundColor: W.bgLine,
     },
-    topicHeader: {
+    row: {
+        paddingHorizontal: 20,
+        paddingVertical: 14,
         flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+        gap: 12,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: W.bgLine,
+        position: "relative",
+    },
+    priorityRibbon: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 2,
+    },
+    rowMeta: {
+        flexDirection: "row",
+        alignItems: "baseline",
         marginBottom: 2,
     },
-    topicName: {
-        fontSize: 16,
-    },
-    timestamp: {
-        fontSize: 12,
-        opacity: 0.5,
-    },
-    topicDescription: {
-        fontSize: 14,
-        opacity: 0.6,
-    },
-    topicMeta: {
-        fontSize: 14,
-        opacity: 0.6,
-    },
-    badge: {
-        minWidth: 24,
-        height: 24,
-        borderRadius: UI.borderRadius.full,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: UI.spacing.xs,
-    },
-    badgeText: {
-        color: "#ffffff",
-        fontSize: 12,
-        fontWeight: "600",
-    },
-    emptyContainer: {
+    rowChannel: {
+        fontFamily: Fonts.mono,
+        fontSize: 10.5,
+        color: W.fgDim,
         flex: 1,
-        justifyContent: "center",
+    },
+    rowTime: {
+        fontFamily: Fonts.mono,
+        fontSize: 10.5,
+        color: W.fgDim,
+    },
+    rowTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: W.fg,
+        marginBottom: 4,
+    },
+    rowBody: {
+        fontSize: 12.5,
+        color: W.fgMuted,
+        lineHeight: 18,
+        marginBottom: 6,
+    },
+    tagRow: {
+        flexDirection: "row",
+        gap: 6,
+        flexWrap: "wrap",
+    },
+    empty: {
+        flex: 1,
         alignItems: "center",
-        padding: UI.spacing.xxl,
-        marginTop: 100,
+        justifyContent: "center",
+        padding: 40,
+        gap: 10,
     },
     emptyTitle: {
-        marginTop: UI.spacing.lg,
-        marginBottom: UI.spacing.sm,
+        fontSize: 16,
+        fontWeight: "600",
+        color: W.fg,
+        marginTop: 6,
     },
-    emptyText: {
+    emptyBody: {
+        fontSize: 13,
+        color: W.fgMuted,
         textAlign: "center",
-        opacity: 0.6,
     },
 });

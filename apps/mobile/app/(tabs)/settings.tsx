@@ -1,266 +1,184 @@
-import { StyleSheet, TouchableOpacity, ScrollView, View } from "react-native";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { Colors, UI } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { router } from "expo-router";
+import {
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { WLogo } from "@/components/whinsper";
+import { Fonts, W } from "@/constants/theme";
+import { useSession } from "@/ctx/session";
 import { useTheme } from "@/ctx/theme";
-import { ThemePreference } from "@/storage/theme";
+import type { ThemePreference } from "@/storage/theme";
 
-function SectionHeader({ title }: { title: string }) {
-    return (
-        <ThemedText style={styles.sectionHeader} type="defaultSemiBold">
-            {title}
-        </ThemedText>
-    );
-}
-
-function SettingItem({
-    label,
-    icon,
-    value,
-    onPress,
-    showChevron = true,
-}: {
-    label: string;
-    icon: string;
-    value?: string;
-    onPress?: () => void;
-    showChevron?: boolean;
-}) {
-    const colorScheme = useColorScheme();
-    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
-
-    return (
-        <TouchableOpacity
-            style={[
-                styles.settingItem,
-                {
-                    backgroundColor: colors.cardBackground,
-                    borderColor: colors.border,
-                },
-            ]}
-            onPress={onPress}
-            disabled={!onPress}
-            activeOpacity={0.7}
-        >
-            <View style={styles.settingStart}>
-                <View
-                    style={[
-                        styles.iconContainer,
-                        { backgroundColor: colors.background },
-                    ]}
-                >
-                    <IconSymbol name={icon} size={20} color={colors.icon} />
-                </View>
-                <ThemedText style={styles.settingLabel}>{label}</ThemedText>
-            </View>
-
-            <View style={styles.settingEnd}>
-                {value && (
-                    <ThemedText style={styles.settingValue}>{value}</ThemedText>
-                )}
-                {showChevron && (
-                    <IconSymbol
-                        name="chevron.right"
-                        size={16}
-                        color={colors.icon}
-                    />
-                )}
-            </View>
-        </TouchableOpacity>
-    );
-}
-
-function ThemeOption({
-    label,
-    value,
-    isSelected,
-    onSelect,
-}: {
-    label: string;
-    value: ThemePreference;
-    isSelected: boolean;
-    onSelect: (theme: ThemePreference) => void;
-}) {
-    const colorScheme = useColorScheme();
-    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
-
-    return (
-        <TouchableOpacity
-            style={[
-                styles.themeOption,
-                {
-                    backgroundColor: colors.cardBackground,
-                    borderColor: isSelected ? colors.tint : colors.border,
-                },
-            ]}
-            onPress={() => onSelect(value)}
-            activeOpacity={0.8}
-        >
-            <View style={styles.themeOptionContent}>
-                <ThemedText
-                    style={[
-                        styles.themeOptionLabel,
-                        isSelected && {
-                            color: colors.tint,
-                            fontWeight: "600",
-                        },
-                    ]}
-                >
-                    {label}
-                </ThemedText>
-                {isSelected && (
-                    <IconSymbol
-                        name="checkmark.circle.fill"
-                        size={20}
-                        color={colors.tint}
-                    />
-                )}
-            </View>
-        </TouchableOpacity>
-    );
-}
+const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
+    { label: "System", value: "system" },
+    { label: "Light", value: "light" },
+    { label: "Dark", value: "dark" },
+];
 
 export default function SettingsScreen() {
     const { theme, setTheme } = useTheme();
-    const colorScheme = useColorScheme();
-    const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
+    const { user, signOut } = useSession();
 
     return (
-        <ThemedView style={styles.container}>
-            <ThemedView
-                style={[styles.header, { borderBottomColor: colors.border }]}
-            >
-                <ThemedText type="title">Settings</ThemedText>
-            </ThemedView>
+        <SafeAreaView style={styles.root} edges={["top"]}>
+            <View style={styles.header}>
+                <View style={styles.headerTop}>
+                    <WLogo size={12} pulse />
+                </View>
+                <Text style={styles.title}>Settings</Text>
+                <Text style={styles.subtitle}>
+                    {user?.email ?? "anonymous device"}
+                </Text>
+            </View>
 
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                <SectionHeader title="Appearance" />
-                <View style={styles.themeSelector}>
-                    <ThemeOption
-                        label="System"
-                        value="system"
-                        isSelected={theme === "system"}
-                        onSelect={setTheme}
-                    />
-                    <ThemeOption
-                        label="Light"
-                        value="light"
-                        isSelected={theme === "light"}
-                        onSelect={setTheme}
-                    />
-                    <ThemeOption
-                        label="Dark"
-                        value="dark"
-                        isSelected={theme === "dark"}
-                        onSelect={setTheme}
-                    />
+            <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+                <SectionLabel>APPEARANCE</SectionLabel>
+                <View style={styles.group}>
+                    {THEME_OPTIONS.map((opt) => (
+                        <Pressable
+                            key={opt.value}
+                            onPress={() => setTheme(opt.value)}
+                            style={[
+                                styles.row,
+                                opt.value === theme && styles.rowActive,
+                            ]}
+                        >
+                            <Text style={styles.rowLabel}>{opt.label}</Text>
+                            {opt.value === theme ? (
+                                <IconSymbol
+                                    name="checkmark.circle.fill"
+                                    size={18}
+                                    color={W.violet}
+                                />
+                            ) : null}
+                        </Pressable>
+                    ))}
                 </View>
 
-                <SectionHeader title="Notifications" />
-                <SettingItem
-                    label="Push Notifications"
-                    icon="bell.badge"
-                    value="Enabled"
-                    onPress={() => {}}
-                />
-                <SettingItem
-                    label="Background Refresh"
-                    icon="arrow.triangle.2.circlepath"
-                    value="On"
-                    onPress={() => {}}
-                />
+                <SectionLabel>NOTIFICATIONS</SectionLabel>
+                <View style={styles.group}>
+                    <View style={styles.row}>
+                        <Text style={styles.rowLabel}>Push</Text>
+                        <Text style={styles.rowValue}>enabled</Text>
+                    </View>
+                    <View style={styles.row}>
+                        <Text style={styles.rowLabel}>In-app banners</Text>
+                        <Text style={styles.rowValue}>enabled</Text>
+                    </View>
+                </View>
 
-                <SectionHeader title="About" />
-                <SettingItem
-                    label="Version"
-                    icon="info.circle"
-                    value="1.0.0"
-                    showChevron={false}
-                />
-                <SettingItem
-                    label="Privacy Policy"
-                    icon="hand.raised"
-                    onPress={() => {}}
-                />
+                <SectionLabel>ACCOUNT</SectionLabel>
+                <View style={styles.group}>
+                    {user ? (
+                        <Pressable
+                            onPress={async () => {
+                                await signOut();
+                                router.replace("/auth");
+                            }}
+                            style={styles.row}
+                        >
+                            <Text style={[styles.rowLabel, { color: W.red }]}>
+                                Sign out
+                            </Text>
+                        </Pressable>
+                    ) : (
+                        <Pressable
+                            onPress={() => router.push("/auth")}
+                            style={styles.row}
+                        >
+                            <Text
+                                style={[styles.rowLabel, { color: W.violet }]}
+                            >
+                                Sign in
+                            </Text>
+                            <IconSymbol
+                                name="arrow.right"
+                                size={14}
+                                color={W.violet}
+                            />
+                        </Pressable>
+                    )}
+                </View>
+
+                <SectionLabel>ABOUT</SectionLabel>
+                <View style={styles.group}>
+                    <View style={styles.row}>
+                        <Text style={styles.rowLabel}>Version</Text>
+                        <Text style={styles.rowValue}>0.1.0</Text>
+                    </View>
+                </View>
             </ScrollView>
-        </ThemedView>
+        </SafeAreaView>
+    );
+}
+
+function SectionLabel({ children }: { children: string }) {
+    return (
+        <View style={styles.sectionLabelRow}>
+            <Text style={styles.sectionLabelText}>{children}</Text>
+            <View style={styles.sectionLabelLine} />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
+    root: { flex: 1, backgroundColor: W.bg },
+    header: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
+    headerTop: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
+    title: {
+        fontSize: 28,
+        fontWeight: "600",
+        color: W.fg,
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        marginTop: 4,
+        fontFamily: Fonts.mono,
+        fontSize: 12,
+        color: W.fgMuted,
+    },
+    sectionLabelRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 20,
+        paddingTop: 14,
+        paddingBottom: 6,
+    },
+    sectionLabelText: {
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        color: W.fgDim,
+        letterSpacing: 1.5,
+        fontWeight: "500",
+    },
+    sectionLabelLine: {
         flex: 1,
+        height: 1,
+        marginLeft: 10,
+        backgroundColor: W.bgLine,
     },
-    header: {
-        paddingTop: 60,
-        paddingBottom: UI.spacing.lg,
-        paddingHorizontal: UI.spacing.lg,
-        borderBottomWidth: 1,
+    group: {
+        backgroundColor: W.bgElev,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderColor: W.bgLine,
     },
-    scrollContent: {
-        padding: UI.spacing.lg,
-        paddingBottom: 100,
-    },
-    sectionHeader: {
-        marginTop: UI.spacing.xl,
-        marginBottom: UI.spacing.md,
-        fontSize: 14,
-        textTransform: "uppercase",
-        opacity: 0.6,
-        letterSpacing: 0.5,
-    },
-    settingItem: {
+    row: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
-        padding: UI.spacing.md,
-        borderRadius: UI.borderRadius.medium,
-        borderWidth: 1,
-        marginBottom: UI.spacing.sm,
+        gap: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 14,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: W.bgLine,
     },
-    settingStart: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: UI.spacing.md,
-    },
-    settingLabel: {
-        fontSize: 16,
-    },
-    settingEnd: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: UI.spacing.xs,
-    },
-    settingValue: {
-        fontSize: 14,
-        opacity: 0.6,
-    },
-    iconContainer: {
-        width: 32,
-        height: 32,
-        borderRadius: UI.borderRadius.small,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    themeSelector: {
-        gap: UI.spacing.sm,
-    },
-    themeOption: {
-        padding: UI.spacing.md,
-        borderRadius: UI.borderRadius.medium,
-        borderWidth: 1,
-    },
-    themeOptionContent: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-    },
-    themeOptionLabel: {
-        fontSize: 16,
-    },
+    rowActive: { backgroundColor: W.violetBg },
+    rowLabel: { fontSize: 14, color: W.fg, flex: 1 },
+    rowValue: { fontFamily: Fonts.mono, fontSize: 12, color: W.fgMuted },
 });

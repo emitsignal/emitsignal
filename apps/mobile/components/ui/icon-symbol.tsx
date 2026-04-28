@@ -49,6 +49,22 @@ const MAPPING = {
   'hand.raised': 'privacy-tip',
   'exclamationmark.triangle': 'warning',
   'arrow.triangle.2.circlepath': 'sync',
+
+  // Whinsper
+  'square.grid.2x2': 'grid-view',
+  'terminal': 'terminal',
+  'gear': 'settings',
+  'arrow.right': 'arrow-forward',
+  'doc.on.doc': 'content-copy',
+  'eye': 'visibility',
+  'eye.slash': 'visibility-off',
+  'key': 'vpn-key',
+  'clock': 'schedule',
+  'speaker.slash': 'volume-off',
+  'chevron.down': 'expand-more',
+  'tag': 'label',
+  'bolt': 'bolt',
+  'circle.fill': 'circle',
 } as IconMapping;
 
 /**
