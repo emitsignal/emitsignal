@@ -4,7 +4,7 @@ import { bus } from "../../lib/event-bus";
 import { prisma } from "../../lib/prisma";
 import { getOrCreateTopic, serializeMessage, serializeTags } from "../../lib/topic";
 
-export const publishMessage = new Elysia().post(
+export const publish = new Elysia().post(
     "/topic/:name",
     async ({ body, params }) => {
         const topic = await getOrCreateTopic(params.name);

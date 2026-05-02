@@ -3,7 +3,7 @@ import Elysia, { t } from "elysia";
 import { prisma } from "../../lib/prisma";
 import { serializeMessage } from "../../lib/topic";
 
-export const listMessages = new Elysia().get(
+export const messages = new Elysia().get(
     "/topics/:name/messages",
     async ({ params, query, status }) => {
         const topic = await prisma.topic.findUnique({

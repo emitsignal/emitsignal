@@ -1,8 +1,8 @@
 import Elysia, { t } from "elysia";
 
-import { prisma } from "../lib/prisma";
+import { prisma } from "../../lib/prisma";
 
-export const pushTokens = new Elysia({ prefix: "/push-tokens" }).post(
+export const registerPushToken = new Elysia({ prefix: "/push-tokens" }).post(
     "/",
     async ({ body }) => {
         const token = await prisma.pushToken.upsert({

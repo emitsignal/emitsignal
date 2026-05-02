@@ -87,10 +87,10 @@ export default function SubscribeModal() {
                             {SUGGESTED.map((suggestion) => (
                                 <Pressable
                                     key={suggestion}
-                                    onPress={() => setTopic(s)}
+                                    onPress={() => setTopic(suggestion)}
                                     style={styles.suggestedRow}
                                 >
-                                    <WTopicAvatar name={s} rounded={6} size={24} />
+                                    <WTopicAvatar name={suggestion} rounded={6} size={24} />
                                     <Text style={styles.suggestedText}>{suggestion}</Text>
                                     <IconSymbol color={W.fgDim} name="plus" size={13} />
                                 </Pressable>

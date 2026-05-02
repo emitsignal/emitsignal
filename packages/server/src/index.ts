@@ -1,13 +1,19 @@
 import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
-import { auth } from "./http/auth";
-import { pushTokens } from "./http/push-tokens";
-import { subscriptions } from "./http/subscriptions";
-import { listMessages } from "./http/topic/list-messages";
-import { listTopics } from "./http/topic/list-topics";
-import { publishMessage } from "./http/topic/publish-message";
-import { sseListen } from "./http/topic/sse";
+import { magicLink } from "./http/auth/magic-link";
+import { me } from "./http/auth/me";
+import { verify } from "./http/auth/verify";
+import { registerPushToken } from "./http/push-tokens/register";
+import { listSubscriptions } from "./http/subscriptions/list";
+import { subscribe } from "./http/subscriptions/subscribe";
+import { unsubscribe } from "./http/subscriptions/unsubscribe";
+import { getTopic } from "./http/topic/get";
+import { listTopics } from "./http/topic/list";
+import { listen } from "./http/topic/listen";
+import { listenMulti } from "./http/topic/listen-multi";
+import { messages } from "./http/topic/messages";
+import { publish } from "./http/topic/publish";
 
 const app = new Elysia()
     .onError(({ code, error }) => {
@@ -15,13 +21,19 @@ const app = new Elysia()
     })
     .use(cors({ allowedHeaders: "*" }))
     .get("/", () => ({ name: "whinsper", version: "0.1.0" }))
-    .use(auth)
-    .use(publishMessage)
+    .use(magicLink)
+    .use(verify)
+    .use(me)
     .use(listTopics)
-    .use(listMessages)
-    .use(sseListen)
-    .use(subscriptions)
-    .use(pushTokens)
+    .use(getTopic)
+    .use(publish)
+    .use(messages)
+    .use(listen)
+    .use(listenMulti)
+    .use(listSubscriptions)
+    .use(subscribe)
+    .use(unsubscribe)
+    .use(registerPushToken)
     .listen(3000);
 
 console.log(`🟣 Whinsper running at ${app.server?.hostname}:${app.server?.port}`);
