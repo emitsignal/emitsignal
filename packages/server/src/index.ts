@@ -1,3 +1,4 @@
+import { fromTypes, openapi } from "@elysia/openapi";
 import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
@@ -19,6 +20,11 @@ const app = new Elysia()
     .onError(({ code, error }) => {
         console.error(code, error);
     })
+    .use(
+        openapi({
+            references: fromTypes(),
+        }),
+    )
     .use(cors({ allowedHeaders: "*" }))
     .get("/", () => ({ name: "whinsper", version: "0.1.0" }))
     .use(magicLink)
