@@ -2,22 +2,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const THEME_STORAGE_KEY = "user_theme_preference";
 
-export type ThemePreference = "light" | "dark" | "system";
+export type ThemePreference = "dark" | "light" | "system";
 
 export const saveThemePreference = async (theme: ThemePreference) => {
     try {
         await AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch (e) {
-        console.warn("Failed to save theme preference:", e);
+    } catch (error) {
+        console.warn("Failed to save theme preference:", error);
     }
 };
 
-export const getThemePreference = async (): Promise<ThemePreference | null> => {
+export const getThemePreference = async (): Promise<null | ThemePreference> => {
     try {
         const theme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        return theme as ThemePreference | null;
-    } catch (e) {
-        console.warn("Failed to get theme preference:", e);
+        return theme as null | ThemePreference;
+    } catch (error) {
+        console.warn("Failed to get theme preference:", error);
         return null;
     }
 };

@@ -24,6 +24,4 @@ const app = new Elysia()
     .use(pushTokens)
     .listen(3000);
 
-console.log(
-    `🟣 Whinsper running at ${app.server?.hostname}:${app.server?.port}`,
-);
+console.log(`🟣 Whinsper running at ${app.server?.hostname}:${app.server?.port}`);

@@ -9,21 +9,21 @@ export const listMessages = new Elysia().get(
         const topic = await prisma.topic.findUnique({
             where: { name: params.name },
         });
-        if (!topic) return status(404, { error: "topic_not_found" });
+        if (!topic) {
+            return status(404, { error: "topic_not_found" });
+        }
 
         const messages = await prisma.message.findMany({
-            where: { topicId: topic.id },
             orderBy: { createdAt: "desc" },
             take: query.limit ?? 50,
+            where: { topicId: topic.id },
         });
 
         return messages.map(serializeMessage);
     },
     {
         query: t.Object({
-            limit: t.Optional(
-                t.Integer({ minimum: 1, maximum: 200, default: 50 }),
-            ),
+            limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
         }),
     },
 );

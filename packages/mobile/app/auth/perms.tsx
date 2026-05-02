@@ -1,13 +1,7 @@
-import { router } from "expo-router";
 import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
 import { useState } from "react";
-import {
-    Pressable,
-    StyleSheet,
-    Switch,
-    Text,
-    View,
-} from "react-native";
+import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -31,46 +25,35 @@ export default function AuthPerms() {
     return (
         <SafeAreaView style={styles.root}>
             <View style={styles.topBar}>
-                <Pressable
-                    onPress={() => router.back()}
-                    style={styles.backBtn}
-                >
-                    <IconSymbol name="arrow.left" size={16} color={W.fg} />
+                <Pressable onPress={() => router.back()} style={styles.backBtn}>
+                    <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
-                <WLogo size={11} pulse />
+                <WLogo pulse size={11} />
                 <Text style={styles.step}>03/04</Text>
             </View>
 
             <View style={styles.body}>
                 <Text style={styles.title}>Allow notifications</Text>
                 <Text style={styles.lede}>
-                    This device becomes a delivery target. You can mute,
-                    filter, or set quiet hours per-channel later.
+                    This device becomes a delivery target. You can mute, filter, or set quiet hours
+                    per-channel later.
                 </Text>
 
                 <View style={styles.permCard}>
                     <View style={styles.permHeader}>
                         <View style={styles.permIcon}>
-                            <IconSymbol
-                                name="bell"
-                                size={20}
-                                color={W.bg}
-                            />
+                            <IconSymbol color={W.bg} name="bell" size={20} />
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.permTitle}>
                                 "Whinsper" would like to send you notifications
                             </Text>
-                            <Text style={styles.permSub}>
-                                Alerts, sounds, icon badges
-                            </Text>
+                            <Text style={styles.permSub}>Alerts, sounds, icon badges</Text>
                         </View>
                     </View>
                     <View style={styles.permActions}>
                         <Pressable style={styles.permActionDeny}>
-                            <Text style={styles.permActionDenyText}>
-                                Don't Allow
-                            </Text>
+                            <Text style={styles.permActionDenyText}>Don't Allow</Text>
                         </Pressable>
                         <Pressable
                             onPress={handleAllow}
@@ -90,15 +73,15 @@ export default function AuthPerms() {
                 <View style={styles.targetGroup}>
                     <TargetRow
                         label="This device · Pixel 8"
-                        sub="device-id · FCM"
                         on={pushMobile}
                         onChange={setPushMobile}
+                        sub="device-id · FCM"
                     />
                     <TargetRow
                         label="Web · this browser"
-                        sub="chrome · web push"
                         on={pushWeb}
                         onChange={setPushWeb}
+                        sub="chrome · web push"
                     />
                 </View>
             </View>
@@ -117,14 +100,14 @@ export default function AuthPerms() {
 
 function TargetRow({
     label,
-    sub,
     on,
     onChange,
+    sub,
 }: {
     label: string;
-    sub: string;
     on: boolean;
     onChange: (v: boolean) => void;
+    sub: string;
 }) {
     return (
         <View style={styles.targetRow}>
@@ -133,118 +116,118 @@ function TargetRow({
                 <Text style={styles.targetSub}>{sub}</Text>
             </View>
             <Switch
-                value={on}
                 onValueChange={onChange}
-                trackColor={{ false: W.bgLine, true: W.violet }}
                 thumbColor={W.fg}
+                trackColor={{ false: W.bgLine, true: W.violet }}
+                value={on}
             />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    topBar: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
     backBtn: {
-        width: 32,
-        height: 32,
+        alignItems: "center",
         backgroundColor: W.bgElev,
         borderRadius: 8,
-        alignItems: "center",
+        height: 32,
         justifyContent: "center",
-    },
-    step: {
-        marginLeft: "auto",
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
+        width: 32,
     },
     body: { flex: 1, padding: 28 },
-    title: { fontSize: 26, fontWeight: "600", color: W.fg, letterSpacing: -0.6 },
-    lede: { fontSize: 13, color: W.fgMuted, marginTop: 6, marginBottom: 24 },
+    cta: {
+        alignItems: "center",
+        backgroundColor: W.violet,
+        borderRadius: 10,
+        paddingVertical: 14,
+    },
+    ctaText: {
+        color: W.bg,
+        fontFamily: Fonts.mono,
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    fieldLabel: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        letterSpacing: 1.5,
+        marginBottom: 10,
+    },
+    footer: { padding: 28 },
+    lede: { color: W.fgMuted, fontSize: 13, marginBottom: 24, marginTop: 6 },
+    permActionAllow: {
+        alignItems: "center",
+        backgroundColor: W.violet,
+        borderRadius: 8,
+        flex: 1,
+        paddingVertical: 10,
+    },
+    permActionAllowText: {
+        color: W.bg,
+        fontSize: 12,
+        fontWeight: "600",
+    },
+    permActionDeny: {
+        alignItems: "center",
+        backgroundColor: W.bg,
+        borderColor: W.bgLine,
+        borderRadius: 8,
+        borderWidth: StyleSheet.hairlineWidth,
+        flex: 1,
+        paddingVertical: 10,
+    },
+    permActionDenyText: { color: W.fgMuted, fontSize: 12 },
+    permActions: { flexDirection: "row", gap: 8 },
     permCard: {
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
-        borderWidth: StyleSheet.hairlineWidth,
         borderRadius: 14,
-        padding: 20,
-        marginBottom: 22,
-    },
-    permHeader: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 14 },
-    permIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
-        backgroundColor: W.violet,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    permTitle: { fontSize: 14, fontWeight: "600", color: W.fg },
-    permSub: { fontSize: 11.5, color: W.fgMuted, marginTop: 2 },
-    permActions: { flexDirection: "row", gap: 8 },
-    permActionDeny: {
-        flex: 1,
-        paddingVertical: 10,
-        backgroundColor: W.bg,
-        borderColor: W.bgLine,
         borderWidth: StyleSheet.hairlineWidth,
-        borderRadius: 8,
-        alignItems: "center",
+        marginBottom: 22,
+        padding: 20,
     },
-    permActionDenyText: { fontSize: 12, color: W.fgMuted },
-    permActionAllow: {
-        flex: 1,
-        paddingVertical: 10,
+    permHeader: { alignItems: "center", flexDirection: "row", gap: 12, marginBottom: 14 },
+    permIcon: {
+        alignItems: "center",
         backgroundColor: W.violet,
-        borderRadius: 8,
-        alignItems: "center",
+        borderRadius: 10,
+        height: 40,
+        justifyContent: "center",
+        width: 40,
     },
-    permActionAllowText: {
-        fontSize: 12,
-        fontWeight: "600",
-        color: W.bg,
-    },
-    fieldLabel: {
+    permSub: { color: W.fgMuted, fontSize: 11.5, marginTop: 2 },
+    permTitle: { color: W.fg, fontSize: 14, fontWeight: "600" },
+    root: { backgroundColor: W.bg, flex: 1 },
+    step: {
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        color: W.fgDim,
-        letterSpacing: 1.5,
-        marginBottom: 10,
+        marginLeft: "auto",
     },
     targetGroup: {
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
-        borderWidth: StyleSheet.hairlineWidth,
         borderRadius: 10,
+        borderWidth: StyleSheet.hairlineWidth,
     },
+    targetLabel: { color: W.fg, fontSize: 13 },
     targetRow: {
-        flexDirection: "row",
         alignItems: "center",
+        borderBottomColor: W.bgLine,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        flexDirection: "row",
         gap: 12,
         paddingHorizontal: 14,
         paddingVertical: 12,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: W.bgLine,
     },
-    targetLabel: { fontSize: 13, color: W.fg },
-    targetSub: { fontFamily: Fonts.mono, fontSize: 10.5, color: W.fgDim, marginTop: 2 },
-    footer: { padding: 28 },
-    cta: {
-        paddingVertical: 14,
-        backgroundColor: W.violet,
-        borderRadius: 10,
+    targetSub: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 10.5, marginTop: 2 },
+    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    topBar: {
         alignItems: "center",
-    },
-    ctaText: {
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: "600",
-        color: W.bg,
+        flexDirection: "row",
+        gap: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
     },
 });

@@ -6,19 +6,19 @@ export const pushTokens = new Elysia({ prefix: "/push-tokens" }).post(
     "/",
     async ({ body }) => {
         const token = await prisma.pushToken.upsert({
+            create: {
+                deviceId: body.deviceId,
+                platform: body.platform,
+                token: body.token,
+            },
+            update: {
+                platform: body.platform,
+            },
             where: {
                 deviceId_token: {
                     deviceId: body.deviceId,
                     token: body.token,
                 },
-            },
-            update: {
-                platform: body.platform,
-            },
-            create: {
-                deviceId: body.deviceId,
-                token: body.token,
-                platform: body.platform,
             },
         });
 
@@ -27,12 +27,8 @@ export const pushTokens = new Elysia({ prefix: "/push-tokens" }).post(
     {
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
+            platform: t.Union([t.Literal("ios"), t.Literal("android"), t.Literal("web")]),
             token: t.String({ minLength: 1 }),
-            platform: t.Union([
-                t.Literal("ios"),
-                t.Literal("android"),
-                t.Literal("web"),
-            ]),
         }),
     },
 );

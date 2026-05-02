@@ -1,34 +1,25 @@
-import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { useCallback, useEffect, useState } from "react";
 import { Platform } from "react-native";
 
 const DEVICE_ID_KEY = "@notify_device_id";
 const PUSH_TOKEN_KEY = "@notify_push_token";
 
-// Generate a UUID v4
-function generateUUID(): string {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
-
 export interface DeviceInfo {
-    deviceId: string | null;
-    pushToken: string | null;
-    isLoading: boolean;
+    deviceId: null | string;
     error: Error | null;
+    isLoading: boolean;
+    pushToken: null | string;
 }
 
 export function useDeviceInfo() {
     const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
         deviceId: null,
-        pushToken: null,
-        isLoading: true,
         error: null,
+        isLoading: true,
+        pushToken: null,
     });
 
     // Initialize device ID
@@ -56,13 +47,11 @@ export function useDeviceInfo() {
                 return null;
             }
 
-            const { status: existingStatus } =
-                await Notifications.getPermissionsAsync();
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
             let finalStatus = existingStatus;
 
             if (existingStatus !== "granted") {
-                const { status } =
-                    await Notifications.requestPermissionsAsync();
+                const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
             }
 
@@ -81,10 +70,10 @@ export function useDeviceInfo() {
             // Configure notification handler
             if (Platform.OS === "android") {
                 Notifications.setNotificationChannelAsync("default", {
-                    name: "default",
                     importance: Notifications.AndroidImportance.MAX,
-                    vibrationPattern: [0, 250, 250, 250],
                     lightColor: "#FF231F7C",
+                    name: "default",
+                    vibrationPattern: [0, 250, 250, 250],
                 });
             }
 
@@ -104,19 +93,16 @@ export function useDeviceInfo() {
 
                 setDeviceInfo({
                     deviceId,
-                    pushToken,
-                    isLoading: false,
                     error: null,
+                    isLoading: false,
+                    pushToken,
                 });
             } catch (error) {
                 setDeviceInfo({
                     deviceId: null,
-                    pushToken: null,
+                    error: error instanceof Error ? error : new Error("Unknown error"),
                     isLoading: false,
-                    error:
-                        error instanceof Error
-                            ? error
-                            : new Error("Unknown error"),
+                    pushToken: null,
                 });
             }
         };
@@ -143,4 +129,13 @@ export function useDeviceInfo() {
         ...deviceInfo,
         refreshPushToken,
     };
+}
+
+// Generate a UUID v4
+function generateUUID(): string {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
 }

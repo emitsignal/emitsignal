@@ -9,26 +9,23 @@ export const listTopics = new Elysia()
             const search = query.q?.trim();
             const where = search
                 ? {
-                      OR: [
-                          { name: { contains: search } },
-                          { displayName: { contains: search } },
-                      ],
+                      OR: [{ name: { contains: search } }, { displayName: { contains: search } }],
                   }
                 : {};
 
             const topics = await prisma.topic.findMany({
-                where,
                 orderBy: { createdAt: "desc" },
                 take: 100,
+                where,
             });
 
-            return topics.map((t) => ({
-                id: t.id,
-                name: t.name,
-                displayName: t.displayName,
-                description: t.description,
-                isPublic: t.isPublic,
-                createdAt: t.createdAt.getTime(),
+            return topics.map((topic) => ({
+                createdAt: topic.createdAt.getTime(),
+                description: topic.description,
+                displayName: topic.displayName,
+                id: topic.id,
+                isPublic: topic.isPublic,
+                name: topic.name,
             }));
         },
         {
@@ -37,29 +34,28 @@ export const listTopics = new Elysia()
             }),
         },
     )
-    .get(
-        "/topics/:name",
-        async ({ params, status }) => {
-            const topic = await prisma.topic.findUnique({
-                where: { name: params.name },
-                include: {
-                    _count: {
-                        select: { messages: true, subscriptions: true },
-                    },
+    .get("/topics/:name", async ({ params, status }) => {
+        const topic = await prisma.topic.findUnique({
+            include: {
+                _count: {
+                    select: { messages: true, subscriptions: true },
                 },
-            });
+            },
+            where: { name: params.name },
+        });
 
-            if (!topic) return status(404, { error: "topic_not_found" });
+        if (!topic) {
+            return status(404, { error: "topic_not_found" });
+        }
 
-            return {
-                id: topic.id,
-                name: topic.name,
-                displayName: topic.displayName,
-                description: topic.description,
-                isPublic: topic.isPublic,
-                createdAt: topic.createdAt.getTime(),
-                messageCount: topic._count.messages,
-                subscriberCount: topic._count.subscriptions,
-            };
-        },
-    );
+        return {
+            createdAt: topic.createdAt.getTime(),
+            description: topic.description,
+            displayName: topic.displayName,
+            id: topic.id,
+            isPublic: topic.isPublic,
+            messageCount: topic._count.messages,
+            name: topic.name,
+            subscriberCount: topic._count.subscriptions,
+        };
+    });

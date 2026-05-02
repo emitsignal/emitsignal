@@ -37,8 +37,8 @@ export default function SubscribeModal() {
         try {
             await api.subscribe(deviceId, topic.trim(), true);
             router.back();
-        } catch (err) {
-            console.error("Subscribe failed", err);
+        } catch (error) {
+            console.error("Subscribe failed", error);
         } finally {
             setBusy(false);
         }
@@ -49,15 +49,12 @@ export default function SubscribeModal() {
             <Stack.Screen options={{ headerShown: false }} />
             <SafeAreaView style={styles.root}>
                 <KeyboardAvoidingView
-                    style={{ flex: 1 }}
                     behavior={Platform.OS === "ios" ? "padding" : undefined}
+                    style={{ flex: 1 }}
                 >
                     <View style={styles.topBar}>
-                        <Pressable
-                            onPress={() => router.back()}
-                            style={styles.closeBtn}
-                        >
-                            <IconSymbol name="xmark" size={14} color={W.fg} />
+                        <Pressable onPress={() => router.back()} style={styles.closeBtn}>
+                            <IconSymbol color={W.fg} name="xmark" size={14} />
                         </Pressable>
                         <Text style={styles.barTitle}>Subscribe</Text>
                     </View>
@@ -70,38 +67,32 @@ export default function SubscribeModal() {
                                     {api.baseUrl.replace(/^https?:\/\//, "")}/
                                 </Text>
                                 <TextInput
-                                    value={topic}
-                                    onChangeText={setTopic}
-                                    style={styles.topicInput}
                                     autoCapitalize="none"
                                     autoCorrect={false}
+                                    onChangeText={setTopic}
                                     placeholder="alerts/prod"
                                     placeholderTextColor={W.fgDim}
+                                    style={styles.topicInput}
+                                    value={topic}
                                 />
                             </View>
                             <Text style={styles.hint}>
                                 a-z, 0-9, / and - · e.g.{" "}
-                                <Text style={{ color: W.violet }}>
-                                    team/backend/alerts
-                                </Text>
+                                <Text style={{ color: W.violet }}>team/backend/alerts</Text>
                             </Text>
                         </View>
 
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>SUGGESTED</Text>
-                            {SUGGESTED.map((s) => (
+                            {SUGGESTED.map((suggestion) => (
                                 <Pressable
-                                    key={s}
+                                    key={suggestion}
                                     onPress={() => setTopic(s)}
                                     style={styles.suggestedRow}
                                 >
-                                    <WTopicAvatar name={s} size={24} rounded={6} />
-                                    <Text style={styles.suggestedText}>{s}</Text>
-                                    <IconSymbol
-                                        name="plus"
-                                        size={13}
-                                        color={W.fgDim}
-                                    />
+                                    <WTopicAvatar name={s} rounded={6} size={24} />
+                                    <Text style={styles.suggestedText}>{suggestion}</Text>
+                                    <IconSymbol color={W.fgDim} name="plus" size={13} />
                                 </Pressable>
                             ))}
                         </View>
@@ -120,21 +111,14 @@ wsp publish ${topic} "deploy ok"`}
 
                     <View style={styles.footer}>
                         <Pressable
-                            onPress={handleSubscribe}
                             disabled={busy || !topic.trim()}
-                            style={[
-                                styles.submit,
-                                (busy || !topic.trim()) && { opacity: 0.5 },
-                            ]}
+                            onPress={handleSubscribe}
+                            style={[styles.submit, (busy || !topic.trim()) && { opacity: 0.5 }]}
                         >
                             <Text style={styles.submitText}>
                                 {busy ? "subscribing…" : `subscribe → ${topic}`}
                             </Text>
-                            <IconSymbol
-                                name="arrow.right"
-                                size={14}
-                                color={W.bg}
-                            />
+                            <IconSymbol color={W.bg} name="arrow.right" size={14} />
                         </Pressable>
                     </View>
                 </KeyboardAvoidingView>
@@ -144,93 +128,93 @@ wsp publish ${topic} "deploy ok"`}
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    topBar: {
-        flexDirection: "row",
+    barTitle: { color: W.fg, fontSize: 16, fontWeight: "600", letterSpacing: -0.3 },
+    closeBtn: {
         alignItems: "center",
+        backgroundColor: W.bgElev,
+        borderRadius: 8,
+        height: 32,
+        justifyContent: "center",
+        width: 32,
+    },
+    footer: {
+        backgroundColor: W.bg,
+        borderTopColor: W.bgLine,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        paddingHorizontal: 20,
+        paddingVertical: 14,
+    },
+    hint: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10.5,
+        marginTop: 8,
+    },
+    prefix: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 13 },
+    root: { backgroundColor: W.bg, flex: 1 },
+    section: { paddingHorizontal: 20, paddingVertical: 12 },
+    sectionLabel: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 11,
+        letterSpacing: 1.2,
+        marginBottom: 8,
+    },
+    submit: {
+        alignItems: "center",
+        backgroundColor: W.violet,
+        borderRadius: 10,
+        flexDirection: "row",
+        gap: 8,
+        justifyContent: "center",
+        paddingVertical: 14,
+    },
+    submitText: {
+        color: W.bg,
+        fontFamily: Fonts.mono,
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    suggestedRow: {
+        alignItems: "center",
+        backgroundColor: W.bgElev,
+        borderColor: W.bgLine,
+        borderRadius: 8,
+        borderWidth: StyleSheet.hairlineWidth,
+        flexDirection: "row",
+        gap: 10,
+        marginBottom: 4,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+    },
+    suggestedText: {
+        color: W.fg,
+        flex: 1,
+        fontFamily: Fonts.mono,
+        fontSize: 12.5,
+    },
+    topBar: {
+        alignItems: "center",
+        flexDirection: "row",
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 14,
     },
-    closeBtn: {
-        width: 32,
-        height: 32,
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    barTitle: { fontSize: 16, fontWeight: "600", color: W.fg, letterSpacing: -0.3 },
-    section: { paddingHorizontal: 20, paddingVertical: 12 },
-    sectionLabel: {
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        color: W.fgDim,
-        letterSpacing: 1.2,
-        marginBottom: 8,
-    },
-    topicInputBox: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: W.bgElev,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        borderColor: W.violet,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-    },
-    prefix: { fontFamily: Fonts.mono, fontSize: 13, color: W.fgDim },
     topicInput: {
+        color: W.fg,
         flex: 1,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        color: W.fg,
         padding: 0,
     },
-    hint: {
-        marginTop: 8,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-        color: W.fgDim,
-    },
-    suggestedRow: {
-        flexDirection: "row",
+    topicInputBox: {
         alignItems: "center",
-        gap: 10,
         backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        marginBottom: 4,
-    },
-    suggestedText: {
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 12.5,
-        color: W.fg,
-    },
-    footer: {
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: W.bgLine,
-        backgroundColor: W.bg,
-    },
-    submit: {
-        backgroundColor: W.violet,
+        borderColor: W.violet,
         borderRadius: 10,
-        paddingVertical: 14,
+        borderWidth: 1.5,
         flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-    },
-    submitText: {
-        fontFamily: Fonts.mono,
-        fontWeight: "600",
-        fontSize: 14,
-        color: W.bg,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
     },
 });

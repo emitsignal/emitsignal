@@ -19,7 +19,7 @@ import { useSession } from "@/ctx/session";
 import { api } from "@/lib/api";
 
 export default function AuthVerify() {
-    const params = useLocalSearchParams<{ email?: string; devCode?: string }>();
+    const params = useLocalSearchParams<{ devCode?: string; email?: string }>();
     const { signIn } = useSession();
     const [code, setCode] = useState("");
     const [busy, setBusy] = useState(false);
@@ -46,11 +46,8 @@ export default function AuthVerify() {
             const res = await api.verifyMagicLink(params.email, code);
             await signIn(res.token, res.user);
             router.replace("/auth/perms");
-        } catch (err) {
-            Alert.alert(
-                "Invalid code",
-                err instanceof Error ? err.message : String(err),
-            );
+        } catch (error) {
+            Alert.alert("Invalid code", error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
@@ -62,58 +59,49 @@ export default function AuthVerify() {
     return (
         <SafeAreaView style={styles.root}>
             <KeyboardAvoidingView
-                style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
+                style={{ flex: 1 }}
             >
                 <View style={styles.topBar}>
-                    <Pressable
-                        onPress={() => router.back()}
-                        style={styles.backBtn}
-                    >
-                        <IconSymbol name="arrow.left" size={16} color={W.fg} />
+                    <Pressable onPress={() => router.back()} style={styles.backBtn}>
+                        <IconSymbol color={W.fg} name="arrow.left" size={16} />
                     </Pressable>
-                    <WLogo size={11} pulse />
+                    <WLogo pulse size={11} />
                     <Text style={styles.step}>02/04</Text>
                 </View>
 
                 <View style={styles.body}>
                     <Text style={styles.title}>Check your email</Text>
                     <Text style={styles.lede}>
-                        We sent a 6-char code to{" "}
-                        <Text style={styles.mono}>{params.email}</Text>. Tap
-                        the link or paste the code here.
+                        We sent a 6-char code to <Text style={styles.mono}>{params.email}</Text>.
+                        Tap the link or paste the code here.
                     </Text>
 
                     <Text style={styles.fieldLabel}>CODE</Text>
-                    <Pressable
-                        onPress={() => inputRef.current?.focus()}
-                        style={styles.codeRow}
-                    >
+                    <Pressable onPress={() => inputRef.current?.focus()} style={styles.codeRow}>
                         {cells.map((c, i) => (
                             <View
                                 key={i}
-                                style={[
-                                    styles.codeCell,
-                                    i === activeIdx && styles.codeCellActive,
-                                ]}
+                                style={[styles.codeCell, i === activeIdx && styles.codeCellActive]}
                             >
                                 <Text style={styles.codeChar}>{c}</Text>
                             </View>
                         ))}
                         <TextInput
-                            ref={inputRef}
-                            value={code}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            maxLength={6}
                             onChangeText={(t) =>
                                 setCode(
-                                    t.replace(/[^a-z0-9]/gi, "")
+                                    t
+                                        .replace(/[^a-z0-9]/gi, "")
                                         .toLowerCase()
                                         .slice(0, 6),
                                 )
                             }
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            maxLength={6}
+                            ref={inputRef}
                             style={styles.hiddenInput}
+                            value={code}
                         />
                     </Pressable>
 
@@ -122,26 +110,17 @@ export default function AuthVerify() {
                     </Text>
 
                     <Pressable
-                        onPress={handleVerify}
                         disabled={busy || code.length !== 6}
-                        style={[
-                            styles.cta,
-                            (busy || code.length !== 6) && styles.ctaDisabled,
-                        ]}
+                        onPress={handleVerify}
+                        style={[styles.cta, (busy || code.length !== 6) && styles.ctaDisabled]}
                     >
-                        <Text
-                            style={[
-                                styles.ctaText,
-                                code.length !== 6 && { color: W.fgDim },
-                            ]}
-                        >
+                        <Text style={[styles.ctaText, code.length !== 6 && { color: W.fgDim }]}>
                             {busy ? "verifying…" : "verify →"}
                         </Text>
                     </Pressable>
 
                     <Text style={styles.resend}>
-                        didn't arrive?{" "}
-                        <Text style={{ color: W.violet }}>resend</Text>
+                        didn't arrive? <Text style={{ color: W.violet }}>resend</Text>
                     </Text>
                 </View>
             </KeyboardAvoidingView>
@@ -150,86 +129,86 @@ export default function AuthVerify() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    topBar: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
     backBtn: {
-        width: 32,
-        height: 32,
+        alignItems: "center",
         backgroundColor: W.bgElev,
         borderRadius: 8,
-        alignItems: "center",
+        height: 32,
         justifyContent: "center",
-    },
-    step: {
-        marginLeft: "auto",
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
+        width: 32,
     },
     body: { flex: 1, padding: 28 },
-    title: { fontSize: 26, fontWeight: "600", color: W.fg, letterSpacing: -0.6 },
-    lede: { fontSize: 13, color: W.fgMuted, marginTop: 6, marginBottom: 28 },
-    mono: { fontFamily: Fonts.mono, color: W.fg },
-    fieldLabel: {
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
-        letterSpacing: 1.5,
-        marginBottom: 10,
-    },
-    codeRow: { flexDirection: "row", gap: 8, marginBottom: 14 },
     codeCell: {
-        width: 48,
-        height: 56,
-        borderRadius: 10,
-        backgroundColor: W.bgElev,
-        borderWidth: 1.5,
-        borderColor: W.bgLine,
         alignItems: "center",
+        backgroundColor: W.bgElev,
+        borderColor: W.bgLine,
+        borderRadius: 10,
+        borderWidth: 1.5,
+        height: 56,
         justifyContent: "center",
+        width: 48,
     },
     codeCellActive: { borderColor: W.violet },
     codeChar: {
+        color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 20,
         fontWeight: "600",
-        color: W.fg,
     },
-    hiddenInput: {
-        position: "absolute",
-        opacity: 0,
-        width: 1,
-        height: 1,
-    },
-    expires: { fontFamily: Fonts.mono, fontSize: 11, color: W.fgDim, marginBottom: 24 },
+    codeRow: { flexDirection: "row", gap: 8, marginBottom: 14 },
     cta: {
-        paddingVertical: 14,
-        borderRadius: 10,
-        backgroundColor: W.violet,
         alignItems: "center",
+        backgroundColor: W.violet,
+        borderRadius: 10,
+        paddingVertical: 14,
     },
     ctaDisabled: {
         backgroundColor: W.bgElev,
-        borderWidth: StyleSheet.hairlineWidth,
         borderColor: W.bgLine,
+        borderWidth: StyleSheet.hairlineWidth,
     },
     ctaText: {
+        color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
         fontWeight: "600",
-        color: W.bg,
     },
+    expires: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 11, marginBottom: 24 },
+    fieldLabel: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        letterSpacing: 1.5,
+        marginBottom: 10,
+    },
+    hiddenInput: {
+        height: 1,
+        opacity: 0,
+        position: "absolute",
+        width: 1,
+    },
+    lede: { color: W.fgMuted, fontSize: 13, marginBottom: 28, marginTop: 6 },
+    mono: { color: W.fg, fontFamily: Fonts.mono },
     resend: {
-        textAlign: "center",
-        marginTop: 18,
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 12,
+        marginTop: 18,
+        textAlign: "center",
+    },
+    root: { backgroundColor: W.bg, flex: 1 },
+    step: {
         color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        marginLeft: "auto",
+    },
+    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    topBar: {
+        alignItems: "center",
+        flexDirection: "row",
+        gap: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
     },
 });

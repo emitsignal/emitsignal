@@ -1,29 +1,29 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 
 const SESSION_KEY = "@whinsper_session";
 
-interface SessionUser {
-    id: string;
-    email: string;
-    name: string | null;
-}
-
 interface SessionContextValue {
-    token: string | null;
-    user: SessionUser | null;
     loading: boolean;
     signIn: (token: string, user: SessionUser) => Promise<void>;
     signOut: () => Promise<void>;
+    token: null | string;
+    user: null | SessionUser;
+}
+
+interface SessionUser {
+    email: string;
+    id: string;
+    name: null | string;
 }
 
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-    const [token, setToken] = useState<string | null>(null);
-    const [user, setUser] = useState<SessionUser | null>(null);
+    const [token, setToken] = useState<null | string>(null);
+    const [user, setUser] = useState<null | SessionUser>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -57,10 +57,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const signIn = async (newToken: string, newUser: SessionUser) => {
-        await AsyncStorage.setItem(
-            SESSION_KEY,
-            JSON.stringify({ token: newToken, user: newUser }),
-        );
+        await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ token: newToken, user: newUser }));
         setToken(newToken);
         setUser(newUser);
     };
@@ -72,7 +69,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <SessionContext.Provider value={{ token, user, loading, signIn, signOut }}>
+        <SessionContext.Provider value={{ loading, signIn, signOut, token, user }}>
             {children}
         </SessionContext.Provider>
     );

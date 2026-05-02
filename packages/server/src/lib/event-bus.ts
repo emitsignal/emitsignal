@@ -5,14 +5,14 @@
 import { EventEmitter } from "node:events";
 
 export interface MessageEvent {
-    id: string;
-    topicId: string;
-    topicName: string;
-    title: string;
     body: string;
+    createdAt: number;
+    id: string;
     priority: number;
     tags: string[];
-    createdAt: number;
+    title: string;
+    topicId: string;
+    topicName: string;
 }
 
 class WhinsperBus extends EventEmitter {
@@ -26,10 +26,7 @@ class WhinsperBus extends EventEmitter {
         this.emit("topic:*", event);
     }
 
-    subscribe(
-        topicName: string,
-        handler: (e: MessageEvent) => void,
-    ): () => void {
+    subscribe(topicName: string, handler: (e: MessageEvent) => void): () => void {
         const channel = topicName === "*" ? "topic:*" : `topic:${topicName}`;
         this.on(channel, handler);
         return () => this.off(channel, handler);

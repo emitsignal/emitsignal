@@ -1,15 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useColorScheme as useNativeColorScheme } from "react-native";
-import {
-    saveThemePreference,
-    getThemePreference,
-    ThemePreference,
-} from "@/storage/theme";
+
+import { getThemePreference, saveThemePreference, ThemePreference } from "@/storage/theme";
 
 interface ThemeContextType {
-    theme: ThemePreference;
+    currentScheme: "dark" | "light";
     setTheme: (theme: ThemePreference) => void;
-    currentScheme: "light" | "dark";
+    theme: ThemePreference;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -36,8 +33,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         saveThemePreference(newTheme);
     };
 
-    const currentScheme =
-        theme === "system" ? (systemScheme ?? "light") : theme;
+    const currentScheme = theme === "system" ? (systemScheme ?? "light") : theme;
 
     // Optional: Show nothing until theme is loaded to prevent flash
     if (!isLoaded) {
@@ -45,7 +41,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <ThemeContext.Provider value={{ theme, setTheme, currentScheme }}>
+        <ThemeContext.Provider value={{ currentScheme, setTheme, theme }}>
             {children}
         </ThemeContext.Provider>
     );

@@ -1,19 +1,14 @@
 import { router } from "expo-router";
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import type { ThemePreference } from "@/storage/theme";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { WLogo } from "@/components/whinsper";
 import { Fonts, W } from "@/constants/theme";
 import { useSession } from "@/ctx/session";
 import { useTheme } from "@/ctx/theme";
-import type { ThemePreference } from "@/storage/theme";
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
     { label: "System", value: "system" },
@@ -22,19 +17,17 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
-    const { theme, setTheme } = useTheme();
-    const { user, signOut } = useSession();
+    const { setTheme, theme } = useTheme();
+    const { signOut, user } = useSession();
 
     return (
-        <SafeAreaView style={styles.root} edges={["top"]}>
+        <SafeAreaView edges={["top"]} style={styles.root}>
             <View style={styles.header}>
                 <View style={styles.headerTop}>
-                    <WLogo size={12} pulse />
+                    <WLogo pulse size={12} />
                 </View>
                 <Text style={styles.title}>Settings</Text>
-                <Text style={styles.subtitle}>
-                    {user?.email ?? "anonymous device"}
-                </Text>
+                <Text style={styles.subtitle}>{user?.email ?? "anonymous device"}</Text>
             </View>
 
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -44,17 +37,14 @@ export default function SettingsScreen() {
                         <Pressable
                             key={opt.value}
                             onPress={() => setTheme(opt.value)}
-                            style={[
-                                styles.row,
-                                opt.value === theme && styles.rowActive,
-                            ]}
+                            style={[styles.row, opt.value === theme && styles.rowActive]}
                         >
                             <Text style={styles.rowLabel}>{opt.label}</Text>
                             {opt.value === theme ? (
                                 <IconSymbol
+                                    color={W.violet}
                                     name="checkmark.circle.fill"
                                     size={18}
-                                    color={W.violet}
                                 />
                             ) : null}
                         </Pressable>
@@ -83,25 +73,12 @@ export default function SettingsScreen() {
                             }}
                             style={styles.row}
                         >
-                            <Text style={[styles.rowLabel, { color: W.red }]}>
-                                Sign out
-                            </Text>
+                            <Text style={[styles.rowLabel, { color: W.red }]}>Sign out</Text>
                         </Pressable>
                     ) : (
-                        <Pressable
-                            onPress={() => router.push("/auth")}
-                            style={styles.row}
-                        >
-                            <Text
-                                style={[styles.rowLabel, { color: W.violet }]}
-                            >
-                                Sign in
-                            </Text>
-                            <IconSymbol
-                                name="arrow.right"
-                                size={14}
-                                color={W.violet}
-                            />
+                        <Pressable onPress={() => router.push("/auth")} style={styles.row}>
+                            <Text style={[styles.rowLabel, { color: W.violet }]}>Sign in</Text>
+                            <IconSymbol color={W.violet} name="arrow.right" size={14} />
                         </Pressable>
                     )}
                 </View>
@@ -128,57 +105,57 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    header: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
-    headerTop: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-    title: {
-        fontSize: 28,
-        fontWeight: "600",
-        color: W.fg,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        marginTop: 4,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        color: W.fgMuted,
-    },
-    sectionLabelRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        paddingTop: 14,
-        paddingBottom: 6,
-    },
-    sectionLabelText: {
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
-        letterSpacing: 1.5,
-        fontWeight: "500",
-    },
-    sectionLabelLine: {
-        flex: 1,
-        height: 1,
-        marginLeft: 10,
-        backgroundColor: W.bgLine,
-    },
     group: {
         backgroundColor: W.bgElev,
-        borderTopWidth: StyleSheet.hairlineWidth,
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderColor: W.bgLine,
+        borderTopWidth: StyleSheet.hairlineWidth,
     },
+    header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
+    headerTop: { alignItems: "center", flexDirection: "row", marginBottom: 16 },
+    root: { backgroundColor: W.bg, flex: 1 },
     row: {
-        flexDirection: "row",
         alignItems: "center",
+        borderBottomColor: W.bgLine,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        flexDirection: "row",
         gap: 12,
         paddingHorizontal: 20,
         paddingVertical: 14,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: W.bgLine,
     },
     rowActive: { backgroundColor: W.violetBg },
-    rowLabel: { fontSize: 14, color: W.fg, flex: 1 },
-    rowValue: { fontFamily: Fonts.mono, fontSize: 12, color: W.fgMuted },
+    rowLabel: { color: W.fg, flex: 1, fontSize: 14 },
+    rowValue: { color: W.fgMuted, fontFamily: Fonts.mono, fontSize: 12 },
+    sectionLabelLine: {
+        backgroundColor: W.bgLine,
+        flex: 1,
+        height: 1,
+        marginLeft: 10,
+    },
+    sectionLabelRow: {
+        alignItems: "center",
+        flexDirection: "row",
+        paddingBottom: 6,
+        paddingHorizontal: 20,
+        paddingTop: 14,
+    },
+    sectionLabelText: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        fontWeight: "500",
+        letterSpacing: 1.5,
+    },
+    subtitle: {
+        color: W.fgMuted,
+        fontFamily: Fonts.mono,
+        fontSize: 12,
+        marginTop: 4,
+    },
+    title: {
+        color: W.fg,
+        fontSize: 28,
+        fontWeight: "600",
+        letterSpacing: -0.5,
+    },
 });

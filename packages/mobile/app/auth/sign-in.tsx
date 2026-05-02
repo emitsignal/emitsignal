@@ -27,17 +27,14 @@ export default function AuthSignIn() {
         try {
             const result = await api.requestMagicLink(email.trim());
             router.push({
-                pathname: "/auth/verify",
                 params: {
-                    email: email.trim(),
                     devCode: result.devCode ?? "",
+                    email: email.trim(),
                 },
+                pathname: "/auth/verify",
             });
-        } catch (err) {
-            Alert.alert(
-                "Sign-in failed",
-                err instanceof Error ? err.message : String(err),
-            );
+        } catch (error) {
+            Alert.alert("Sign-in failed", error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
@@ -46,43 +43,38 @@ export default function AuthSignIn() {
     return (
         <SafeAreaView style={styles.root}>
             <KeyboardAvoidingView
-                style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
+                style={{ flex: 1 }}
             >
                 <View style={styles.topBar}>
-                    <Pressable
-                        onPress={() => router.back()}
-                        style={styles.backBtn}
-                    >
-                        <IconSymbol name="arrow.left" size={16} color={W.fg} />
+                    <Pressable onPress={() => router.back()} style={styles.backBtn}>
+                        <IconSymbol color={W.fg} name="arrow.left" size={16} />
                     </Pressable>
-                    <WLogo size={11} pulse />
+                    <WLogo pulse size={11} />
                     <Text style={styles.step}>01/04</Text>
                 </View>
 
                 <View style={styles.body}>
                     <Text style={styles.title}>Sign in</Text>
-                    <Text style={styles.lede}>
-                        We'll email you a magic link. No passwords.
-                    </Text>
+                    <Text style={styles.lede}>We'll email you a magic link. No passwords.</Text>
 
                     <Text style={styles.fieldLabel}>EMAIL</Text>
                     <View style={styles.inputBox}>
                         <TextInput
-                            value={email}
-                            onChangeText={setEmail}
-                            keyboardType="email-address"
                             autoCapitalize="none"
                             autoCorrect={false}
-                            style={styles.input}
+                            keyboardType="email-address"
+                            onChangeText={setEmail}
                             placeholder="you@example.com"
                             placeholderTextColor={W.fgDim}
+                            style={styles.input}
+                            value={email}
                         />
                     </View>
 
                     <Pressable
-                        onPress={handleSend}
                         disabled={busy}
+                        onPress={handleSend}
                         style={[styles.cta, busy && { opacity: 0.6 }]}
                     >
                         <Text style={styles.ctaText}>
@@ -97,25 +89,13 @@ export default function AuthSignIn() {
                     </View>
 
                     {[
-                        { label: "continue with GitHub", icon: "globe" as const },
-                        { label: "continue with SSH key", icon: "key" as const },
+                        { icon: "globe" as const, label: "continue with GitHub" },
+                        { icon: "key" as const, label: "continue with SSH key" },
                     ].map((opt) => (
-                        <Pressable
-                            key={opt.label}
-                            onPress={handleSend}
-                            style={styles.altBtn}
-                        >
-                            <IconSymbol
-                                name={opt.icon}
-                                size={14}
-                                color={W.violet}
-                            />
+                        <Pressable key={opt.label} onPress={handleSend} style={styles.altBtn}>
+                            <IconSymbol color={W.violet} name={opt.icon} size={14} />
                             <Text style={styles.altText}>{opt.label}</Text>
-                            <IconSymbol
-                                name="chevron.right"
-                                size={13}
-                                color={W.fgDim}
-                            />
+                            <IconSymbol color={W.fgDim} name="chevron.right" size={13} />
                         </Pressable>
                     ))}
                 </View>
@@ -134,97 +114,97 @@ export default function AuthSignIn() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    topBar: {
-        flexDirection: "row",
+    altBtn: {
         alignItems: "center",
+        backgroundColor: W.bgElev,
+        borderColor: W.bgLine,
+        borderRadius: 10,
+        borderWidth: StyleSheet.hairlineWidth,
+        flexDirection: "row",
         gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        marginBottom: 10,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+    },
+    altText: {
+        color: W.fg,
+        flex: 1,
+        fontFamily: Fonts.mono,
+        fontSize: 13,
     },
     backBtn: {
-        width: 32,
-        height: 32,
+        alignItems: "center",
         backgroundColor: W.bgElev,
         borderRadius: 8,
-        alignItems: "center",
+        height: 32,
         justifyContent: "center",
-    },
-    step: {
-        marginLeft: "auto",
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
+        width: 32,
     },
     body: { flex: 1, padding: 28 },
-    title: { fontSize: 26, fontWeight: "600", color: W.fg, letterSpacing: -0.6 },
-    lede: { fontSize: 13, color: W.fgMuted, marginTop: 6, marginBottom: 28 },
+    cta: {
+        alignItems: "center",
+        backgroundColor: W.violet,
+        borderRadius: 10,
+        paddingVertical: 14,
+    },
+    ctaText: {
+        color: W.bg,
+        fontFamily: Fonts.mono,
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    divider: {
+        alignItems: "center",
+        flexDirection: "row",
+        gap: 10,
+        marginVertical: 22,
+    },
+    dividerLine: { backgroundColor: W.bgLine, flex: 1, height: 1 },
+    dividerText: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 10 },
     fieldLabel: {
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        color: W.fgDim,
         letterSpacing: 1.5,
         marginBottom: 8,
+    },
+    footer: { padding: 28 },
+    input: {
+        color: W.fg,
+        fontFamily: Fonts.mono,
+        fontSize: 14,
+        padding: 0,
     },
     inputBox: {
         backgroundColor: W.bgElev,
         borderColor: W.violet,
-        borderWidth: 1.5,
         borderRadius: 10,
+        borderWidth: 1.5,
+        marginBottom: 18,
         paddingHorizontal: 16,
         paddingVertical: 14,
-        marginBottom: 18,
     },
-    input: {
+    lede: { color: W.fgMuted, fontSize: 13, marginBottom: 28, marginTop: 6 },
+    root: { backgroundColor: W.bg, flex: 1 },
+    step: {
+        color: W.fgDim,
         fontFamily: Fonts.mono,
-        fontSize: 14,
-        color: W.fg,
-        padding: 0,
+        fontSize: 10,
+        marginLeft: "auto",
     },
-    cta: {
-        backgroundColor: W.violet,
-        borderRadius: 10,
-        paddingVertical: 14,
-        alignItems: "center",
-    },
-    ctaText: {
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: "600",
-        color: W.bg,
-    },
-    divider: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-        marginVertical: 22,
-    },
-    dividerLine: { flex: 1, height: 1, backgroundColor: W.bgLine },
-    dividerText: { fontFamily: Fonts.mono, fontSize: 10, color: W.fgDim },
-    altBtn: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        marginBottom: 10,
-    },
-    altText: {
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 13,
-        color: W.fg,
-    },
-    footer: { padding: 28 },
     terms: {
-        textAlign: "center",
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 11,
-        color: W.fgDim,
         lineHeight: 18,
+        textAlign: "center",
+    },
+    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    topBar: {
+        alignItems: "center",
+        flexDirection: "row",
+        gap: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
     },
 });

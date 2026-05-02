@@ -2,11 +2,7 @@ import Elysia, { t } from "elysia";
 
 import { bus } from "../../lib/event-bus";
 import { prisma } from "../../lib/prisma";
-import {
-    getOrCreateTopic,
-    serializeMessage,
-    serializeTags,
-} from "../../lib/topic";
+import { getOrCreateTopic, serializeMessage, serializeTags } from "../../lib/topic";
 
 export const publishMessage = new Elysia().post(
     "/topic/:name",
@@ -15,11 +11,11 @@ export const publishMessage = new Elysia().post(
 
         const created = await prisma.message.create({
             data: {
-                topicId: topic.id,
-                title: body.title,
                 body: body.body,
                 priority: body.priority,
                 tags: serializeTags(body.tags),
+                title: body.title,
+                topicId: topic.id,
             },
         });
 
@@ -30,10 +26,10 @@ export const publishMessage = new Elysia().post(
     },
     {
         body: t.Object({
-            title: t.String(),
             body: t.String(),
-            priority: t.Integer({ minimum: 1, maximum: 5 }),
+            priority: t.Integer({ maximum: 5, minimum: 1 }),
             tags: t.Array(t.String()),
+            title: t.String(),
         }),
     },
 );

@@ -9,63 +9,51 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: W.violet,
-                tabBarInactiveTintColor: W.fgDim,
                 headerShown: false,
+                tabBarActiveTintColor: W.violet,
                 tabBarButton: HapticTab,
+                tabBarInactiveTintColor: W.fgDim,
+                tabBarLabelStyle: {
+                    fontSize: 10,
+                    fontWeight: "500",
+                },
                 tabBarStyle: {
                     backgroundColor: W.bg,
                     borderTopColor: W.bgLine,
                     borderTopWidth: StyleSheet.hairlineWidth,
-                },
-                tabBarLabelStyle: {
-                    fontSize: 10,
-                    fontWeight: "500",
                 },
             }}
         >
             <Tabs.Screen
                 name="index"
                 options={{
+                    tabBarIcon: ({ color }) => <IconSymbol color={color} name="bell" size={22} />,
                     title: "Feed",
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={22} name="bell" color={color} />
-                    ),
                 }}
             />
             <Tabs.Screen
                 name="channels"
                 options={{
-                    title: "Channels",
                     tabBarIcon: ({ color }) => (
-                        <IconSymbol
-                            size={22}
-                            name="square.grid.2x2"
-                            color={color}
-                        />
+                        <IconSymbol color={color} name="square.grid.2x2" size={22} />
                     ),
+                    title: "Channels",
                 }}
             />
             <Tabs.Screen
                 name="publish"
                 options={{
-                    title: "Publish",
                     tabBarIcon: ({ color }) => (
-                        <IconSymbol
-                            size={22}
-                            name="terminal"
-                            color={color}
-                        />
+                        <IconSymbol color={color} name="terminal" size={22} />
                     ),
+                    title: "Publish",
                 }}
             />
             <Tabs.Screen
                 name="settings"
                 options={{
+                    tabBarIcon: ({ color }) => <IconSymbol color={color} name="gear" size={22} />,
                     title: "Settings",
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={22} name="gear" color={color} />
-                    ),
                 }}
             />
         </Tabs>

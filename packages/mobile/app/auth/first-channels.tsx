@@ -1,12 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -16,22 +10,21 @@ import { useDevice } from "@/ctx/device";
 import { api } from "@/lib/api";
 
 const SUGGESTED = [
-    { name: "deploy/prod", desc: "Production deploys" },
-    { name: "alerts/prod", desc: "Server alerts & pages" },
-    { name: "ci/web", desc: "Frontend CI builds" },
-    { name: "errors/web", desc: "Errors & exceptions" },
+    { desc: "Production deploys", name: "deploy/prod" },
+    { desc: "Server alerts & pages", name: "alerts/prod" },
+    { desc: "Frontend CI builds", name: "ci/web" },
+    { desc: "Errors & exceptions", name: "errors/web" },
 ];
 
 export default function AuthFirstChannels() {
     const { deviceId } = useDevice();
     const [picked, setPicked] = useState<Record<string, boolean>>({
-        "deploy/prod": true,
         "alerts/prod": true,
+        "deploy/prod": true,
     });
     const [busy, setBusy] = useState(false);
 
-    const toggle = (name: string) =>
-        setPicked((p) => ({ ...p, [name]: !p[name] }));
+    const toggle = (name: string) => setPicked((p) => ({ ...p, [name]: !p[name] }));
 
     const pickedCount = Object.values(picked).filter(Boolean).length;
 
@@ -43,8 +36,8 @@ export default function AuthFirstChannels() {
                 if (on) await api.subscribe(deviceId, name, true);
             }
             router.replace("/(tabs)");
-        } catch (err) {
-            console.error("Subscribe failed", err);
+        } catch (error) {
+            console.error("Subscribe failed", error);
         } finally {
             setBusy(false);
         }
@@ -53,55 +46,39 @@ export default function AuthFirstChannels() {
     return (
         <SafeAreaView style={styles.root}>
             <View style={styles.topBar}>
-                <Pressable
-                    onPress={() => router.back()}
-                    style={styles.backBtn}
-                >
-                    <IconSymbol name="arrow.left" size={16} color={W.fg} />
+                <Pressable onPress={() => router.back()} style={styles.backBtn}>
+                    <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
-                <WLogo size={11} pulse />
+                <WLogo pulse size={11} />
                 <Text style={styles.step}>04/04</Text>
             </View>
 
             <View style={styles.body}>
                 <Text style={styles.title}>Your first channels</Text>
                 <Text style={styles.lede}>
-                    Pick a few to start. You can rename, filter, or create
-                    new topics later.
+                    Pick a few to start. You can rename, filter, or create new topics later.
                 </Text>
 
                 <ScrollView style={{ flex: 1 }}>
-                    {SUGGESTED.map((s) => {
-                        const on = !!picked[s.name];
+                    {SUGGESTED.map((suggestion) => {
+                        const on = !!picked[suggestion.name];
                         return (
                             <Pressable
-                                key={s.name}
-                                onPress={() => toggle(s.name)}
-                                style={[
-                                    styles.row,
-                                    on && styles.rowActive,
-                                ]}
+                                key={suggestion.name}
+                                onPress={() => toggle(suggestion.name)}
+                                style={[styles.row, on && styles.rowActive]}
                             >
-                                <WTopicAvatar
-                                    name={s.name}
-                                    size={34}
-                                    rounded={8}
-                                />
+                                <WTopicAvatar name={suggestion.name} rounded={8} size={34} />
                                 <View style={{ flex: 1 }}>
-                                    <Text style={styles.rowName}>{s.name}</Text>
-                                    <Text style={styles.rowDesc}>{s.desc}</Text>
+                                    <Text style={styles.rowName}>{suggestion.name}</Text>
+                                    <Text style={styles.rowDesc}>{suggestion.desc}</Text>
                                 </View>
-                                <View
-                                    style={[
-                                        styles.checkbox,
-                                        on && styles.checkboxOn,
-                                    ]}
-                                >
+                                <View style={[styles.checkbox, on && styles.checkboxOn]}>
                                     {on ? (
                                         <IconSymbol
+                                            color={W.bg}
                                             name="checkmark.circle.fill"
                                             size={14}
-                                            color={W.bg}
                                         />
                                     ) : null}
                                 </View>
@@ -113,19 +90,14 @@ export default function AuthFirstChannels() {
 
             <View style={styles.footer}>
                 <Pressable
-                    onPress={handleFinish}
                     disabled={busy || pickedCount === 0}
-                    style={[
-                        styles.cta,
-                        (busy || pickedCount === 0) && { opacity: 0.5 },
-                    ]}
+                    onPress={handleFinish}
+                    style={[styles.cta, (busy || pickedCount === 0) && { opacity: 0.5 }]}
                 >
                     <Text style={styles.ctaText}>
-                        {busy
-                            ? "subscribing…"
-                            : `subscribe to ${pickedCount} · finish`}
+                        {busy ? "subscribing…" : `subscribe to ${pickedCount} · finish`}
                     </Text>
-                    <IconSymbol name="arrow.right" size={14} color={W.bg} />
+                    <IconSymbol color={W.bg} name="arrow.right" size={14} />
                 </Pressable>
             </View>
         </SafeAreaView>
@@ -133,78 +105,78 @@ export default function AuthFirstChannels() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    topBar: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
     backBtn: {
-        width: 32,
-        height: 32,
+        alignItems: "center",
         backgroundColor: W.bgElev,
         borderRadius: 8,
-        alignItems: "center",
+        height: 32,
         justifyContent: "center",
-    },
-    step: {
-        marginLeft: "auto",
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
+        width: 32,
     },
     body: { flex: 1, padding: 28 },
-    title: { fontSize: 26, fontWeight: "600", color: W.fg, letterSpacing: -0.6 },
-    lede: { fontSize: 13, color: W.fgMuted, marginTop: 6, marginBottom: 22 },
-    row: {
-        flexDirection: "row",
+    checkbox: {
         alignItems: "center",
-        gap: 12,
+        borderColor: W.bgLine,
+        borderRadius: 5,
+        borderWidth: 1.5,
+        height: 22,
+        justifyContent: "center",
+        width: 22,
+    },
+    checkboxOn: { backgroundColor: W.violet, borderColor: W.violet },
+    cta: {
+        alignItems: "center",
+        backgroundColor: W.violet,
+        borderRadius: 10,
+        flexDirection: "row",
+        gap: 8,
+        justifyContent: "center",
+        paddingVertical: 14,
+    },
+    ctaText: {
+        color: W.bg,
+        fontFamily: Fonts.mono,
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    footer: { padding: 28 },
+    lede: { color: W.fgMuted, fontSize: 13, marginBottom: 22, marginTop: 6 },
+    root: { backgroundColor: W.bg, flex: 1 },
+    row: {
+        alignItems: "center",
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
-        borderWidth: 1.5,
         borderRadius: 10,
+        borderWidth: 1.5,
+        flexDirection: "row",
+        gap: 12,
+        marginBottom: 8,
         paddingHorizontal: 14,
         paddingVertical: 14,
-        marginBottom: 8,
     },
     rowActive: {
         backgroundColor: W.violetBg,
         borderColor: W.violet,
     },
+    rowDesc: { color: W.fgMuted, fontSize: 11.5, marginTop: 2 },
     rowName: {
+        color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 13,
         fontWeight: "500",
-        color: W.fg,
     },
-    rowDesc: { fontSize: 11.5, color: W.fgMuted, marginTop: 2 },
-    checkbox: {
-        width: 22,
-        height: 22,
-        borderRadius: 5,
-        borderWidth: 1.5,
-        borderColor: W.bgLine,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    checkboxOn: { backgroundColor: W.violet, borderColor: W.violet },
-    footer: { padding: 28 },
-    cta: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        paddingVertical: 14,
-        borderRadius: 10,
-        backgroundColor: W.violet,
-    },
-    ctaText: {
+    step: {
+        color: W.fgDim,
         fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: "600",
-        color: W.bg,
+        fontSize: 10,
+        marginLeft: "auto",
+    },
+    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    topBar: {
+        alignItems: "center",
+        flexDirection: "row",
+        gap: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
     },
 });

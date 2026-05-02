@@ -1,12 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -17,15 +11,15 @@ import { api, type Message, type Topic } from "@/lib/api";
 export default function MessageDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const [message, setMessage] = useState<Message | null>(null);
-    const [topic, setTopic] = useState<Topic | null>(null);
+    const [topic, setTopic] = useState<null | Topic>(null);
 
     useEffect(() => {
         let cancelled = false;
         async function load() {
             const allTopics = await api.listTopics();
             for (const t of allTopics) {
-                const msgs = await api.listMessages(t.name, 200);
-                const found = msgs.find((m) => m.id === id);
+                const messages = await api.listMessages(t.name, 200);
+                const found = messages.find((message) => message.id === id);
                 if (found && !cancelled) {
                     setMessage(found);
                     setTopic(t);
@@ -48,19 +42,15 @@ export default function MessageDetailScreen() {
     }
 
     const prio = message.priority;
-    const prioLabel =
-        prio >= 5 ? "max" : prio === 4 ? "high" : prio === 3 ? "default" : "low";
+    const prioLabel = prio >= 5 ? "max" : prio === 4 ? "high" : prio === 3 ? "default" : "low";
 
     return (
-        <SafeAreaView style={styles.root} edges={["top"]}>
+        <SafeAreaView edges={["top"]} style={styles.root}>
             <View style={styles.topBar}>
-                <Pressable
-                    onPress={() => router.back()}
-                    style={styles.backBtn}
-                >
-                    <IconSymbol name="arrow.left" size={16} color={W.fg} />
+                <Pressable onPress={() => router.back()} style={styles.backBtn}>
+                    <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
-                <WLogo size={11} pulse />
+                <WLogo pulse size={11} />
                 <Text style={styles.channelLabel}>{topic.name}</Text>
             </View>
 
@@ -68,12 +58,7 @@ export default function MessageDetailScreen() {
                 <View style={styles.hero}>
                     <View style={styles.prioRow}>
                         <WDot level={prio} size={8} />
-                        <Text
-                            style={[
-                                styles.prioText,
-                                { color: PriorityColors[prio] },
-                            ]}
-                        >
+                        <Text style={[styles.prioText, { color: PriorityColors[prio] }]}>
                             priority {prio} · {prioLabel}
                         </Text>
                     </View>
@@ -81,30 +66,18 @@ export default function MessageDetailScreen() {
                     <Text style={styles.body}>{message.body}</Text>
 
                     <View style={styles.tagsRow}>
-                        {message.tags.map((t) => (
-                            <WChip key={t}>{`#${t}`}</WChip>
+                        {message.tags.map((tag) => (
+                            <WChip key={tag}>{`#${tag}`}</WChip>
                         ))}
                     </View>
 
                     <View style={styles.actions}>
-                        <Pressable
-                            style={[styles.actionBtn, styles.actionPrimary]}
-                        >
-                            <IconSymbol
-                                name="checkmark.circle.fill"
-                                size={14}
-                                color={W.bg}
-                            />
-                            <Text style={styles.actionPrimaryText}>
-                                Acknowledge
-                            </Text>
+                        <Pressable style={[styles.actionBtn, styles.actionPrimary]}>
+                            <IconSymbol color={W.bg} name="checkmark.circle.fill" size={14} />
+                            <Text style={styles.actionPrimaryText}>Acknowledge</Text>
                         </Pressable>
                         <Pressable style={styles.actionBtn}>
-                            <IconSymbol
-                                name="globe"
-                                size={14}
-                                color={W.fg}
-                            />
+                            <IconSymbol color={W.fg} name="globe" size={14} />
                             <Text style={styles.actionText}>View</Text>
                         </Pressable>
                     </View>
@@ -115,14 +88,12 @@ export default function MessageDetailScreen() {
                     <WCode language="JSON">
                         {JSON.stringify(
                             {
-                                topic: topic.name,
-                                title: message.title,
                                 body: message.body,
+                                createdAt: new Date(message.createdAt).toISOString(),
                                 priority: message.priority,
                                 tags: message.tags,
-                                createdAt: new Date(
-                                    message.createdAt,
-                                ).toISOString(),
+                                title: message.title,
+                                topic: topic.name,
                             },
                             null,
                             2,
@@ -136,29 +107,28 @@ export default function MessageDetailScreen() {
                         {`curl -X POST ${api.baseUrl}/topic/${topic.name} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
-                            title: message.title,
-                            body: message.body,
-                            priority: message.priority,
-                            tags: message.tags,
-                        })}'`}
+      body: message.body,
+      priority: message.priority,
+      tags: message.tags,
+      title: message.title,
+  })}'`}
                     </WCode>
                 </View>
 
                 <SectionHead>delivery</SectionHead>
                 {[
-                    { t: formatTime(message.createdAt), e: "received", ok: true },
-                    { t: formatTime(message.createdAt), e: `routed → ${topic.name}`, ok: true },
-                    { t: formatTime(message.createdAt + 1000), e: "push → fcm", ok: true },
-                    { t: formatTime(message.createdAt + 2000), e: "delivered · this device", ok: true },
+                    { e: "received", ok: true, t: formatTime(message.createdAt) },
+                    { e: `routed → ${topic.name}`, ok: true, t: formatTime(message.createdAt) },
+                    { e: "push → fcm", ok: true, t: formatTime(message.createdAt + 1000) },
+                    {
+                        e: "delivered · this device",
+                        ok: true,
+                        t: formatTime(message.createdAt + 2000),
+                    },
                 ].map((s, i) => (
                     <View key={i} style={styles.timelineRow}>
                         <Text style={styles.timelineTime}>{s.t}</Text>
-                        <Text
-                            style={[
-                                styles.timelineDot,
-                                { color: s.ok ? W.green : W.red },
-                            ]}
-                        >
+                        <Text style={[styles.timelineDot, { color: s.ok ? W.green : W.red }]}>
                             {s.ok ? "✓" : "✗"}
                         </Text>
                         <Text style={styles.timelineText}>{s.e}</Text>
@@ -169,133 +139,133 @@ export default function MessageDetailScreen() {
     );
 }
 
-function SectionHead({ children }: { children: string }) {
-    return <Text style={styles.sectionHead}>{children}</Text>;
-}
-
 function formatTime(ts: number): string {
     const d = new Date(ts);
     return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
+
 function pad(n: number) {
     return n.toString().padStart(2, "0");
 }
+function SectionHead({ children }: { children: string }) {
+    return <Text style={styles.sectionHead}>{children}</Text>;
+}
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    loading: {
-        flex: 1,
-        textAlign: "center",
-        paddingTop: 40,
-        color: W.fgMuted,
-        fontFamily: Fonts.mono,
-    },
-    topBar: {
-        flexDirection: "row",
+    actionBtn: {
         alignItems: "center",
-        gap: 10,
-        paddingHorizontal: 16,
+        backgroundColor: W.bgElev,
+        borderColor: W.bgLine,
+        borderRadius: 8,
+        borderWidth: StyleSheet.hairlineWidth,
+        flex: 1,
+        flexDirection: "row",
+        gap: 6,
+        justifyContent: "center",
         paddingVertical: 10,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: W.bgLine,
+    },
+    actionPrimary: { backgroundColor: W.violet, borderColor: W.violet },
+    actionPrimaryText: { color: W.bg, fontSize: 12.5, fontWeight: "600" },
+    actions: { flexDirection: "row", gap: 8, marginTop: 14 },
+    actionText: {
+        color: W.fg,
+        fontSize: 12.5,
+        fontWeight: "600",
     },
     backBtn: {
-        width: 32,
-        height: 32,
+        alignItems: "center",
         backgroundColor: W.bgElev,
         borderRadius: 8,
-        alignItems: "center",
+        height: 32,
         justifyContent: "center",
+        width: 32,
+    },
+    body: {
+        color: W.fgMuted,
+        fontSize: 14,
+        lineHeight: 22,
+        marginTop: 10,
     },
     channelLabel: {
-        marginLeft: "auto",
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        color: W.fgDim,
+        marginLeft: "auto",
     },
+    codeWrap: { paddingHorizontal: 20 },
     hero: {
+        borderBottomColor: W.bgLine,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        paddingBottom: 18,
         paddingHorizontal: 20,
         paddingTop: 20,
-        paddingBottom: 18,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: W.bgLine,
     },
-    prioRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+    loading: {
+        color: W.fgMuted,
+        flex: 1,
+        fontFamily: Fonts.mono,
+        paddingTop: 40,
+        textAlign: "center",
+    },
+    prioRow: { alignItems: "center", flexDirection: "row", gap: 8 },
     prioText: {
         fontFamily: Fonts.mono,
         fontSize: 11,
         fontWeight: "600",
-        textTransform: "uppercase",
         letterSpacing: 1.2,
+        textTransform: "uppercase",
+    },
+    root: { backgroundColor: W.bg, flex: 1 },
+    sectionHead: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        fontWeight: "500",
+        letterSpacing: 1.5,
+        marginBottom: 8,
+        marginTop: 18,
+        paddingHorizontal: 20,
+    },
+    tagsRow: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 6,
+        marginTop: 14,
+    },
+    timelineDot: { fontFamily: Fonts.mono, fontSize: 11, width: 12 },
+    timelineRow: {
+        flexDirection: "row",
+        gap: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 6,
+    },
+    timelineText: {
+        color: W.fgMuted,
+        flex: 1,
+        fontFamily: Fonts.mono,
+        fontSize: 11,
+    },
+    timelineTime: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 11,
+        width: 64,
     },
     title: {
-        marginTop: 12,
+        color: W.fg,
         fontSize: 22,
         fontWeight: "600",
         letterSpacing: -0.6,
-        color: W.fg,
         lineHeight: 28,
+        marginTop: 12,
     },
-    body: {
-        marginTop: 10,
-        fontSize: 14,
-        color: W.fgMuted,
-        lineHeight: 22,
-    },
-    tagsRow: {
-        marginTop: 14,
-        flexDirection: "row",
-        gap: 6,
-        flexWrap: "wrap",
-    },
-    actions: { marginTop: 14, flexDirection: "row", gap: 8 },
-    actionBtn: {
-        flex: 1,
-        flexDirection: "row",
+    topBar: {
         alignItems: "center",
-        justifyContent: "center",
-        gap: 6,
-        paddingVertical: 10,
-        borderRadius: 8,
-        backgroundColor: W.bgElev,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: W.bgLine,
-    },
-    actionPrimary: { backgroundColor: W.violet, borderColor: W.violet },
-    actionText: {
-        fontSize: 12.5,
-        color: W.fg,
-        fontWeight: "600",
-    },
-    actionPrimaryText: { fontSize: 12.5, color: W.bg, fontWeight: "600" },
-    sectionHead: {
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
-        letterSpacing: 1.5,
-        marginTop: 18,
-        marginBottom: 8,
-        paddingHorizontal: 20,
-        fontWeight: "500",
-    },
-    codeWrap: { paddingHorizontal: 20 },
-    timelineRow: {
-        paddingHorizontal: 20,
-        paddingVertical: 6,
+        borderBottomColor: W.bgLine,
+        borderBottomWidth: StyleSheet.hairlineWidth,
         flexDirection: "row",
         gap: 10,
-    },
-    timelineTime: {
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        color: W.fgDim,
-        width: 64,
-    },
-    timelineDot: { fontFamily: Fonts.mono, fontSize: 11, width: 12 },
-    timelineText: {
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        color: W.fgMuted,
-        flex: 1,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
     },
 });

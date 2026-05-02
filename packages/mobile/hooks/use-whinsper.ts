@@ -3,47 +3,47 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useDevice } from "@/ctx/device";
-import { api, sseMultiUrl, type Message, type Subscription } from "@/lib/api";
+import { api, type Message, sseMultiUrl, type Subscription } from "@/lib/api";
 
 import { useSSE } from "./use-sse";
 
 interface FeedState {
+    error: Error | null;
+    loading: boolean;
     messages: Message[];
     subscriptions: Subscription[];
-    loading: boolean;
-    error: Error | null;
 }
 
 export function useFeed() {
     const { deviceId } = useDevice();
     const [state, setState] = useState<FeedState>({
+        error: null,
+        loading: true,
         messages: [],
         subscriptions: [],
-        loading: true,
-        error: null,
     });
 
     const refresh = useCallback(async () => {
         if (!deviceId) return;
         try {
-            const subs = await api.listSubscriptions(deviceId);
+            const subscriptions = await api.listSubscriptions(deviceId);
             const allMessages: Message[] = [];
-            for (const sub of subs) {
-                const msgs = await api.listMessages(sub.topic.name, 25);
-                allMessages.push(...msgs);
+            for (const subscription of subscriptions) {
+                const messages = await api.listMessages(subscription.topic.name, 25);
+                allMessages.push(...messages);
             }
             allMessages.sort((a, b) => b.createdAt - a.createdAt);
             setState({
-                messages: allMessages,
-                subscriptions: subs,
-                loading: false,
                 error: null,
+                loading: false,
+                messages: allMessages,
+                subscriptions: subscriptions,
             });
         } catch (error) {
             setState((prev) => ({
                 ...prev,
-                loading: false,
                 error: error instanceof Error ? error : new Error(String(error)),
+                loading: false,
             }));
         }
     }, [deviceId]);
@@ -52,16 +52,15 @@ export function useFeed() {
         if (deviceId) refresh();
     }, [deviceId, refresh]);
 
-    const topicNames = state.subscriptions.map((s) => s.topic.name);
+    const topicNames = state.subscriptions.map((subscription) => subscription.topic.name);
     const sseTarget = topicNames.length ? sseMultiUrl(topicNames) : null;
 
     useSSE({
-        url: sseTarget,
         onEvent: (event, data) => {
             if (event !== "message") return;
-            const incoming = data as Message & { topicName?: string };
+            const incoming = data as { topicName?: string } & Message;
             setState((prev) => {
-                if (prev.messages.some((m) => m.id === incoming.id)) {
+                if (prev.messages.some((message) => message.id === incoming.id)) {
                     return prev;
                 }
                 return {
@@ -70,12 +69,13 @@ export function useFeed() {
                 };
             });
         },
+        url: sseTarget,
     });
 
     return { ...state, refresh };
 }
 
-export function useTopicMessages(topicName: string | null) {
+export function useTopicMessages(topicName: null | string) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -84,9 +84,9 @@ export function useTopicMessages(topicName: string | null) {
         let cancelled = false;
         setLoading(true);
         api.listMessages(topicName)
-            .then((msgs) => {
+            .then((messages) => {
                 if (!cancelled) {
-                    setMessages(msgs);
+                    setMessages(messages);
                     setLoading(false);
                 }
             })
@@ -99,18 +99,16 @@ export function useTopicMessages(topicName: string | null) {
     }, [topicName]);
 
     useSSE({
-        url: topicName
-            ? `${api.baseUrl}/topics/${encodeURIComponent(topicName)}/listen`
-            : null,
         onEvent: (event, data) => {
             if (event !== "message") return;
             const incoming = data as Message;
             setMessages((prev) => {
-                if (prev.some((m) => m.id === incoming.id)) return prev;
+                if (prev.some((message) => message.id === incoming.id)) return prev;
                 return [incoming, ...prev];
             });
         },
+        url: topicName ? `${api.baseUrl}/topics/${encodeURIComponent(topicName)}/listen` : null,
     });
 
-    return { messages, loading };
+    return { loading, messages };
 }

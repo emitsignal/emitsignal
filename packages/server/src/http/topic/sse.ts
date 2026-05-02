@@ -10,23 +10,23 @@ import { serializeMessage } from "../../lib/topic";
 //
 // Wildcard: GET /listen?topics=a,b,c subscribes to multiple topics on one stream.
 
-function sseHeaders() {
-    return {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no",
-    };
-}
-
 function formatEvent(event: string, data: unknown) {
     return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
+function sseHeaders() {
+    return {
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+        "Content-Type": "text/event-stream",
+        "X-Accel-Buffering": "no",
+    };
 }
 
 export const sseListen = new Elysia()
     .get(
         "/topics/:name/listen",
-        async ({ params, query, set, request }) => {
+        async ({ params, query, request, set }) => {
             const topic = await prisma.topic.findUnique({
                 where: { name: params.name },
             });
@@ -43,24 +43,22 @@ export const sseListen = new Elysia()
                 async start(controller) {
                     const encoder = new TextEncoder();
                     const send = (event: string, data: unknown) =>
-                        controller.enqueue(
-                            encoder.encode(formatEvent(event, data)),
-                        );
+                        controller.enqueue(encoder.encode(formatEvent(event, data)));
 
                     send("hello", {
-                        topic: topic.name,
                         connectedAt: Date.now(),
+                        topic: topic.name,
                     });
 
                     // Backfill (since)
                     if (since !== null && Number.isFinite(since)) {
                         const backlog = await prisma.message.findMany({
-                            where: {
-                                topicId: topic.id,
-                                createdAt: { gt: new Date(since) },
-                            },
                             orderBy: { createdAt: "asc" },
                             take: 200,
+                            where: {
+                                createdAt: { gt: new Date(since) },
+                                topicId: topic.id,
+                            },
                         });
                         for (const m of backlog) {
                             send("message", {
@@ -70,9 +68,8 @@ export const sseListen = new Elysia()
                         }
                     }
 
-                    const unsubscribe = bus.subscribe(
-                        topic.name,
-                        (e: MessageEvent) => send("message", e),
+                    const unsubscribe = bus.subscribe(topic.name, (e: MessageEvent) =>
+                        send("message", e),
                     );
 
                     // Heartbeat every 25s to keep connections alive through proxies
@@ -107,7 +104,7 @@ export const sseListen = new Elysia()
     .get("/listen", async ({ query, request, set }) => {
         const topics = (query.topics ?? "")
             .split(",")
-            .map((s) => s.trim())
+            .map((subscription) => subscription.trim())
             .filter(Boolean);
 
         Object.assign(set.headers, sseHeaders());
@@ -116,19 +113,15 @@ export const sseListen = new Elysia()
             async start(controller) {
                 const encoder = new TextEncoder();
                 const send = (event: string, data: unknown) =>
-                    controller.enqueue(
-                        encoder.encode(formatEvent(event, data)),
-                    );
+                    controller.enqueue(encoder.encode(formatEvent(event, data)));
 
                 send("hello", {
-                    topics,
                     connectedAt: Date.now(),
+                    topics,
                 });
 
                 const unsubscribers = topics.length
-                    ? topics.map((name) =>
-                          bus.subscribe(name, (e) => send("message", e)),
-                      )
+                    ? topics.map((name) => bus.subscribe(name, (e) => send("message", e)))
                     : [bus.subscribe("*", (e) => send("message", e))];
 
                 const heartbeat = setInterval(() => {

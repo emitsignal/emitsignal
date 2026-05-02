@@ -13,12 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import {
-    ActivitySparkline,
-    WCode,
-    WLogo,
-    WTopicAvatar,
-} from "@/components/whinsper";
+import { ActivitySparkline, WCode, WLogo, WTopicAvatar } from "@/components/whinsper";
 import { Fonts, W } from "@/constants/theme";
 import { api, type Topic } from "@/lib/api";
 
@@ -32,7 +27,9 @@ export default function PublishScreen() {
     const [busy, setBusy] = useState(false);
 
     useEffect(() => {
-        api.listTopics().then(setTopics).catch(() => {});
+        api.listTopics()
+            .then(setTopics)
+            .catch(() => {});
     }, []);
 
     const handlePublish = async () => {
@@ -40,19 +37,19 @@ export default function PublishScreen() {
         setBusy(true);
         try {
             await api.publish(topic.trim(), {
-                title: title.trim(),
                 body: body.trim(),
                 priority,
                 tags: tags
                     .split(",")
-                    .map((t) => t.trim())
+                    .map((topic) => topic.trim())
                     .filter(Boolean),
+                title: title.trim(),
             });
             Alert.alert("Published", `→ ${topic}`);
             const updated = await api.listTopics();
             setTopics(updated);
-        } catch (err) {
-            Alert.alert("Failed", err instanceof Error ? err.message : String(err));
+        } catch (error) {
+            Alert.alert("Failed", error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
@@ -63,15 +60,15 @@ export default function PublishScreen() {
   ${api.baseUrl}/topic/${topic}`;
 
     return (
-        <SafeAreaView style={styles.root} edges={["top"]}>
+        <SafeAreaView edges={["top"]} style={styles.root}>
             <KeyboardAvoidingView
-                style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
+                style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
                     <View style={styles.header}>
                         <View style={styles.headerTop}>
-                            <WLogo size={12} pulse />
+                            <WLogo pulse size={12} />
                         </View>
                         <Text style={styles.title}>Publish</Text>
                         <Text style={styles.subtitle}>
@@ -81,7 +78,7 @@ export default function PublishScreen() {
                     </View>
 
                     <SectionLabel>QUICKSTART</SectionLabel>
-                    <View style={{ paddingHorizontal: 20, paddingBottom: 16 }}>
+                    <View style={{ paddingBottom: 16, paddingHorizontal: 20 }}>
                         <WCode language="CURL · ANYWHERE">{curl}</WCode>
                     </View>
 
@@ -89,53 +86,52 @@ export default function PublishScreen() {
                     <View style={styles.form}>
                         <FieldLabel>TOPIC</FieldLabel>
                         <TextInput
-                            value={topic}
-                            onChangeText={setTopic}
-                            style={styles.input}
                             autoCapitalize="none"
                             autoCorrect={false}
+                            onChangeText={setTopic}
                             placeholder="deploy/prod"
                             placeholderTextColor={W.fgDim}
+                            style={styles.input}
+                            value={topic}
                         />
 
                         <FieldLabel>TITLE</FieldLabel>
                         <TextInput
-                            value={title}
                             onChangeText={setTitle}
-                            style={styles.input}
                             placeholder="Deploy succeeded"
                             placeholderTextColor={W.fgDim}
+                            style={styles.input}
+                            value={title}
                         />
 
                         <FieldLabel>BODY</FieldLabel>
                         <TextInput
-                            value={body}
-                            onChangeText={setBody}
-                            style={[styles.input, styles.textArea]}
                             multiline
+                            onChangeText={setBody}
                             placeholder="api-gateway → vercel prod"
                             placeholderTextColor={W.fgDim}
+                            style={[styles.input, styles.textArea]}
+                            value={body}
                         />
 
                         <FieldLabel>PRIORITY</FieldLabel>
                         <View style={styles.prioRow}>
-                            {[1, 2, 3, 4, 5].map((p) => (
+                            {[1, 2, 3, 4, 5].map((level) => (
                                 <Pressable
-                                    key={p}
-                                    onPress={() => setPriority(p as 1 | 2 | 3 | 4 | 5)}
+                                    key={level}
+                                    onPress={() => setPriority(level as 1 | 2 | 3 | 4 | 5)}
                                     style={[
                                         styles.prioBtn,
-                                        p === priority && styles.prioBtnActive,
+                                        level === priority && styles.prioBtnActive,
                                     ]}
                                 >
                                     <Text
                                         style={[
                                             styles.prioText,
-                                            p === priority &&
-                                                styles.prioTextActive,
+                                            level === priority && styles.prioTextActive,
                                         ]}
                                     >
-                                        {p}
+                                        {level}
                                     </Text>
                                 </Pressable>
                             ))}
@@ -143,56 +139,47 @@ export default function PublishScreen() {
 
                         <FieldLabel>TAGS</FieldLabel>
                         <TextInput
-                            value={tags}
-                            onChangeText={setTags}
-                            style={styles.input}
-                            placeholder="comma,separated,tags"
-                            placeholderTextColor={W.fgDim}
                             autoCapitalize="none"
                             autoCorrect={false}
+                            onChangeText={setTags}
+                            placeholder="comma,separated,tags"
+                            placeholderTextColor={W.fgDim}
+                            style={styles.input}
+                            value={tags}
                         />
 
                         <Pressable
-                            onPress={handlePublish}
                             disabled={busy}
+                            onPress={handlePublish}
                             style={[styles.publishBtn, busy && { opacity: 0.6 }]}
                         >
                             <Text style={styles.publishText}>
                                 {busy ? "publishing…" : `publish → ${topic}`}
                             </Text>
-                            <IconSymbol
-                                name="arrow.right"
-                                size={14}
-                                color={W.bg}
-                            />
+                            <IconSymbol color={W.bg} name="arrow.right" size={14} />
                         </Pressable>
                     </View>
 
                     <SectionLabel>OWNED TOPICS</SectionLabel>
-                    {topics.map((t) => {
-                        const seed = t.id.charCodeAt(t.id.length - 1);
-                        const chart = Array.from({ length: 12 }, (_, i) =>
-                            Math.abs(Math.sin((seed + i) * 0.5)) * 5,
+                    {topics.map((topic) => {
+                        const seed = topic.id.charCodeAt(topic.id.length - 1);
+                        const chart = Array.from(
+                            { length: 12 },
+                            (_, index) => Math.abs(Math.sin((seed + index) * 0.5)) * 5,
                         );
                         return (
-                            <View key={t.id} style={styles.topicRow}>
-                                <WTopicAvatar
-                                    name={t.name}
-                                    size={32}
-                                    rounded={6}
-                                />
+                            <View key={topic.id} style={styles.topicRow}>
+                                <WTopicAvatar name={topic.name} rounded={6} size={32} />
                                 <View style={{ flex: 1 }}>
-                                    <Text style={styles.topicName}>
-                                        {t.name}
-                                    </Text>
+                                    <Text style={styles.topicName}>{topic.name}</Text>
                                     <Text style={styles.topicMeta}>
-                                        {t.isPublic ? "public" : "private"}
+                                        {topic.isPublic ? "public" : "private"}
                                     </Text>
                                 </View>
                                 <View style={{ width: 70 }}>
                                     <ActivitySparkline
-                                        data={chart}
                                         color={W.violet}
+                                        data={chart}
                                         height={20}
                                         showTotal={false}
                                     />
@@ -206,6 +193,10 @@ export default function PublishScreen() {
     );
 }
 
+function FieldLabel({ children }: { children: string }) {
+    return <Text style={styles.fieldLabel}>{children}</Text>;
+}
+
 function SectionLabel({ children }: { children: string }) {
     return (
         <View style={styles.sectionLabelRow}>
@@ -215,114 +206,110 @@ function SectionLabel({ children }: { children: string }) {
     );
 }
 
-function FieldLabel({ children }: { children: string }) {
-    return <Text style={styles.fieldLabel}>{children}</Text>;
-}
-
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: W.bg },
-    header: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
-    headerTop: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-    title: {
-        fontSize: 28,
-        fontWeight: "600",
-        color: W.fg,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        marginTop: 4,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        color: W.fgMuted,
-    },
-    sectionLabelRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 20,
-        paddingTop: 14,
-        paddingBottom: 6,
-    },
-    sectionLabelText: {
+    fieldLabel: {
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        color: W.fgDim,
-        letterSpacing: 1.5,
-        fontWeight: "500",
-    },
-    sectionLabelLine: {
-        flex: 1,
-        height: 1,
-        marginLeft: 10,
-        backgroundColor: W.bgLine,
+        letterSpacing: 1.2,
+        marginBottom: 6,
+        marginTop: 14,
     },
     form: { paddingHorizontal: 20 },
-    fieldLabel: {
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        color: W.fgDim,
-        letterSpacing: 1.2,
-        marginTop: 14,
-        marginBottom: 6,
-    },
+    header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
+    headerTop: { alignItems: "center", flexDirection: "row", marginBottom: 16 },
     input: {
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
-        borderWidth: StyleSheet.hairlineWidth,
         borderRadius: 8,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
+        borderWidth: StyleSheet.hairlineWidth,
         color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 13,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
     },
-    textArea: { minHeight: 80, textAlignVertical: "top" },
-    prioRow: { flexDirection: "row", gap: 6 },
     prioBtn: {
-        width: 40,
-        height: 40,
-        borderRadius: 8,
         alignItems: "center",
-        justifyContent: "center",
         backgroundColor: W.bgChip,
         borderColor: W.bgLine,
+        borderRadius: 8,
         borderWidth: StyleSheet.hairlineWidth,
+        height: 40,
+        justifyContent: "center",
+        width: 40,
     },
     prioBtnActive: {
         backgroundColor: W.violetBg,
         borderColor: W.violet,
     },
+    prioRow: { flexDirection: "row", gap: 6 },
     prioText: { color: W.fgDim, fontFamily: Fonts.mono, fontWeight: "600" },
     prioTextActive: { color: W.violet },
     publishBtn: {
-        marginTop: 24,
+        alignItems: "center",
         backgroundColor: W.violet,
         borderRadius: 10,
-        paddingVertical: 14,
         flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
         gap: 8,
+        justifyContent: "center",
+        marginTop: 24,
+        paddingVertical: 14,
     },
     publishText: {
-        fontFamily: Fonts.mono,
-        fontWeight: "600",
         color: W.bg,
+        fontFamily: Fonts.mono,
         fontSize: 14,
+        fontWeight: "600",
     },
-    topicRow: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        flexDirection: "row",
+    root: { backgroundColor: W.bg, flex: 1 },
+    sectionLabelLine: {
+        backgroundColor: W.bgLine,
+        flex: 1,
+        height: 1,
+        marginLeft: 10,
+    },
+    sectionLabelRow: {
         alignItems: "center",
-        gap: 12,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: W.bgLine,
+        flexDirection: "row",
+        paddingBottom: 6,
+        paddingHorizontal: 20,
+        paddingTop: 14,
     },
-    topicName: { fontFamily: Fonts.mono, fontSize: 12.5, color: W.fg },
+    sectionLabelText: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 10,
+        fontWeight: "500",
+        letterSpacing: 1.5,
+    },
+    subtitle: {
+        color: W.fgMuted,
+        fontFamily: Fonts.mono,
+        fontSize: 12,
+        marginTop: 4,
+    },
+    textArea: { minHeight: 80, textAlignVertical: "top" },
+    title: {
+        color: W.fg,
+        fontSize: 28,
+        fontWeight: "600",
+        letterSpacing: -0.5,
+    },
     topicMeta: {
+        color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10.5,
-        color: W.fgDim,
         marginTop: 2,
+    },
+    topicName: { color: W.fg, fontFamily: Fonts.mono, fontSize: 12.5 },
+    topicRow: {
+        alignItems: "center",
+        borderBottomColor: W.bgLine,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        flexDirection: "row",
+        gap: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
     },
 });

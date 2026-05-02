@@ -1,15 +1,15 @@
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { createContext, type ReactNode, useContext, useEffect } from "react";
 import { Platform } from "react-native";
 
 import { useDeviceInfo } from "@/hooks/use-device-info";
 import { api } from "@/lib/api";
 
 interface DeviceContextType {
-    deviceId: string | null;
-    pushToken: string | null;
-    isLoading: boolean;
+    deviceId: null | string;
     error: Error | null;
-    refreshPushToken: () => Promise<string | null>;
+    isLoading: boolean;
+    pushToken: null | string;
+    refreshPushToken: () => Promise<null | string>;
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -21,22 +21,16 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!deviceInfo.deviceId || !deviceInfo.pushToken) return;
         const platform = (
-            Platform.OS === "ios" || Platform.OS === "android"
-                ? Platform.OS
-                : "web"
-        ) as "ios" | "android" | "web";
+            Platform.OS === "ios" || Platform.OS === "android" ? Platform.OS : "web"
+        ) as "android" | "ios" | "web";
         api.registerPushToken({
             deviceId: deviceInfo.deviceId,
-            token: deviceInfo.pushToken,
             platform,
-        }).catch((err) => console.warn("push-token register failed", err));
+            token: deviceInfo.pushToken,
+        }).catch((error) => console.warn("push-token register failed", error));
     }, [deviceInfo.deviceId, deviceInfo.pushToken]);
 
-    return (
-        <DeviceContext.Provider value={deviceInfo}>
-            {children}
-        </DeviceContext.Provider>
-    );
+    return <DeviceContext.Provider value={deviceInfo}>{children}</DeviceContext.Provider>;
 }
 
 export function useDevice() {

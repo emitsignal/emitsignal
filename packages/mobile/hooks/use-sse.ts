@@ -4,13 +4,13 @@
 import { useEffect, useRef } from "react";
 
 interface SSEOptions {
-    url: string | null;
+    onError?: (error: unknown) => void;
     onEvent: (event: string, data: unknown) => void;
     onOpen?: () => void;
-    onError?: (err: unknown) => void;
+    url: null | string;
 }
 
-export function useSSE({ url, onEvent, onOpen, onError }: SSEOptions) {
+export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
     const onEventRef = useRef(onEvent);
     const onOpenRef = useRef(onOpen);
     const onErrorRef = useRef(onError);
@@ -30,8 +30,8 @@ export function useSSE({ url, onEvent, onOpen, onError }: SSEOptions) {
             while (!cancelled) {
                 try {
                     const res = await fetch(url, {
-                        method: "GET",
                         headers: { Accept: "text/event-stream" },
+                        method: "GET",
                         signal: ctrl.signal,
                     });
                     if (!res.ok || !res.body) {
@@ -46,7 +46,7 @@ export function useSSE({ url, onEvent, onOpen, onError }: SSEOptions) {
                     let buffer = "";
 
                     while (!cancelled) {
-                        const { value, done } = await reader.read();
+                        const { done, value } = await reader.read();
                         if (done) break;
                         buffer += decoder.decode(value, { stream: true });
 
@@ -58,9 +58,9 @@ export function useSSE({ url, onEvent, onOpen, onError }: SSEOptions) {
                             parseFrame(frame, onEventRef.current);
                         }
                     }
-                } catch (err) {
+                } catch (error) {
                     if (cancelled) return;
-                    onErrorRef.current?.(err);
+                    onErrorRef.current?.(error);
                 }
 
                 if (cancelled) return;
@@ -78,10 +78,7 @@ export function useSSE({ url, onEvent, onOpen, onError }: SSEOptions) {
     }, [url]);
 }
 
-function parseFrame(
-    frame: string,
-    onEvent: (event: string, data: unknown) => void,
-) {
+function parseFrame(frame: string, onEvent: (event: string, data: unknown) => void) {
     let event = "message";
     const dataLines: string[] = [];
     for (const line of frame.split("\n")) {

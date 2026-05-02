@@ -17,30 +17,6 @@ export const unstable_settings = {
     anchor: "(tabs)",
 };
 
-function RootLayoutContent() {
-    const colorScheme = useColorScheme();
-
-    useForegroundNotifications();
-
-    return (
-        <NavigationThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-            <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="auth" />
-                <Stack.Screen name="topics" />
-                <Stack.Screen name="messages" />
-                <Stack.Screen
-                    name="modal"
-                    options={{ presentation: "modal" }}
-                />
-            </Stack>
-            <StatusBar style="light" />
-        </NavigationThemeProvider>
-    );
-}
-
 export default function RootLayout() {
     return (
         <ThemeProvider>
@@ -50,5 +26,24 @@ export default function RootLayout() {
                 </DeviceProvider>
             </SessionProvider>
         </ThemeProvider>
+    );
+}
+
+function RootLayoutContent() {
+    const colorScheme = useColorScheme();
+
+    useForegroundNotifications();
+
+    return (
+        <NavigationThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="auth" />
+                <Stack.Screen name="topics" />
+                <Stack.Screen name="messages" />
+                <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+            </Stack>
+            <StatusBar style="light" />
+        </NavigationThemeProvider>
     );
 }
