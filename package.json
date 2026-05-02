@@ -6,8 +6,21 @@
     "workspaces": [
         "packages/*"
     ],
+    "scripts": {
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
+    },
     "devDependencies": {
-        "@types/bun": "latest"
+        "@eslint/js": "^10.0.1",
+        "@types/bun": "latest",
+        "eslint": "^9.25.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-perfectionist": "^5.9.0",
+        "eslint-plugin-prettier": "^5.5.5",
+        "prettier": "^3.8.3",
+        "typescript-eslint": "^8.59.1"
     },
     "peerDependencies": {
         "typescript": "^5"

@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+.expo
+*.lock
+bun.lock
+coverage
+prisma/migrations
+**/src/generated/**

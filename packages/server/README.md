@@ -32,22 +32,22 @@ The server listens on `http://localhost:3000`.
 
 ## Endpoints
 
-| Method | Path                                | Description                                     |
-| ------ | ----------------------------------- | ----------------------------------------------- |
-| GET    | `/`                                 | Health check                                    |
-| POST   | `/auth/magic-link`                  | Request a 6-char magic code                     |
-| POST   | `/auth/verify`                      | Verify code → session token                     |
-| GET    | `/auth/me`                          | Current user (requires Bearer token)            |
-| GET    | `/topics`                           | List topics, optional `?q=` search              |
-| GET    | `/topics/:name`                     | One topic with counts                           |
-| GET    | `/topics/:name/messages?limit=50`   | List messages                                   |
-| GET    | `/topics/:name/listen?since=<ms>`   | **SSE** — backfill + live stream                |
-| GET    | `/listen?topics=a,b,c`              | **SSE** — multi-topic live stream               |
-| POST   | `/topic/:name`                      | Publish a message                               |
-| GET    | `/subscriptions?deviceId=…`         | List a device's subscriptions                   |
-| POST   | `/subscriptions`                    | Subscribe a device to a topic                   |
-| DELETE | `/subscriptions`                    | Unsubscribe a device                            |
-| POST   | `/push-tokens`                      | Register an Expo push token                     |
+| Method | Path                              | Description                          |
+| ------ | --------------------------------- | ------------------------------------ |
+| GET    | `/`                               | Health check                         |
+| POST   | `/auth/magic-link`                | Request a 6-char magic code          |
+| POST   | `/auth/verify`                    | Verify code → session token          |
+| GET    | `/auth/me`                        | Current user (requires Bearer token) |
+| GET    | `/topics`                         | List topics, optional `?q=` search   |
+| GET    | `/topics/:name`                   | One topic with counts                |
+| GET    | `/topics/:name/messages?limit=50` | List messages                        |
+| GET    | `/topics/:name/listen?since=<ms>` | **SSE** — backfill + live stream     |
+| GET    | `/listen?topics=a,b,c`            | **SSE** — multi-topic live stream    |
+| POST   | `/topic/:name`                    | Publish a message                    |
+| GET    | `/subscriptions?deviceId=…`       | List a device's subscriptions        |
+| POST   | `/subscriptions`                  | Subscribe a device to a topic        |
+| DELETE | `/subscriptions`                  | Unsubscribe a device                 |
+| POST   | `/push-tokens`                    | Register an Expo push token          |
 
 Topic names that contain `/` (e.g. `deploy/prod`) must be URL-encoded as
 `deploy%2Fprod` when used as a path parameter.
