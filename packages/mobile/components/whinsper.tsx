@@ -149,7 +149,7 @@ export function WDot({ color, level = 3, size = 6 }: WDotProps) {
 
 export function WLogo({
     color = W.violet,
-    label = "whinsper",
+    label = "flysignal",
     labelStyle,
     pulse = false,
     size = 14,
@@ -157,7 +157,9 @@ export function WLogo({
     const opacity = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
-        if (!pulse) return;
+        if (!pulse) {
+            return;
+        }
         const loop = Animated.loop(
             Animated.sequence([
                 Animated.timing(opacity, {

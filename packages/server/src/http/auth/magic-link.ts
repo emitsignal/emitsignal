@@ -6,10 +6,13 @@ const CODE_TTL_MS = 10 * 60 * 1000;
 
 function generateCode() {
     const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
+
     let code = "";
+
     for (let i = 0; i < 6; i++) {
         code += alphabet[Math.floor(Math.random() * alphabet.length)];
     }
+
     return code;
 }
 

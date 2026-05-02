@@ -32,7 +32,9 @@ export default function SubscribeModal() {
     const [busy, setBusy] = useState(false);
 
     const handleSubscribe = async () => {
-        if (!deviceId || !topic.trim()) return;
+        if (!deviceId || !topic.trim()) {
+            return;
+        }
         setBusy(true);
         try {
             await api.subscribe(deviceId, topic.trim(), true);

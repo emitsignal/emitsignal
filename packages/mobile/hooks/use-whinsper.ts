@@ -24,15 +24,21 @@ export function useFeed() {
     });
 
     const refresh = useCallback(async () => {
-        if (!deviceId) return;
+        if (!deviceId) {
+            return;
+        }
+
         try {
             const subscriptions = await api.listSubscriptions(deviceId);
             const allMessages: Message[] = [];
+
             for (const subscription of subscriptions) {
                 const messages = await api.listMessages(subscription.topic.name, 25);
                 allMessages.push(...messages);
             }
+
             allMessages.sort((a, b) => b.createdAt - a.createdAt);
+
             setState({
                 error: null,
                 loading: false,
@@ -49,7 +55,9 @@ export function useFeed() {
     }, [deviceId]);
 
     useEffect(() => {
-        if (deviceId) refresh();
+        if (deviceId) {
+            refresh();
+        }
     }, [deviceId, refresh]);
 
     const topicNames = state.subscriptions.map((subscription) => subscription.topic.name);
@@ -57,12 +65,17 @@ export function useFeed() {
 
     useSSE({
         onEvent: (event, data) => {
-            if (event !== "message") return;
+            if (event !== "message") {
+                return;
+            }
+
             const incoming = data as { topicName?: string } & Message;
+
             setState((prev) => {
                 if (prev.messages.some((message) => message.id === incoming.id)) {
                     return prev;
                 }
+
                 return {
                     ...prev,
                     messages: [incoming, ...prev.messages].slice(0, 200),
@@ -80,8 +93,12 @@ export function useTopicMessages(topicName: null | string) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!topicName) return;
+        if (!topicName) {
+            return;
+        }
+
         let cancelled = false;
+
         setLoading(true);
         api.listMessages(topicName)
             .then((messages) => {
@@ -100,7 +117,9 @@ export function useTopicMessages(topicName: null | string) {
 
     useSSE({
         onEvent: (event, data) => {
-            if (event !== "message") return;
+            if (event !== "message") {
+                return;
+            }
             const incoming = data as Message;
             setMessages((prev) => {
                 if (prev.some((message) => message.id === incoming.id)) return prev;

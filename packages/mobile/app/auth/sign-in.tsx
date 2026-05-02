@@ -22,7 +22,9 @@ export default function AuthSignIn() {
     const [busy, setBusy] = useState(false);
 
     const handleSend = async () => {
-        if (!email.trim()) return;
+        if (!email.trim()) {
+            return;
+        }
         setBusy(true);
         try {
             const result = await api.requestMagicLink(email.trim());

@@ -25,10 +25,15 @@ export default function ChannelsScreen() {
     const [query, setQuery] = useState("");
 
     const refresh = async () => {
-        if (!deviceId) return;
+        if (!deviceId) {
+            return;
+        }
+
         setLoading(true);
+
         try {
             const subscriptions = await api.listSubscriptions(deviceId);
+
             setSubscriptions(subscriptions);
         } catch (error) {
             console.error(error);
@@ -52,7 +57,10 @@ export default function ChannelsScreen() {
     }, [subscriptions, query]);
 
     const handleUnsubscribe = (sub: Subscription) => {
-        if (!deviceId) return;
+        if (!deviceId) {
+            return;
+        }
+
         Alert.alert("Unsubscribe", `Stop receiving messages from ${sub.topic.name}?`, [
             { style: "cancel", text: "Cancel" },
             {

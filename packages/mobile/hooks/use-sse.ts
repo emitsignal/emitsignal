@@ -20,7 +20,9 @@ export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
     onErrorRef.current = onError;
 
     useEffect(() => {
-        if (!url) return;
+        if (!url) {
+            return;
+        }
 
         let cancelled = false;
         const ctrl = new AbortController();
@@ -59,11 +61,15 @@ export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
                         }
                     }
                 } catch (error) {
-                    if (cancelled) return;
+                    if (cancelled) {
+                        return;
+                    }
                     onErrorRef.current?.(error);
                 }
 
-                if (cancelled) return;
+                if (cancelled) {
+                    return;
+                }
                 await new Promise((r) => setTimeout(r, backoff));
                 backoff = Math.min(backoff * 2, 30_000);
             }
@@ -86,7 +92,9 @@ function parseFrame(frame: string, onEvent: (event: string, data: unknown) => vo
         if (line.startsWith("event:")) event = line.slice(6).trim();
         else if (line.startsWith("data:")) dataLines.push(line.slice(5).trim());
     }
-    if (!dataLines.length) return;
+    if (!dataLines.length) {
+        return;
+    }
     const raw = dataLines.join("\n");
     try {
         onEvent(event, JSON.parse(raw));

@@ -29,7 +29,9 @@ export default function AuthFirstChannels() {
     const pickedCount = Object.values(picked).filter(Boolean).length;
 
     const handleFinish = async () => {
-        if (!deviceId) return;
+        if (!deviceId) {
+            return;
+        }
         setBusy(true);
         try {
             for (const [name, on] of Object.entries(picked)) {

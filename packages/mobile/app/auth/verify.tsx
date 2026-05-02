@@ -40,7 +40,9 @@ export default function AuthVerify() {
     }, [params.devCode]);
 
     const handleVerify = async () => {
-        if (!params.email || code.length !== 6) return;
+        if (!params.email || code.length !== 6) {
+            return;
+        }
         setBusy(true);
         try {
             const res = await api.verifyMagicLink(params.email, code);

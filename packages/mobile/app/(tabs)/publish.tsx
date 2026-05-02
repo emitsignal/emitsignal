@@ -33,7 +33,9 @@ export default function PublishScreen() {
     }, []);
 
     const handlePublish = async () => {
-        if (!topic.trim() || !title.trim()) return;
+        if (!topic.trim() || !title.trim()) {
+            return;
+        }
         setBusy(true);
         try {
             await api.publish(topic.trim(), {

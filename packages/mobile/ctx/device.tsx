@@ -19,7 +19,9 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
 
     // Register push token with the backend whenever it changes
     useEffect(() => {
-        if (!deviceInfo.deviceId || !deviceInfo.pushToken) return;
+        if (!deviceInfo.deviceId || !deviceInfo.pushToken) {
+            return;
+        }
         const platform = (
             Platform.OS === "ios" || Platform.OS === "android" ? Platform.OS : "web"
         ) as "android" | "ios" | "web";
@@ -35,8 +37,10 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
 
 export function useDevice() {
     const context = useContext(DeviceContext);
+
     if (context === undefined) {
         throw new Error("useDevice must be used within a DeviceProvider");
     }
+
     return context;
 }

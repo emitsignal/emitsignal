@@ -41,7 +41,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                     };
                     // Verify still valid
                     await api.me(parsed.token);
-                    if (cancelled) return;
+                    if (cancelled) {
+                        return;
+                    }
                     setToken(parsed.token);
                     setUser(parsed.user);
                 } catch {
