@@ -7,6 +7,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { WLogo, WTopicAvatar } from "@/components/whinsper";
 import { Fonts, W } from "@/constants/theme";
 import { useDevice } from "@/ctx/device";
+import { useOnboarding } from "@/hooks/use-onboarding";
 import { api } from "@/lib/api";
 
 const SUGGESTED = [
@@ -18,6 +19,7 @@ const SUGGESTED = [
 
 export default function AuthFirstChannels() {
     const { deviceId } = useDevice();
+    const { markOnboardingComplete } = useOnboarding();
     const [picked, setPicked] = useState<Record<string, boolean>>({
         "alerts/prod": true,
         "deploy/prod": true,
@@ -37,6 +39,7 @@ export default function AuthFirstChannels() {
             for (const [name, on] of Object.entries(picked)) {
                 if (on) await api.subscribe(deviceId, name, true);
             }
+            await markOnboardingComplete();
             router.replace("/(tabs)");
         } catch (error) {
             console.error("Subscribe failed", error);

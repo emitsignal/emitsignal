@@ -13,10 +13,6 @@ import { ThemeProvider } from "@/ctx/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useForegroundNotifications } from "@/hooks/use-foreground-notifications";
 
-export const unstable_settings = {
-    anchor: "(tabs)",
-};
-
 export default function RootLayout() {
     return (
         <ThemeProvider>
@@ -37,6 +33,7 @@ function RootLayoutContent() {
     return (
         <NavigationThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
             <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="auth" />
                 <Stack.Screen name="topics" />

@@ -5,8 +5,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { WCode } from "@/components/whinsper";
 import { Fonts, W } from "@/constants/theme";
+import { useOnboarding } from "@/hooks/use-onboarding";
 
 export default function AuthWelcome() {
+    const { markOnboardingComplete } = useOnboarding();
     const pulse = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
@@ -54,7 +56,13 @@ export default function AuthWelcome() {
                 <Pressable onPress={() => router.push("/auth/sign-in")} style={styles.cta}>
                     <Text style={styles.ctaText}>get started →</Text>
                 </Pressable>
-                <Pressable onPress={() => router.replace("/(tabs)")} style={{ marginTop: 14 }}>
+                <Pressable
+                    onPress={async () => {
+                        await markOnboardingComplete();
+                        router.replace("/(tabs)");
+                    }}
+                    style={{ marginTop: 14 }}
+                >
                     <Text style={styles.skip}>skip · use as anonymous device</Text>
                 </Pressable>
             </View>
