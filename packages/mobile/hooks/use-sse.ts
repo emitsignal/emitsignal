@@ -22,7 +22,7 @@ export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
             return;
         }
 
-        const es = new EventSource<"hello">(url);
+        const es = new EventSource(url);
 
         es.addEventListener("open", () => {
             onOpenRef.current?.();
@@ -41,7 +41,6 @@ export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
         };
 
         es.addEventListener("message", handleEvent);
-        es.addEventListener("hello", handleEvent);
 
         return () => {
             es.removeAllEventListeners();

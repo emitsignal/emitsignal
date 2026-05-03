@@ -29,11 +29,6 @@ export const listenMulti = new Elysia().get("/listen", async ({ query, request, 
             const send = (event: string, data: unknown) =>
                 controller.enqueue(encoder.encode(formatEvent(event, data)));
 
-            send("hello", {
-                connectedAt: Date.now(),
-                topics,
-            });
-
             const unsubscribers = topics.length
                 ? topics.map((name) => bus.subscribe(name, (e) => send("message", e)))
                 : [bus.subscribe("*", (e) => send("message", e))];

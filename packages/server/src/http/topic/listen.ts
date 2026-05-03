@@ -39,11 +39,6 @@ export const listen = new Elysia().get(
                 const send = (event: string, data: unknown) =>
                     controller.enqueue(encoder.encode(formatEvent(event, data)));
 
-                send("hello", {
-                    connectedAt: Date.now(),
-                    topic: topic.name,
-                });
-
                 if (since !== null && Number.isFinite(since)) {
                     const backlog = await prisma.message.findMany({
                         orderBy: { createdAt: "asc" },
