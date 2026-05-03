@@ -47,7 +47,7 @@ export default function TopicScreen() {
                 renderItem={({ item }) => (
                     <MessageRow
                         message={item}
-                        onPress={() => router.push(`/messages/${item.id}`)}
+                        onPress={() => router.push(`/messages/${encodeURIComponent(item.id)}`)}
                     />
                 )}
             />

@@ -125,7 +125,7 @@ export default function ChannelsScreen() {
                 renderItem={({ item }) => (
                     <ChannelRow
                         onLongPress={() => handleUnsubscribe(item)}
-                        onPress={() => router.push(`/topics/${item.topic.name}`)}
+                        onPress={() => router.push(`/topics/${encodeURIComponent(item.topic.name)}`)}
                         sub={item}
                     />
                 )}
