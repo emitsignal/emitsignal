@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     Alert,
     FlatList,
@@ -24,27 +24,30 @@ export default function ChannelsScreen() {
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState("");
 
-    const refresh = async () => {
-        if (!deviceId) {
-            return;
-        }
+    const refresh = useCallback(async () => {
+        if (!deviceId) return;
 
         setLoading(true);
 
         try {
             const subscriptions = await api.listSubscriptions(deviceId);
-
             setSubscriptions(subscriptions);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
         }
-    };
+    }, [deviceId]);
 
     useEffect(() => {
         if (deviceId) refresh();
     }, [deviceId]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (deviceId) refresh();
+        }, [deviceId, refresh]),
+    );
 
     const filtered = useMemo(() => {
         if (!query.trim()) return subscriptions;
@@ -125,7 +128,9 @@ export default function ChannelsScreen() {
                 renderItem={({ item }) => (
                     <ChannelRow
                         onLongPress={() => handleUnsubscribe(item)}
-                        onPress={() => router.push(`/topics/${encodeURIComponent(item.topic.name)}`)}
+                        onPress={() =>
+                            router.push(`/topics/${encodeURIComponent(item.topic.name)}`)
+                        }
                         sub={item}
                     />
                 )}
@@ -133,7 +138,7 @@ export default function ChannelsScreen() {
 
             <Pressable onPress={() => router.push("/modal")} style={styles.fab}>
                 <IconSymbol color={W.bg} name="plus" size={14} />
-                <Text style={styles.fabText}>+ subscribe</Text>
+                <Text style={styles.fabText}>Subscribe</Text>
             </Pressable>
         </SafeAreaView>
     );
@@ -234,7 +239,7 @@ const styles = StyleSheet.create({
     fabText: {
         color: W.bg,
         fontFamily: Fonts.mono,
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: "600",
     },
     header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },

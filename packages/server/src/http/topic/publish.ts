@@ -20,6 +20,7 @@ export const publish = new Elysia().post(
         });
 
         const event = serializeMessage({ ...created, topicId: topic.id });
+
         bus.publish(topic.name, { ...event, topicName: topic.name });
 
         return { message: "posted", messageId: created.id };

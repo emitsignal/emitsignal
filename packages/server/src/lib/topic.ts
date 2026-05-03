@@ -41,13 +41,9 @@ export function serializeMessage(m: {
     topicId: string;
 }) {
     return {
-        body: m.body,
+        ...m,
         createdAt: m.createdAt.getTime(),
-        id: m.id,
-        priority: m.priority,
         tags: parseTags(m.tags),
-        title: m.title,
-        topicId: m.topicId,
     };
 }
 
