@@ -23,6 +23,7 @@ export const listen = new Elysia().get(
         const topic = await prisma.topic.findUnique({
             where: { name: params.name },
         });
+
         if (!topic) {
             set.status = 404;
             return { error: "topic_not_found" };
