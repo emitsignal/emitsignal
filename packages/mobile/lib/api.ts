@@ -42,10 +42,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
             ...(init.headers ?? {}),
         },
     });
+
     if (!res.ok) {
         const text = await res.text().catch(() => res.statusText);
+
         throw new Error(`${res.status} ${text}`);
     }
+
     return res.json() as Promise<T>;
 }
 

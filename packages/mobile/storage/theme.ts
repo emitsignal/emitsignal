@@ -14,10 +14,10 @@ export const saveThemePreference = async (theme: ThemePreference) => {
 
 export const getThemePreference = async (): Promise<null | ThemePreference> => {
     try {
-        const theme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-        return theme as null | ThemePreference;
+        return AsyncStorage.getItem(THEME_STORAGE_KEY) as unknown as null | ThemePreference;
     } catch (error) {
         console.warn("Failed to get theme preference:", error);
+
         return null;
     }
 };
