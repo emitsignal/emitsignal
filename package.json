@@ -1,5 +1,5 @@
 {
-    "name": "notify",
+    "name": "@emitsignal",
     "module": "index.ts",
     "type": "module",
     "private": true,

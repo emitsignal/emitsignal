@@ -1,0 +1,55 @@
+{
+    "expo": {
+        "android": {
+            "adaptiveIcon": {
+                "backgroundColor": "#E6F4FE",
+                "backgroundImage": "./assets/images/android-icon-background.png",
+                "foregroundImage": "./assets/images/android-icon-foreground.png",
+                "monochromeImage": "./assets/images/android-icon-monochrome.png"
+            },
+            "edgeToEdgeEnabled": true,
+            "predictiveBackGestureEnabled": false
+        },
+        "experiments": {
+            "reactCompiler": true,
+            "typedRoutes": false
+        },
+        "extra": {
+            "router": {},
+            "eas": {
+                "projectId": "e0259bd2-8ff3-4a02-91d8-630efc0c475f"
+            }
+        },
+        "icon": "./assets/images/icon.png",
+        "ios": {
+            "supportsTablet": true
+        },
+        "name": "Emit Signal",
+        "newArchEnabled": true,
+        "orientation": "portrait",
+        "plugins": [
+            "expo-router",
+            [
+                "expo-splash-screen",
+                {
+                    "backgroundColor": "#ffffff",
+                    "dark": {
+                        "backgroundColor": "#000000"
+                    },
+                    "image": "./assets/images/splash-icon.png",
+                    "imageWidth": 200,
+                    "resizeMode": "contain"
+                }
+            ]
+        ],
+        "owner": "kevenleone",
+        "scheme": "mobile",
+        "slug": "emit-signal",
+        "userInterfaceStyle": "automatic",
+        "web": {
+            "favicon": "./assets/images/favicon.png",
+            "output": "static"
+        },
+        "version": "1.0.0"
+    }
+}

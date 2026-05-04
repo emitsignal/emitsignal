@@ -1,4 +1,4 @@
-# notify
+# EmitSignal
 
 To install dependencies:
 
