@@ -15,6 +15,7 @@ import { listen } from "./http/topic/listen";
 import { listenMulti } from "./http/topic/listen-multi";
 import { messages } from "./http/topic/messages";
 import { publish } from "./http/topic/publish";
+import { environment } from "./schema/environment";
 
 const app = new Elysia()
     .onError(({ code, error }) => {
@@ -40,6 +41,6 @@ const app = new Elysia()
     .use(subscribe)
     .use(unsubscribe)
     .use(registerPushToken)
-    .listen(3000);
+    .listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
 console.log(`🟣 @EmitSignal running at ${app.server?.hostname}:${app.server?.port}`);
