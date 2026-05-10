@@ -1,40 +1,5 @@
 {
     "compilerOptions": {
-        /* Visit https://aka.ms/tsconfig to read more about this file */
-
-        /* Projects */
-        // "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
-        // "composite": true,                                /* Enable constraints that allow a TypeScript project to be used with project references. */
-        // "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
-        // "disableSourceOfProjectReferenceRedirect": true,  /* Disable preferring source files instead of declaration files when referencing composite projects. */
-        // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
-        // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
-
-        /* Language and Environment */
-        "target": "ES2021" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-        // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
-        // "jsx": "preserve",                                /* Specify what JSX code is generated. */
-        // "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */
-        // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
-        // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
-        // "jsxFragmentFactory": "",                         /* Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'. */
-        // "jsxImportSource": "",                            /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
-        // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
-        // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
-        // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
-        // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
-
-        /* Modules */
-        "module": "ES2022" /* Specify what module code is generated. */,
-        // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-        "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
-        // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
-        // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
-        // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
-        // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
-        "types": [
-            "bun-types"
-        ] /* Specify type package names to be included without being referenced in a source file. */,
         // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
         // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
         // "resolveJsonModule": true,                        /* Enable importing .json files. */
@@ -77,8 +42,22 @@
         // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
         "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
 
-        /* Type Checking */
-        "strict": true /* Enable all strict type-checking options. */,
+        // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
+        // "jsx": "preserve",                                /* Specify what JSX code is generated. */
+        // "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */
+        // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
+        // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
+        // "jsxFragmentFactory": "",                         /* Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'. */
+        // "jsxImportSource": "",                            /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
+        // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
+        // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
+        // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
+        // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
+
+        /* Modules */
+        "module": "ES2022" /* Specify what module code is generated. */,
+        // "rootDir": "./",                                  /* Specify the root folder within your source files. */
+        "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
         // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
         // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
         // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
@@ -100,6 +79,27 @@
 
         /* Completeness */
         // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-        "skipLibCheck": true /* Skip type checking all .d.ts files. */
+        "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+        /* Type Checking */
+        "strict": true /* Enable all strict type-checking options. */,
+        /* Visit https://aka.ms/tsconfig to read more about this file */
+
+        /* Projects */
+        // "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
+        // "composite": true,                                /* Enable constraints that allow a TypeScript project to be used with project references. */
+        // "tsBuildInfoFile": "./.tsbuildinfo",              /* Specify the path to .tsbuildinfo incremental compilation file. */
+        // "disableSourceOfProjectReferenceRedirect": true,  /* Disable preferring source files instead of declaration files when referencing composite projects. */
+        // "disableSolutionSearching": true,                 /* Opt a project out of multi-project reference checking when editing. */
+        // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
+
+        /* Language and Environment */
+        "target": "ES2021" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+        // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+        // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+        // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
+        // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
+        "types": [
+            "bun-types"
+        ] /* Specify type package names to be included without being referenced in a source file. */
     }
 }

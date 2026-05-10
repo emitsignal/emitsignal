@@ -1,29 +1,29 @@
 {
-    "name": "@emitsignal",
-    "module": "index.ts",
-    "type": "module",
-    "private": true,
-    "workspaces": [
-        "packages/*"
-    ],
-    "scripts": {
-        "dev": "bun --filter dev",
-        "lint": "eslint .",
-        "lint:fix": "eslint . --fix",
-        "format": "prettier --write .",
-        "format:check": "prettier --check ."
-    },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@types/bun": "latest",
         "eslint": "^9.25.0",
         "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-jsonc": "^3.1.2",
         "eslint-plugin-perfectionist": "^5.9.0",
         "eslint-plugin-prettier": "^5.5.5",
         "prettier": "^3.8.3",
+        "prettier-plugin-sort-json": "^4.2.0",
         "typescript-eslint": "^8.59.1"
     },
+    "module": "index.ts",
+    "name": "@emitsignal",
     "peerDependencies": {
         "typescript": "^5"
-    }
+    },
+    "private": true,
+    "scripts": {
+        "dev": "bun --filter dev",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix"
+    },
+    "type": "module",
+    "workspaces": ["packages/*"]
 }

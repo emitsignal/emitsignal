@@ -1,4 +1,4 @@
-import { Img, Row, Column, Text } from "react-email";
+import { Column, Img, Row, Text } from "react-email";
 
 import { brandAssets } from "../tailwind.config";
 

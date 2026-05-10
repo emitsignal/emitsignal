@@ -1,9 +1,9 @@
-node_modules
-dist
-build
 .expo
 *.lock
+**/src/generated/**
+build
 bun.lock
 coverage
+dist
+node_modules
 prisma/migrations
-**/src/generated/**

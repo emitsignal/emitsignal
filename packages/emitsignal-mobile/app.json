@@ -15,10 +15,10 @@
             "typedRoutes": false
         },
         "extra": {
-            "router": {},
             "eas": {
                 "projectId": "e0259bd2-8ff3-4a02-91d8-630efc0c475f"
-            }
+            },
+            "router": {}
         },
         "icon": "./assets/images/icon.png",
         "ios": {
@@ -27,6 +27,7 @@
         "name": "Emit Signal",
         "newArchEnabled": true,
         "orientation": "portrait",
+        "owner": "kevenleone",
         "plugins": [
             "expo-router",
             [
@@ -42,14 +43,13 @@
                 }
             ]
         ],
-        "owner": "kevenleone",
         "scheme": "mobile",
         "slug": "emit-signal",
         "userInterfaceStyle": "automatic",
+        "version": "1.0.0",
         "web": {
             "favicon": "./assets/images/favicon.png",
             "output": "static"
-        },
-        "version": "1.0.0"
+        }
     }
 }

@@ -1,13 +1,13 @@
 import {
     Body,
     Button,
+    Column,
     Container,
     Head,
     Heading,
     Html,
     Preview,
     Row,
-    Column,
     Section,
     Tailwind,
     Text,
@@ -38,17 +38,6 @@ const priorityColors: Record<number, string> = {
     5: "#f87171",
 };
 
-function relativeTime(ts: number): string {
-    const diff = Date.now() - ts;
-    const min = Math.floor(diff / 60000);
-    if (min < 1) return "now";
-    if (min < 60) return `${min}m`;
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return `${hr}h`;
-    const day = Math.floor(hr / 24);
-    return `${day}d`;
-}
-
 export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: WeeklyDigestProps) {
     const grouped = messages.reduce<Record<string, DigestMessage[]>>((acc, msg) => {
         const list = acc[msg.topicName] ?? [];
@@ -78,16 +67,16 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                         <Text className="mb-6 font-mono text-sm text-es-fgDim">
                             Week of{" "}
                             {weekStart.toLocaleDateString("en-US", {
-                                month: "short",
                                 day: "numeric",
+                                month: "short",
                                 year: "numeric",
                             })}
                         </Text>
 
                         {topicNames.map((topic) => (
                             <Section
-                                key={topic}
                                 className="mb-6 rounded-lg border border-solid border-es-bgLine bg-es-bgElev p-5"
+                                key={topic}
                             >
                                 <Row className="mb-3">
                                     <Column>
@@ -104,7 +93,7 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                                 </Row>
 
                                 {grouped[topic].map((msg) => (
-                                    <Row key={msg.id} className="mb-2">
+                                    <Row className="mb-2" key={msg.id}>
                                         <Column style={{ width: "12px" }}>
                                             <div
                                                 style={{
@@ -157,6 +146,17 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
             </Tailwind>
         </Html>
     );
+}
+
+function relativeTime(ts: number): string {
+    const diff = Date.now() - ts;
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return "now";
+    if (min < 60) return `${min}m`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h`;
+    const day = Math.floor(hr / 24);
+    return `${day}d`;
 }
 
 WeeklyDigestEmail.PreviewProps = {

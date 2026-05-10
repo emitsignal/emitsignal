@@ -1,14 +1,4 @@
 {
-    "name": "@emitsignal/server",
-    "version": "1.0.50",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "bun run --watch src/index.ts",
-        "db:migrate": "prisma migrate dev",
-        "db:generate": "prisma generate",
-        "db:studio": "prisma studio",
-        "db:seed": "bun run prisma/seed.ts"
-    },
     "dependencies": {
         "@elysia/openapi": "^1.4.15",
         "@elysiajs/cors": "^1.4.1",
@@ -22,5 +12,15 @@
     "devDependencies": {
         "bun-types": "latest"
     },
-    "module": "src/index.js"
+    "module": "src/index.js",
+    "name": "@emitsignal/server",
+    "scripts": {
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev",
+        "db:seed": "bun run prisma/seed.ts",
+        "db:studio": "prisma studio",
+        "dev": "bun run --watch src/index.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "version": "1.0.50"
 }
