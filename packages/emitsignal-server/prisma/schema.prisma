@@ -1,6 +1,3 @@
-// Models a developer-focused notification platform: users, topics (channels),
-// messages, subscriptions, push tokens, and API keys.
-
 generator client {
     provider = "prisma-client"
     output   = "../src/generated/prisma"
@@ -10,146 +7,156 @@ datasource db {
     provider = "sqlite"
 }
 
-model User {
-    id        String   @id @default(cuid())
-    email     String   @unique
-    name      String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model ApiKey {
+    id        String    @id @default(cuid())
 
-    ownedTopics       Topic[]         @relation("TopicOwner")
-    topicAccess       TopicAccess[]
-    sentMessages      Message[]       @relation("MessageSender")
-    pushTokens        PushToken[]
-    subscriptions     Subscription[]
-    apiKeys           ApiKey[]
-    verificationCodes VerificationCode[]
-    sessions          Session[]
-}
-
-model VerificationCode {
-    id        String   @id @default(cuid())
-    email     String
-    code      String
-    expiresAt DateTime
-    consumed  Boolean  @default(false)
-    createdAt DateTime @default(now())
-
-    user   User?   @relation(fields: [userId], references: [id])
-    userId String?
-
-    @@index([email])
-    @@index([code])
-}
-
-model Session {
-    id        String   @id @default(cuid())
-    token     String   @unique
+    createdAt DateTime  @default(now())
+    hash      String // sha256 of full key
+    label     String
+    lastUsed  DateTime?
+    prefix    String // shown to user
+    sentCount Int       @default(0)
     userId    String
-    expiresAt DateTime
-    createdAt DateTime @default(now())
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
-}
-
-model Topic {
-    id          String   @id @default(cuid())
-    name        String   @unique
-    displayName String
-    description String?
-    isPublic    Boolean  @default(true)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-
-    ownerId String?
-    owner   User?   @relation("TopicOwner", fields: [ownerId], references: [id])
-
-    messages      Message[]
-    subscriptions Subscription[]
-    access        TopicAccess[]
-
-    @@index([ownerId])
-    @@index([isPublic])
-}
-
-model TopicAccess {
-    id        String   @id @default(cuid())
-    topicId   String
-    userId    String
-    role      String // "owner" | "publisher" | "subscriber"
-    grantedAt DateTime @default(now())
-
-    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([topicId, userId])
-    @@index([topicId])
+    @@index([prefix])
     @@index([userId])
 }
 
 model Message {
     id        String   @id @default(cuid())
-    topicId   String
-    title     String
+   
     body      String
-    priority  Int      @default(3) // 1=min..5=max
-    tags      String // JSON array string for sqlite
-    senderId  String?
     createdAt DateTime @default(now())
+    priority  Int      @default(3) // 1=min..5=max
+    senderId  String?
+    tags      String // JSON array string for sqlite
+    title     String
+    topicId   String
 
-    topic  Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
     sender User? @relation("MessageSender", fields: [senderId], references: [id])
+    topic  Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-    @@index([topicId])
     @@index([topicId, createdAt])
+    @@index([topicId])
 }
 
 model PushToken {
     id        String   @id @default(cuid())
-    userId    String?
-    deviceId  String
-    token     String
-    platform  String // "ios" | "android" | "web"
+
     createdAt DateTime @default(now())
+    deviceId  String
+    platform  String // "ios" | "android" | "web"
+    token     String
     updatedAt DateTime @updatedAt
+    userId    String?
 
     user User? @relation(fields: [userId], references: [id])
 
-    @@unique([deviceId, token])
-    @@index([userId])
     @@index([token])
-}
-
-model Subscription {
-    id          String   @id @default(cuid())
-    userId      String?
-    deviceId    String
-    topicId     String
-    pushEnabled Boolean  @default(true)
-    createdAt   DateTime @default(now())
-
-    user  User? @relation(fields: [userId], references: [id])
-    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-    @@unique([deviceId, topicId])
     @@index([userId])
-    @@index([topicId])
+    @@unique([deviceId, token])
 }
 
-model ApiKey {
-    id        String    @id @default(cuid())
+model Session {
+    id        String   @id @default(cuid())
+
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+    token     String   @unique
     userId    String
-    label     String
-    prefix    String // shown to user
-    hash      String // sha256 of full key
-    lastUsed  DateTime?
-    sentCount Int       @default(0)
-    createdAt DateTime  @default(now())
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([userId])
-    @@index([prefix])
+}
+
+
+model Subscription {
+    id          String   @id @default(cuid())
+
+    createdAt   DateTime @default(now())
+    deviceId    String
+    pushEnabled Boolean  @default(true)
+    topicId     String
+    userId      String?
+
+    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+    user  User? @relation(fields: [userId], references: [id])
+
+    @@index([topicId])
+    @@index([userId])
+    @@unique([deviceId, topicId])
+}
+
+model Topic {
+    id          String   @id @default(cuid())
+
+    createdAt   DateTime @default(now())
+    description String?
+    displayName String
+    isPublic    Boolean  @default(true)
+    name        String   @unique
+    updatedAt   DateTime @updatedAt
+
+    owner   User?   @relation("TopicOwner", fields: [ownerId], references: [id])
+    ownerId String?
+
+    access        TopicAccess[]
+    messages      Message[]
+    subscriptions Subscription[]
+
+    @@index([isPublic])
+    @@index([ownerId])
+}
+
+model TopicAccess {
+    id        String   @id @default(cuid())
+
+    grantedAt DateTime @default(now())
+    role      String // "owner" | "publisher" | "subscriber"
+    topicId   String
+    userId    String
+
+    topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([topicId])
+    @@index([userId])
+    @@unique([topicId, userId])
+}
+
+model User {
+    id        String   @id @default(cuid())
+
+    createdAt DateTime @default(now())
+    email     String   @unique
+    name      String?
+    updatedAt DateTime @updatedAt
+
+    apiKeys           ApiKey[]
+    ownedTopics       Topic[]         @relation("TopicOwner")
+    pushTokens        PushToken[]
+    sentMessages      Message[]       @relation("MessageSender")
+    sessions          Session[]
+    subscriptions     Subscription[]
+    topicAccess       TopicAccess[]
+    verificationCodes VerificationCode[]
+}
+
+model VerificationCode {
+    id        String   @id @default(cuid())
+
+    code      String
+    consumed  Boolean  @default(false)
+    createdAt DateTime @default(now())
+    email     String
+    expiresAt DateTime
+
+    user   User?   @relation(fields: [userId], references: [id])
+    userId String?
+
+    @@index([code])
+    @@index([email])
 }
