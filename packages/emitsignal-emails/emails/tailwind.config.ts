@@ -39,7 +39,7 @@ export default {
 
 export const brandAssets = {
     logo: {
-        alt: "Emit Signal",
+        alt: "EmitSignal",
         height: 32,
         src: `${process.env.NODE_ENV === "production" ? "https://emitsignal.com" : ""}/static/logo.png`,
         width: 32,

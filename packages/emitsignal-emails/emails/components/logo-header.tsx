@@ -13,6 +13,7 @@ export function LogoHeader() {
                     width={brandAssets.logo.width}
                 />
             </Column>
+
             <Column style={{ paddingLeft: "8px", verticalAlign: "middle" }}>
                 <Text
                     style={{
@@ -25,7 +26,7 @@ export function LogoHeader() {
                         margin: 0,
                     }}
                 >
-                    Emit Signal
+                    EmitSignal
                 </Text>
             </Column>
         </Row>

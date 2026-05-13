@@ -26,13 +26,13 @@ export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
                 <Head />
-                <Preview>Welcome to Emit Signal — your inbox for alerts</Preview>
+                <Preview>Welcome to EmitSignal — your inbox for alerts</Preview>
                 <Body className="bg-es-bg py-10 font-sans">
                     <Container className="mx-auto max-w-xl px-5">
                         <LogoHeader />
                         <Heading className="mb-4 text-2xl font-bold text-es-fg">{greeting}</Heading>
                         <Text className="mb-6 text-base leading-7 text-es-fgMuted">
-                            Thanks for joining Emit Signal. You signed up with{" "}
+                            Thanks for joining EmitSignal. You signed up with{" "}
                             <strong className="text-es-fg">{email}</strong>. Here&apos;s what you
                             can do next:
                         </Text>
@@ -59,7 +59,7 @@ export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
                             className="mb-6 box-border block rounded-lg bg-es-violet px-6 py-3 text-center text-base font-bold text-es-bg no-underline"
                             href="https://emitsignal.com"
                         >
-                            Open Emit Signal
+                            Open EmitSignal
                         </Button>
 
                         <Text className="text-sm text-es-fgFaint">

@@ -146,7 +146,7 @@ export function WDot({ color, level = 3, size = 6 }: WDotProps) {
 
 export function WLogo({
     color = W.violet,
-    label = "Emit Signal",
+    label = "EmitSignal",
     labelStyle,
     pulse = false,
     size = 14,

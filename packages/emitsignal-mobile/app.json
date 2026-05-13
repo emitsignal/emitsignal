@@ -24,10 +24,10 @@
         "ios": {
             "supportsTablet": true
         },
-        "name": "Emit Signal",
+        "name": "EmitSignal",
         "newArchEnabled": true,
         "orientation": "portrait",
-        "owner": "kevenleone",
+        "owner": "Keven Leone",
         "plugins": [
             "expo-router",
             [

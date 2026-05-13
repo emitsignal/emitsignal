@@ -33,12 +33,12 @@ export default function MagicLinkEmail({
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
                 <Head />
-                <Preview>Your Emit Signal sign-in code: {code}</Preview>
+                <Preview>Your EmitSignal sign-in code: {code}</Preview>
                 <Body className="bg-es-bg py-10 font-sans">
                     <Container className="mx-auto max-w-xl px-5">
                         <LogoHeader />
                         <Heading className="mb-4 text-2xl font-bold text-es-fg">
-                            Sign in to Emit Signal
+                            Sign in to EmitSignal
                         </Heading>
                         <Text className="mb-6 text-base text-es-fgMuted">
                             You requested a magic link to sign in to{" "}
@@ -49,7 +49,7 @@ export default function MagicLinkEmail({
                             className="mb-6 box-border block rounded-lg bg-es-violet px-6 py-3 text-center text-base font-bold text-es-bg no-underline"
                             href={magicLinkUrl}
                         >
-                            Sign In to Emit Signal
+                            Sign In to EmitSignal
                         </Button>
                         <Section className="mb-6 rounded-lg border border-solid border-es-bgLine bg-es-bgElev p-5">
                             <Text className="mb-2 text-xs uppercase tracking-wider text-es-fgDim">

@@ -49,7 +49,7 @@ export default function ApiKeyCreatedEmail({
                             New API Key Created
                         </Heading>
                         <Text className="mb-6 text-base leading-7 text-es-fgMuted">
-                            A new API key was added to your Emit Signal account. If this was you, no
+                            A new API key was added to your EmitSignal account. If this was you, no
                             action is needed.
                         </Text>
 
