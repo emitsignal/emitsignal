@@ -42,6 +42,8 @@
         // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
         "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
 
+        /* Type Checking */
+        "jsx": "react-jsx",
         // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
         // "jsx": "preserve",                                /* Specify what JSX code is generated. */
         // "experimentalDecorators": true,                   /* Enable experimental support for TC39 stage 2 draft decorators. */
@@ -81,7 +83,6 @@
         /* Completeness */
         // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-        /* Type Checking */
         "strict": true /* Enable all strict type-checking options. */,
         /* Visit https://aka.ms/tsconfig to read more about this file */
 
