@@ -16,9 +16,12 @@ import { listen } from './http/topic/listen';
 import { listenMulti } from './http/topic/listen-multi';
 import { messages } from './http/topic/messages';
 import { publish } from './http/topic/publish';
+import { Email } from './lib/email';
 import { logger } from './lib/logger';
 import { loggerPlugin } from './lib/logger-plugin';
 import { environment } from './schema/environment';
+
+Email.init(environment);
 
 new Elysia()
     .use(loggerPlugin)
