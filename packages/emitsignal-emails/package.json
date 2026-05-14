@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@react-email/render": "^2.0.8",
         "react": "19.2.4",
         "react-dom": "19.2.4",
         "react-email": "6.1.1"
@@ -9,6 +10,11 @@
         "@types/react": "19.2.14",
         "@types/react-dom": "19.2.3"
     },
+    "exports": {
+        ".": "./src/index.tsx",
+        "./*": "./src/*"
+    },
+    "main": "src/index.tsx",
     "name": "@emitsignal/emails",
     "private": true,
     "scripts": {
@@ -16,5 +22,6 @@
         "dev": "email dev",
         "export": "email export"
     },
+    "types": "src/index.tsx",
     "version": "1.1.0"
 }

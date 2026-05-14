@@ -16,7 +16,7 @@ import {
 import { LogoHeader } from './components/logo-header';
 import tailwindConfig from './tailwind.config';
 
-interface MessageAlertEmailProps {
+export interface MessageAlertEmailProps {
     body: string;
     createdAt: Date;
     messageUrl: string;

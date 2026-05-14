@@ -16,7 +16,7 @@ import {
 import { LogoHeader } from './components/logo-header';
 import tailwindConfig from './tailwind.config';
 
-interface DigestMessage {
+export interface DigestMessage {
     createdAt: Date;
     id: string;
     priority: number;
@@ -24,7 +24,7 @@ interface DigestMessage {
     topicName: string;
 }
 
-interface WeeklyDigestProps {
+export interface WeeklyDigestProps {
     inboxUrl: string;
     messages: DigestMessage[];
     weekStart: Date;

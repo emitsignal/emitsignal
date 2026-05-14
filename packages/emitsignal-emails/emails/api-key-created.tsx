@@ -14,7 +14,7 @@ import {
 import { LogoHeader } from './components/logo-header';
 import tailwindConfig from './tailwind.config';
 
-interface ApiKeyCreatedProps {
+export interface ApiKeyCreatedProps {
     createdAt: Date;
     label: string;
     prefix: string;

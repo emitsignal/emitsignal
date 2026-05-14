@@ -14,7 +14,7 @@ import {
 import { LogoHeader } from './components/logo-header';
 import tailwindConfig from './tailwind.config';
 
-interface MagicLinkEmailProps {
+export interface MagicLinkEmailProps {
     code: string;
     email: string;
     expiresAt: Date;

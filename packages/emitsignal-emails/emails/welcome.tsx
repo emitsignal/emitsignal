@@ -14,7 +14,7 @@ import {
 import { LogoHeader } from './components/logo-header';
 import tailwindConfig from './tailwind.config';
 
-interface WelcomeEmailProps {
+export interface WelcomeEmailProps {
     email: string;
     name?: string;
 }
