@@ -2,6 +2,7 @@ import { fromTypes, openapi } from "@elysia/openapi";
 import { cors } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 
+import pkg from "../package.json";
 import { magicLink } from "./http/auth/magic-link";
 import { me } from "./http/auth/me";
 import { verify } from "./http/auth/verify";
@@ -15,19 +16,19 @@ import { listen } from "./http/topic/listen";
 import { listenMulti } from "./http/topic/listen-multi";
 import { messages } from "./http/topic/messages";
 import { publish } from "./http/topic/publish";
+import { logger } from "./lib/logger";
+import { loggerPlugin } from "./lib/logger-plugin";
 import { environment } from "./schema/environment";
 
-const app = new Elysia()
-    .onError(({ code, error }) => {
-        console.error(code, error);
-    })
+new Elysia()
+    .use(loggerPlugin)
     .use(
         openapi({
             references: fromTypes(),
         }),
     )
     .use(cors({ allowedHeaders: "*" }))
-    .get("/", () => ({ name: "emitsignal", version: "0.1.0" }))
+    .get("/", () => ({ name: "emitsignal", version: pkg.version }))
     .use(magicLink)
     .use(verify)
     .use(me)
@@ -43,4 +44,4 @@ const app = new Elysia()
     .use(registerPushToken)
     .listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
-console.log(`🟣 @EmitSignal running at ${app.server?.hostname}:${app.server?.port}`);
+logger.info("🟣 @EmitSignal running");

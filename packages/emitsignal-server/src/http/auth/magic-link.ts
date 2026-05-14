@@ -1,5 +1,6 @@
 import Elysia, { t } from "elysia";
 
+import { logger } from "../../lib/logger";
 import { prisma } from "../../lib/prisma";
 
 const CODE_TTL_MS = 10 * 60 * 1000;
@@ -27,7 +28,7 @@ export const magicLink = new Elysia({ prefix: "/auth" }).post(
             data: { code, email, expiresAt },
         });
 
-        console.log(`[auth] magic code for ${email}: ${code}`);
+        logger.info({ code, email }, "magic code issued");
 
         return {
             devCode: process.env.NODE_ENV === "production" ? undefined : code,
