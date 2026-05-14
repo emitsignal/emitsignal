@@ -1,13 +1,13 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from '../../lib/prisma';
 
-export const listSubscriptions = new Elysia({ prefix: "/subscriptions" }).get(
-    "/",
+export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
+    '/',
     async ({ query }) => {
         const subscriptions = await prisma.subscription.findMany({
             include: { topic: true },
-            orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: 'desc' },
             where: { deviceId: query.deviceId },
         });
 

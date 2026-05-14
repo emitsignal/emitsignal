@@ -2,16 +2,16 @@ import {
     DarkTheme,
     DefaultTheme,
     ThemeProvider as NavigationThemeProvider,
-} from "@react-navigation/native";
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import "react-native-reanimated";
+} from '@react-navigation/native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import 'react-native-reanimated';
 
-import { DeviceProvider } from "@/ctx/device";
-import { SessionProvider } from "@/ctx/session";
-import { ThemeProvider } from "@/ctx/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { useForegroundNotifications } from "@/hooks/use-foreground-notifications";
+import { DeviceProvider } from '@/ctx/device';
+import { SessionProvider } from '@/ctx/session';
+import { ThemeProvider } from '@/ctx/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useForegroundNotifications } from '@/hooks/use-foreground-notifications';
 
 export default function RootLayout() {
     return (
@@ -31,14 +31,14 @@ function RootLayoutContent() {
     useForegroundNotifications();
 
     return (
-        <NavigationThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="auth" />
                 <Stack.Screen name="topics" />
                 <Stack.Screen name="messages" />
-                <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+                <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
             </Stack>
             <StatusBar style="light" />
         </NavigationThemeProvider>

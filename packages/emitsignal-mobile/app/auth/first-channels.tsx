@@ -1,28 +1,28 @@
-import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WLogo, WTopicAvatar } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
-import { useDevice } from "@/ctx/device";
-import { useOnboarding } from "@/hooks/use-onboarding";
-import { api } from "@/lib/api";
+import { WLogo, WTopicAvatar } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
+import { useOnboarding } from '@/hooks/use-onboarding';
+import { api } from '@/lib/api';
 
 const SUGGESTED = [
-    { desc: "Production deploys", name: "deploy/prod" },
-    { desc: "Server alerts & pages", name: "alerts/prod" },
-    { desc: "Frontend CI builds", name: "ci/web" },
-    { desc: "Errors & exceptions", name: "errors/web" },
+    { desc: 'Production deploys', name: 'deploy/prod' },
+    { desc: 'Server alerts & pages', name: 'alerts/prod' },
+    { desc: 'Frontend CI builds', name: 'ci/web' },
+    { desc: 'Errors & exceptions', name: 'errors/web' },
 ];
 
 export default function AuthFirstChannels() {
     const { deviceId } = useDevice();
     const { markOnboardingComplete } = useOnboarding();
     const [picked, setPicked] = useState<Record<string, boolean>>({
-        "alerts/prod": true,
-        "deploy/prod": true,
+        'alerts/prod': true,
+        'deploy/prod': true,
     });
     const [busy, setBusy] = useState(false);
 
@@ -40,9 +40,9 @@ export default function AuthFirstChannels() {
                 if (on) await api.subscribe(deviceId, name, true);
             }
             await markOnboardingComplete();
-            router.replace("/(tabs)");
+            router.replace('/(tabs)');
         } catch (error) {
-            console.error("Subscribe failed", error);
+            console.error('Subscribe failed', error);
         } finally {
             setBusy(false);
         }
@@ -100,7 +100,7 @@ export default function AuthFirstChannels() {
                     style={[styles.cta, (busy || pickedCount === 0) && { opacity: 0.5 }]}
                 >
                     <Text style={styles.ctaText}>
-                        {busy ? "subscribing…" : `subscribe to ${pickedCount} · finish`}
+                        {busy ? 'subscribing…' : `subscribe to ${pickedCount} · finish`}
                     </Text>
                     <IconSymbol color={W.bg} name="arrow.right" size={14} />
                 </Pressable>
@@ -111,49 +111,49 @@ export default function AuthFirstChannels() {
 
 const styles = StyleSheet.create({
     backBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     body: { flex: 1, padding: 28 },
     checkbox: {
-        alignItems: "center",
+        alignItems: 'center',
         borderColor: W.bgLine,
         borderRadius: 5,
         borderWidth: 1.5,
         height: 22,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 22,
     },
     checkboxOn: { backgroundColor: W.violet, borderColor: W.violet },
     cta: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 8,
-        justifyContent: "center",
+        justifyContent: 'center',
         paddingVertical: 14,
     },
     ctaText: {
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     footer: { padding: 28 },
     lede: { color: W.fgMuted, fontSize: 13, marginBottom: 22, marginTop: 6 },
     root: { backgroundColor: W.bg, flex: 1 },
     row: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
         borderRadius: 10,
         borderWidth: 1.5,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         marginBottom: 8,
         paddingHorizontal: 14,
@@ -168,18 +168,18 @@ const styles = StyleSheet.create({
         color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 13,
-        fontWeight: "500",
+        fontWeight: '500',
     },
     step: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
-    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    title: { color: W.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
     topBar: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 14,

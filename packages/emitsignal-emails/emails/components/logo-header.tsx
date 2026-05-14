@@ -1,11 +1,11 @@
-import { Column, Img, Row, Text } from "react-email";
+import { Column, Img, Row, Text } from 'react-email';
 
-import { brandAssets } from "../tailwind.config";
+import { brandAssets } from '../tailwind.config';
 
 export function LogoHeader() {
     return (
-        <Row style={{ marginBottom: "24px" }}>
-            <Column style={{ verticalAlign: "middle", width: "32px" }}>
+        <Row style={{ marginBottom: '24px' }}>
+            <Column style={{ verticalAlign: 'middle', width: '32px' }}>
                 <Img
                     alt={brandAssets.logo.alt}
                     height={brandAssets.logo.height}
@@ -14,15 +14,15 @@ export function LogoHeader() {
                 />
             </Column>
 
-            <Column style={{ paddingLeft: "8px", verticalAlign: "middle" }}>
+            <Column style={{ paddingLeft: '8px', verticalAlign: 'middle' }}>
                 <Text
                     style={{
-                        color: "#f5f0ff",
+                        color: '#f5f0ff',
                         fontFamily:
-                            "Geist Mono, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                        fontSize: "14px",
+                            'Geist Mono, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                        fontSize: '14px',
                         fontWeight: 500,
-                        letterSpacing: "-0.3px",
+                        letterSpacing: '-0.3px',
                         margin: 0,
                     }}
                 >

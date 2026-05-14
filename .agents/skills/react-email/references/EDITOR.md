@@ -31,7 +31,7 @@ Requires **React 18+** and a bundler that supports [package exports](https://nod
 Import the bundled default theme for the quickest start:
 
 ```tsx
-import "@react-email/editor/themes/default.css";
+import '@react-email/editor/themes/default.css';
 ```
 
 This includes the default color theme and built-in UI styles for bubble menus, slash commands, and the inspector.
@@ -39,9 +39,9 @@ This includes the default color theme and built-in UI styles for bubble menus, s
 To import only what you need:
 
 ```tsx
-import "@react-email/editor/styles/bubble-menu.css";
-import "@react-email/editor/styles/slash-command.css";
-import "@react-email/editor/styles/inspector.css";
+import '@react-email/editor/styles/bubble-menu.css';
+import '@react-email/editor/styles/slash-command.css';
+import '@react-email/editor/styles/inspector.css';
 ```
 
 ## Architecture
@@ -62,9 +62,9 @@ The editor is organized into six entry points:
 The `EmailEditor` component from `@react-email/editor` is a batteries-included component that bundles StarterKit, EmailTheming, BubbleMenus, and SlashCommands. Use it when you want the full experience with minimal setup.
 
 ```tsx
-import { EmailEditor, type EmailEditorRef } from "@react-email/editor";
-import "@react-email/editor/themes/default.css";
-import { useRef } from "react";
+import { EmailEditor, type EmailEditorRef } from '@react-email/editor';
+import '@react-email/editor/themes/default.css';
+import { useRef } from 'react';
 
 export function MyEditor() {
     const editorRef = useRef<EmailEditorRef>(null);
@@ -80,8 +80,8 @@ export function MyEditor() {
                 ref={editorRef}
                 content="<p>Start typing...</p>"
                 theme="basic"
-                onReady={(editor) => console.log("Editor ready", editor)}
-                onChange={(editor) => console.log("Content changed")}
+                onReady={(editor) => console.log('Editor ready', editor)}
+                onChange={(editor) => console.log('Content changed')}
             />
             <button onClick={handleExport}>Export HTML</button>
         </div>
@@ -118,17 +118,17 @@ export function MyEditor() {
 For more control, use `EditorProvider` from `@tiptap/react` directly with `StarterKit`:
 
 ```tsx
-import { StarterKit } from "@react-email/editor/extensions";
-import { EditorProvider } from "@tiptap/react";
+import { StarterKit } from '@react-email/editor/extensions';
+import { EditorProvider } from '@tiptap/react';
 
 const extensions = [StarterKit];
 
 const content = {
-    type: "doc",
+    type: 'doc',
     content: [
         {
-            type: "paragraph",
-            content: [{ type: "text", text: "Start typing or edit this text." }],
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'Start typing or edit this text.' }],
         },
     ],
 };
@@ -145,10 +145,10 @@ This gives you a content-editable area with all core extensions (paragraphs, hea
 Floating formatting toolbars that appear on text selection. Add as children of `EditorProvider`.
 
 ```tsx
-import { StarterKit } from "@react-email/editor/extensions";
-import { BubbleMenu } from "@react-email/editor/ui";
-import { EditorProvider } from "@tiptap/react";
-import "@react-email/editor/themes/default.css";
+import { StarterKit } from '@react-email/editor/extensions';
+import { BubbleMenu } from '@react-email/editor/ui';
+import { EditorProvider } from '@tiptap/react';
+import '@react-email/editor/themes/default.css';
 
 const extensions = [StarterKit];
 
@@ -173,7 +173,7 @@ export function MyEditor() {
 Exclude specific items from the default menu:
 
 ```tsx
-<BubbleMenu excludeItems={["strike", "code", "uppercase"]} />
+<BubbleMenu excludeItems={['strike', 'code', 'uppercase']} />
 ```
 
 When combining the text bubble menu with contextual menus for links, images, or buttons, use `hideWhenActiveMarks` on `BubbleMenu` to prevent it from appearing when a link is focused.
@@ -183,7 +183,7 @@ When combining the text bubble menu with contextual menus for links, images, or 
 Insert content blocks by typing `/` in the editor.
 
 ```tsx
-import { defaultSlashCommands, SlashCommand } from "@react-email/editor/ui";
+import { defaultSlashCommands, SlashCommand } from '@react-email/editor/ui';
 
 <EditorProvider extensions={extensions} content={content}>
     <SlashCommand items={defaultSlashCommands} />
@@ -210,7 +210,7 @@ import { defaultSlashCommands, SlashCommand } from "@react-email/editor/ui";
 Cherry-pick individual commands:
 
 ```tsx
-import { BUTTON, H1, H2, TEXT } from "@react-email/editor/ui";
+import { BUTTON, H1, H2, TEXT } from '@react-email/editor/ui';
 
 <SlashCommand items={[TEXT, H1, H2, BUTTON]} />;
 ```
@@ -220,11 +220,11 @@ import { BUTTON, H1, H2, TEXT } from "@react-email/editor/ui";
 A contextual sidebar for editing document-level styles, node properties, and text formatting. Requires the `EmailTheming` plugin.
 
 ```tsx
-import { StarterKit } from "@react-email/editor/extensions";
-import { EmailTheming } from "@react-email/editor/plugins";
-import { Inspector } from "@react-email/editor/ui";
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
-import "@react-email/editor/themes/default.css";
+import { StarterKit } from '@react-email/editor/extensions';
+import { EmailTheming } from '@react-email/editor/plugins';
+import { Inspector } from '@react-email/editor/ui';
+import { EditorContent, EditorContext, useEditor } from '@tiptap/react';
+import '@react-email/editor/themes/default.css';
 
 const extensions = [StarterKit, EmailTheming];
 
@@ -233,12 +233,12 @@ export function MyEditor() {
 
     return (
         <EditorContext.Provider value={{ editor }}>
-            <div style={{ display: "flex" }}>
+            <div style={{ display: 'flex' }}>
                 <div style={{ flex: 1 }}>
                     <EditorContent editor={editor} />
                 </div>
                 <Inspector.Root
-                    style={{ width: 240, borderLeft: "1px solid #e5e7eb", padding: 16 }}
+                    style={{ width: 240, borderLeft: '1px solid #e5e7eb', padding: 16 }}
                 >
                     <Inspector.Breadcrumb />
                     <Inspector.Document />
@@ -258,10 +258,10 @@ The inspector automatically switches between document, node, and text controls b
 Apply visual styles (typography, spacing, colors) to email output. Themes are resolved during `composeReactEmail` and inlined as `style` attributes.
 
 ```tsx
-import { StarterKit } from "@react-email/editor/extensions";
-import { EmailTheming } from "@react-email/editor/plugins";
+import { StarterKit } from '@react-email/editor/extensions';
+import { EmailTheming } from '@react-email/editor/plugins';
 
-const extensions = [StarterKit, EmailTheming.configure({ theme: "basic" })];
+const extensions = [StarterKit, EmailTheming.configure({ theme: 'basic' })];
 ```
 
 ### Built-in Themes
@@ -296,8 +296,8 @@ const { html, text } = await editorRef.current!.export();
 ### Via composeReactEmail (lower-level)
 
 ```tsx
-import { composeReactEmail } from "@react-email/editor/core";
-import { useCurrentEditor } from "@tiptap/react";
+import { composeReactEmail } from '@react-email/editor/core';
+import { useCurrentEditor } from '@tiptap/react';
 
 function ExportPanel() {
     const { editor } = useCurrentEditor();
@@ -306,7 +306,7 @@ function ExportPanel() {
         if (!editor) return;
         const { html, text } = await composeReactEmail({
             editor,
-            preview: "Inbox preview text", // optional
+            preview: 'Inbox preview text', // optional
         });
         console.log(html, text);
     };
@@ -330,24 +330,24 @@ The export pipeline:
 Create custom email-compatible nodes using `EmailNode` (extends TipTap's `Node` with `renderToReactEmail()`):
 
 ```tsx
-import { EmailNode } from "@react-email/editor/core";
-import { mergeAttributes } from "@tiptap/core";
+import { EmailNode } from '@react-email/editor/core';
+import { mergeAttributes } from '@tiptap/core';
 
 const Callout = EmailNode.create({
-    name: "callout",
-    group: "block",
-    content: "inline*",
+    name: 'callout',
+    group: 'block',
+    content: 'inline*',
 
     parseHTML() {
-        return [{ tag: "div[data-callout]" }];
+        return [{ tag: 'div[data-callout]' }];
     },
 
     renderHTML({ HTMLAttributes }) {
         return [
-            "div",
+            'div',
             mergeAttributes(HTMLAttributes, {
-                "data-callout": "",
-                style: "padding: 12px 16px; background: #f4f4f5; border-left: 3px solid #1c1c1c;",
+                'data-callout': '',
+                style: 'padding: 12px 16px; background: #f4f4f5; border-left: 3px solid #1c1c1c;',
             }),
             0,
         ];
@@ -358,9 +358,9 @@ const Callout = EmailNode.create({
             <div
                 style={{
                     ...style,
-                    padding: "12px 16px",
-                    backgroundColor: "#f4f4f5",
-                    borderLeft: "3px solid #1c1c1c",
+                    padding: '12px 16px',
+                    backgroundColor: '#f4f4f5',
+                    borderLeft: '3px solid #1c1c1c',
                 }}
             >
                 {children}

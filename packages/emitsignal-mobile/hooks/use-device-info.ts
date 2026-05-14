@@ -1,11 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import { useCallback, useEffect, useState } from "react";
-import { Platform } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 
-const DEVICE_ID_KEY = "@notify_device_id";
-const PUSH_TOKEN_KEY = "@notify_push_token";
+const DEVICE_ID_KEY = '@notify_device_id';
+const PUSH_TOKEN_KEY = '@notify_push_token';
 
 export interface DeviceInfo {
     deviceId: null | string;
@@ -35,7 +35,7 @@ export function useDeviceInfo() {
 
             return deviceId;
         } catch (error) {
-            console.error("Error initializing device ID:", error);
+            console.error('Error initializing device ID:', error);
 
             throw error;
         }
@@ -45,20 +45,20 @@ export function useDeviceInfo() {
     const registerPushNotifications = useCallback(async () => {
         try {
             if (!Device.isDevice) {
-                console.log("Push notifications not available on simulator");
+                console.log('Push notifications not available on simulator');
                 return null;
             }
 
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
             let finalStatus = existingStatus;
 
-            if (existingStatus !== "granted") {
+            if (existingStatus !== 'granted') {
                 const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
             }
 
-            if (finalStatus !== "granted") {
-                console.log("Push notification permission denied");
+            if (finalStatus !== 'granted') {
+                console.log('Push notification permission denied');
                 return null;
             }
 
@@ -70,18 +70,18 @@ export function useDeviceInfo() {
             await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
 
             // Configure notification handler
-            if (Platform.OS === "android") {
-                Notifications.setNotificationChannelAsync("default", {
+            if (Platform.OS === 'android') {
+                Notifications.setNotificationChannelAsync('default', {
                     importance: Notifications.AndroidImportance.MAX,
-                    lightColor: "#FF231F7C",
-                    name: "default",
+                    lightColor: '#FF231F7C',
+                    name: 'default',
                     vibrationPattern: [0, 250, 250, 250],
                 });
             }
 
             return token;
         } catch (error) {
-            console.error("Error registering push notifications:", error);
+            console.error('Error registering push notifications:', error);
             return null;
         }
     }, []);
@@ -102,7 +102,7 @@ export function useDeviceInfo() {
             } catch (error) {
                 setDeviceInfo({
                     deviceId: null,
-                    error: error instanceof Error ? error : new Error("Unknown error"),
+                    error: error instanceof Error ? error : new Error('Unknown error'),
                     isLoading: false,
                     pushToken: null,
                 });
@@ -122,7 +122,7 @@ export function useDeviceInfo() {
             }));
             return pushToken;
         } catch (error) {
-            console.error("Error refreshing push token:", error);
+            console.error('Error refreshing push token:', error);
             return null;
         }
     }, [registerPushNotifications]);

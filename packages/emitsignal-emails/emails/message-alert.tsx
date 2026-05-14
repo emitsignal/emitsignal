@@ -11,10 +11,10 @@ import {
     Section,
     Tailwind,
     Text,
-} from "react-email";
+} from 'react-email';
 
-import { LogoHeader } from "./components/logo-header";
-import tailwindConfig from "./tailwind.config";
+import { LogoHeader } from './components/logo-header';
+import tailwindConfig from './tailwind.config';
 
 interface MessageAlertEmailProps {
     body: string;
@@ -27,19 +27,19 @@ interface MessageAlertEmailProps {
 }
 
 const priorityColors: Record<number, string> = {
-    1: "#818cf8",
-    2: "#a78bfa",
-    3: "#c4b5fd",
-    4: "#fbbf24",
-    5: "#f87171",
+    1: '#818cf8',
+    2: '#a78bfa',
+    3: '#c4b5fd',
+    4: '#fbbf24',
+    5: '#f87171',
 };
 
 const priorityLabels: Record<number, string> = {
-    1: "Low",
-    2: "Normal",
-    3: "Elevated",
-    4: "High",
-    5: "Critical",
+    1: 'Low',
+    2: 'Normal',
+    3: 'Elevated',
+    4: 'High',
+    5: 'Critical',
 };
 
 export default function MessageAlertEmail({
@@ -52,7 +52,7 @@ export default function MessageAlertEmail({
     topicName,
 }: MessageAlertEmailProps) {
     const pColor = priorityColors[priority] ?? priorityColors[3];
-    const pLabel = priorityLabels[priority] ?? "Normal";
+    const pLabel = priorityLabels[priority] ?? 'Normal';
 
     return (
         <Html lang="en">
@@ -69,8 +69,8 @@ export default function MessageAlertEmail({
                             <div
                                 style={{
                                     backgroundColor: pColor,
-                                    height: "3px",
-                                    width: "100%",
+                                    height: '3px',
+                                    width: '100%',
                                 }}
                             />
                             <Section className="p-5">
@@ -88,15 +88,15 @@ export default function MessageAlertEmail({
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Column style={{ width: "10px" }}>
+                                    <Column style={{ width: '10px' }}>
                                         <div
                                             style={{
                                                 backgroundColor: pColor,
-                                                borderRadius: "9999px",
-                                                height: "8px",
-                                                marginRight: "6px",
-                                                marginTop: "6px",
-                                                width: "8px",
+                                                borderRadius: '9999px',
+                                                height: '8px',
+                                                marginRight: '6px',
+                                                marginTop: '6px',
+                                                width: '8px',
                                             }}
                                         />
                                     </Column>
@@ -120,7 +120,7 @@ export default function MessageAlertEmail({
                                             <Column
                                                 key={tag}
                                                 style={{
-                                                    paddingRight: "6px",
+                                                    paddingRight: '6px',
                                                 }}
                                             >
                                                 <Text className="m-0 inline-block rounded-full border border-solid border-es-bgLine bg-es-bgChip px-2 py-1 font-mono text-[10px] text-es-fgMuted">
@@ -141,7 +141,7 @@ export default function MessageAlertEmail({
                         </Section>
 
                         <Text className="mt-6 text-xs text-es-fgFaint">
-                            You received this because you are subscribed to{" "}
+                            You received this because you are subscribed to{' '}
                             <strong className="text-es-fgMuted">{topicName}</strong>.
                         </Text>
                     </Container>
@@ -154,7 +154,7 @@ export default function MessageAlertEmail({
 function relativeTime(ts: number): string {
     const diff = Date.now() - ts;
     const min = Math.floor(diff / 60000);
-    if (min < 1) return "now";
+    if (min < 1) return 'now';
     if (min < 60) return `${min}m`;
     const hr = Math.floor(min / 60);
     if (hr < 24) return `${hr}h`;
@@ -163,11 +163,11 @@ function relativeTime(ts: number): string {
 }
 
 MessageAlertEmail.PreviewProps = {
-    body: "The production deployment pipeline failed during the build step. Check the logs for details.",
+    body: 'The production deployment pipeline failed during the build step. Check the logs for details.',
     createdAt: new Date(Date.now() - 5 * 60000),
-    messageUrl: "https://emitsignal.com/messages/msg_123",
+    messageUrl: 'https://emitsignal.com/messages/msg_123',
     priority: 4,
-    tags: ["deploy", "production", "ci"],
-    title: "Deployment failed on main",
-    topicName: "alerts",
+    tags: ['deploy', 'production', 'ci'],
+    title: 'Deployment failed on main',
+    topicName: 'alerts',
 } satisfies MessageAlertEmailProps;

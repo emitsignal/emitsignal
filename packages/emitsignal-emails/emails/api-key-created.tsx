@@ -9,10 +9,10 @@ import {
     Section,
     Tailwind,
     Text,
-} from "react-email";
+} from 'react-email';
 
-import { LogoHeader } from "./components/logo-header";
-import tailwindConfig from "./tailwind.config";
+import { LogoHeader } from './components/logo-header';
+import tailwindConfig from './tailwind.config';
 
 interface ApiKeyCreatedProps {
     createdAt: Date;
@@ -38,10 +38,10 @@ export default function ApiKeyCreatedEmail({
 
                         <div
                             style={{
-                                backgroundColor: "#fbbf24",
-                                height: "3px",
-                                marginBottom: "24px",
-                                width: "100%",
+                                backgroundColor: '#fbbf24',
+                                height: '3px',
+                                marginBottom: '24px',
+                                width: '100%',
                             }}
                         />
 
@@ -64,10 +64,10 @@ export default function ApiKeyCreatedEmail({
                                 <strong>Prefix:</strong> {prefix}
                             </Text>
                             <Text className="m-0 text-sm text-es-fgMuted">
-                                <strong>Created:</strong>{" "}
-                                {createdAt.toLocaleString("en-US", {
-                                    dateStyle: "medium",
-                                    timeStyle: "short",
+                                <strong>Created:</strong>{' '}
+                                {createdAt.toLocaleString('en-US', {
+                                    dateStyle: 'medium',
+                                    timeStyle: 'short',
                                 })}
                             </Text>
                         </Section>
@@ -101,7 +101,7 @@ export default function ApiKeyCreatedEmail({
 
 ApiKeyCreatedEmail.PreviewProps = {
     createdAt: new Date(),
-    label: "Production Deploy",
-    prefix: "es_live_••••••••",
-    revokeUrl: "https://emitsignal.com/settings/api-keys",
+    label: 'Production Deploy',
+    prefix: 'es_live_••••••••',
+    revokeUrl: 'https://emitsignal.com/settings/api-keys',
 } satisfies ApiKeyCreatedProps;

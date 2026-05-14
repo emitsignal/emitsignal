@@ -4,7 +4,7 @@ description: Use when building HTML email templates with React components, addin
 license: MIT
 metadata:
     author: Resend
-    version: "2.1.0"
+    version: '2.1.0'
     homepage: https://react.email
     source: https://github.com/resend/react-email
     openclaw:
@@ -70,7 +70,7 @@ import {
     Button,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 interface WelcomeEmailProps {
     name: string;
@@ -86,7 +86,7 @@ export default function WelcomeEmail({ name, verificationUrl }: WelcomeEmailProp
                     theme: {
                         extend: {
                             colors: {
-                                brand: "#007bff",
+                                brand: '#007bff',
                             },
                         },
                     },
@@ -115,8 +115,8 @@ export default function WelcomeEmail({ name, verificationUrl }: WelcomeEmailProp
 
 // Preview props for testing
 WelcomeEmail.PreviewProps = {
-    name: "John Doe",
-    verificationUrl: "https://example.com/verify/abc123",
+    name: 'John Doe',
+    verificationUrl: 'https://example.com/verify/abc123',
 } satisfies WelcomeEmailProps;
 
 export { WelcomeEmail };
@@ -204,9 +204,9 @@ Use this pattern for images that work in both dev preview and production:
 
 ```tsx
 const baseURL =
-    process.env.NODE_ENV === "production"
-        ? "https://cdn.example.com" // User's production CDN
-        : "";
+    process.env.NODE_ENV === 'production'
+        ? 'https://cdn.example.com' // User's production CDN
+        : '';
 
 export default function Email() {
     return <Img src={`${baseURL}/static/logo.png`} alt="Logo" width="150" height="50" />;
@@ -254,8 +254,8 @@ See [references/STYLING.md](references/STYLING.md) for comprehensive styling doc
 ### Convert to HTML
 
 ```tsx
-import { render } from "react-email";
-import { WelcomeEmail } from "./emails/welcome";
+import { render } from 'react-email';
+import { WelcomeEmail } from './emails/welcome';
 
 const html = await render(
     <WelcomeEmail name="John" verificationUrl="https://example.com/verify" />,
@@ -278,15 +278,15 @@ React Email supports sending with any email service provider. See [references/SE
 Quick example using the Resend SDK:
 
 ```tsx
-import { Resend } from "resend";
-import { WelcomeEmail } from "./emails/welcome";
+import { Resend } from 'resend';
+import { WelcomeEmail } from './emails/welcome';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const { data, error } = await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
-    to: ["user@example.com"],
-    subject: "Welcome to Acme",
+    from: 'Acme <onboarding@resend.dev>',
+    to: ['user@example.com'],
+    subject: 'Welcome to Acme',
     react: <WelcomeEmail name="John" verificationUrl="https://example.com/verify" />,
 });
 ```
@@ -326,9 +326,9 @@ See [references/EDITOR.md](references/EDITOR.md) for complete documentation incl
 Quick example:
 
 ```tsx
-import { EmailEditor, type EmailEditorRef } from "@react-email/editor";
-import "@react-email/editor/themes/default.css";
-import { useRef } from "react";
+import { EmailEditor, type EmailEditorRef } from '@react-email/editor';
+import '@react-email/editor/themes/default.css';
+import { useRef } from 'react';
 
 export function MyEditor() {
     const ref = useRef<EmailEditorRef>(null);

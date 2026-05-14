@@ -1,25 +1,25 @@
-import Elysia from "elysia";
+import Elysia from 'elysia';
 
-import { logger } from "./logger";
+import { logger } from './logger';
 
 function contentLength(set: { headers: Record<string, string | undefined> }, body: unknown) {
-    const header = set.headers["content-length"];
+    const header = set.headers['content-length'];
 
     if (header) return header;
 
-    if (body == null) return "-";
-    if (typeof body === "string") return Buffer.byteLength(body).toString();
+    if (body == null) return '-';
+    if (typeof body === 'string') return Buffer.byteLength(body).toString();
 
     try {
         return Buffer.byteLength(JSON.stringify(body)).toString();
     } catch {
-        return "-";
+        return '-';
     }
 }
 
-export const loggerPlugin = new Elysia({ name: "logger" })
-    .decorate("logger", logger)
-    .state("requestStart", 0)
+export const loggerPlugin = new Elysia({ name: 'logger' })
+    .decorate('logger', logger)
+    .state('requestStart', 0)
     .onRequest(({ store }) => {
         store.requestStart = performance.now();
     })
@@ -34,12 +34,12 @@ export const loggerPlugin = new Elysia({ name: "logger" })
     .onError(({ code, error, request, set }) => {
         const path = new URL(request.url).pathname;
 
-        if (code === "NOT_FOUND") {
+        if (code === 'NOT_FOUND') {
             set.status = 404;
 
-            return { error: "Not Found", path, status: 404 };
+            return { error: 'Not Found', path, status: 404 };
         }
 
-        logger.error({ code, err: error, method: request.method, url: path }, "request failed");
+        logger.error({ code, err: error, method: request.method, url: path }, 'request failed');
     })
-    .as("global");
+    .as('global');

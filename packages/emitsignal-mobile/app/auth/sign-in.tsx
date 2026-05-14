@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useState } from "react";
+import { router } from 'expo-router';
+import { useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
@@ -9,16 +9,16 @@ import {
     Text,
     TextInput,
     View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WLogo } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
-import { api } from "@/lib/api";
+import { WLogo } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
+import { api } from '@/lib/api';
 
 export default function AuthSignIn() {
-    const [email, setEmail] = useState("alex@hey.sh");
+    const [email, setEmail] = useState('alex@hey.sh');
     const [busy, setBusy] = useState(false);
 
     const handleSend = async () => {
@@ -30,13 +30,13 @@ export default function AuthSignIn() {
             const result = await api.requestMagicLink(email.trim());
             router.push({
                 params: {
-                    devCode: result.devCode ?? "",
+                    devCode: result.devCode ?? '',
                     email: email.trim(),
                 },
-                pathname: "/auth/verify",
+                pathname: '/auth/verify',
             });
         } catch (error) {
-            Alert.alert("Sign-in failed", error instanceof Error ? error.message : String(error));
+            Alert.alert('Sign-in failed', error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
@@ -45,7 +45,7 @@ export default function AuthSignIn() {
     return (
         <SafeAreaView style={styles.root}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <View style={styles.topBar}>
@@ -80,7 +80,7 @@ export default function AuthSignIn() {
                         style={[styles.cta, busy && { opacity: 0.6 }]}
                     >
                         <Text style={styles.ctaText}>
-                            {busy ? "sending…" : "send magic link →"}
+                            {busy ? 'sending…' : 'send magic link →'}
                         </Text>
                     </Pressable>
 
@@ -91,8 +91,8 @@ export default function AuthSignIn() {
                     </View>
 
                     {[
-                        { icon: "globe" as const, label: "continue with GitHub" },
-                        { icon: "key" as const, label: "continue with SSH key" },
+                        { icon: 'globe' as const, label: 'continue with GitHub' },
+                        { icon: 'key' as const, label: 'continue with SSH key' },
                     ].map((opt) => (
                         <Pressable key={opt.label} onPress={handleSend} style={styles.altBtn}>
                             <IconSymbol color={W.violet} name={opt.icon} size={14} />
@@ -104,9 +104,9 @@ export default function AuthSignIn() {
 
                 <View style={styles.footer}>
                     <Text style={styles.terms}>
-                        by continuing you agree to the{"\n"}
-                        <Text style={{ color: W.violet }}>terms</Text> ·{" "}
-                        <Text style={{ color: W.violet }}>privacy</Text> ·{" "}
+                        by continuing you agree to the{'\n'}
+                        <Text style={{ color: W.violet }}>terms</Text> ·{' '}
+                        <Text style={{ color: W.violet }}>privacy</Text> ·{' '}
                         <Text style={{ color: W.violet }}>acceptable use</Text>
                     </Text>
                 </View>
@@ -117,12 +117,12 @@ export default function AuthSignIn() {
 
 const styles = StyleSheet.create({
     altBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
         borderRadius: 10,
         borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 10,
         marginBottom: 10,
         paddingHorizontal: 14,
@@ -135,16 +135,16 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
     backBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     body: { flex: 1, padding: 28 },
     cta: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
         paddingVertical: 14,
@@ -153,11 +153,11 @@ const styles = StyleSheet.create({
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     divider: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 10,
         marginVertical: 22,
     },
@@ -192,19 +192,19 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
     terms: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 11,
         lineHeight: 18,
-        textAlign: "center",
+        textAlign: 'center',
     },
-    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    title: { color: W.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
     topBar: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 14,

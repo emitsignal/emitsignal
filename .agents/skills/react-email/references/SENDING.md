@@ -30,20 +30,20 @@ const text = await render(<WelcomeEmail name="John" verificationUrl="https://exa
 If no MCP tool is available, you can use the Resend SDK for Node.js to send the email, which can accept React components directly:
 
 ```tsx
-import { Resend } from "resend";
-import { WelcomeEmail } from "./emails/welcome";
+import { Resend } from 'resend';
+import { WelcomeEmail } from './emails/welcome';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const { data, error } = await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
-    to: ["user@example.com"],
-    subject: "Welcome to Acme",
+    from: 'Acme <onboarding@resend.dev>',
+    to: ['user@example.com'],
+    subject: 'Welcome to Acme',
     react: <WelcomeEmail name="John" verificationUrl="https://example.com/verify" />,
 });
 
 if (error) {
-    console.error("Failed to send:", error);
+    console.error('Failed to send:', error);
 }
 ```
 
@@ -65,11 +65,11 @@ If using a template when sending with the Resend SDK for Node.js, the user can p
 
 ```tsx
 await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
-    to: ["user@example.com"],
-    subject: "Welcome to Acme",
+    from: 'Acme <onboarding@resend.dev>',
+    to: ['user@example.com'],
+    subject: 'Welcome to Acme',
     template: {
-        id: "1245-1256-1234-1234",
+        id: '1245-1256-1234-1234',
     },
 });
 ```
@@ -79,11 +79,11 @@ await resend.emails.send({
 **Nodemailer:**
 
 ```tsx
-import { render } from "react-email";
-import nodemailer from "nodemailer";
+import { render } from 'react-email';
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.example.com",
+    host: 'smtp.example.com',
     port: 587,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
@@ -93,9 +93,9 @@ const html = await render(
 );
 
 await transporter.sendMail({
-    from: "noreply@example.com",
-    to: "user@example.com",
-    subject: "Welcome",
+    from: 'noreply@example.com',
+    to: 'user@example.com',
+    subject: 'Welcome',
     html,
 });
 ```
@@ -103,14 +103,14 @@ await transporter.sendMail({
 **Mailgun:**
 
 ```tsx
-import { render } from "react-email";
-import FormData from "form-data";
-import Mailgun from "mailgun.js";
-import { WelcomeEmail } from "./emails/welcome";
+import { render } from 'react-email';
+import FormData from 'form-data';
+import Mailgun from 'mailgun.js';
+import { WelcomeEmail } from './emails/welcome';
 
 const mailgun = new Mailgun(FormData);
 const client = mailgun.client({
-    username: "api",
+    username: 'api',
     key: process.env.MAILGUN_API_KEY,
 });
 
@@ -119,9 +119,9 @@ const html = await render(
 );
 
 await client.messages.create(process.env.MAILGUN_DOMAIN, {
-    from: "noreply@example.com",
-    to: ["user@example.com"],
-    subject: "Welcome",
+    from: 'noreply@example.com',
+    to: ['user@example.com'],
+    subject: 'Welcome',
     html,
 });
 ```
@@ -129,8 +129,8 @@ await client.messages.create(process.env.MAILGUN_DOMAIN, {
 **SendGrid:**
 
 ```tsx
-import { render } from "react-email";
-import sgMail from "@sendgrid/mail";
+import { render } from 'react-email';
+import sgMail from '@sendgrid/mail';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -139,9 +139,9 @@ const html = await render(
 );
 
 await sgMail.send({
-    to: "user@example.com",
-    from: "noreply@example.com",
-    subject: "Welcome",
+    to: 'user@example.com',
+    from: 'noreply@example.com',
+    subject: 'Welcome',
     html,
 });
 ```

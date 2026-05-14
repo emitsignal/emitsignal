@@ -1,6 +1,6 @@
-import Elysia from "elysia";
+import Elysia from 'elysia';
 
-import { bus } from "../../lib/event-bus";
+import { bus } from '../../lib/event-bus';
 
 function formatEvent(event: string, data: unknown) {
     return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -8,16 +8,16 @@ function formatEvent(event: string, data: unknown) {
 
 function sseHeaders() {
     return {
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "Content-Type": "text/event-stream",
-        "X-Accel-Buffering": "no",
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+        'Content-Type': 'text/event-stream',
+        'X-Accel-Buffering': 'no',
     };
 }
 
-export const listenMulti = new Elysia().get("/listen", async ({ query, request, set }) => {
-    const topics = (query.topics ?? "")
-        .split(",")
+export const listenMulti = new Elysia().get('/listen', async ({ query, request, set }) => {
+    const topics = (query.topics ?? '')
+        .split(',')
         .map((subscription) => subscription.trim())
         .filter(Boolean);
 
@@ -30,18 +30,18 @@ export const listenMulti = new Elysia().get("/listen", async ({ query, request, 
                 controller.enqueue(encoder.encode(formatEvent(event, data)));
 
             const unsubscribers = topics.length
-                ? topics.map((name) => bus.subscribe(name, (e) => send("message", e)))
-                : [bus.subscribe("*", (e) => send("message", e))];
+                ? topics.map((name) => bus.subscribe(name, (e) => send('message', e)))
+                : [bus.subscribe('*', (e) => send('message', e))];
 
             const heartbeat = setInterval(() => {
                 try {
-                    controller.enqueue(encoder.encode(": ping\n\n"));
+                    controller.enqueue(encoder.encode(': ping\n\n'));
                 } catch {
                     clearInterval(heartbeat);
                 }
             }, 25_000);
 
-            request.signal.addEventListener("abort", () => {
+            request.signal.addEventListener('abort', () => {
                 unsubscribers.forEach((off) => off());
                 clearInterval(heartbeat);
                 try {

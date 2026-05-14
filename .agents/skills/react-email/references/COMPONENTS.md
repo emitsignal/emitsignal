@@ -42,7 +42,7 @@ import {
     Heading,
     Text,
     Button,
-} from "react-email";
+} from 'react-email';
 
 export default function Email() {
     return (
@@ -53,8 +53,8 @@ export default function Email() {
                     theme: {
                         extend: {
                             colors: {
-                                brand: "#007bff",
-                                accent: "#28a745",
+                                brand: '#007bff',
+                                accent: '#28a745',
                             },
                         },
                     },
@@ -102,7 +102,7 @@ export default function Email() {
 Root wrapper for the email. Always use as the outermost component.
 
 ```tsx
-import { Html, Tailwind, pixelBasedPreset } from "react-email";
+import { Html, Tailwind, pixelBasedPreset } from 'react-email';
 
 <Html lang="en" dir="ltr">
     <Tailwind config={{ presets: [pixelBasedPreset] }}>{/* email content */}</Tailwind>
@@ -119,7 +119,7 @@ import { Html, Tailwind, pixelBasedPreset } from "react-email";
 Contains head components, related to the document such as style and meta elements. Place inside `<Tailwind>`.
 
 ```tsx
-import { Head } from "react-email";
+import { Head } from 'react-email';
 
 <Head>
     <title>Email Title</title>
@@ -131,7 +131,7 @@ import { Head } from "react-email";
 A React component to wrap emails.
 
 ```tsx
-import { Body } from "react-email";
+import { Body } from 'react-email';
 
 <Body className="bg-gray-100 font-sans">{/* email content */}</Body>;
 ```
@@ -141,7 +141,7 @@ import { Body } from "react-email";
 A layout component that centers your content horizontally on a breaking point. Has a max-width constraint of `37.5em`.
 
 ```tsx
-import { Container } from "react-email";
+import { Container } from 'react-email';
 
 <Container className="max-w-xl mx-auto p-5">{/* centered content */}</Container>;
 ```
@@ -151,7 +151,7 @@ import { Container } from "react-email";
 Display a section that can also be formatted using rows and columns.
 
 ```tsx
-import { Section } from "react-email";
+import { Section } from 'react-email';
 
 <Section className="p-5 bg-white">{/* section content */}</Section>;
 ```
@@ -161,7 +161,7 @@ import { Section } from "react-email";
 Row displays content areas horizontally, Column displays content areas vertically. A Column needs to be used in combination with a Row component.
 
 ```tsx
-import { Section, Row, Column } from "react-email";
+import { Section, Row, Column } from 'react-email';
 
 <Section>
     <Row>
@@ -184,7 +184,7 @@ import { Section, Row, Column } from "react-email";
 A preview text that will be displayed in the inbox of the recipient.
 
 ```tsx
-import { Preview } from "react-email";
+import { Preview } from 'react-email';
 
 <Preview>Welcome to our platform - Get started today!</Preview>;
 ```
@@ -220,7 +220,7 @@ import { Heading } from 'react-email';
 A block of text separated by blank spaces.
 
 ```tsx
-import { Text } from "react-email";
+import { Text } from 'react-email';
 
 <Text className="text-base leading-6 text-gray-800 my-4">Your paragraph content here.</Text>;
 ```
@@ -230,7 +230,7 @@ import { Text } from "react-email";
 A link that is styled to look like a button. Has workaround for padding issues in Outlook.
 
 ```tsx
-import { Button } from "react-email";
+import { Button } from 'react-email';
 
 <Button
     href="https://example.com/verify"
@@ -257,7 +257,7 @@ import { Button } from "react-email";
 A hyperlink to web pages, email addresses, or anything else a URL can address.
 
 ```tsx
-import { Link } from "react-email";
+import { Link } from 'react-email';
 
 <Link href="https://example.com" target="_blank" className="text-blue-600 underline">
     Visit our website
@@ -274,7 +274,7 @@ import { Link } from "react-email";
 Display an image in your email.
 
 ```tsx
-import { Img } from "react-email";
+import { Img } from 'react-email';
 
 <Img
     src="https://example.com/logo.png"
@@ -304,7 +304,7 @@ import { Img } from "react-email";
 Display a divider that separates content areas in your email.
 
 ```tsx
-import { Hr } from "react-email";
+import { Hr } from 'react-email';
 
 <Hr className="border-solid border-gray-200 my-5" />;
 ```
@@ -316,7 +316,7 @@ import { Hr } from "react-email";
 Display code with a selected theme and regex highlighting using Prism.js.
 
 ```tsx
-import { CodeBlock, dracula } from "react-email";
+import { CodeBlock, dracula } from 'react-email';
 
 const Email = () => {
     const code = `export default async (req, res) => {
@@ -356,7 +356,7 @@ const Email = () => {
 Display a predictable inline code HTML element that works on all email clients.
 
 ```tsx
-import { Text, CodeInline } from "react-email";
+import { Text, CodeInline } from 'react-email';
 
 <Text className="text-base text-gray-800">
     Run <CodeInline className="bg-gray-100 px-1 rounded">npm install</CodeInline> to get started.
@@ -368,20 +368,20 @@ import { Text, CodeInline } from "react-email";
 A Markdown component that converts markdown to valid react-email template code.
 
 ```tsx
-import { Html, Markdown } from "react-email";
+import { Html, Markdown } from 'react-email';
 
 const Email = () => {
     return (
         <Html lang="en" dir="ltr">
             <Markdown
                 markdownCustomStyles={{
-                    h1: { color: "red" },
-                    h2: { color: "blue" },
-                    codeInline: { background: "grey" },
+                    h1: { color: 'red' },
+                    h2: { color: 'blue' },
+                    codeInline: { background: 'grey' },
                 }}
                 markdownContainerStyles={{
-                    padding: "12px",
-                    border: "solid 1px black",
+                    padding: '12px',
+                    border: 'solid 1px black',
                 }}
             >{`# Hello, World!`}</Markdown>
 
@@ -404,15 +404,15 @@ const Email = () => {
 A React Font component to set your fonts.
 
 ```tsx
-import { Head, Font } from "react-email";
+import { Head, Font } from 'react-email';
 
 <Head>
     <Font
         fontFamily="Roboto"
         fallbackFontFamily="Arial, sans-serif"
         webFont={{
-            url: "https://fonts.gstatic.com/s/roboto/v27/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2",
-            format: "woff2",
+            url: 'https://fonts.gstatic.com/s/roboto/v27/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
+            format: 'woff2',
         }}
     />
 </Head>;

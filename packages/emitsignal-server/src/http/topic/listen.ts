@@ -1,8 +1,8 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { bus, type MessageEvent } from "../../lib/event-bus";
-import { prisma } from "../../lib/prisma";
-import { serializeMessage } from "../../lib/topic";
+import { bus, type MessageEvent } from '../../lib/event-bus';
+import { prisma } from '../../lib/prisma';
+import { serializeMessage } from '../../lib/topic';
 
 function formatEvent(event: string, data: unknown) {
     return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -10,15 +10,15 @@ function formatEvent(event: string, data: unknown) {
 
 function sseHeaders() {
     return {
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "Content-Type": "text/event-stream",
-        "X-Accel-Buffering": "no",
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+        'Content-Type': 'text/event-stream',
+        'X-Accel-Buffering': 'no',
     };
 }
 
 export const listen = new Elysia().get(
-    "/topics/:name/listen",
+    '/topics/:name/listen',
     async ({ params, query, request, set }) => {
         const topic = await prisma.topic.findUnique({
             where: { name: params.name },
@@ -26,7 +26,7 @@ export const listen = new Elysia().get(
 
         if (!topic) {
             set.status = 404;
-            return { error: "topic_not_found" };
+            return { error: 'topic_not_found' };
         }
 
         const since = query.since ? Number(query.since) : null;
@@ -41,7 +41,7 @@ export const listen = new Elysia().get(
 
                 if (since !== null && Number.isFinite(since)) {
                     const backlog = await prisma.message.findMany({
-                        orderBy: { createdAt: "asc" },
+                        orderBy: { createdAt: 'asc' },
                         take: 200,
                         where: {
                             createdAt: { gt: new Date(since) },
@@ -49,7 +49,7 @@ export const listen = new Elysia().get(
                         },
                     });
                     for (const message of backlog) {
-                        send("message", {
+                        send('message', {
                             ...serializeMessage(message),
                             topicName: topic.name,
                         });
@@ -57,18 +57,18 @@ export const listen = new Elysia().get(
                 }
 
                 const unsubscribe = bus.subscribe(topic.name, (e: MessageEvent) =>
-                    send("message", e),
+                    send('message', e),
                 );
 
                 const heartbeat = setInterval(() => {
                     try {
-                        controller.enqueue(encoder.encode(": ping\n\n"));
+                        controller.enqueue(encoder.encode(': ping\n\n'));
                     } catch {
                         clearInterval(heartbeat);
                     }
                 }, 25_000);
 
-                request.signal.addEventListener("abort", () => {
+                request.signal.addEventListener('abort', () => {
                     unsubscribe();
                     clearInterval(heartbeat);
                     try {

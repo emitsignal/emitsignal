@@ -1,12 +1,12 @@
-import * as Notifications from "expo-notifications";
-import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import * as Notifications from 'expo-notifications';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WLogo } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
+import { WLogo } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
 
 export default function AuthPerms() {
     const [granted, setGranted] = useState(false);
@@ -16,7 +16,7 @@ export default function AuthPerms() {
     const handleAllow = async () => {
         try {
             const { status } = await Notifications.requestPermissionsAsync();
-            setGranted(status === "granted");
+            setGranted(status === 'granted');
         } catch {
             setGranted(true); // simulator fallback
         }
@@ -63,7 +63,7 @@ export default function AuthPerms() {
                             ]}
                         >
                             <Text style={styles.permActionAllowText}>
-                                {granted ? "✓ Allowed" : "Allow"}
+                                {granted ? '✓ Allowed' : 'Allow'}
                             </Text>
                         </Pressable>
                     </View>
@@ -88,7 +88,7 @@ export default function AuthPerms() {
 
             <View style={styles.footer}>
                 <Pressable
-                    onPress={() => router.replace("/auth/first-channels")}
+                    onPress={() => router.replace('/auth/first-channels')}
                     style={styles.cta}
                 >
                     <Text style={styles.ctaText}>continue →</Text>
@@ -127,16 +127,16 @@ function TargetRow({
 
 const styles = StyleSheet.create({
     backBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     body: { flex: 1, padding: 28 },
     cta: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
         paddingVertical: 14,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     fieldLabel: {
         color: W.fgDim,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     footer: { padding: 28 },
     lede: { color: W.fgMuted, fontSize: 13, marginBottom: 24, marginTop: 6 },
     permActionAllow: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 8,
         flex: 1,
@@ -166,10 +166,10 @@ const styles = StyleSheet.create({
     permActionAllowText: {
         color: W.bg,
         fontSize: 12,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     permActionDeny: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bg,
         borderColor: W.bgLine,
         borderRadius: 8,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     permActionDenyText: { color: W.fgMuted, fontSize: 12 },
-    permActions: { flexDirection: "row", gap: 8 },
+    permActions: { flexDirection: 'row', gap: 8 },
     permCard: {
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
@@ -187,23 +187,23 @@ const styles = StyleSheet.create({
         marginBottom: 22,
         padding: 20,
     },
-    permHeader: { alignItems: "center", flexDirection: "row", gap: 12, marginBottom: 14 },
+    permHeader: { alignItems: 'center', flexDirection: 'row', gap: 12, marginBottom: 14 },
     permIcon: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
         height: 40,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 40,
     },
     permSub: { color: W.fgMuted, fontSize: 11.5, marginTop: 2 },
-    permTitle: { color: W.fg, fontSize: 14, fontWeight: "600" },
+    permTitle: { color: W.fg, fontSize: 14, fontWeight: '600' },
     root: { backgroundColor: W.bg, flex: 1 },
     step: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
     targetGroup: {
         backgroundColor: W.bgElev,
@@ -213,19 +213,19 @@ const styles = StyleSheet.create({
     },
     targetLabel: { color: W.fg, fontSize: 13 },
     targetRow: {
-        alignItems: "center",
+        alignItems: 'center',
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 14,
         paddingVertical: 12,
     },
     targetSub: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 10.5, marginTop: 2 },
-    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    title: { color: W.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
     topBar: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 14,

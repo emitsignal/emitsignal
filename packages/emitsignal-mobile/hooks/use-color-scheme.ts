@@ -1,4 +1,4 @@
-import { useTheme } from "@/ctx/theme";
+import { useTheme } from '@/ctx/theme';
 
 export function useColorScheme() {
     const { currentScheme } = useTheme();

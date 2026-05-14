@@ -1,8 +1,8 @@
-import Elysia from "elysia";
+import Elysia from 'elysia';
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from '../../lib/prisma';
 
-export const getTopic = new Elysia().get("/topics/:name", async ({ params, status }) => {
+export const getTopic = new Elysia().get('/topics/:name', async ({ params, status }) => {
     const topic = await prisma.topic.findUnique({
         include: {
             _count: {
@@ -13,7 +13,7 @@ export const getTopic = new Elysia().get("/topics/:name", async ({ params, statu
     });
 
     if (!topic) {
-        return status(404, { error: "topic_not_found" });
+        return status(404, { error: 'topic_not_found' });
     }
 
     return {

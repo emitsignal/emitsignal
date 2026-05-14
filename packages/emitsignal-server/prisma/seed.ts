@@ -1,57 +1,57 @@
-import { prisma } from "../src/lib/prisma";
-import { serializeTags } from "../src/lib/topic";
+import { prisma } from '../src/lib/prisma';
+import { serializeTags } from '../src/lib/topic';
 
 const SAMPLE_TOPICS = [
-    { description: "Production deployments", displayName: "Deploy · Prod", name: "deploy/prod" },
-    { description: "Server alerts & pages", displayName: "Alerts · Prod", name: "alerts/prod" },
-    { description: "Frontend CI pipelines", displayName: "CI · Web", name: "ci/web" },
-    { description: "Repo events", displayName: "GitHub · EmitSignal", name: "github/emitsignal" },
-    { description: "Nightly jobs", displayName: "Cron · Backup", name: "cron/backup" },
-    { description: "Sentry → EmitSignal bridge", displayName: "Errors · Web", name: "errors/web" },
+    { description: 'Production deployments', displayName: 'Deploy · Prod', name: 'deploy/prod' },
+    { description: 'Server alerts & pages', displayName: 'Alerts · Prod', name: 'alerts/prod' },
+    { description: 'Frontend CI pipelines', displayName: 'CI · Web', name: 'ci/web' },
+    { description: 'Repo events', displayName: 'GitHub · EmitSignal', name: 'github/emitsignal' },
+    { description: 'Nightly jobs', displayName: 'Cron · Backup', name: 'cron/backup' },
+    { description: 'Sentry → EmitSignal bridge', displayName: 'Errors · Web', name: 'errors/web' },
 ];
 
 const SAMPLE_MESSAGES = [
     {
-        body: "api-gateway → vercel prod",
+        body: 'api-gateway → vercel prod',
         priority: 4,
-        tags: ["vercel", "prod"],
-        title: "Deploy succeeded",
-        topic: "deploy/prod",
+        tags: ['vercel', 'prod'],
+        title: 'Deploy succeeded',
+        topic: 'deploy/prod',
     },
     {
-        body: "mem.used > 92% for 5m (threshold 90%)",
+        body: 'mem.used > 92% for 5m (threshold 90%)',
         priority: 5,
-        tags: ["sev2", "resolved-auto"],
-        title: "High memory on api-02",
-        topic: "alerts/prod",
+        tags: ['sev2', 'resolved-auto'],
+        title: 'High memory on api-02',
+        topic: 'alerts/prod',
     },
     {
-        body: "feat/oauth-pkce · 247 tests green",
+        body: 'feat/oauth-pkce · 247 tests green',
         priority: 3,
-        tags: ["ci", "passed"],
-        title: "Build passed",
-        topic: "ci/web",
+        tags: ['ci', 'passed'],
+        title: 'Build passed',
+        topic: 'ci/web',
     },
     {
-        body: "maya approved · refactor: extract topic router",
+        body: 'maya approved · refactor: extract topic router',
         priority: 2,
-        tags: ["approved"],
-        title: "PR #482 reviewed",
-        topic: "kevenleone/emitsignal",
+        tags: ['approved'],
+        title: 'PR #482 reviewed',
+        topic: 'kevenleone/emitsignal',
     },
     {
-        body: "dumped 14.2 GB → s3://backups/2026-04-21",
+        body: 'dumped 14.2 GB → s3://backups/2026-04-21',
         priority: 3,
-        tags: ["cron", "success"],
-        title: "nightly-backup.sh ✓",
-        topic: "cron/backup",
+        tags: ['cron', 'success'],
+        title: 'nightly-backup.sh ✓',
+        topic: 'cron/backup',
     },
     {
         body: "Cannot read property 'id' of undefined — 34 events in 2m",
         priority: 5,
-        tags: ["new", "x34"],
-        title: "TypeError spike",
-        topic: "errors/web",
+        tags: ['new', 'x34'],
+        title: 'TypeError spike',
+        topic: 'errors/web',
     },
 ];
 

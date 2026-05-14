@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 
-import { useDevice } from "@/ctx/device";
-import { api, type Message, sseMultiUrl, type Subscription } from "@/lib/api";
+import { useDevice } from '@/ctx/device';
+import { api, type Message, sseMultiUrl, type Subscription } from '@/lib/api';
 
-import { useSSE } from "./use-sse";
+import { useSSE } from './use-sse';
 
 interface FeedState {
     error: Error | null;
@@ -63,7 +63,7 @@ export function useFeed() {
 
     useSSE({
         onEvent: (event, data) => {
-            if (event !== "message") {
+            if (event !== 'message') {
                 return;
             }
 
@@ -115,7 +115,7 @@ export function useTopicMessages(topicName: null | string) {
 
     useSSE({
         onEvent: (event, data) => {
-            if (event !== "message") {
+            if (event !== 'message') {
                 return;
             }
             const incoming = data as Message;

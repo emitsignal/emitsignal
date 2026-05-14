@@ -2,7 +2,7 @@
 // One bus per server instance — sufficient for single-node dev.
 // For multi-node deployments, swap with Redis pub/sub or NATS.
 
-import { EventEmitter } from "node:events";
+import { EventEmitter } from 'node:events';
 
 export interface MessageEvent {
     body: string;
@@ -23,11 +23,11 @@ class EmitSignalBus extends EventEmitter {
 
     publish(topicName: string, event: MessageEvent) {
         this.emit(`topic:${topicName}`, event);
-        this.emit("topic:*", event);
+        this.emit('topic:*', event);
     }
 
     subscribe(topicName: string, handler: (e: MessageEvent) => void): () => void {
-        const channel = topicName === "*" ? "topic:*" : `topic:${topicName}`;
+        const channel = topicName === '*' ? 'topic:*' : `topic:${topicName}`;
 
         this.on(channel, handler);
 

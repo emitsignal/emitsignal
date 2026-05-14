@@ -7,7 +7,7 @@ Comprehensive styling reference for React Email templates.
 Use the `Tailwind` component for styling if the project uses Tailwind CSS. Otherwise, use inline styles.
 
 ```tsx
-import { Tailwind, pixelBasedPreset } from "react-email";
+import { Tailwind, pixelBasedPreset } from 'react-email';
 
 <Tailwind
     config={{
@@ -15,7 +15,7 @@ import { Tailwind, pixelBasedPreset } from "react-email";
         theme: {
             extend: {
                 colors: {
-                    brand: "#007bff",
+                    brand: '#007bff',
                 },
             },
         },
@@ -91,7 +91,7 @@ const Email = ({ source }: { source: string }) => {
 };
 
 Email.PreviewProps = {
-    source: "https://example.com",
+    source: 'https://example.com',
 };
 ```
 
@@ -224,7 +224,7 @@ Create a centralized Tailwind config file that all email templates import. Using
 
 ```tsx
 // emails/tailwind.config.ts
-import { pixelBasedPreset, type TailwindConfig } from "react-email";
+import { pixelBasedPreset, type TailwindConfig } from 'react-email';
 
 export default {
     presets: [pixelBasedPreset],
@@ -232,8 +232,8 @@ export default {
         extend: {
             colors: {
                 brand: {
-                    primary: "#007bff",
-                    secondary: "#6c757d",
+                    primary: '#007bff',
+                    secondary: '#6c757d',
                 },
             },
         },
@@ -243,8 +243,8 @@ export default {
 // For non-Tailwind brand assets (optional)
 export const brandAssets = {
     logo: {
-        src: "https://example.com/logo.png",
-        alt: "Company Name",
+        src: 'https://example.com/logo.png',
+        alt: 'Company Name',
         width: 120,
     },
 };
@@ -255,7 +255,7 @@ export const brandAssets = {
 Import the shared config in every email template:
 
 ```tsx
-import tailwindConfig, { brandAssets } from "./tailwind.config";
+import tailwindConfig, { brandAssets } from './tailwind.config';
 
 <Tailwind config={tailwindConfig}>
     <Body className="bg-gray-100 font-sans">

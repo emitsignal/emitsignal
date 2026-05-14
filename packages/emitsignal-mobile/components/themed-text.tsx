@@ -1,31 +1,31 @@
-import { StyleSheet, Text, type TextProps } from "react-native";
+import { StyleSheet, Text, type TextProps } from 'react-native';
 
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 export type ThemedTextProps = {
     darkColor?: string;
     lightColor?: string;
-    type?: "default" | "defaultSemiBold" | "link" | "subtitle" | "title";
+    type?: 'default' | 'defaultSemiBold' | 'link' | 'subtitle' | 'title';
 } & TextProps;
 
 export function ThemedText({
     darkColor,
     lightColor,
     style,
-    type = "default",
+    type = 'default',
     ...rest
 }: ThemedTextProps) {
-    const color = useThemeColor({ dark: darkColor, light: lightColor }, "text");
+    const color = useThemeColor({ dark: darkColor, light: lightColor }, 'text');
 
     return (
         <Text
             style={[
                 { color },
-                type === "default" ? styles.default : undefined,
-                type === "title" ? styles.title : undefined,
-                type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
-                type === "subtitle" ? styles.subtitle : undefined,
-                type === "link" ? styles.link : undefined,
+                type === 'default' ? styles.default : undefined,
+                type === 'title' ? styles.title : undefined,
+                type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
+                type === 'subtitle' ? styles.subtitle : undefined,
+                type === 'link' ? styles.link : undefined,
                 style,
             ]}
             {...rest}
@@ -40,21 +40,21 @@ const styles = StyleSheet.create({
     },
     defaultSemiBold: {
         fontSize: 16,
-        fontWeight: "600",
+        fontWeight: '600',
         lineHeight: 24,
     },
     link: {
-        color: "#0a7ea4",
+        color: '#0a7ea4',
         fontSize: 16,
         lineHeight: 30,
     },
     subtitle: {
         fontSize: 20,
-        fontWeight: "bold",
+        fontWeight: 'bold',
     },
     title: {
         fontSize: 32,
-        fontWeight: "bold",
+        fontWeight: 'bold',
         lineHeight: 32,
     },
 });

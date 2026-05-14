@@ -38,7 +38,7 @@ Create a welcome email with a {{firstName}} placeholder for personalization - I 
 <Text>Hello {firstName}</Text>;
 
 Email.PreviewProps = {
-    firstName: "{{firstName}}",
+    firstName: '{{firstName}}',
 };
 
 // WRONG - fails TypeScript/JSX
@@ -292,11 +292,11 @@ import {
     Head,
     Tailwind,
     pixelBasedPreset, // Same package as other components
-} from "react-email";
+} from 'react-email';
 
 // WRONG - separate import from wrong package
-import { pixelBasedPreset } from "@react-email/tailwind";
-import { pixelBasedPreset } from "@react-email/tailwind/presets";
+import { pixelBasedPreset } from '@react-email/tailwind';
+import { pixelBasedPreset } from '@react-email/tailwind/presets';
 ```
 
 ---
@@ -776,7 +776,7 @@ import {
     Text,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 // WRONG - imports unused components
 import {
@@ -792,7 +792,7 @@ import {
     Column, // Not used
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 ```
 
 ---
@@ -1008,11 +1008,11 @@ Just hardcode http://localhost:3000 as the base URL. I'll change it later before
 
 ```tsx
 // WRONG
-const baseURL = "http://localhost:3000";
+const baseURL = 'http://localhost:3000';
 
 // CORRECT
 const baseURL =
-    process.env.NODE_ENV === "production"
-        ? "https://cdn.example.com" // Ask user for this
-        : "";
+    process.env.NODE_ENV === 'production'
+        ? 'https://cdn.example.com' // Ask user for this
+        : '';
 ```

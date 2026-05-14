@@ -1,6 +1,6 @@
 // SSE handled separately by hooks/use-sse.ts.
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:3000";
+const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? 'http://127.0.0.1:3000';
 
 export interface Message {
     body: string;
@@ -37,7 +37,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const res = await fetch(`${API_URL}${path}`, {
         ...init,
         headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             ...(init.headers ?? {}),
         },
     });
@@ -69,12 +69,12 @@ export const api = {
     },
 
     listTopics(query?: string) {
-        const q = query ? `?q=${encodeURIComponent(query)}` : "";
+        const q = query ? `?q=${encodeURIComponent(query)}` : '';
         return request<Topic[]>(`/topics${q}`);
     },
 
     me(token: string) {
-        return request<{ user: { email: string; id: string; name: null | string } }>("/auth/me", {
+        return request<{ user: { email: string; id: string; name: null | string } }>('/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
         });
     },
@@ -92,40 +92,40 @@ export const api = {
             `/topic/${encodeURIComponent(topicName)}`,
             {
                 body: JSON.stringify(payload),
-                method: "POST",
+                method: 'POST',
             },
         );
     },
 
     registerPushToken(input: {
         deviceId: string;
-        platform: "android" | "ios" | "web";
+        platform: 'android' | 'ios' | 'web';
         token: string;
     }) {
-        return request<{ id: string }>("/push-tokens", {
+        return request<{ id: string }>('/push-tokens', {
             body: JSON.stringify(input),
-            method: "POST",
+            method: 'POST',
         });
     },
 
     requestMagicLink(email: string) {
-        return request<{ devCode?: string; expiresAt: number; ok: boolean }>("/auth/magic-link", {
+        return request<{ devCode?: string; expiresAt: number; ok: boolean }>('/auth/magic-link', {
             body: JSON.stringify({ email }),
-            method: "POST",
+            method: 'POST',
         });
     },
 
     subscribe(deviceId: string, topicName: string, pushEnabled = true) {
-        return request<{ id: string; topic: Topic }>("/subscriptions", {
+        return request<{ id: string; topic: Topic }>('/subscriptions', {
             body: JSON.stringify({ deviceId, pushEnabled, topicName }),
-            method: "POST",
+            method: 'POST',
         });
     },
 
     unsubscribe(deviceId: string, topicName: string) {
-        return request<{ ok: boolean }>("/subscriptions", {
+        return request<{ ok: boolean }>('/subscriptions', {
             body: JSON.stringify({ deviceId, topicName }),
-            method: "DELETE",
+            method: 'DELETE',
         });
     },
 
@@ -134,19 +134,19 @@ export const api = {
             expiresAt: number;
             token: string;
             user: { email: string; id: string; name: null | string };
-        }>("/auth/verify", {
+        }>('/auth/verify', {
             body: JSON.stringify({ code, email }),
-            method: "POST",
+            method: 'POST',
         });
     },
 };
 
 export function sseMultiUrl(topics: string[]): string {
-    const param = topics.map((topic) => encodeURIComponent(topic)).join(",");
-    return `${API_URL}/listen${param ? `?topics=${param}` : ""}`;
+    const param = topics.map((topic) => encodeURIComponent(topic)).join(',');
+    return `${API_URL}/listen${param ? `?topics=${param}` : ''}`;
 }
 
 export function sseUrl(topicName: string, since?: number): string {
-    const sinceParam = since ? `?since=${since}` : "";
+    const sinceParam = since ? `?since=${since}` : '';
     return `${API_URL}/topics/${encodeURIComponent(topicName)}/listen${sinceParam}`;
 }

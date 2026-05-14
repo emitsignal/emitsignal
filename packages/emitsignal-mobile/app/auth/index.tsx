@@ -1,11 +1,11 @@
-import { router } from "expo-router";
-import { useEffect, useRef } from "react";
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from 'expo-router';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WCode } from "@/components/base-theme";
-import { Fonts, W } from "@/constants/theme";
-import { useOnboarding } from "@/hooks/use-onboarding";
+import { WCode } from '@/components/base-theme';
+import { Fonts, W } from '@/constants/theme';
+import { useOnboarding } from '@/hooks/use-onboarding';
 
 export default function AuthWelcome() {
     const { markOnboardingComplete } = useOnboarding();
@@ -39,7 +39,7 @@ export default function AuthWelcome() {
                 />
                 <Text style={styles.kicker}>EmitSignal · v0.1</Text>
                 <Text style={styles.title}>
-                    Push notifications{"\n"}with <Text style={{ color: W.violet }}>one curl</Text>.
+                    Push notifications{'\n'}with <Text style={{ color: W.violet }}>one curl</Text>.
                 </Text>
                 <Text style={styles.lede}>
                     Subscribe to any topic. Publish from a shell, a cron, a CI, a webhook. Arrives
@@ -53,13 +53,13 @@ export default function AuthWelcome() {
             </View>
 
             <View style={styles.footer}>
-                <Pressable onPress={() => router.push("/auth/sign-in")} style={styles.cta}>
+                <Pressable onPress={() => router.push('/auth/sign-in')} style={styles.cta}>
                     <Text style={styles.ctaText}>get started →</Text>
                 </Pressable>
                 <Pressable
                     onPress={async () => {
                         await markOnboardingComplete();
-                        router.replace("/(tabs)");
+                        router.replace('/(tabs)');
                     }}
                     style={{ marginTop: 14 }}
                 >
@@ -71,9 +71,9 @@ export default function AuthWelcome() {
 }
 
 const styles = StyleSheet.create({
-    content: { flex: 1, justifyContent: "center" },
+    content: { flex: 1, justifyContent: 'center' },
     cta: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 12,
         paddingVertical: 14,
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     dot: {
         backgroundColor: W.violet,
@@ -100,9 +100,9 @@ const styles = StyleSheet.create({
         backgroundColor: `${W.violet}33`,
         borderRadius: 220,
         height: 440,
-        left: "20%",
+        left: '20%',
         opacity: 0.4,
-        position: "absolute",
+        position: 'absolute',
         top: -120,
         width: 440,
     },
@@ -124,12 +124,12 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 12,
-        textAlign: "center",
+        textAlign: 'center',
     },
     title: {
         color: W.fg,
         fontSize: 36,
-        fontWeight: "700",
+        fontWeight: '700',
         letterSpacing: -1.1,
         lineHeight: 40,
         marginBottom: 16,

@@ -1,19 +1,19 @@
-import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { ThemePreference } from "@/storage/theme";
+import type { ThemePreference } from '@/storage/theme';
 
-import { WLogo } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
-import { useSession } from "@/ctx/session";
-import { useTheme } from "@/ctx/theme";
+import { WLogo } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
+import { useSession } from '@/ctx/session';
+import { useTheme } from '@/ctx/theme';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
-    { label: "System", value: "system" },
-    { label: "Light", value: "light" },
-    { label: "Dark", value: "dark" },
+    { label: 'System', value: 'system' },
+    { label: 'Light', value: 'light' },
+    { label: 'Dark', value: 'dark' },
 ];
 
 export default function SettingsScreen() {
@@ -21,13 +21,13 @@ export default function SettingsScreen() {
     const { signOut, user } = useSession();
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <WLogo pulse size={12} />
                 </View>
                 <Text style={styles.title}>Settings</Text>
-                <Text style={styles.subtitle}>{user?.email ?? "anonymous device"}</Text>
+                <Text style={styles.subtitle}>{user?.email ?? 'anonymous device'}</Text>
             </View>
 
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -69,14 +69,14 @@ export default function SettingsScreen() {
                         <Pressable
                             onPress={async () => {
                                 await signOut();
-                                router.replace("/auth");
+                                router.replace('/auth');
                             }}
                             style={styles.row}
                         >
                             <Text style={[styles.rowLabel, { color: W.red }]}>Sign out</Text>
                         </Pressable>
                     ) : (
-                        <Pressable onPress={() => router.push("/auth")} style={styles.row}>
+                        <Pressable onPress={() => router.push('/auth')} style={styles.row}>
                             <Text style={[styles.rowLabel, { color: W.violet }]}>Sign in</Text>
                             <IconSymbol color={W.violet} name="arrow.right" size={14} />
                         </Pressable>
@@ -112,13 +112,13 @@ const styles = StyleSheet.create({
         borderTopWidth: StyleSheet.hairlineWidth,
     },
     header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
-    headerTop: { alignItems: "center", flexDirection: "row", marginBottom: 16 },
+    headerTop: { alignItems: 'center', flexDirection: 'row', marginBottom: 16 },
     root: { backgroundColor: W.bg, flex: 1 },
     row: {
-        alignItems: "center",
+        alignItems: 'center',
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 20,
         paddingVertical: 14,
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     sectionLabelRow: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         paddingBottom: 6,
         paddingHorizontal: 20,
         paddingTop: 14,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        fontWeight: "500",
+        fontWeight: '500',
         letterSpacing: 1.5,
     },
     subtitle: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     title: {
         color: W.fg,
         fontSize: 28,
-        fontWeight: "600",
+        fontWeight: '600',
         letterSpacing: -0.5,
     },
 });

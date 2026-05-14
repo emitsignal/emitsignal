@@ -1,9 +1,9 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from '../../lib/prisma';
 
-export const unsubscribe = new Elysia({ prefix: "/subscriptions" }).delete(
-    "/",
+export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
+    '/',
     async ({ body }) => {
         const topic = await prisma.topic.findUnique({
             where: { name: body.topicName },

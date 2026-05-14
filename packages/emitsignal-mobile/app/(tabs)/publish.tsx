@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
@@ -9,20 +9,20 @@ import {
     Text,
     TextInput,
     View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActivitySparkline, WCode, WLogo, WTopicAvatar } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
-import { api, type Topic } from "@/lib/api";
+import { ActivitySparkline, WCode, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
+import { api, type Topic } from '@/lib/api';
 
 export default function PublishScreen() {
-    const [topic, setTopic] = useState("alerts/prod");
-    const [title, setTitle] = useState("Deploy succeeded");
-    const [body, setBody] = useState("api-gateway shipped to prod");
+    const [topic, setTopic] = useState('alerts/prod');
+    const [title, setTitle] = useState('Deploy succeeded');
+    const [body, setBody] = useState('api-gateway shipped to prod');
     const [priority, setPriority] = useState<1 | 2 | 3 | 4 | 5>(3);
-    const [tags, setTags] = useState("deploy,prod");
+    const [tags, setTags] = useState('deploy,prod');
     const [topics, setTopics] = useState<Topic[]>([]);
     const [busy, setBusy] = useState(false);
 
@@ -42,16 +42,16 @@ export default function PublishScreen() {
                 body: body.trim(),
                 priority,
                 tags: tags
-                    .split(",")
+                    .split(',')
                     .map((topic) => topic.trim())
                     .filter(Boolean),
                 title: title.trim(),
             });
-            Alert.alert("Published", `→ ${topic}`);
+            Alert.alert('Published', `→ ${topic}`);
             const updated = await api.listTopics();
             setTopics(updated);
         } catch (error) {
-            Alert.alert("Failed", error instanceof Error ? error.message : String(error));
+            Alert.alert('Failed', error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
@@ -62,9 +62,9 @@ export default function PublishScreen() {
   ${api.baseUrl}/topic/${topic}`;
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.root}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
@@ -75,7 +75,7 @@ export default function PublishScreen() {
                         <Text style={styles.title}>Publish</Text>
                         <Text style={styles.subtitle}>
                             {topics.length} owned topic
-                            {topics.length === 1 ? "" : "s"}
+                            {topics.length === 1 ? '' : 's'}
                         </Text>
                     </View>
 
@@ -156,7 +156,7 @@ export default function PublishScreen() {
                             style={[styles.publishBtn, busy && { opacity: 0.6 }]}
                         >
                             <Text style={styles.publishText}>
-                                {busy ? "publishing…" : `publish → ${topic}`}
+                                {busy ? 'publishing…' : `publish → ${topic}`}
                             </Text>
                             <IconSymbol color={W.bg} name="arrow.right" size={14} />
                         </Pressable>
@@ -175,7 +175,7 @@ export default function PublishScreen() {
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.topicName}>{topic.name}</Text>
                                     <Text style={styles.topicMeta}>
-                                        {topic.isPublic ? "public" : "private"}
+                                        {topic.isPublic ? 'public' : 'private'}
                                     </Text>
                                 </View>
                                 <View style={{ width: 70 }}>
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     },
     form: { paddingHorizontal: 20 },
     header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
-    headerTop: { alignItems: "center", flexDirection: "row", marginBottom: 16 },
+    headerTop: { alignItems: 'center', flexDirection: 'row', marginBottom: 16 },
     input: {
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
@@ -232,29 +232,29 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     prioBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgChip,
         borderColor: W.bgLine,
         borderRadius: 8,
         borderWidth: StyleSheet.hairlineWidth,
         height: 40,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 40,
     },
     prioBtnActive: {
         backgroundColor: W.violetBg,
         borderColor: W.violet,
     },
-    prioRow: { flexDirection: "row", gap: 6 },
-    prioText: { color: W.fgDim, fontFamily: Fonts.mono, fontWeight: "600" },
+    prioRow: { flexDirection: 'row', gap: 6 },
+    prioText: { color: W.fgDim, fontFamily: Fonts.mono, fontWeight: '600' },
     prioTextActive: { color: W.violet },
     publishBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 8,
-        justifyContent: "center",
+        justifyContent: 'center',
         marginTop: 24,
         paddingVertical: 14,
     },
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     root: { backgroundColor: W.bg, flex: 1 },
     sectionLabelLine: {
@@ -272,8 +272,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     sectionLabelRow: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         paddingBottom: 6,
         paddingHorizontal: 20,
         paddingTop: 14,
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        fontWeight: "500",
+        fontWeight: '500',
         letterSpacing: 1.5,
     },
     subtitle: {
@@ -291,11 +291,11 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 4,
     },
-    textArea: { minHeight: 80, textAlignVertical: "top" },
+    textArea: { minHeight: 80, textAlignVertical: 'top' },
     title: {
         color: W.fg,
         fontSize: 28,
-        fontWeight: "600",
+        fontWeight: '600',
         letterSpacing: -0.5,
     },
     topicMeta: {
@@ -306,10 +306,10 @@ const styles = StyleSheet.create({
     },
     topicName: { color: W.fg, fontFamily: Fonts.mono, fontSize: 12.5 },
     topicRow: {
-        alignItems: "center",
+        alignItems: 'center',
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 20,
         paddingVertical: 12,

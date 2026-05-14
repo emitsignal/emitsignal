@@ -1,5 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
@@ -9,25 +9,25 @@ import {
     Text,
     TextInput,
     View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WLogo } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
-import { useSession } from "@/ctx/session";
-import { api } from "@/lib/api";
+import { WLogo } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
+import { useSession } from '@/ctx/session';
+import { api } from '@/lib/api';
 
 export default function AuthVerify() {
     const params = useLocalSearchParams<{ devCode?: string; email?: string }>();
     const { signIn } = useSession();
-    const [code, setCode] = useState("");
+    const [code, setCode] = useState('');
     const [busy, setBusy] = useState(false);
     const inputRef = useRef<TextInput>(null);
 
     useEffect(() => {
         // Dev convenience — auto-fill the code if the backend returned one
-        if (params.devCode && code === "") {
+        if (params.devCode && code === '') {
             const seq = params.devCode;
             let i = 0;
             const id = setInterval(() => {
@@ -47,21 +47,21 @@ export default function AuthVerify() {
         try {
             const res = await api.verifyMagicLink(params.email, code);
             await signIn(res.token, res.user);
-            router.replace("/auth/perms");
+            router.replace('/auth/perms');
         } catch (error) {
-            Alert.alert("Invalid code", error instanceof Error ? error.message : String(error));
+            Alert.alert('Invalid code', error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
     };
 
-    const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? "");
+    const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? '');
     const activeIdx = code.length;
 
     return (
         <SafeAreaView style={styles.root}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : undefined}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <View style={styles.topBar}>
@@ -96,7 +96,7 @@ export default function AuthVerify() {
                             onChangeText={(t) =>
                                 setCode(
                                     t
-                                        .replace(/[^a-z0-9]/gi, "")
+                                        .replace(/[^a-z0-9]/gi, '')
                                         .toLowerCase()
                                         .slice(0, 6),
                                 )
@@ -117,7 +117,7 @@ export default function AuthVerify() {
                         style={[styles.cta, (busy || code.length !== 6) && styles.ctaDisabled]}
                     >
                         <Text style={[styles.ctaText, code.length !== 6 && { color: W.fgDim }]}>
-                            {busy ? "verifying…" : "verify →"}
+                            {busy ? 'verifying…' : 'verify →'}
                         </Text>
                     </Pressable>
 
@@ -132,22 +132,22 @@ export default function AuthVerify() {
 
 const styles = StyleSheet.create({
     backBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     body: { flex: 1, padding: 28 },
     codeCell: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
         borderRadius: 10,
         borderWidth: 1.5,
         height: 56,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 48,
     },
     codeCellActive: { borderColor: W.violet },
@@ -155,11 +155,11 @@ const styles = StyleSheet.create({
         color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 20,
-        fontWeight: "600",
+        fontWeight: '600',
     },
-    codeRow: { flexDirection: "row", gap: 8, marginBottom: 14 },
+    codeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
     cta: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
         paddingVertical: 14,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     expires: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 11, marginBottom: 24 },
     fieldLabel: {
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     hiddenInput: {
         height: 1,
         opacity: 0,
-        position: "absolute",
+        position: 'absolute',
         width: 1,
     },
     lede: { color: W.fgMuted, fontSize: 13, marginBottom: 28, marginTop: 6 },
@@ -196,19 +196,19 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.mono,
         fontSize: 12,
         marginTop: 18,
-        textAlign: "center",
+        textAlign: 'center',
     },
     root: { backgroundColor: W.bg, flex: 1 },
     step: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
-    title: { color: W.fg, fontSize: 26, fontWeight: "600", letterSpacing: -0.6 },
+    title: { color: W.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
     topBar: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 14,

@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
 import {
     FlatList,
     Pressable,
@@ -8,21 +8,21 @@ import {
     StyleSheet,
     Text,
     View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { Message, Subscription } from "@/lib/api";
+import type { Message, Subscription } from '@/lib/api';
 
-import { WChip, WDot, WLogo, WTopicAvatar } from "@/components/base-theme";
-import { Fonts, PriorityColors, W } from "@/constants/theme";
-import { useFeed } from "@/hooks/use-emit-signal";
+import { WChip, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { useFeed } from '@/hooks/use-emit-signal';
 
-const FILTERS = ["all", "p4+", "unread", "deploy", "alerts", "ci"] as const;
+const FILTERS = ['all', 'p4+', 'unread', 'deploy', 'alerts', 'ci'] as const;
 type Filter = (typeof FILTERS)[number];
 
 export default function FeedScreen() {
     const { error, loading, messages, refresh, subscriptions } = useFeed();
-    const [filter, setFilter] = useState<Filter>("all");
+    const [filter, setFilter] = useState<Filter>('all');
 
     const subscriptionMap = useMemo(() => {
         const m = new Map<string, Subscription>();
@@ -31,10 +31,10 @@ export default function FeedScreen() {
     }, [subscriptions]);
 
     const filtered = useMemo(() => {
-        if (filter === "all") {
+        if (filter === 'all') {
             return messages;
         }
-        if (filter === "p4+") {
+        if (filter === 'p4+') {
             return messages.filter((message) => message.priority >= 4);
         }
         return messages.filter((message) => {
@@ -47,7 +47,7 @@ export default function FeedScreen() {
     const earlier = filtered.slice(2);
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <WLogo pulse size={12} />
@@ -55,9 +55,9 @@ export default function FeedScreen() {
                 </View>
                 <Text style={styles.title}>Inbox</Text>
                 <Text style={styles.subtitle}>
-                    {messages.length} message{messages.length === 1 ? "" : "s"} ·{" "}
+                    {messages.length} message{messages.length === 1 ? '' : 's'} ·{' '}
                     {subscriptions.length} channel
-                    {subscriptions.length === 1 ? "" : "s"}
+                    {subscriptions.length === 1 ? '' : 's'}
                 </Text>
             </View>
 
@@ -91,13 +91,13 @@ export default function FeedScreen() {
             <FlatList
                 contentContainerStyle={filtered.length === 0 ? { flex: 1 } : { paddingBottom: 40 }}
                 data={[
-                    ...(now.length ? [{ kind: "label" as const, text: "NOW" }] : []),
-                    ...now.map((message) => ({ kind: "row" as const, message: message })),
-                    ...(earlier.length ? [{ kind: "label" as const, text: "EARLIER" }] : []),
-                    ...earlier.map((message) => ({ kind: "row" as const, message: message })),
+                    ...(now.length ? [{ kind: 'label' as const, text: 'NOW' }] : []),
+                    ...now.map((message) => ({ kind: 'row' as const, message: message })),
+                    ...(earlier.length ? [{ kind: 'label' as const, text: 'EARLIER' }] : []),
+                    ...earlier.map((message) => ({ kind: 'row' as const, message: message })),
                 ]}
                 keyExtractor={(item, i) =>
-                    item.kind === "label" ? `${item.text}-${i}` : item.message.id
+                    item.kind === 'label' ? `${item.text}-${i}` : item.message.id
                 }
                 ListEmptyComponent={!loading ? <EmptyFeed message={error?.message} /> : null}
                 refreshControl={
@@ -109,14 +109,14 @@ export default function FeedScreen() {
                     />
                 }
                 renderItem={({ item }) =>
-                    item.kind === "label" ? (
+                    item.kind === 'label' ? (
                         <SectionLabel>{item.text}</SectionLabel>
                     ) : (
                         <NotifRow
                             message={item.message}
                             onPress={() => router.push(`/messages/${item.message.id}`)}
                             topicName={
-                                subscriptionMap.get(item.message.topicId)?.topic.name ?? "unknown"
+                                subscriptionMap.get(item.message.topicId)?.topic.name ?? 'unknown'
                             }
                         />
                     )
@@ -131,10 +131,10 @@ function EmptyFeed({ message }: { message?: string }) {
         <View style={styles.empty}>
             <WDot level={2} size={10} />
             <Text style={styles.emptyTitle}>
-                {message ? "Could not load feed" : "No messages yet"}
+                {message ? 'Could not load feed' : 'No messages yet'}
             </Text>
             <Text style={styles.emptyBody}>
-                {message ?? "Subscribe to a channel to start receiving notifications."}
+                {message ?? 'Subscribe to a channel to start receiving notifications.'}
             </Text>
         </View>
     );
@@ -186,7 +186,7 @@ function relativeTime(ts: number): string {
     const diff = Date.now() - ts;
     const min = Math.floor(diff / 60000);
     if (min < 1) {
-        return "now";
+        return 'now';
     }
     if (min < 60) {
         return `${min}m`;
@@ -210,25 +210,25 @@ function SectionLabel({ children }: { children: string }) {
 
 const styles = StyleSheet.create({
     empty: {
-        alignItems: "center",
+        alignItems: 'center',
         flex: 1,
         gap: 10,
-        justifyContent: "center",
+        justifyContent: 'center',
         padding: 40,
     },
     emptyBody: {
         color: W.fgMuted,
         fontSize: 13,
-        textAlign: "center",
+        textAlign: 'center',
     },
     emptyTitle: {
         color: W.fg,
         fontSize: 16,
-        fontWeight: "600",
+        fontWeight: '600',
         marginTop: 6,
     },
     filterPill: {
-        alignSelf: "flex-start",
+        alignSelf: 'flex-start',
         borderColor: W.bgLine,
         borderRadius: 100,
         borderWidth: StyleSheet.hairlineWidth,
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
         borderColor: `${W.violetDim}55`,
     },
     filterRow: {
-        alignItems: "center",
+        alignItems: 'center',
         gap: 6,
         paddingBottom: 14,
         paddingHorizontal: 20,
@@ -263,20 +263,20 @@ const styles = StyleSheet.create({
         paddingTop: 12,
     },
     headerTop: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         marginBottom: 16,
     },
     live: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10.5,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
     priorityRibbon: {
         bottom: 0,
         left: 0,
-        position: "absolute",
+        position: 'absolute',
         top: 0,
         width: 2,
     },
@@ -287,11 +287,11 @@ const styles = StyleSheet.create({
     row: {
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 20,
         paddingVertical: 14,
-        position: "relative",
+        position: 'relative',
     },
     rowBody: {
         color: W.fgMuted,
@@ -306,8 +306,8 @@ const styles = StyleSheet.create({
         fontSize: 10.5,
     },
     rowMeta: {
-        alignItems: "baseline",
-        flexDirection: "row",
+        alignItems: 'baseline',
+        flexDirection: 'row',
         marginBottom: 2,
     },
     rowTime: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     rowTitle: {
         color: W.fg,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
         marginBottom: 4,
     },
     sectionLabelLine: {
@@ -328,8 +328,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     sectionLabelRow: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         paddingBottom: 6,
         paddingHorizontal: 20,
         paddingTop: 14,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        fontWeight: "500",
+        fontWeight: '500',
         letterSpacing: 1.5,
     },
     subtitle: {
@@ -348,14 +348,14 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     tagRow: {
-        flexDirection: "row",
-        flexWrap: "wrap",
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: 6,
     },
     title: {
         color: W.fg,
         fontSize: 28,
-        fontWeight: "600",
+        fontWeight: '600',
         letterSpacing: -0.5,
     },
 });

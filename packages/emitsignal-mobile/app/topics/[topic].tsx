@@ -1,20 +1,20 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router, useLocalSearchParams } from 'expo-router';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { Message } from "@/lib/api";
+import type { Message } from '@/lib/api';
 
-import { WChip, WLogo, WTopicAvatar } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, PriorityColors, W } from "@/constants/theme";
-import { useTopicMessages } from "@/hooks/use-emit-signal";
+import { WChip, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { useTopicMessages } from '@/hooks/use-emit-signal';
 
 export default function TopicScreen() {
     const { topic } = useLocalSearchParams<{ topic: string }>();
     const { loading, messages } = useTopicMessages(topic);
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.topBar}>
                 <Pressable onPress={() => router.back()} style={styles.backBtn}>
                     <IconSymbol color={W.fg} name="arrow.left" size={16} />
@@ -24,7 +24,7 @@ export default function TopicScreen() {
                     <Text style={styles.channelName}>{topic}</Text>
                     <Text style={styles.channelMeta}>
                         {messages.length} message
-                        {messages.length === 1 ? "" : "s"}
+                        {messages.length === 1 ? '' : 's'}
                     </Text>
                 </View>
                 <WLogo pulse size={11} />
@@ -91,11 +91,11 @@ function MessageRow({ message, onPress }: { message: Message; onPress: () => voi
 
 const styles = StyleSheet.create({
     backBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     body: {
@@ -114,22 +114,22 @@ const styles = StyleSheet.create({
         color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
-    empty: { alignItems: "center", flex: 1, justifyContent: "center", padding: 40 },
+    empty: { alignItems: 'center', flex: 1, justifyContent: 'center', padding: 40 },
     emptyBody: {
         color: W.fgMuted,
         fontSize: 13,
         marginTop: 8,
-        textAlign: "center",
+        textAlign: 'center',
     },
-    emptyTitle: { color: W.fg, fontSize: 16, fontWeight: "600" },
-    metaRow: { flexDirection: "row", marginBottom: 4 },
+    emptyTitle: { color: W.fg, fontSize: 16, fontWeight: '600' },
+    metaRow: { flexDirection: 'row', marginBottom: 4 },
     mono: { fontFamily: Fonts.mono },
     priorityRibbon: {
         bottom: 0,
         left: 0,
-        position: "absolute",
+        position: 'absolute',
         top: 0,
         width: 2,
     },
@@ -137,19 +137,19 @@ const styles = StyleSheet.create({
     row: {
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         paddingHorizontal: 20,
         paddingVertical: 14,
-        position: "relative",
+        position: 'relative',
     },
-    tags: { flexDirection: "row", gap: 6, marginTop: 8 },
+    tags: { flexDirection: 'row', gap: 6, marginTop: 8 },
     timeText: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 10.5 },
-    title: { color: W.fg, fontSize: 14, fontWeight: "600" },
+    title: { color: W.fg, fontSize: 14, fontWeight: '600' },
     topBar: {
-        alignItems: "center",
+        alignItems: 'center',
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 16,
         paddingVertical: 12,

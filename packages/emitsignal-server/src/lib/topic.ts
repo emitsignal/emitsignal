@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from './prisma';
 
 export const TOPIC_NAME_RE = /^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/i;
 
@@ -10,7 +10,7 @@ export async function getOrCreateTopic(name: string, ownerId?: string) {
 
     return prisma.topic.create({
         data: {
-            description: "",
+            description: '',
             displayName: name,
             isPublic: true,
             name,

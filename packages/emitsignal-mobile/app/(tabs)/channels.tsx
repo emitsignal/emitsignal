@@ -1,5 +1,5 @@
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Alert,
     FlatList,
@@ -9,20 +9,20 @@ import {
     Text,
     TextInput,
     View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, PriorityColors, W } from "@/constants/theme";
-import { useDevice } from "@/ctx/device";
-import { api, type Subscription } from "@/lib/api";
+import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
+import { api, type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
     const { deviceId } = useDevice();
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [loading, setLoading] = useState(true);
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState('');
 
     const refresh = useCallback(async () => {
         if (!deviceId) return;
@@ -64,21 +64,21 @@ export default function ChannelsScreen() {
             return;
         }
 
-        Alert.alert("Unsubscribe", `Stop receiving messages from ${sub.topic.name}?`, [
-            { style: "cancel", text: "Cancel" },
+        Alert.alert('Unsubscribe', `Stop receiving messages from ${sub.topic.name}?`, [
+            { style: 'cancel', text: 'Cancel' },
             {
                 onPress: async () => {
                     await api.unsubscribe(deviceId, sub.topic.name);
                     await refresh();
                 },
-                style: "destructive",
-                text: "Unsubscribe",
+                style: 'destructive',
+                text: 'Unsubscribe',
             },
         ]);
     };
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <WLogo pulse size={12} />
@@ -136,7 +136,7 @@ export default function ChannelsScreen() {
                 )}
             />
 
-            <Pressable onPress={() => router.push("/modal")} style={styles.fab}>
+            <Pressable onPress={() => router.push('/modal')} style={styles.fab}>
                 <IconSymbol color={W.bg} name="plus" size={14} />
                 <Text style={styles.fabText}>Subscribe</Text>
             </Pressable>
@@ -187,49 +187,49 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     channelHeader: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 6,
     },
     channelName: {
         color: W.fg,
         fontFamily: Fonts.mono,
         fontSize: 13,
-        fontWeight: "500",
+        fontWeight: '500',
     },
     channelRow: {
-        alignItems: "center",
+        alignItems: 'center',
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 12,
         paddingHorizontal: 20,
         paddingVertical: 14,
     },
     empty: {
-        alignItems: "center",
+        alignItems: 'center',
         flex: 1,
-        justifyContent: "center",
+        justifyContent: 'center',
         padding: 40,
     },
     emptyBody: {
         color: W.fgMuted,
         fontSize: 13,
         marginTop: 8,
-        textAlign: "center",
+        textAlign: 'center',
     },
-    emptyTitle: { color: W.fg, fontSize: 16, fontWeight: "600" },
+    emptyTitle: { color: W.fg, fontSize: 16, fontWeight: '600' },
     fab: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 100,
         bottom: 24,
         elevation: 8,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 8,
         paddingHorizontal: 18,
         paddingVertical: 12,
-        position: "absolute",
+        position: 'absolute',
         right: 20,
         shadowColor: W.violet,
         shadowOffset: { height: 4, width: 0 },
@@ -240,28 +240,28 @@ const styles = StyleSheet.create({
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
     headerTop: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         marginBottom: 16,
     },
     live: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10.5,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
     root: { backgroundColor: W.bg, flex: 1 },
     searchBar: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
         borderRadius: 10,
         borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 14,
         paddingVertical: 10,
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     title: {
         color: W.fg,
         fontSize: 28,
-        fontWeight: "600",
+        fontWeight: '600',
         letterSpacing: -0.5,
     },
 });

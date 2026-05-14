@@ -1,26 +1,26 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from '../../lib/prisma';
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 function generateToken() {
-    return crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+    return crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
 }
 
-export const verify = new Elysia({ prefix: "/auth" }).post(
-    "/verify",
+export const verify = new Elysia({ prefix: '/auth' }).post(
+    '/verify',
     async ({ body, status }) => {
         const email = body.email.toLowerCase().trim();
         const code = body.code.toLowerCase();
 
         const record = await prisma.verificationCode.findFirst({
-            orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: 'desc' },
             where: { code, consumed: false, email },
         });
 
         if (!record || record.expiresAt < new Date()) {
-            return status(401, { error: "invalid_or_expired_code" });
+            return status(401, { error: 'invalid_or_expired_code' });
         }
 
         await prisma.verificationCode.update({
@@ -54,7 +54,7 @@ export const verify = new Elysia({ prefix: "/auth" }).post(
     {
         body: t.Object({
             code: t.String({ maxLength: 6, minLength: 6 }),
-            email: t.String({ format: "email" }),
+            email: t.String({ format: 'email' }),
         }),
     },
 );

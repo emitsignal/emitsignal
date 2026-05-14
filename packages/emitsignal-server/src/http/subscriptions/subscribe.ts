@@ -1,10 +1,10 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { prisma } from "../../lib/prisma";
-import { getOrCreateTopic } from "../../lib/topic";
+import { prisma } from '../../lib/prisma';
+import { getOrCreateTopic } from '../../lib/topic';
 
-export const subscribe = new Elysia({ prefix: "/subscriptions" }).post(
-    "/",
+export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
+    '/',
     async ({ body }) => {
         const topic = await getOrCreateTopic(body.topicName);
 

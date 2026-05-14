@@ -25,7 +25,7 @@ import {
     Hr,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 interface PasswordResetProps {
     resetUrl: string;
@@ -45,12 +45,12 @@ export default function PasswordReset({ resetUrl, email, expiryHours = 1 }: Pass
                             Reset Your Password
                         </Heading>
                         <Text className="text-base leading-7 text-gray-800 my-4">
-                            A password reset was requested for your account:{" "}
+                            A password reset was requested for your account:{' '}
                             <strong>{email}</strong>
                         </Text>
                         <Text className="text-base leading-7 text-gray-800 my-4">
-                            Click the button below to reset your password. This link expires in{" "}
-                            {expiryHours} hour{expiryHours > 1 ? "s" : ""}.
+                            Click the button below to reset your password. This link expires in{' '}
+                            {expiryHours} hour{expiryHours > 1 ? 's' : ''}.
                         </Text>
                         <Button
                             href={resetUrl}
@@ -74,8 +74,8 @@ export default function PasswordReset({ resetUrl, email, expiryHours = 1 }: Pass
 }
 
 PasswordReset.PreviewProps = {
-    resetUrl: "https://example.com/reset/abc123",
-    email: "user@example.com",
+    resetUrl: 'https://example.com/reset/abc123',
+    email: 'user@example.com',
     expiryHours: 1,
 } as PasswordResetProps;
 ```
@@ -98,7 +98,7 @@ import {
     Hr,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 interface Product {
     name: string;
@@ -272,7 +272,7 @@ export default function OrderConfirmation({
                                 {shippingAddress.street}
                             </Text>
                             <Text className="text-sm text-gray-800 my-1">
-                                {shippingAddress.city}, {shippingAddress.state}{" "}
+                                {shippingAddress.city}, {shippingAddress.state}{' '}
                                 {shippingAddress.zip}
                             </Text>
                             <Text className="text-sm text-gray-800 my-1">
@@ -291,22 +291,22 @@ export default function OrderConfirmation({
 }
 
 OrderConfirmation.PreviewProps = {
-    orderNumber: "10234",
+    orderNumber: '10234',
     orderDate: new Date(),
     items: [
         {
-            name: "Vintage Macintosh",
+            name: 'Vintage Macintosh',
             price: 499.0,
             quantity: 1,
-            image: "https://via.placeholder.com/80",
-            sku: "MAC-001",
+            image: 'https://via.placeholder.com/80',
+            sku: 'MAC-001',
         },
         {
-            name: "Mechanical Keyboard",
+            name: 'Mechanical Keyboard',
             price: 149.99,
             quantity: 2,
-            image: "https://via.placeholder.com/80",
-            sku: "KEY-042",
+            image: 'https://via.placeholder.com/80',
+            sku: 'KEY-042',
         },
     ],
     subtotal: 798.98,
@@ -314,12 +314,12 @@ OrderConfirmation.PreviewProps = {
     tax: 69.42,
     total: 883.4,
     shippingAddress: {
-        name: "John Doe",
-        street: "123 Main St",
-        city: "San Francisco",
-        state: "CA",
-        zip: "94102",
-        country: "USA",
+        name: 'John Doe',
+        street: '123 Main St',
+        city: 'San Francisco',
+        state: 'CA',
+        zip: '94102',
+        country: 'USA',
     },
 } as OrderConfirmationProps;
 ```
@@ -342,12 +342,12 @@ import {
     Link,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 interface NotificationProps {
     title: string;
     message: string;
-    severity: "info" | "warning" | "error" | "success";
+    severity: 'info' | 'warning' | 'error' | 'success';
     timestamp: Date;
     logData?: string;
     actionUrl?: string;
@@ -361,20 +361,20 @@ export default function Notification({
     timestamp,
     logData,
     actionUrl,
-    actionLabel = "View Details",
+    actionLabel = 'View Details',
 }: NotificationProps) {
     const severityColors = {
-        info: "bg-sky-500",
-        warning: "bg-amber-500",
-        error: "bg-red-500",
-        success: "bg-green-500",
+        info: 'bg-sky-500',
+        warning: 'bg-amber-500',
+        error: 'bg-red-500',
+        success: 'bg-green-500',
     };
 
     const severityBtnColors = {
-        info: "bg-sky-500",
-        warning: "bg-amber-500",
-        error: "bg-red-500",
-        success: "bg-green-500",
+        info: 'bg-sky-500',
+        warning: 'bg-amber-500',
+        error: 'bg-red-500',
+        success: 'bg-green-500',
     };
 
     return (
@@ -403,9 +403,9 @@ export default function Notification({
                         </Text>
 
                         <Text className="text-sm text-gray-500 mx-6 mb-6">
-                            {new Date(timestamp).toLocaleString("en-US", {
-                                dateStyle: "long",
-                                timeStyle: "short",
+                            {new Date(timestamp).toLocaleString('en-US', {
+                                dateStyle: 'long',
+                                timeStyle: 'short',
                             })}
                         </Text>
 
@@ -448,10 +448,10 @@ export default function Notification({
 }
 
 Notification.PreviewProps = {
-    title: "Deployment Failed",
+    title: 'Deployment Failed',
     message:
-        "The deployment to production environment has failed. Please review the logs and take corrective action.",
-    severity: "error",
+        'The deployment to production environment has failed. Please review the logs and take corrective action.',
+    severity: 'error',
     timestamp: new Date(),
     logData: `{
   "error": "Build failed",
@@ -459,8 +459,8 @@ Notification.PreviewProps = {
   "duration": "2m 34s",
   "commit": "abc123def"
 }`,
-    actionUrl: "https://example.com/deployments/123",
-    actionLabel: "View Deployment",
+    actionUrl: 'https://example.com/deployments/123',
+    actionLabel: 'View Deployment',
 } as NotificationProps;
 ```
 
@@ -484,7 +484,7 @@ import {
     Link,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 interface Article {
     title: string;
@@ -659,31 +659,31 @@ export default function Newsletter({ articles, unsubscribeUrl }: NewsletterProps
 Newsletter.PreviewProps = {
     articles: [
         {
-            title: "The Future of Web Development in 2026",
-            excerpt: "Exploring the latest trends and technologies shaping modern web development.",
-            image: "https://via.placeholder.com/600x300",
-            url: "https://example.com/article-1",
-            author: "Jane Doe",
-            date: "Jan 15, 2026",
+            title: 'The Future of Web Development in 2026',
+            excerpt: 'Exploring the latest trends and technologies shaping modern web development.',
+            image: 'https://via.placeholder.com/600x300',
+            url: 'https://example.com/article-1',
+            author: 'Jane Doe',
+            date: 'Jan 15, 2026',
         },
         {
-            title: "React Server Components Explained",
-            excerpt: "A deep dive into React Server Components and their benefits.",
-            image: "https://via.placeholder.com/280x140",
-            url: "https://example.com/article-2",
-            author: "John Smith",
-            date: "Jan 14, 2026",
+            title: 'React Server Components Explained',
+            excerpt: 'A deep dive into React Server Components and their benefits.',
+            image: 'https://via.placeholder.com/280x140',
+            url: 'https://example.com/article-2',
+            author: 'John Smith',
+            date: 'Jan 14, 2026',
         },
         {
-            title: "Building Accessible Web Apps",
-            excerpt: "Best practices for creating inclusive digital experiences.",
-            image: "https://via.placeholder.com/280x140",
-            url: "https://example.com/article-3",
-            author: "Sarah Johnson",
-            date: "Jan 13, 2026",
+            title: 'Building Accessible Web Apps',
+            excerpt: 'Best practices for creating inclusive digital experiences.',
+            image: 'https://via.placeholder.com/280x140',
+            url: 'https://example.com/article-3',
+            author: 'Sarah Johnson',
+            date: 'Jan 13, 2026',
         },
     ],
-    unsubscribeUrl: "https://example.com/unsubscribe",
+    unsubscribeUrl: 'https://example.com/unsubscribe',
 } as NewsletterProps;
 ```
 
@@ -703,7 +703,7 @@ import {
     Hr,
     Tailwind,
     pixelBasedPreset,
-} from "react-email";
+} from 'react-email';
 
 interface TeamInvitationProps {
     inviterName: string;
@@ -760,7 +760,7 @@ export default function TeamInvitation({
 
                         <Text className="text-sm text-gray-500 leading-5 my-2">
                             This invitation will expire in {expiryDays} day
-                            {expiryDays > 1 ? "s" : ""}.
+                            {expiryDays > 1 ? 's' : ''}.
                         </Text>
                         <Text className="text-sm text-gray-500 leading-5 my-2">
                             If you weren't expecting this invitation, you can safely ignore this
@@ -774,11 +774,11 @@ export default function TeamInvitation({
 }
 
 TeamInvitation.PreviewProps = {
-    inviterName: "John Doe",
-    inviterEmail: "john@example.com",
-    teamName: "Acme Corp Engineering",
-    role: "Developer",
-    inviteUrl: "https://example.com/invite/abc123",
+    inviterName: 'John Doe',
+    inviterEmail: 'john@example.com',
+    teamName: 'Acme Corp Engineering',
+    role: 'Developer',
+    inviteUrl: 'https://example.com/invite/abc123',
     expiryDays: 7,
 } as TeamInvitationProps;
 ```

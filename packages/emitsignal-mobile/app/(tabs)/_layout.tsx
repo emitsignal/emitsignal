@@ -1,9 +1,9 @@
-import { Tabs } from "expo-router";
-import { StyleSheet } from "react-native";
+import { Tabs } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
-import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { W } from "@/constants/theme";
+import { HapticTab } from '@/components/haptic-tab';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { W } from '@/constants/theme';
 
 export default function TabLayout() {
     return (
@@ -15,7 +15,7 @@ export default function TabLayout() {
                 tabBarInactiveTintColor: W.fgDim,
                 tabBarLabelStyle: {
                     fontSize: 10,
-                    fontWeight: "500",
+                    fontWeight: '500',
                 },
                 tabBarStyle: {
                     backgroundColor: W.bg,
@@ -28,7 +28,7 @@ export default function TabLayout() {
                 name="index"
                 options={{
                     tabBarIcon: ({ color }) => <IconSymbol color={color} name="bell" size={22} />,
-                    title: "Feed",
+                    title: 'Feed',
                 }}
             />
             <Tabs.Screen
@@ -37,7 +37,7 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => (
                         <IconSymbol color={color} name="square.grid.2x2" size={22} />
                     ),
-                    title: "Channels",
+                    title: 'Channels',
                 }}
             />
             <Tabs.Screen
@@ -46,14 +46,14 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => (
                         <IconSymbol color={color} name="terminal" size={22} />
                     ),
-                    title: "Publish",
+                    title: 'Publish',
                 }}
             />
             <Tabs.Screen
                 name="settings"
                 options={{
                     tabBarIcon: ({ color }) => <IconSymbol color={color} name="gear" size={22} />,
-                    title: "Settings",
+                    title: 'Settings',
                 }}
             />
         </Tabs>

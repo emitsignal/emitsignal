@@ -1,9 +1,9 @@
-import { router } from "expo-router";
-import { useEffect } from "react";
-import { View } from "react-native";
+import { router } from 'expo-router';
+import { useEffect } from 'react';
+import { View } from 'react-native';
 
-import { W } from "@/constants/theme";
-import { useOnboarding } from "@/hooks/use-onboarding";
+import { W } from '@/constants/theme';
+import { useOnboarding } from '@/hooks/use-onboarding';
 
 export default function Index() {
     const { isLoading, isOnboardingComplete } = useOnboarding();
@@ -11,9 +11,9 @@ export default function Index() {
     useEffect(() => {
         if (isLoading) return;
         if (isOnboardingComplete) {
-            router.replace("/(tabs)");
+            router.replace('/(tabs)');
         } else {
-            router.replace("/auth");
+            router.replace('/auth');
         }
     }, [isLoading, isOnboardingComplete]);
 

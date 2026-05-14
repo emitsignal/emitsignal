@@ -1,14 +1,14 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { logger } from "../../lib/logger";
-import { prisma } from "../../lib/prisma";
+import { logger } from '../../lib/logger';
+import { prisma } from '../../lib/prisma';
 
 const CODE_TTL_MS = 10 * 60 * 1000;
 
 function generateCode() {
-    const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
+    const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
 
-    let code = "";
+    let code = '';
 
     for (let i = 0; i < 6; i++) {
         code += alphabet[Math.floor(Math.random() * alphabet.length)];
@@ -17,8 +17,8 @@ function generateCode() {
     return code;
 }
 
-export const magicLink = new Elysia({ prefix: "/auth" }).post(
-    "/magic-link",
+export const magicLink = new Elysia({ prefix: '/auth' }).post(
+    '/magic-link',
     async ({ body }) => {
         const email = body.email.toLowerCase().trim();
         const code = generateCode();
@@ -28,17 +28,17 @@ export const magicLink = new Elysia({ prefix: "/auth" }).post(
             data: { code, email, expiresAt },
         });
 
-        logger.info({ code, email }, "magic code issued");
+        logger.info({ code, email }, 'magic code issued');
 
         return {
-            devCode: process.env.NODE_ENV === "production" ? undefined : code,
+            devCode: process.env.NODE_ENV === 'production' ? undefined : code,
             expiresAt: expiresAt.getTime(),
             ok: true,
         };
     },
     {
         body: t.Object({
-            email: t.String({ format: "email" }),
+            email: t.String({ format: 'email' }),
         }),
     },
 );

@@ -11,10 +11,10 @@ import {
     Section,
     Tailwind,
     Text,
-} from "react-email";
+} from 'react-email';
 
-import { LogoHeader } from "./components/logo-header";
-import tailwindConfig from "./tailwind.config";
+import { LogoHeader } from './components/logo-header';
+import tailwindConfig from './tailwind.config';
 
 interface DigestMessage {
     createdAt: Date;
@@ -31,11 +31,11 @@ interface WeeklyDigestProps {
 }
 
 const priorityColors: Record<number, string> = {
-    1: "#818cf8",
-    2: "#a78bfa",
-    3: "#c4b5fd",
-    4: "#fbbf24",
-    5: "#f87171",
+    1: '#818cf8',
+    2: '#a78bfa',
+    3: '#c4b5fd',
+    4: '#fbbf24',
+    5: '#f87171',
 };
 
 export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: WeeklyDigestProps) {
@@ -55,8 +55,8 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                 <Head />
                 <Preview>
                     Weekly Digest — {String(totalMessages)} message
-                    {totalMessages === 1 ? "" : "s"} from {String(topicNames.length)} channel
-                    {topicNames.length === 1 ? "" : "s"}
+                    {totalMessages === 1 ? '' : 's'} from {String(topicNames.length)} channel
+                    {topicNames.length === 1 ? '' : 's'}
                 </Preview>
                 <Body className="bg-es-bg py-10 font-sans">
                     <Container className="mx-auto max-w-xl px-5">
@@ -65,11 +65,11 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                             Weekly Digest
                         </Heading>
                         <Text className="mb-6 font-mono text-sm text-es-fgDim">
-                            Week of{" "}
-                            {weekStart.toLocaleDateString("en-US", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
+                            Week of{' '}
+                            {weekStart.toLocaleDateString('en-US', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
                             })}
                         </Text>
 
@@ -87,24 +87,24 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                                     <Column className="text-right">
                                         <Text className="m-0 font-mono text-xs text-es-fgFaint">
                                             {grouped[topic].length} message
-                                            {grouped[topic].length === 1 ? "" : "s"}
+                                            {grouped[topic].length === 1 ? '' : 's'}
                                         </Text>
                                     </Column>
                                 </Row>
 
                                 {grouped[topic].map((msg) => (
                                     <Row className="mb-2" key={msg.id}>
-                                        <Column style={{ width: "12px" }}>
+                                        <Column style={{ width: '12px' }}>
                                             <div
                                                 style={{
                                                     backgroundColor:
                                                         priorityColors[msg.priority] ??
                                                         priorityColors[3],
-                                                    borderRadius: "9999px",
-                                                    height: "6px",
-                                                    marginRight: "8px",
-                                                    marginTop: "7px",
-                                                    width: "6px",
+                                                    borderRadius: '9999px',
+                                                    height: '6px',
+                                                    marginRight: '8px',
+                                                    marginTop: '7px',
+                                                    width: '6px',
                                                 }}
                                             />
                                         </Column>
@@ -113,7 +113,7 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                                                 {msg.title}
                                             </Text>
                                         </Column>
-                                        <Column className="text-right" style={{ width: "40px" }}>
+                                        <Column className="text-right" style={{ width: '40px' }}>
                                             <Text className="m-0 font-mono text-xs text-es-fgFaint">
                                                 {relativeTime(msg.createdAt.getTime())}
                                             </Text>
@@ -151,7 +151,7 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
 function relativeTime(ts: number): string {
     const diff = Date.now() - ts;
     const min = Math.floor(diff / 60000);
-    if (min < 1) return "now";
+    if (min < 1) return 'now';
     if (min < 60) return `${min}m`;
     const hr = Math.floor(min / 60);
     if (hr < 24) return `${hr}h`;
@@ -160,28 +160,28 @@ function relativeTime(ts: number): string {
 }
 
 WeeklyDigestEmail.PreviewProps = {
-    inboxUrl: "https://emitsignal.com",
+    inboxUrl: 'https://emitsignal.com',
     messages: [
         {
             createdAt: new Date(Date.now() - 2 * 3600000),
-            id: "msg_1",
+            id: 'msg_1',
             priority: 5,
-            title: "Database connection timeout",
-            topicName: "alerts",
+            title: 'Database connection timeout',
+            topicName: 'alerts',
         },
         {
             createdAt: new Date(Date.now() - 5 * 3600000),
-            id: "msg_2",
+            id: 'msg_2',
             priority: 3,
-            title: "CI pipeline completed",
-            topicName: "ci",
+            title: 'CI pipeline completed',
+            topicName: 'ci',
         },
         {
             createdAt: new Date(Date.now() - 24 * 3600000),
-            id: "msg_3",
+            id: 'msg_3',
             priority: 4,
-            title: "Deployment failed on staging",
-            topicName: "deploy",
+            title: 'Deployment failed on staging',
+            topicName: 'deploy',
         },
     ],
     weekStart: new Date(),

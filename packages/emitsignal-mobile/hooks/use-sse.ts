@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import EventSource from "react-native-sse";
+import { useEffect, useRef } from 'react';
+import EventSource from 'react-native-sse';
 
 interface SSEOptions {
     onError?: (error: unknown) => void;
@@ -24,23 +24,23 @@ export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
 
         const es = new EventSource(url);
 
-        es.addEventListener("open", () => {
+        es.addEventListener('open', () => {
             onOpenRef.current?.();
         });
 
-        es.addEventListener("error", (event) => {
+        es.addEventListener('error', (event) => {
             onErrorRef.current?.(event);
         });
 
         const handleEvent = (event: { data: null | string; type: string }) => {
             try {
-                onEventRef.current(event.type, JSON.parse(event.data ?? ""));
+                onEventRef.current(event.type, JSON.parse(event.data ?? ''));
             } catch {
                 onEventRef.current(event.type, event.data);
             }
         };
 
-        es.addEventListener("message", handleEvent);
+        es.addEventListener('message', handleEvent);
 
         return () => {
             es.removeAllEventListeners();

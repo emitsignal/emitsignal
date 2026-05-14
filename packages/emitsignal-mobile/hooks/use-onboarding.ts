@@ -1,7 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useState } from 'react';
 
-const KEY = "@emitsignal/onboarding_complete";
+const KEY = '@emitsignal/onboarding_complete';
 
 export function useOnboarding() {
     const [isLoading, setIsLoading] = useState(true);
@@ -10,7 +10,7 @@ export function useOnboarding() {
     useEffect(() => {
         AsyncStorage.getItem(KEY)
             .then((value) => {
-                setIsOnboardingComplete(value === "true");
+                setIsOnboardingComplete(value === 'true');
             })
             .catch(() => {
                 // Treat error as incomplete — safe default
@@ -19,7 +19,7 @@ export function useOnboarding() {
     }, []);
 
     const markOnboardingComplete = useCallback(async () => {
-        await AsyncStorage.setItem(KEY, "true");
+        await AsyncStorage.setItem(KEY, 'true');
         setIsOnboardingComplete(true);
     }, []);
 

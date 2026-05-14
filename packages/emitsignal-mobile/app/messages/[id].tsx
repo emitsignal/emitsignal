@@ -1,12 +1,12 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WChip, WCode, WDot, WLogo } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, PriorityColors, W } from "@/constants/theme";
-import { api, type Message, type Topic } from "@/lib/api";
+import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { api, type Message, type Topic } from '@/lib/api';
 
 export default function MessageDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -42,10 +42,10 @@ export default function MessageDetailScreen() {
     }
 
     const prio = message.priority;
-    const prioLabel = prio >= 5 ? "max" : prio === 4 ? "high" : prio === 3 ? "default" : "low";
+    const prioLabel = prio >= 5 ? 'max' : prio === 4 ? 'high' : prio === 3 ? 'default' : 'low';
 
     return (
-        <SafeAreaView edges={["top"]} style={styles.root}>
+        <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.topBar}>
                 <Pressable onPress={() => router.back()} style={styles.backBtn}>
                     <IconSymbol color={W.fg} name="arrow.left" size={16} />
@@ -117,11 +117,11 @@ export default function MessageDetailScreen() {
 
                 <SectionHead>delivery</SectionHead>
                 {[
-                    { e: "received", ok: true, t: formatTime(message.createdAt) },
+                    { e: 'received', ok: true, t: formatTime(message.createdAt) },
                     { e: `routed → ${topic.name}`, ok: true, t: formatTime(message.createdAt) },
-                    { e: "push → fcm", ok: true, t: formatTime(message.createdAt + 1000) },
+                    { e: 'push → fcm', ok: true, t: formatTime(message.createdAt + 1000) },
                     {
-                        e: "delivered · this device",
+                        e: 'delivered · this device',
                         ok: true,
                         t: formatTime(message.createdAt + 2000),
                     },
@@ -129,7 +129,7 @@ export default function MessageDetailScreen() {
                     <View key={i} style={styles.timelineRow}>
                         <Text style={styles.timelineTime}>{s.t}</Text>
                         <Text style={[styles.timelineDot, { color: s.ok ? W.green : W.red }]}>
-                            {s.ok ? "✓" : "✗"}
+                            {s.ok ? '✓' : '✗'}
                         </Text>
                         <Text style={styles.timelineText}>{s.e}</Text>
                     </View>
@@ -145,7 +145,7 @@ function formatTime(ts: number): string {
 }
 
 function pad(n: number) {
-    return n.toString().padStart(2, "0");
+    return n.toString().padStart(2, '0');
 }
 function SectionHead({ children }: { children: string }) {
     return <Text style={styles.sectionHead}>{children}</Text>;
@@ -153,31 +153,31 @@ function SectionHead({ children }: { children: string }) {
 
 const styles = StyleSheet.create({
     actionBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
         borderRadius: 8,
         borderWidth: StyleSheet.hairlineWidth,
         flex: 1,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 6,
-        justifyContent: "center",
+        justifyContent: 'center',
         paddingVertical: 10,
     },
     actionPrimary: { backgroundColor: W.violet, borderColor: W.violet },
-    actionPrimaryText: { color: W.bg, fontSize: 12.5, fontWeight: "600" },
-    actions: { flexDirection: "row", gap: 8, marginTop: 14 },
+    actionPrimaryText: { color: W.bg, fontSize: 12.5, fontWeight: '600' },
+    actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
     actionText: {
         color: W.fg,
         fontSize: 12.5,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     backBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     body: {
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        marginLeft: "auto",
+        marginLeft: 'auto',
     },
     codeWrap: { paddingHorizontal: 20 },
     hero: {
@@ -205,36 +205,36 @@ const styles = StyleSheet.create({
         flex: 1,
         fontFamily: Fonts.mono,
         paddingTop: 40,
-        textAlign: "center",
+        textAlign: 'center',
     },
-    prioRow: { alignItems: "center", flexDirection: "row", gap: 8 },
+    prioRow: { alignItems: 'center', flexDirection: 'row', gap: 8 },
     prioText: {
         fontFamily: Fonts.mono,
         fontSize: 11,
-        fontWeight: "600",
+        fontWeight: '600',
         letterSpacing: 1.2,
-        textTransform: "uppercase",
+        textTransform: 'uppercase',
     },
     root: { backgroundColor: W.bg, flex: 1 },
     sectionHead: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 10,
-        fontWeight: "500",
+        fontWeight: '500',
         letterSpacing: 1.5,
         marginBottom: 8,
         marginTop: 18,
         paddingHorizontal: 20,
     },
     tagsRow: {
-        flexDirection: "row",
-        flexWrap: "wrap",
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: 6,
         marginTop: 14,
     },
     timelineDot: { fontFamily: Fonts.mono, fontSize: 11, width: 12 },
     timelineRow: {
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 20,
         paddingVertical: 6,
@@ -254,16 +254,16 @@ const styles = StyleSheet.create({
     title: {
         color: W.fg,
         fontSize: 22,
-        fontWeight: "600",
+        fontWeight: '600',
         letterSpacing: -0.6,
         lineHeight: 28,
         marginTop: 12,
     },
     topBar: {
-        alignItems: "center",
+        alignItems: 'center',
         borderBottomColor: W.bgLine,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 10,

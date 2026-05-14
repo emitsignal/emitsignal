@@ -1,9 +1,9 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
-import { api } from "@/lib/api";
+import { api } from '@/lib/api';
 
-const SESSION_KEY = "@emitsignal/session";
+const SESSION_KEY = '@emitsignal/session';
 
 interface SessionContextValue {
     loading: boolean;
@@ -79,6 +79,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
 export function useSession() {
     const ctx = useContext(SessionContext);
-    if (!ctx) throw new Error("useSession must be used within SessionProvider");
+    if (!ctx) throw new Error('useSession must be used within SessionProvider');
     return ctx;
 }

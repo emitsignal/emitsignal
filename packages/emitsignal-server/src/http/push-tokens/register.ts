@@ -1,9 +1,9 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from '../../lib/prisma';
 
-export const registerPushToken = new Elysia({ prefix: "/push-tokens" }).post(
-    "/",
+export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
+    '/',
     async ({ body }) => {
         const token = await prisma.pushToken.upsert({
             create: {
@@ -27,7 +27,7 @@ export const registerPushToken = new Elysia({ prefix: "/push-tokens" }).post(
     {
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
-            platform: t.Union([t.Literal("ios"), t.Literal("android"), t.Literal("web")]),
+            platform: t.Union([t.Literal('ios'), t.Literal('android'), t.Literal('web')]),
             token: t.String({ minLength: 1 }),
         }),
     },

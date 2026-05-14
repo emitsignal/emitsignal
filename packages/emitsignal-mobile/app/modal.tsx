@@ -1,5 +1,5 @@
-import { router, Stack } from "expo-router";
-import { useState } from "react";
+import { router, Stack } from 'expo-router';
+import { useState } from 'react';
 import {
     KeyboardAvoidingView,
     Platform,
@@ -9,26 +9,26 @@ import {
     Text,
     TextInput,
     View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WCode, WTopicAvatar } from "@/components/base-theme";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts, W } from "@/constants/theme";
-import { useDevice } from "@/ctx/device";
-import { api } from "@/lib/api";
+import { WCode, WTopicAvatar } from '@/components/base-theme';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Fonts, W } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
+import { api } from '@/lib/api';
 
 const SUGGESTED = [
-    "deploy/staging",
-    "k8s/cluster-a",
-    "stripe/charges",
-    "github/issues",
-    "monitoring/uptime",
+    'deploy/staging',
+    'k8s/cluster-a',
+    'stripe/charges',
+    'github/issues',
+    'monitoring/uptime',
 ];
 
 export default function SubscribeModal() {
     const { deviceId } = useDevice();
-    const [topic, setTopic] = useState("alerts/prod");
+    const [topic, setTopic] = useState('alerts/prod');
     const [busy, setBusy] = useState(false);
 
     const handleSubscribe = async () => {
@@ -40,7 +40,7 @@ export default function SubscribeModal() {
             await api.subscribe(deviceId, topic.trim(), true);
             router.back();
         } catch (error) {
-            console.error("Subscribe failed", error);
+            console.error('Subscribe failed', error);
         } finally {
             setBusy(false);
         }
@@ -51,7 +51,7 @@ export default function SubscribeModal() {
             <Stack.Screen options={{ headerShown: false }} />
             <SafeAreaView style={styles.root}>
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === "ios" ? "padding" : undefined}
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{ flex: 1 }}
                 >
                     <View style={styles.topBar}>
@@ -66,7 +66,7 @@ export default function SubscribeModal() {
                             <Text style={styles.sectionLabel}>TOPIC</Text>
                             <View style={styles.topicInputBox}>
                                 <Text style={styles.prefix}>
-                                    {api.baseUrl.replace(/^https?:\/\//, "")}/
+                                    {api.baseUrl.replace(/^https?:\/\//, '')}/
                                 </Text>
                                 <TextInput
                                     autoCapitalize="none"
@@ -79,7 +79,7 @@ export default function SubscribeModal() {
                                 />
                             </View>
                             <Text style={styles.hint}>
-                                a-z, 0-9, / and - · e.g.{" "}
+                                a-z, 0-9, / and - · e.g.{' '}
                                 <Text style={{ color: W.violet }}>team/backend/alerts</Text>
                             </Text>
                         </View>
@@ -118,7 +118,7 @@ wsp publish ${topic} "deploy ok"`}
                             style={[styles.submit, (busy || !topic.trim()) && { opacity: 0.5 }]}
                         >
                             <Text style={styles.submitText}>
-                                {busy ? "subscribing…" : `subscribe → ${topic}`}
+                                {busy ? 'subscribing…' : `subscribe → ${topic}`}
                             </Text>
                             <IconSymbol color={W.bg} name="arrow.right" size={14} />
                         </Pressable>
@@ -130,13 +130,13 @@ wsp publish ${topic} "deploy ok"`}
 }
 
 const styles = StyleSheet.create({
-    barTitle: { color: W.fg, fontSize: 16, fontWeight: "600", letterSpacing: -0.3 },
+    barTitle: { color: W.fg, fontSize: 16, fontWeight: '600', letterSpacing: -0.3 },
     closeBtn: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderRadius: 8,
         height: 32,
-        justifyContent: "center",
+        justifyContent: 'center',
         width: 32,
     },
     footer: {
@@ -163,27 +163,27 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     submit: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 10,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 8,
-        justifyContent: "center",
+        justifyContent: 'center',
         paddingVertical: 14,
     },
     submitText: {
         color: W.bg,
         fontFamily: Fonts.mono,
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: '600',
     },
     suggestedRow: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.bgLine,
         borderRadius: 8,
         borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: "row",
+        flexDirection: 'row',
         gap: 10,
         marginBottom: 4,
         paddingHorizontal: 12,
@@ -196,8 +196,8 @@ const styles = StyleSheet.create({
         fontSize: 12.5,
     },
     topBar: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
         gap: 10,
         paddingHorizontal: 16,
         paddingVertical: 14,
@@ -210,12 +210,12 @@ const styles = StyleSheet.create({
         padding: 0,
     },
     topicInputBox: {
-        alignItems: "center",
+        alignItems: 'center',
         backgroundColor: W.bgElev,
         borderColor: W.violet,
         borderRadius: 10,
         borderWidth: 1.5,
-        flexDirection: "row",
+        flexDirection: 'row',
         paddingHorizontal: 14,
         paddingVertical: 12,
     },

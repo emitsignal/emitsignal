@@ -1,11 +1,11 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { bus } from "../../lib/event-bus";
-import { prisma } from "../../lib/prisma";
-import { getOrCreateTopic, serializeMessage, serializeTags } from "../../lib/topic";
+import { bus } from '../../lib/event-bus';
+import { prisma } from '../../lib/prisma';
+import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
 
 export const publish = new Elysia().post(
-    "/topic/:name",
+    '/topic/:name',
     async ({ body, params }) => {
         const topic = await getOrCreateTopic(params.name);
 
@@ -23,7 +23,7 @@ export const publish = new Elysia().post(
 
         bus.publish(topic.name, { ...event, topicName: topic.name });
 
-        return { message: "posted", messageId: created.id };
+        return { message: 'posted', messageId: created.id };
     },
     {
         body: t.Object({

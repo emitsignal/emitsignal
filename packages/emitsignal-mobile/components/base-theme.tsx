@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 import {
     Animated,
     Easing,
@@ -8,9 +8,9 @@ import {
     type TextStyle,
     View,
     type ViewStyle,
-} from "react-native";
+} from 'react-native';
 
-import { Fonts, PriorityColors, W } from "@/constants/theme";
+import { Fonts, PriorityColors, W } from '@/constants/theme';
 
 interface ActivitySparklineProps {
     color: string;
@@ -21,7 +21,7 @@ interface ActivitySparklineProps {
 
 interface WChipProps {
     children: string;
-    tone?: "default" | "muted" | "violet";
+    tone?: 'default' | 'muted' | 'violet';
 }
 
 interface WCodeProps {
@@ -60,7 +60,7 @@ export function ActivitySparkline({
     const max = Math.max(...data, 1);
     const total = data.reduce((a, b) => a + b, 0);
     return (
-        <View style={{ alignItems: "flex-end", flexDirection: "row", height }}>
+        <View style={{ alignItems: 'flex-end', flexDirection: 'row', height }}>
             {data.map((v, i) => (
                 <View
                     key={i}
@@ -91,10 +91,10 @@ export function ActivitySparkline({
     );
 }
 
-export function WChip({ children, tone = "default" }: WChipProps) {
+export function WChip({ children, tone = 'default' }: WChipProps) {
     const palette = {
         default: { bg: W.bgChip, border: W.bgLine, fg: W.fgMuted },
-        muted: { bg: "transparent", border: W.bgLine, fg: W.fgDim },
+        muted: { bg: 'transparent', border: W.bgLine, fg: W.fgDim },
         violet: { bg: W.violetBg, border: `${W.violetDim}55`, fg: W.violet },
     }[tone];
     return (
@@ -146,7 +146,7 @@ export function WDot({ color, level = 3, size = 6 }: WDotProps) {
 
 export function WLogo({
     color = W.violet,
-    label = "EmitSignal",
+    label = 'EmitSignal',
     labelStyle,
     pulse = false,
     size = 14,
@@ -194,7 +194,7 @@ export function WLogo({
                         color: W.fg,
                         fontFamily: Fonts.mono,
                         fontSize: size,
-                        fontWeight: "500",
+                        fontWeight: '500',
                         letterSpacing: -0.3,
                     },
                     labelStyle,
@@ -213,17 +213,17 @@ export function WTopicAvatar({ monogram, name, rounded = 8, size = 36 }: WTopicA
     const m =
         monogram ??
         name
-            .replace(/[^a-z0-9]/gi, "")
+            .replace(/[^a-z0-9]/gi, '')
             .slice(0, 2)
             .toUpperCase();
     return (
         <View
             style={{
-                alignItems: "center",
+                alignItems: 'center',
                 backgroundColor: bg,
                 borderRadius: rounded,
                 height: size,
-                justifyContent: "center",
+                justifyContent: 'center',
                 width: size,
             }}
         >
@@ -232,7 +232,7 @@ export function WTopicAvatar({ monogram, name, rounded = 8, size = 36 }: WTopicA
                     color: fg,
                     fontFamily: Fonts.mono,
                     fontSize: size * 0.36,
-                    fontWeight: "600",
+                    fontWeight: '600',
                     letterSpacing: -0.3,
                 }}
             >
@@ -268,13 +268,13 @@ function hslToHex(h: number, s: number, l: number): string {
     const toHex = (n: number) =>
         Math.round((n + m) * 255)
             .toString(16)
-            .padStart(2, "0");
+            .padStart(2, '0');
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
 const styles = StyleSheet.create({
     code: {
-        backgroundColor: "#06030f",
+        backgroundColor: '#06030f',
         borderColor: W.bgLine,
         borderRadius: 8,
         borderWidth: StyleSheet.hairlineWidth,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     logoRow: {
-        alignItems: "center",
-        flexDirection: "row",
+        alignItems: 'center',
+        flexDirection: 'row',
     },
 });

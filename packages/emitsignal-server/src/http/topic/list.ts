@@ -1,9 +1,9 @@
-import Elysia, { t } from "elysia";
+import Elysia, { t } from 'elysia';
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from '../../lib/prisma';
 
 export const listTopics = new Elysia().get(
-    "/topics",
+    '/topics',
     async ({ query }) => {
         const search = query.q?.trim();
         const where = search
@@ -13,7 +13,7 @@ export const listTopics = new Elysia().get(
             : {};
 
         const topics = await prisma.topic.findMany({
-            orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: 'desc' },
             take: 100,
             where,
         });

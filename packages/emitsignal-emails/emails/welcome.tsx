@@ -9,10 +9,10 @@ import {
     Section,
     Tailwind,
     Text,
-} from "react-email";
+} from 'react-email';
 
-import { LogoHeader } from "./components/logo-header";
-import tailwindConfig from "./tailwind.config";
+import { LogoHeader } from './components/logo-header';
+import tailwindConfig from './tailwind.config';
 
 interface WelcomeEmailProps {
     email: string;
@@ -20,7 +20,7 @@ interface WelcomeEmailProps {
 }
 
 export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
-    const greeting = name ? `Welcome, ${name}` : "Welcome aboard";
+    const greeting = name ? `Welcome, ${name}` : 'Welcome aboard';
 
     return (
         <Html lang="en">
@@ -32,7 +32,7 @@ export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
                         <LogoHeader />
                         <Heading className="mb-4 text-2xl font-bold text-es-fg">{greeting}</Heading>
                         <Text className="mb-6 text-base leading-7 text-es-fgMuted">
-                            Thanks for joining EmitSignal. You signed up with{" "}
+                            Thanks for joining EmitSignal. You signed up with{' '}
                             <strong className="text-es-fg">{email}</strong>. Here&apos;s what you
                             can do next:
                         </Text>
@@ -63,7 +63,7 @@ export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
                         </Button>
 
                         <Text className="text-sm text-es-fgFaint">
-                            Need help? Reach out at{" "}
+                            Need help? Reach out at{' '}
                             <a
                                 className="text-es-violet no-underline"
                                 href="mailto:support@emitsignal.com"
@@ -80,6 +80,6 @@ export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
 }
 
 WelcomeEmail.PreviewProps = {
-    email: "dev@example.com",
-    name: "Miguel",
+    email: 'dev@example.com',
+    name: 'Miguel',
 } satisfies WelcomeEmailProps;
