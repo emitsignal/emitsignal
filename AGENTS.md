@@ -141,3 +141,41 @@ See `.cursor/rules/use-bun-instead-of-node-vite-npm-pnpm.mdc`:
 - Use `[param]` for dynamic routes
 - `_layout.tsx` defines layout for directory
 - `+not-found.tsx` for 404 pages
+
+## Commit Rules
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) format: `<prefix>: <description>`.
+
+### Prefixes
+
+| Prefix     | Use when                                                  |
+| ---------- | --------------------------------------------------------- |
+| `feat`     | New feature or user-facing functionality                  |
+| `fix`      | Bug fix                                                   |
+| `refactor` | Code change that neither fixes a bug nor adds a feature   |
+| `style`    | Formatting, whitespace, semicolons (no code logic change) |
+| `docs`     | Documentation only                                        |
+| `test`     | Adding or updating tests                                  |
+| `chore`    | Maintenance, dependencies, tooling, source formatting     |
+| `perf`     | Performance improvement                                   |
+| `ci`       | CI/CD pipeline changes                                    |
+| `build`    | Build system or external dependency changes               |
+
+### Commit Splitting
+
+- Split changes into one or more commits by area, context, or logical grouping
+- Do not add hard rules by commit type — use your judgment
+- Keep each commit focused on a single concern
+
+### Co-Author Trailer
+
+- Never add `Co-authored-by:` for the agent under any circumstances
+
+### Formatting Workflow
+
+1. Before committing, run `bun format` at the project root
+2. If `prettier` modified any files, stage those changes and add a final commit:
+    ```
+    chore: Source Format
+    ```
+3. This formatting commit must be the last in the sequence
