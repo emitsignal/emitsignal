@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# @emitsignal/mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo React Native app for iOS, Android, and Web. Enables users to subscribe to topics, receive real-time message streams, and publish new messages.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Magic link authentication** — passwordless sign-in via email
+- **Real-time messaging** — SSE connection to the EmitSignal server
+- **Push notifications** — Expo push token registration for background alerts
+- **Topic management** — subscribe/unsubscribe to topics, browse messages
+- **Dark mode** — system-aware theme with manual override
 
-    ```bash
-    npm install
-    ```
+## Scripts
 
-2. Start the app
+| Script            | Description            |
+| ----------------- | ---------------------- |
+| `bun run start`   | Start Expo dev server  |
+| `bun run ios`     | Start iOS simulator    |
+| `bun run android` | Start Android emulator |
+| `bun run web`     | Start web version      |
+| `bun run lint`    | Run Expo ESLint        |
 
-    ```bash
-    npx expo start
-    ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting Started
 
 ```bash
-npm run reset-project
+bun install
+bun run start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Requires the [EmitSignal server](../emitsignal-server) to be running. Set `EXPO_PUBLIC_API_URL` to the server address in your environment.
 
-## Learn more
+## Environment Variables
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Variable              | Default                 | Description         |
+| --------------------- | ----------------------- | ------------------- |
+| `EXPO_PUBLIC_API_URL` | `http://127.0.0.1:5001` | Server API base URL |
