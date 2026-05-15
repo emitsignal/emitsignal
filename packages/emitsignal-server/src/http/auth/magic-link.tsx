@@ -1,6 +1,7 @@
+import { MagicLinkEmail, render } from '@emitsignal/emails';
 import Elysia, { t } from 'elysia';
 
-import { trySendMagicLink } from '../../lib/email-service';
+import { EmailService } from '../../lib/email-service';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { environment } from '../../schema/environment';
@@ -33,7 +34,21 @@ export const magicLink = new Elysia({ prefix: '/auth' }).post(
 
         logger.info({ code, email }, 'magic code issued');
 
-        void trySendMagicLink({ code, email, expiresAt, magicLinkUrl });
+        const html = await render(
+            <MagicLinkEmail
+                code={code}
+                email={email}
+                expiresAt={expiresAt}
+                magicLinkUrl={magicLinkUrl}
+            />,
+        );
+
+        EmailService.send({
+            from: environment.EMAIL_FROM,
+            html,
+            subject: `Sign in to EmitSignal — code: ${code}`,
+            to: email,
+        });
 
         return {
             devCode: process.env.NODE_ENV === 'production' ? undefined : code,

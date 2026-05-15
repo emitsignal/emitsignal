@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 
 const environmentSchema = Type.Object({
-    APP_URL: Type.String({ default: 'http://localhost:8081' }),
+    APP_URL: Type.String({ default: 'http://localhost:5001' }),
     EMAIL_FROM: Type.String({ default: 'EmitSignal <noreply@emitsignal.com>' }),
     EMAIL_PROVIDER: Type.Union(
         [Type.Literal('log'), Type.Literal('smtp'), Type.Literal('resend')],
@@ -11,6 +11,7 @@ const environmentSchema = Type.Object({
         },
     ),
     EMIT_SIGNAL_HTTP_PORT: Type.Number({ default: 3333 }),
+    REDIS_URL: Type.String({ default: 'redis://localhost:6379' }),
     RESEND_API_KEY: Type.Optional(Type.String()),
     SMTP_HOST: Type.String({ default: 'localhost' }),
     SMTP_PASS: Type.Optional(Type.String()),

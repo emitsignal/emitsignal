@@ -17,13 +17,16 @@ import { listenMulti } from './http/topic/listen-multi';
 import { messages } from './http/topic/messages';
 import { publish } from './http/topic/publish';
 import { Email } from './lib/email';
+import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
 import { loggerPlugin } from './lib/logger-plugin';
+import { emailQueue, redisConnection } from './lib/queue';
 import { environment } from './schema/environment';
 
 Email.init(environment);
+EmailService.init(emailQueue);
 
-new Elysia()
+const server = new Elysia()
     .use(loggerPlugin)
     .use(
         openapi({
@@ -47,4 +50,17 @@ new Elysia()
     .use(registerPushToken)
     .listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
-logger.info('🟣 @EmitSignal running');
+logger.info('🟣 Server started');
+
+async function shutdown() {
+    logger.info('shutting down server');
+
+    await emailQueue.close();
+    await redisConnection.quit();
+    server.stop();
+
+    process.exit(0);
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
