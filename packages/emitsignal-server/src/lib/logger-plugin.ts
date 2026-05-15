@@ -7,8 +7,13 @@ function contentLength(set: { headers: Record<string, string | undefined> }, bod
 
     if (header) return header;
 
-    if (body == null) return '-';
-    if (typeof body === 'string') return Buffer.byteLength(body).toString();
+    if (body == null) {
+        return '-';
+    }
+
+    if (typeof body === 'string') {
+        return Buffer.byteLength(body).toString();
+    }
 
     try {
         return Buffer.byteLength(JSON.stringify(body)).toString();
