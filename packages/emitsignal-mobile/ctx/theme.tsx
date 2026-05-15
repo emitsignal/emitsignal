@@ -17,7 +17,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        // Load saved preference on mount
         const loadTheme = async () => {
             const savedTheme = await getThemePreference();
             if (savedTheme) {

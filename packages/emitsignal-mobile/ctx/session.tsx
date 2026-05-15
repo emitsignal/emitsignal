@@ -22,37 +22,46 @@ interface SessionUser {
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
+    const [loading, setLoading] = useState(true);
     const [token, setToken] = useState<null | string>(null);
     const [user, setUser] = useState<null | SessionUser>(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
+
         AsyncStorage.getItem(SESSION_KEY)
             .then(async (raw) => {
                 if (cancelled || !raw) {
                     setLoading(false);
+
                     return;
                 }
+
                 try {
                     const parsed = JSON.parse(raw) as {
                         token: string;
                         user: SessionUser;
                     };
-                    // Verify still valid
+
                     await api.me(parsed.token);
+
                     if (cancelled) {
                         return;
                     }
+
                     setToken(parsed.token);
                     setUser(parsed.user);
                 } catch {
                     await AsyncStorage.removeItem(SESSION_KEY);
                 } finally {
-                    if (!cancelled) setLoading(false);
+                    if (!cancelled) {
+                        setLoading(false);
+                    }
                 }
             })
-            .catch(() => setLoading(false));
+            .catch(() => {
+                setLoading(false);
+            });
         return () => {
             cancelled = true;
         };
@@ -60,12 +69,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     const signIn = async (newToken: string, newUser: SessionUser) => {
         await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ token: newToken, user: newUser }));
+
         setToken(newToken);
         setUser(newUser);
     };
 
     const signOut = async () => {
         await AsyncStorage.removeItem(SESSION_KEY);
+
         setToken(null);
         setUser(null);
     };
@@ -79,6 +90,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
 export function useSession() {
     const ctx = useContext(SessionContext);
-    if (!ctx) throw new Error('useSession must be used within SessionProvider');
+
+    if (!ctx) {
+        throw new Error('useSession must be used within SessionProvider');
+    }
+
     return ctx;
 }
