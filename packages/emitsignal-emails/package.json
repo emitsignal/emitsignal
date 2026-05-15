@@ -8,7 +8,8 @@
     "devDependencies": {
         "@react-email/ui": "6.1.1",
         "@types/react": "19.2.14",
-        "@types/react-dom": "19.2.3"
+        "@types/react-dom": "19.2.3",
+        "serve": "^14.2.6"
     },
     "exports": {
         ".": "./src/index.tsx",
@@ -20,7 +21,8 @@
     "scripts": {
         "build": "email build",
         "dev": "email dev",
-        "export": "email export"
+        "export": "email export",
+        "static": "serve emails -l 5002"
     },
     "types": "src/index.tsx",
     "version": "1.1.0"
