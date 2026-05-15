@@ -12,11 +12,10 @@ export const verify = new Elysia({ prefix: '/auth' }).post(
     '/verify',
     async ({ body, status }) => {
         const email = body.email.toLowerCase().trim();
-        const code = body.code.toLowerCase();
 
         const record = await prisma.verificationCode.findFirst({
             orderBy: { createdAt: 'desc' },
-            where: { code, consumed: false, email },
+            where: { code: body.code.toLowerCase(), consumed: false, email },
         });
 
         if (!record || record.expiresAt < new Date()) {

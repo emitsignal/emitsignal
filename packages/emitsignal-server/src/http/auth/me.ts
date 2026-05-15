@@ -3,18 +3,23 @@ import Elysia from 'elysia';
 import { prisma } from '../../lib/prisma';
 
 export const me = new Elysia({ prefix: '/auth' }).get('/me', async ({ headers, status }) => {
-    const authorization = headers.authorization;
-    if (!authorization?.startsWith('Bearer ')) {
+    const authorization = (headers.authorization || '').trim();
+
+    if (!authorization) {
         return status(401, { error: 'missing_token' });
     }
-    const token = authorization.slice(7);
+
+    const [, token] = authorization.split(' ');
+
     const session = await prisma.session.findUnique({
         include: { user: true },
         where: { token },
     });
+
     if (!session || session.expiresAt < new Date()) {
         return status(401, { error: 'expired_session' });
     }
+
     return {
         user: {
             email: session.user.email,
