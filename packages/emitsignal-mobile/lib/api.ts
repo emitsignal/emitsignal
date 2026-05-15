@@ -1,6 +1,6 @@
 // SSE handled separately by hooks/use-sse.ts.
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? 'http://127.0.0.1:3000';
+const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? 'http://127.0.0.1:5001';
 
 export interface Message {
     body: string;

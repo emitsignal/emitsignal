@@ -22,9 +22,11 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
         if (!deviceInfo.deviceId || !deviceInfo.pushToken) {
             return;
         }
+
         const platform = (
-            Platform.OS === 'ios' || Platform.OS === 'android' ? Platform.OS : 'web'
+            Platform.OS === 'ios' || Platform.OS === 'android' ? 'android' : 'web'
         ) as 'android' | 'ios' | 'web';
+
         api.registerPushToken({
             deviceId: deviceInfo.deviceId,
             platform,
