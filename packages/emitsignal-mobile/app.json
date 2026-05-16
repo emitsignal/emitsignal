@@ -8,6 +8,8 @@
                 "monochromeImage": "./assets/images/android-icon-monochrome.png"
             },
             "edgeToEdgeEnabled": true,
+            "googleServicesFile": "./google-services.json",
+            "package": "com.emitsignal",
             "predictiveBackGestureEnabled": false
         },
         "experiments": {
@@ -16,18 +18,19 @@
         },
         "extra": {
             "eas": {
-                "projectId": "e0259bd2-8ff3-4a02-91d8-630efc0c475f"
+                "projectId": "1424f0ee-b60d-4b18-b09c-4a3bd2740ae8"
             },
             "router": {}
         },
         "icon": "./assets/images/icon.png",
         "ios": {
+            "bundleIdentifier": "com.emitsignal",
             "supportsTablet": true
         },
         "name": "EmitSignal",
         "newArchEnabled": true,
         "orientation": "portrait",
-        "owner": "Keven Leone",
+        "owner": "kevenleone",
         "plugins": [
             "expo-router",
             [
