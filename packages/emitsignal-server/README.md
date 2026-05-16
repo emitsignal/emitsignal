@@ -80,7 +80,7 @@ Set `EMAIL_PROVIDER` in `.env`:
 
 ## Database
 
-SQLite via libSQL. Default location: `./db/emitsignal-dev.db`.
+SQLite via libSQL. Default location: `./db/emitsignal.db`.
 
 ```bash
 # Create from scratch
