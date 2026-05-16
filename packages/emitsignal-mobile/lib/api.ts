@@ -101,6 +101,7 @@ export const api = {
         deviceId: string;
         platform: 'android' | 'ios' | 'web';
         token: string;
+        userId?: null | string;
     }) {
         return request<{ id: string }>('/push-tokens', {
             body: JSON.stringify(input),

@@ -10,9 +10,11 @@ export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
                 deviceId: body.deviceId,
                 platform: body.platform,
                 token: body.token,
+                ...(body.userId !== undefined ? { userId: body.userId } : {}),
             },
             update: {
                 platform: body.platform,
+                ...(body.userId !== undefined ? { userId: body.userId } : {}),
             },
             where: {
                 deviceId_token: {
@@ -29,6 +31,7 @@ export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
             deviceId: t.String({ minLength: 1 }),
             platform: t.Union([t.Literal('ios'), t.Literal('android'), t.Literal('web')]),
             token: t.String({ minLength: 1 }),
+            userId: t.Optional(t.Nullable(t.String())),
         }),
     },
 );

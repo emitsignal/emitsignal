@@ -1,6 +1,7 @@
 import { createContext, type ReactNode, useContext, useEffect } from 'react';
 import { Platform } from 'react-native';
 
+import { useSession } from '@/ctx/session';
 import { useDeviceInfo } from '@/hooks/use-device-info';
 import { api } from '@/lib/api';
 
@@ -16,8 +17,8 @@ const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
     const deviceInfo = useDeviceInfo();
+    const { user } = useSession();
 
-    // Register push token with the backend whenever it changes
     useEffect(() => {
         if (!deviceInfo.deviceId || !deviceInfo.pushToken) {
             return;
@@ -31,8 +32,9 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
             deviceId: deviceInfo.deviceId,
             platform,
             token: deviceInfo.pushToken,
+            userId: user?.id ?? null,
         }).catch((error) => console.warn('push-token register failed', error));
-    }, [deviceInfo.deviceId, deviceInfo.pushToken]);
+    }, [deviceInfo.deviceId, deviceInfo.pushToken, user?.id]);
 
     return <DeviceContext.Provider value={deviceInfo}>{children}</DeviceContext.Provider>;
 }
