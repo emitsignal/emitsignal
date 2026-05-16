@@ -46,7 +46,7 @@ export async function sendPushNotifications(job: PushJob): Promise<void> {
             topicName: job.topicName,
         },
         priority: job.priority >= 4 ? 'high' : 'normal',
-        title: `New message in ${job.topicDisplayName}`,
+        title: `${job.topicDisplayName}: ${job.title}`,
         to: token,
     }));
 
