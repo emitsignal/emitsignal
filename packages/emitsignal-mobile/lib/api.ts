@@ -2,6 +2,8 @@
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? 'http://127.0.0.1:5001';
 
+let authToken: null | string = null;
+
 export interface Message {
     body: string;
     createdAt: number;
@@ -40,14 +42,21 @@ export interface TopicWithCounts extends Topic {
     subscriberCount: number;
 }
 
+export function setAuthToken(token: null | string): void {
+    authToken = token;
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const res = await fetch(`${API_URL}${path}`, {
-        ...init,
-        headers: {
-            'Content-Type': 'application/json',
-            ...(init.headers ?? {}),
-        },
-    });
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...((init.headers ?? {}) as Record<string, string>),
+    };
+
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
+    const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
     if (!res.ok) {
         const text = await res.text().catch(() => res.statusText);
@@ -71,10 +80,8 @@ export const api = {
         );
     },
 
-    listMyPushTokens(token: string) {
-        return request<PushToken[]>('/push-tokens', {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+    listMyPushTokens() {
+        return request<PushToken[]>('/push-tokens');
     },
 
     listSubscriptions(deviceId: string) {
@@ -86,10 +93,8 @@ export const api = {
         return request<Topic[]>(`/topics${q}`);
     },
 
-    me(token: string) {
-        return request<{ user: { email: string; id: string; name: null | string } }>('/auth/me', {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+    me() {
+        return request<{ user: { email: string; id: string; name: null | string } }>('/auth/me');
     },
 
     publish(
@@ -143,10 +148,9 @@ export const api = {
         });
     },
 
-    updatePushToken(id: string, pushEnabled: boolean, token: string) {
+    updatePushToken(id: string, pushEnabled: boolean) {
         return request<PushToken>(`/push-tokens/${id}`, {
             body: JSON.stringify({ pushEnabled }),
-            headers: { Authorization: `Bearer ${token}` },
             method: 'PATCH',
         });
     },

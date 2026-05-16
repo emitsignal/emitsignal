@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
-import { api } from '@/lib/api';
+import { api, setAuthToken } from '@/lib/api';
 
 const SESSION_KEY = '@emitsignal/session';
 
@@ -43,7 +43,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                         user: SessionUser;
                     };
 
-                    await api.me(parsed.token);
+                    await api.me();
 
                     if (cancelled) {
                         return;
@@ -51,8 +51,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
                     setToken(parsed.token);
                     setUser(parsed.user);
+                    setAuthToken(parsed.token);
                 } catch {
                     await AsyncStorage.removeItem(SESSION_KEY);
+                    setAuthToken(null);
                 } finally {
                     if (!cancelled) {
                         setLoading(false);
@@ -72,6 +74,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
         setToken(newToken);
         setUser(newUser);
+        setAuthToken(newToken);
     };
 
     const signOut = async () => {
@@ -79,6 +82,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
         setToken(null);
         setUser(null);
+        setAuthToken(null);
     };
 
     return (

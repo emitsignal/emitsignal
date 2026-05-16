@@ -32,7 +32,7 @@ export default function AuthPerms() {
 
         setLoadingTokens(true);
 
-        api.listMyPushTokens(token)
+        api.listMyPushTokens()
             .then(setTokens)
             .catch(() => setTokens([]))
             .finally(() => setLoadingTokens(false));
@@ -57,7 +57,7 @@ export default function AuthPerms() {
         setTokens((prev) => prev.map((t) => (t.id === id ? { ...t, pushEnabled } : t)));
 
         try {
-            await api.updatePushToken(id, pushEnabled, token);
+            await api.updatePushToken(id, pushEnabled);
         } catch {
             setTokens((prev) =>
                 prev.map((t) => (t.id === id ? { ...t, pushEnabled: !pushEnabled } : t)),
