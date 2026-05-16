@@ -1,24 +1,67 @@
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
+import { useSession } from '@/ctx/session';
+import { api, type PushToken } from '@/lib/api';
+
+const PLATFORM_LABEL: Record<string, string> = {
+    android: 'Android · FCM',
+    ios: 'iOS · APNs',
+    web: 'Web · push',
+};
 
 export default function AuthPerms() {
+    const { deviceId } = useDevice();
+    const { token } = useSession();
     const [granted, setGranted] = useState(false);
-    const [pushMobile, setPushMobile] = useState(true);
-    const [pushWeb, setPushWeb] = useState(true);
+    const [chosen, setChosen] = useState(false);
+    const [tokens, setTokens] = useState<PushToken[]>([]);
+    const [loadingTokens, setLoadingTokens] = useState(false);
+
+    useEffect(() => {
+        if (!granted || !token) {
+            return;
+        }
+
+        setLoadingTokens(true);
+
+        api.listMyPushTokens(token)
+            .then(setTokens)
+            .catch(() => setTokens([]))
+            .finally(() => setLoadingTokens(false));
+    }, [granted, token]);
 
     const handleAllow = async () => {
+        setChosen(true);
         try {
             const { status } = await Notifications.requestPermissionsAsync();
+
             setGranted(status === 'granted');
         } catch {
             setGranted(true); // simulator fallback
+        }
+    };
+
+    const handleToggle = async (id: string, pushEnabled: boolean) => {
+        if (!token) {
+            return;
+        }
+
+        setTokens((prev) => prev.map((t) => (t.id === id ? { ...t, pushEnabled } : t)));
+
+        try {
+            await api.updatePushToken(id, pushEnabled, token);
+        } catch {
+            setTokens((prev) =>
+                prev.map((t) => (t.id === id ? { ...t, pushEnabled: !pushEnabled } : t)),
+            );
         }
     };
 
@@ -52,8 +95,24 @@ export default function AuthPerms() {
                         </View>
                     </View>
                     <View style={styles.permActions}>
-                        <Pressable style={styles.permActionDeny}>
-                            <Text style={styles.permActionDenyText}>Don't Allow</Text>
+                        <Pressable
+                            onPress={() => {
+                                setGranted(false);
+                                setChosen(true);
+                            }}
+                            style={[
+                                styles.permActionDeny,
+                                chosen && !granted && styles.permActionDenyActive,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.permActionDenyText,
+                                    chosen && !granted && styles.permActionDenyActiveText,
+                                ]}
+                            >
+                                Don't Allow
+                            </Text>
                         </Pressable>
                         <Pressable
                             onPress={handleAllow}
@@ -69,21 +128,42 @@ export default function AuthPerms() {
                     </View>
                 </View>
 
-                <Text style={styles.fieldLabel}>DELIVERY TARGETS</Text>
-                <View style={styles.targetGroup}>
-                    <TargetRow
-                        label="This device · Pixel 8"
-                        on={pushMobile}
-                        onChange={setPushMobile}
-                        sub="device-id · FCM"
-                    />
-                    <TargetRow
-                        label="Web · this browser"
-                        on={pushWeb}
-                        onChange={setPushWeb}
-                        sub="chrome · web push"
-                    />
-                </View>
+                {granted && (
+                    <>
+                        <Text style={styles.fieldLabel}>DELIVERY TARGETS</Text>
+                        <View style={styles.targetGroup}>
+                            {loadingTokens ? (
+                                <View style={styles.targetRow}>
+                                    <ActivityIndicator color={W.violet} size="small" />
+                                    <Text style={styles.targetSub}>Loading devices…</Text>
+                                </View>
+                            ) : tokens.length === 0 ? (
+                                <View style={styles.targetRow}>
+                                    <Text style={styles.targetSub}>
+                                        No devices registered yet. Push tokens will appear here
+                                        after the next app launch.
+                                    </Text>
+                                </View>
+                            ) : (
+                                tokens.map((t) => (
+                                    <TargetRow
+                                        key={t.id}
+                                        label={
+                                            t.deviceId === deviceId
+                                                ? 'This device'
+                                                : `Device · ${
+                                                      PLATFORM_LABEL[t.platform] ?? t.platform
+                                                  }`
+                                        }
+                                        on={t.pushEnabled}
+                                        onChange={(v) => handleToggle(t.id, v)}
+                                        sub={PLATFORM_LABEL[t.platform] ?? t.platform}
+                                    />
+                                ))
+                            )}
+                        </View>
+                    </>
+                )}
             </View>
 
             <View style={styles.footer}>
@@ -177,6 +257,11 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 10,
     },
+    permActionDenyActive: {
+        backgroundColor: 'rgba(248,113,113,0.10)',
+        borderColor: W.red,
+    },
+    permActionDenyActiveText: { color: W.red },
     permActionDenyText: { color: W.fgMuted, fontSize: 12 },
     permActions: { flexDirection: 'row', gap: 8 },
     permCard: {

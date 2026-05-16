@@ -6,7 +6,9 @@ import pkg from '../package.json';
 import { magicLink } from './http/auth/magic-link';
 import { me } from './http/auth/me';
 import { verify } from './http/auth/verify';
+import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
+import { updatePushToken } from './http/push-tokens/update';
 import { listSubscriptions } from './http/subscriptions/list';
 import { subscribe } from './http/subscriptions/subscribe';
 import { unsubscribe } from './http/subscriptions/unsubscribe';
@@ -35,19 +37,21 @@ const server = new Elysia()
     )
     .use(cors({ allowedHeaders: '*' }))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
-    .use(magicLink)
-    .use(verify)
-    .use(me)
-    .use(listTopics)
     .use(getTopic)
-    .use(publish)
-    .use(messages)
     .use(listen)
     .use(listenMulti)
+    .use(listPushTokens)
     .use(listSubscriptions)
+    .use(listTopics)
+    .use(magicLink)
+    .use(me)
+    .use(messages)
+    .use(publish)
+    .use(registerPushToken)
     .use(subscribe)
     .use(unsubscribe)
-    .use(registerPushToken)
+    .use(updatePushToken)
+    .use(verify)
     .listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
 logger.info('🟣 Server started');

@@ -45,12 +45,13 @@ model Message {
 model PushToken {
     id        String   @id @default(cuid())
 
-    createdAt DateTime @default(now())
-    deviceId  String
-    platform  String // "ios" | "android" | "web"
-    token     String
-    updatedAt DateTime @updatedAt
-    userId    String?
+    createdAt   DateTime @default(now())
+    deviceId    String
+    platform    String // "ios" | "android" | "web"
+    pushEnabled Boolean  @default(true)
+    token       String
+    updatedAt   DateTime @updatedAt
+    userId      String?
 
     user User? @relation(fields: [userId], references: [id])
 
