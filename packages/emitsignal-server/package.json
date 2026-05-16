@@ -32,8 +32,9 @@
         "db:seed": "bun run prisma/seed.ts",
         "db:studio": "prisma studio",
         "dev": "bun run --watch src/index.ts",
-        "dev:worker": "bun run --watch src/workers/email.ts",
+        "dev:worker:email": "bun run --watch src/workers/email.ts",
         "dev:worker:push": "bun run --watch src/workers/push.ts",
+        "dev:worker:schedule": "bun run --watch src/workers/schedule.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "version": "1.0.0"

@@ -22,7 +22,7 @@ import { Email } from './lib/email';
 import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
 import { loggerPlugin } from './lib/logger-plugin';
-import { emailQueue, pushQueue, redisConnection } from './lib/queue';
+import { emailQueue, pushQueue, redisConnection, scheduleQueue } from './lib/queue';
 import { environment } from './schema/environment';
 
 Email.init(environment);
@@ -61,7 +61,10 @@ async function shutdown() {
 
     await emailQueue.close();
     await pushQueue.close();
+    await scheduleQueue.close();
+
     await redisConnection.quit();
+
     server.stop();
 
     process.exit(0);

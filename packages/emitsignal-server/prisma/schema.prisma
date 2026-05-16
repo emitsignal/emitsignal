@@ -27,19 +27,22 @@ model ApiKey {
 model Message {
     id        String   @id @default(cuid())
    
-    body      String
-    createdAt DateTime @default(now())
-    priority  Int      @default(3) // 1=min..5=max
-    senderId  String?
-    tags      String // JSON array string for sqlite
-    title     String
-    topicId   String
+    body        String
+    createdAt   DateTime  @default(now())
+    deliveredAt DateTime?
+    priority    Int       @default(3) // 1=min..5=max
+    scheduledAt DateTime?
+    senderId    String?
+    tags        String // JSON array string for sqlite
+    title       String
+    topicId     String
 
     sender User? @relation("MessageSender", fields: [senderId], references: [id])
     topic  Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
     @@index([topicId, createdAt])
     @@index([topicId])
+    @@index([scheduledAt])
 }
 
 model PushToken {
