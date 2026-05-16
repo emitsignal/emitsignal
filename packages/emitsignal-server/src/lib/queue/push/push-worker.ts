@@ -1,9 +1,9 @@
 import { Worker } from 'bullmq';
 
-import type { PushJob } from '../../push';
+import type { PushJob } from '../../push-notification';
 
 import { logger } from '../../logger';
-import { sendPushNotifications } from '../../push';
+import { sendPushNotifications } from '../../push-notification';
 import { redisConnection } from '../connection';
 
 export function createPushWorker(): Worker<PushJob> {
