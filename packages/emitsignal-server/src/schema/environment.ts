@@ -11,6 +11,7 @@ const environmentSchema = Type.Object({
         },
     ),
     EMIT_SIGNAL_HTTP_PORT: Type.Number({ default: 3333 }),
+    JWT_SECRET: Type.String({ default: 'emitsignal-dev-jwt-secret' }),
     REDIS_URL: Type.String({ default: 'redis://localhost:6379' }),
     RESEND_API_KEY: Type.Optional(Type.String()),
     SMTP_HOST: Type.String({ default: 'localhost' }),

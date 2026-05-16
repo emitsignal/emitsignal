@@ -1,5 +1,6 @@
 import Elysia from 'elysia';
 
+import { verifyToken } from '../../lib/jwt';
 import { prisma } from '../../lib/prisma';
 
 export const me = new Elysia({ prefix: '/auth' }).get('/me', async ({ headers, status }) => {
@@ -11,20 +12,20 @@ export const me = new Elysia({ prefix: '/auth' }).get('/me', async ({ headers, s
 
     const [, token] = authorization.split(' ');
 
-    const session = await prisma.session.findUnique({
-        include: { user: true },
-        where: { token },
-    });
+    const userId = await verifyToken(token);
 
-    if (!session || session.expiresAt < new Date()) {
+    if (!userId) {
         return status(401, { error: 'expired_session' });
     }
 
-    return {
-        user: {
-            email: session.user.email,
-            id: session.user.id,
-            name: session.user.name,
-        },
-    };
+    const user = await prisma.user.findUnique({
+        select: { email: true, id: true, name: true },
+        where: { id: userId },
+    });
+
+    if (!user) {
+        return status(401, { error: 'user_not_found' });
+    }
+
+    return { user };
 });

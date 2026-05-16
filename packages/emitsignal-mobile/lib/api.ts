@@ -12,6 +12,13 @@ export interface Message {
     topicId: string;
 }
 
+export interface PushToken {
+    deviceId: string;
+    id: string;
+    platform: string;
+    pushEnabled: boolean;
+}
+
 export interface Subscription {
     createdAt: number;
     id: string;
@@ -62,6 +69,12 @@ export const api = {
         return request<Message[]>(
             `/topics/${encodeURIComponent(topicName)}/messages?limit=${limit}`,
         );
+    },
+
+    listMyPushTokens(token: string) {
+        return request<PushToken[]>('/push-tokens', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
     },
 
     listSubscriptions(deviceId: string) {
@@ -130,9 +143,16 @@ export const api = {
         });
     },
 
+    updatePushToken(id: string, pushEnabled: boolean, token: string) {
+        return request<PushToken>(`/push-tokens/${id}`, {
+            body: JSON.stringify({ pushEnabled }),
+            headers: { Authorization: `Bearer ${token}` },
+            method: 'PATCH',
+        });
+    },
+
     verifyMagicLink(email: string, code: string) {
         return request<{
-            expiresAt: number;
             token: string;
             user: { email: string; id: string; name: null | string };
         }>('/auth/verify', {

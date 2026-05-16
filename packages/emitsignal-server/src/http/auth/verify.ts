@@ -1,12 +1,7 @@
 import Elysia, { t } from 'elysia';
 
+import { signToken } from '../../lib/jwt';
 import { prisma } from '../../lib/prisma';
-
-const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-
-function generateToken() {
-    return crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-}
 
 export const verify = new Elysia({ prefix: '/auth' }).post(
     '/verify',
@@ -33,15 +28,9 @@ export const verify = new Elysia({ prefix: '/auth' }).post(
             where: { email },
         });
 
-        const token = generateToken();
-        const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
-
-        await prisma.session.create({
-            data: { expiresAt, token, userId: user.id },
-        });
+        const token = await signToken(user.id);
 
         return {
-            expiresAt: expiresAt.getTime(),
             token,
             user: {
                 email: user.email,
