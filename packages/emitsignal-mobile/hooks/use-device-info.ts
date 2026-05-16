@@ -1,11 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ExpoConstants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
-const DEVICE_ID_KEY = '@notify_device_id';
-const PUSH_TOKEN_KEY = '@notify_push_token';
+function randomUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+
+        return v.toString(16);
+    });
+}
+
+const DEVICE_ID_KEY = '@emitsignal/device_id';
+const PUSH_TOKEN_KEY = '@emitsignal/push_token';
 
 export interface DeviceInfo {
     deviceId: null | string;
@@ -28,7 +38,7 @@ export function useDeviceInfo() {
             let deviceId = await AsyncStorage.getItem(DEVICE_ID_KEY);
 
             if (!deviceId) {
-                deviceId = crypto.randomUUID();
+                deviceId = randomUUID();
 
                 await AsyncStorage.setItem(DEVICE_ID_KEY, deviceId);
             }
@@ -46,30 +56,47 @@ export function useDeviceInfo() {
         try {
             if (!Device.isDevice) {
                 console.log('Push notifications not available on simulator');
+
                 return null;
             }
 
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
+
             let finalStatus = existingStatus;
 
             if (existingStatus !== 'granted') {
                 const { status } = await Notifications.requestPermissionsAsync();
+
                 finalStatus = status;
             }
 
             if (finalStatus !== 'granted') {
                 console.log('Push notification permission denied');
+
                 return null;
             }
 
+            const projectId =
+                ExpoConstants.expoConfig?.extra?.eas?.projectId ??
+                ExpoConstants.easConfig.projectId ??
+                process.env.EXPO_PUBLIC_PROJECT_ID;
+
             const tokenData = await Notifications.getExpoPushTokenAsync({
-                projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+                projectId,
+            });
+
+            console.log({
+                envProjectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+                projectId,
+                projectIdConstant:
+                    ExpoConstants.expoConfig?.extra?.eas?.projectId ??
+                    ExpoConstants.easConfig.projectId,
+                tokenData,
             });
 
             const token = tokenData.data;
             await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
 
-            // Configure notification handler
             if (Platform.OS === 'android') {
                 Notifications.setNotificationChannelAsync('default', {
                     importance: Notifications.AndroidImportance.MAX,
