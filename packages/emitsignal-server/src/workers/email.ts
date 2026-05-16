@@ -1,7 +1,7 @@
 import { Email } from '../lib/email';
 import { logger } from '../lib/logger';
 import { redisConnection } from '../lib/queue/connection';
-import { createEmailWorker } from '../lib/queue/email-worker';
+import { createEmailWorker } from '../lib/queue/email/email-worker';
 import { environment } from '../schema/environment';
 
 Email.init(environment);

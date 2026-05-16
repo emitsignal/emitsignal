@@ -1,10 +1,10 @@
 import { Worker } from 'bullmq';
 
-import type { EmailOptions } from '../email/provider';
+import type { EmailOptions } from '../../email/provider';
 
-import { Email } from '../email';
-import { logger } from '../logger';
-import { redisConnection } from './connection';
+import { Email } from '../../email';
+import { logger } from '../../logger';
+import { redisConnection } from '../connection';
 
 export function createEmailWorker(): Worker<EmailOptions> {
     const worker = new Worker<EmailOptions>(

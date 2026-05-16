@@ -1,8 +1,8 @@
 import { Queue } from 'bullmq';
 
-import type { EmailOptions } from '../email/provider';
+import type { EmailOptions } from '../../email/provider';
 
-import { redisConnection } from './connection';
+import { redisConnection } from '../connection';
 
 export const emailQueue = new Queue<EmailOptions>('email', {
     connection: redisConnection,
