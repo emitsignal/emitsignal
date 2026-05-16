@@ -10,7 +10,13 @@ import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useTopicMessages } from '@/hooks/use-emit-signal';
 
 export default function TopicScreen() {
-    const { topic } = useLocalSearchParams<{ topic: string }>();
+    const params = useLocalSearchParams<{ topic: string | string[] }>();
+    const topic = Array.isArray(params.topic) ? params.topic.join('/') : (params.topic ?? '');
+
+    if (!topic) {
+        return null;
+    }
+
     const { loading, messages } = useTopicMessages(topic);
 
     return (
@@ -19,6 +25,7 @@ export default function TopicScreen() {
                 <Pressable onPress={() => router.back()} style={styles.backBtn}>
                     <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
+
                 <WTopicAvatar name={topic} rounded={6} size={32} />
                 <View style={{ flex: 1 }}>
                     <Text style={styles.channelName}>{topic}</Text>
@@ -35,14 +42,14 @@ export default function TopicScreen() {
                 data={messages}
                 keyExtractor={(m) => m.id}
                 ListEmptyComponent={
-                    !loading ? (
+                    loading ? null : (
                         <View style={styles.empty}>
                             <Text style={styles.emptyTitle}>No messages yet</Text>
                             <Text style={styles.emptyBody}>
                                 Waiting for messages on <Text style={styles.mono}>{topic}</Text>…
                             </Text>
                         </View>
-                    ) : null
+                    )
                 }
                 renderItem={({ item }) => (
                     <MessageRow
@@ -73,10 +80,12 @@ function MessageRow({ message, onPress }: { message: Message; onPress: () => voi
                         {new Date(message.createdAt).toLocaleTimeString()}
                     </Text>
                 </View>
+
                 <Text style={styles.title}>{message.title}</Text>
                 <Text numberOfLines={3} style={styles.body}>
                     {message.body}
                 </Text>
+
                 {message.tags.length > 0 ? (
                     <View style={styles.tags}>
                         {message.tags.slice(0, 4).map((tag) => (

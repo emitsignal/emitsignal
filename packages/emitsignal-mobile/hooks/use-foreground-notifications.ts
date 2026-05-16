@@ -17,7 +17,17 @@ export function useForegroundNotifications() {
     const notificationListener = useRef<Notifications.Subscription | null>(null);
     const responseListener = useRef<Notifications.Subscription | null>(null);
 
+    const lastResponse = Notifications.useLastNotificationResponse();
+    const coldStartMessageId = useRef(
+        lastResponse?.notification.request.content.data?.messageId as string | undefined,
+    );
+
     useEffect(() => {
+        // Handle cold-start notification response after navigator is mounted
+        if (coldStartMessageId.current) {
+            router.push(`/messages/${encodeURIComponent(coldStartMessageId.current)}`);
+        }
+
         // Listen for incoming notifications while app is in foreground
         notificationListener.current = Notifications.addNotificationReceivedListener(
             (notification) => {
@@ -31,9 +41,8 @@ export function useForegroundNotifications() {
                 const data = response.notification.request.content.data;
                 console.log('Notification tapped:', data);
 
-                // Navigate to the topic if topicName is provided
-                if (data?.topicName) {
-                    router.push(`/topics/${data.topicName}`);
+                if (data?.messageId) {
+                    router.push(`/messages/${encodeURIComponent(data.messageId as string)}`);
                 }
             },
         );
