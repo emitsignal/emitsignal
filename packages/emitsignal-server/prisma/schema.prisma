@@ -24,21 +24,37 @@ model ApiKey {
     @@index([userId])
 }
 
+model Acknowledgment {
+    id        String   @id @default(cuid())
+    messageId String
+    deviceId  String
+    userId    String?
+    createdAt DateTime @default(now())
+
+    message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+    user    User?   @relation(fields: [userId], references: [id])
+
+    @@unique([messageId, deviceId])
+    @@index([messageId])
+}
+
 model Message {
     id        String   @id @default(cuid())
    
+    actions     String   @default("[]") // JSON array of Action objects
     body        String
-    createdAt   DateTime  @default(now())
+    createdAt   DateTime @default(now())
     deliveredAt DateTime?
-    priority    Int       @default(3) // 1=min..5=max
+    priority    Int      @default(3) // 1=min..5=max
     scheduledAt DateTime?
     senderId    String?
     tags        String // JSON array string for sqlite
     title       String
     topicId     String
 
-    sender User? @relation("MessageSender", fields: [senderId], references: [id])
-    topic  Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+    acknowledgments Acknowledgment[]
+    sender          User?              @relation("MessageSender", fields: [senderId], references: [id])
+    topic           Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
     @@index([topicId, createdAt])
     @@index([topicId])
@@ -139,6 +155,7 @@ model User {
     name      String?
     updatedAt DateTime @updatedAt
 
+    acknowledgments   Acknowledgment[]
     apiKeys           ApiKey[]
     ownedTopics       Topic[]         @relation("TopicOwner")
     pushTokens        PushToken[]
