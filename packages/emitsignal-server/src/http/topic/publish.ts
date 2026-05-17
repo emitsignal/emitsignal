@@ -2,7 +2,6 @@ import Elysia, { t } from 'elysia';
 
 import { validateActions } from '../../lib/actions';
 import { bus } from '../../lib/event-bus';
-import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
@@ -44,8 +43,6 @@ export const publish = new Elysia().post(
         });
 
         if (isScheduled) {
-            logger.info(message, 'scheduled task');
-
             scheduleQueue.add(
                 'schedule-delivery',
                 { messageId: message.id },
