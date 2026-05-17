@@ -29,7 +29,7 @@ import { environment } from './schema/environment';
 Email.init(environment);
 EmailService.init(emailQueue);
 
-const server = new Elysia()
+const app = new Elysia()
     .use(loggerPlugin)
     .use(
         openapi({
@@ -53,8 +53,9 @@ const server = new Elysia()
     .use(subscribe)
     .use(unsubscribe)
     .use(updatePushToken)
-    .use(verify)
-    .listen(environment.EMIT_SIGNAL_HTTP_PORT);
+    .use(verify);
+
+export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
 logger.info('🟣 Server started');
 
