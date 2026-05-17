@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import { useDevice } from '@/ctx/device';
 import { api } from '@/lib/api';
@@ -21,7 +21,8 @@ export function useForegroundNotifications() {
     const notificationListener = useRef<Notifications.Subscription | null>(null);
     const responseListener = useRef<Notifications.Subscription | null>(null);
 
-    const lastResponse = Notifications.useLastNotificationResponse();
+    const lastResponse =
+        Platform.OS !== 'web' ? Notifications.useLastNotificationResponse() : undefined;
     const coldStartMessageId = useRef(
         lastResponse?.notification.request.content.data?.messageId as string | undefined,
     );
@@ -112,6 +113,10 @@ export function useForegroundNotifications() {
 }
 
 function registerCategories() {
+    if (Platform.OS === 'web') {
+        return;
+    }
+
     Notifications.setNotificationCategoryAsync('emitsignal-message', [
         {
             buttonTitle: 'Acknowledge',
