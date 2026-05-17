@@ -1,3 +1,5 @@
+import type { Action } from './actions';
+
 import { prisma } from './prisma';
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
@@ -5,6 +7,7 @@ const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 const MAX_BODY_LENGTH = 160;
 
 export interface PushJob {
+    actions: Action[];
     body: string;
     messageId: string;
     priority: number;
@@ -38,9 +41,13 @@ export async function sendPushNotifications(job: PushJob): Promise<void> {
     const truncatedBody =
         job.body.length > MAX_BODY_LENGTH ? `${job.body.slice(0, MAX_BODY_LENGTH - 1)}…` : job.body;
 
+    const hasActions = job.actions && job.actions.length > 0;
+
     const messages = pushTokens.map(({ token }) => ({
         body: truncatedBody,
+        categoryId: hasActions ? 'emitsignal-message' : undefined,
         data: {
+            actions: hasActions ? JSON.stringify(job.actions) : undefined,
             messageId: job.messageId,
             topicId: job.topicId,
             topicName: job.topicName,

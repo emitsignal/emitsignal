@@ -5,7 +5,7 @@ import type { ScheduleJob } from './schedule-queue';
 import { bus } from '../../event-bus';
 import { logger } from '../../logger';
 import { prisma } from '../../prisma';
-import { serializeMessage } from '../../topic';
+import { parseActions, serializeMessage } from '../../topic';
 import { redisConnection } from '../connection';
 import { pushQueue } from '../push/push-queue';
 
@@ -36,6 +36,7 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
             bus.publish(message.topic.name, { ...event, topicName: message.topic.name });
 
             pushQueue.add('push-message', {
+                actions: parseActions(message.actions),
                 body: message.body,
                 messageId: message.id,
                 priority: message.priority,

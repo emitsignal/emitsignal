@@ -14,12 +14,13 @@ export const messages = new Elysia().get(
         }
 
         const messages = await prisma.message.findMany({
+            include: { _count: { select: { acknowledgments: true } } },
             orderBy: { createdAt: 'desc' },
             take: query.limit ?? 50,
             where: { topicId: topic.id },
         });
 
-        return messages.map(serializeMessage);
+        return messages.map((message) => serializeMessage(message, message._count.acknowledgments));
     },
     {
         query: t.Object({

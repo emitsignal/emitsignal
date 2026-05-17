@@ -6,6 +6,7 @@ import pkg from '../package.json';
 import { magicLink } from './http/auth/magic-link';
 import { me } from './http/auth/me';
 import { verify } from './http/auth/verify';
+import { acknowledge } from './http/messages/acknowledge';
 import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
 import { updatePushToken } from './http/push-tokens/update';
@@ -37,6 +38,7 @@ const server = new Elysia()
     )
     .use(cors({ allowedHeaders: '*' }))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
+    .use(acknowledge)
     .use(getTopic)
     .use(listen)
     .use(listenMulti)

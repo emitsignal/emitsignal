@@ -4,7 +4,11 @@
 
 import { EventEmitter } from 'node:events';
 
+import type { Action } from './actions';
+
 export interface MessageEvent {
+    acknowledgmentCount: number;
+    actions: Action[];
     body: string;
     createdAt: number;
     id: string;

@@ -1,5 +1,6 @@
 import Elysia, { t } from 'elysia';
 
+import { validateActions } from '../../lib/actions';
 import { bus } from '../../lib/event-bus';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
@@ -22,8 +23,17 @@ export const publish = new Elysia().post(
 
         const topic = await getOrCreateTopic(params.name);
 
+        const validation = validateActions(body.actions);
+
+        if ('error' in validation) {
+            return { error: validation.error, status: 400 };
+        }
+
+        const actions = validation.actions;
+
         const message = await prisma.message.create({
             data: {
+                actions: JSON.stringify(actions),
                 body: body.body,
                 priority: body.priority,
                 scheduledAt: isScheduled ? new Date(scheduledAtUnix * 1000) : null,
@@ -50,6 +60,7 @@ export const publish = new Elysia().post(
         bus.publish(topic.name, { ...event, topicName: topic.name });
 
         pushQueue.add('push-message', {
+            actions,
             body: body.body,
             messageId: message.id,
             priority: message.priority,
@@ -63,6 +74,16 @@ export const publish = new Elysia().post(
     },
     {
         body: t.Object({
+            actions: t.Optional(
+                t.Array(
+                    t.Object({
+                        label: t.Optional(t.String()),
+                        type: t.Union([t.Literal('acknowledge'), t.Literal('view')]),
+                        url: t.Optional(t.String()),
+                    }),
+                    { maxItems: 2 },
+                ),
+            ),
             body: t.String(),
             priority: t.Integer({ maximum: 5, minimum: 1 }),
             scheduledAt: t.Optional(t.Integer()),
