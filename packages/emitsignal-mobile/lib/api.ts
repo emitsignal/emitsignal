@@ -4,7 +4,15 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? 'http://1
 
 let authToken: null | string = null;
 
+export interface Action {
+    label?: string;
+    type: 'acknowledge' | 'view';
+    url?: string;
+}
+
 export interface Message {
+    acknowledgmentCount: number;
+    actions: Action[];
     body: string;
     createdAt: number;
     id: string;
@@ -68,6 +76,16 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
+    acknowledgeMessage(messageId: string, deviceId: string, userId?: null | string) {
+        return request<{ acknowledged: boolean; count: number }>(
+            `/messages/${encodeURIComponent(messageId)}/acknowledge`,
+            {
+                body: JSON.stringify({ deviceId, userId }),
+                method: 'POST',
+            },
+        );
+    },
+
     baseUrl: API_URL,
 
     getTopic(name: string) {

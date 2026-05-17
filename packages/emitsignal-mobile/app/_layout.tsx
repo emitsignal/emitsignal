@@ -14,8 +14,6 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useForegroundNotifications } from '@/hooks/use-foreground-notifications';
 
 export default function RootLayout() {
-    useForegroundNotifications();
-
     return (
         <ThemeProvider>
             <SessionProvider>
@@ -28,6 +26,8 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
+    useForegroundNotifications();
+
     const colorScheme = useColorScheme();
 
     return (

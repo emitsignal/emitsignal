@@ -1,37 +1,70 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
 import { api, type Message, type Topic } from '@/lib/api';
 
 export default function MessageDetailScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const [ackCount, setAckCount] = useState(0);
+    const [acknowledged, setAcknowledged] = useState(false);
     const [message, setMessage] = useState<Message | null>(null);
     const [topic, setTopic] = useState<null | Topic>(null);
+    const { deviceId } = useDevice();
+    const { id } = useLocalSearchParams<{ id: string }>();
 
     useEffect(() => {
         let cancelled = false;
         async function load() {
             const allTopics = await api.listTopics();
-            for (const t of allTopics) {
-                const messages = await api.listMessages(t.name, 200);
+
+            for (const topic of allTopics) {
+                const messages = await api.listMessages(topic.name, 200);
                 const found = messages.find((message) => message.id === id);
+
                 if (found && !cancelled) {
                     setMessage(found);
-                    setTopic(t);
+                    setTopic(topic);
+                    setAckCount(found.acknowledgmentCount);
+
                     return;
                 }
             }
         }
+
         load();
+
         return () => {
             cancelled = true;
         };
     }, [id]);
+
+    const handleAcknowledge = async () => {
+        if (acknowledged || !deviceId) {
+            return;
+        }
+
+        try {
+            const result = await api.acknowledgeMessage(id, deviceId);
+
+            setAcknowledged(true);
+            setAckCount(result.count);
+        } catch (error) {
+            console.warn('Acknowledge failed:', error);
+        }
+    };
+
+    const handleView = async (url: string) => {
+        try {
+            await Linking.openURL(url);
+        } catch (error) {
+            console.warn('Failed to open URL:', error);
+        }
+    };
 
     if (!message || !topic) {
         return (
@@ -41,8 +74,10 @@ export default function MessageDetailScreen() {
         );
     }
 
-    const prio = message.priority;
-    const prioLabel = prio >= 5 ? 'max' : prio === 4 ? 'high' : prio === 3 ? 'default' : 'low';
+    const priority = message.priority;
+
+    const priorityLabel =
+        priority >= 5 ? 'max' : priority === 4 ? 'high' : priority === 3 ? 'default' : 'low';
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
@@ -57,11 +92,12 @@ export default function MessageDetailScreen() {
             <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
                 <View style={styles.hero}>
                     <View style={styles.prioRow}>
-                        <WDot level={prio} size={8} />
-                        <Text style={[styles.prioText, { color: PriorityColors[prio] }]}>
-                            priority {prio} · {prioLabel}
+                        <WDot level={priority} size={8} />
+                        <Text style={[styles.priorityText, { color: PriorityColors[priority] }]}>
+                            priority {priority} · {priorityLabel}
                         </Text>
                     </View>
+
                     <Text style={styles.title}>{message.title}</Text>
                     <Text style={styles.body}>{message.body}</Text>
 
@@ -71,23 +107,58 @@ export default function MessageDetailScreen() {
                         ))}
                     </View>
 
-                    <View style={styles.actions}>
-                        <Pressable style={[styles.actionBtn, styles.actionPrimary]}>
-                            <IconSymbol color={W.bg} name="checkmark.circle.fill" size={14} />
-                            <Text style={styles.actionPrimaryText}>Acknowledge</Text>
-                        </Pressable>
-                        <Pressable style={styles.actionBtn}>
-                            <IconSymbol color={W.fg} name="globe" size={14} />
-                            <Text style={styles.actionText}>View</Text>
-                        </Pressable>
-                    </View>
+                    {message.actions.length > 0 ? (
+                        <View style={styles.actions}>
+                            {message.actions.map((action, i) => {
+                                if (action.type === 'acknowledge') {
+                                    return (
+                                        <Pressable
+                                            key={i}
+                                            onPress={handleAcknowledge}
+                                            style={[styles.actionBtn, styles.actionPrimary]}
+                                        >
+                                            <IconSymbol
+                                                color={W.bg}
+                                                name="checkmark.circle.fill"
+                                                size={14}
+                                            />
+                                            <Text style={styles.actionPrimaryText}>
+                                                {action.label ?? 'Acknowledge'}
+                                                {ackCount > 0 ? ` (${ackCount})` : ''}
+                                            </Text>
+                                        </Pressable>
+                                    );
+                                }
+
+                                if (action.type === 'view') {
+                                    return (
+                                        <Pressable
+                                            key={i}
+                                            onPress={() => action.url && handleView(action.url)}
+                                            style={styles.actionBtn}
+                                        >
+                                            <IconSymbol color={W.fg} name="globe" size={14} />
+                                            <Text style={styles.actionText}>
+                                                {action.label ?? 'View'}
+                                            </Text>
+                                        </Pressable>
+                                    );
+                                }
+
+                                return null;
+                            })}
+                        </View>
+                    ) : null}
                 </View>
 
                 <SectionHead>payload</SectionHead>
+
                 <View style={styles.codeWrap}>
                     <WCode language="JSON">
                         {JSON.stringify(
                             {
+                                acknowledgmentCount: message.acknowledgmentCount,
+                                actions: message.actions,
                                 body: message.body,
                                 createdAt: new Date(message.createdAt).toISOString(),
                                 priority: message.priority,
@@ -107,6 +178,7 @@ export default function MessageDetailScreen() {
                         {`curl -X POST ${api.baseUrl}/topic/${topic.name} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
+      actions: message.actions.length ? message.actions : undefined,
       body: message.body,
       priority: message.priority,
       tags: message.tags,
@@ -207,14 +279,14 @@ const styles = StyleSheet.create({
         paddingTop: 40,
         textAlign: 'center',
     },
-    prioRow: { alignItems: 'center', flexDirection: 'row', gap: 8 },
-    prioText: {
+    priorityText: {
         fontFamily: Fonts.mono,
         fontSize: 11,
         fontWeight: '600',
         letterSpacing: 1.2,
         textTransform: 'uppercase',
     },
+    prioRow: { alignItems: 'center', flexDirection: 'row', gap: 8 },
     root: { backgroundColor: W.bg, flex: 1 },
     sectionHead: {
         color: W.fgDim,
