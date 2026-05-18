@@ -5,6 +5,18 @@ export const prismaMock = {
         count: mock<() => Promise<number>>(() => Promise.resolve(0)),
         upsert: mock<() => Promise<object>>(() => Promise.resolve({ id: 'ack-1' })),
     },
+    attachment: {
+        count: mock<() => Promise<number>>(() => Promise.resolve(0)),
+        create: mock<
+            (args: {
+                data: Record<string, unknown>;
+                select?: Record<string, boolean>;
+            }) => Promise<object>
+        >(() => Promise.resolve({ id: 'att-1' })),
+        findMany: mock<(args?: Record<string, unknown>) => Promise<object[]>>(() =>
+            Promise.resolve([]),
+        ),
+    },
     message: {
         create: mock<() => Promise<object>>(() =>
             Promise.resolve({
@@ -20,6 +32,7 @@ export const prismaMock = {
             }),
         ),
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
+        findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
     },
     pushToken: {
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
@@ -91,5 +104,26 @@ export const prismaMock = {
         ),
         findFirst: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
         update: mock<() => Promise<object>>(() => Promise.resolve({ id: 'vc-1' })),
+    },
+};
+
+export const fileStorageMock = {
+    provider: {
+        delete: mock<() => Promise<void>>(() => Promise.resolve()),
+        getUrl: mock<() => Promise<string>>(() => Promise.resolve('https://example.com/file.txt')),
+        upload: mock<
+            (input: {
+                buffer: { byteLength: number };
+                filename: string;
+                mimeType: string;
+            }) => Promise<object>
+        >(() =>
+            Promise.resolve({
+                filename: 'test.txt',
+                mimeType: 'text/plain',
+                size: 11,
+                storageKey: 'abc.txt',
+            }),
+        ),
     },
 };
