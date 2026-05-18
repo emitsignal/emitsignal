@@ -6,9 +6,18 @@ import { EventEmitter } from 'node:events';
 
 import type { Action } from './actions';
 
+export interface AttachmentInfo {
+    filename: string;
+    mimeType: string;
+    size: number;
+    storageKey: string;
+    url: string;
+}
+
 export interface MessageEvent {
     acknowledgmentCount: number;
     actions: Action[];
+    attachments: AttachmentInfo[];
     body: string;
     createdAt: number;
     id: string;

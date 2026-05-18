@@ -31,7 +31,7 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
                 return;
             }
 
-            const event = serializeMessage({ ...message, topicId: message.topic.id });
+            const event = await serializeMessage({ ...message, topicId: message.topic.id });
 
             bus.publish(message.topic.name, { ...event, topicName: message.topic.name });
 

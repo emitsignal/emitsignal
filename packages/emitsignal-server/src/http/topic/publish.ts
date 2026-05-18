@@ -52,7 +52,7 @@ export const publish = new Elysia().post(
             return { message: 'scheduled', messageId: message.id, scheduledAt: scheduledAtUnix };
         }
 
-        const event = serializeMessage({ ...message, topicId: topic.id });
+        const event = await serializeMessage({ ...message, topicId: topic.id });
 
         bus.publish(topic.name, { ...event, topicName: topic.name });
 

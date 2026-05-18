@@ -20,7 +20,9 @@ export const messages = new Elysia().get(
             where: { topicId: topic.id },
         });
 
-        return messages.map((message) => serializeMessage(message, message._count.acknowledgments));
+        return Promise.all(
+            messages.map((message) => serializeMessage(message, message._count.acknowledgments)),
+        );
     },
     {
         query: t.Object({

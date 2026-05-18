@@ -50,7 +50,7 @@ export const listen = new Elysia().get(
                     });
                     for (const message of backlog) {
                         send('message', {
-                            ...serializeMessage(message),
+                            ...(await serializeMessage(message)),
                             topicName: topic.name,
                         });
                     }

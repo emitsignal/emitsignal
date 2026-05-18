@@ -1,7 +1,7 @@
 import { describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
 
 const mockBus = { publish: mock(), subscribe: mock() };
 const mockPushQueue = { add: mock(() => Promise.resolve()) };
@@ -13,6 +13,7 @@ mock.module('../../../lib/queue', () => ({
     pushQueue: mockPushQueue,
     scheduleQueue: mockScheduleQueue,
 }));
+mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
 import { publish } from '../../topic/publish';
 

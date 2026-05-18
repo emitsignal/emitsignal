@@ -10,6 +10,7 @@ describe('EmitSignalBus', () => {
         const event: MessageEvent = {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: 'Test body',
             createdAt: Date.now(),
             id: 'msg-1',
@@ -37,6 +38,7 @@ describe('EmitSignalBus', () => {
         bus.publish('topic-a', {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: 'A',
             createdAt: Date.now(),
             id: '1',
@@ -61,6 +63,7 @@ describe('EmitSignalBus', () => {
         bus.publish('topic-x', {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: 'X',
             createdAt: Date.now(),
             id: '1',
@@ -74,6 +77,7 @@ describe('EmitSignalBus', () => {
         bus.publish('topic-y', {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: 'Y',
             createdAt: Date.now(),
             id: '2',
@@ -99,6 +103,7 @@ describe('EmitSignalBus', () => {
         bus.publish('shared', {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: '',
             createdAt: Date.now(),
             id: '1',
@@ -122,6 +127,7 @@ describe('EmitSignalBus', () => {
         bus.publish('topic', {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: '',
             createdAt: Date.now(),
             id: '1',
@@ -138,6 +144,7 @@ describe('EmitSignalBus', () => {
         bus.publish('topic', {
             acknowledgmentCount: 0,
             actions: [],
+            attachments: [],
             body: '',
             createdAt: Date.now(),
             id: '2',
@@ -167,6 +174,7 @@ describe('EmitSignalBus', () => {
             bus.publish('no-listeners', {
                 acknowledgmentCount: 0,
                 actions: [],
+                attachments: [],
                 body: '',
                 createdAt: Date.now(),
                 id: '1',
@@ -187,6 +195,7 @@ describe('EmitSignalBus', () => {
         const event: MessageEvent = {
             acknowledgmentCount: 42,
             actions: [{ label: 'Ack', type: 'acknowledge' }],
+            attachments: [],
             body: 'Body with unicode: café 🎉',
             createdAt: 1700000000000,
             id: 'msg-custom-1',

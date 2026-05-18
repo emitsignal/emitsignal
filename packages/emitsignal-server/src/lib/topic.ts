@@ -1,6 +1,7 @@
 import type { Action } from './actions';
 
 import { prisma } from './prisma';
+import { FileStorageService } from './storage';
 
 export const TOPIC_NAME_RE = /^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/i;
 
@@ -59,7 +60,7 @@ export function parseTags(raw: string): string[] {
     }
 }
 
-export function serializeMessage(
+export async function serializeMessage(
     message: {
         actions: string;
         body: string;
@@ -72,9 +73,29 @@ export function serializeMessage(
     },
     acknowledgmentCount = 0,
 ) {
+    const dbAttachments = await prisma.attachment.findMany({
+        select: { filename: true, mimeType: true, size: true, storageKey: true },
+        where: { messageId: message.id },
+    });
+
+    const attachments = await Promise.all(
+        dbAttachments.map(async (att) => {
+            const url = await FileStorageService.provider.getUrl(att.storageKey);
+
+            return {
+                filename: att.filename,
+                mimeType: att.mimeType,
+                size: att.size,
+                storageKey: att.storageKey,
+                url,
+            };
+        }),
+    );
+
     return {
         acknowledgmentCount,
         actions: parseActions(message.actions),
+        attachments,
         body: message.body,
         createdAt: message.createdAt.getTime(),
         id: message.id,

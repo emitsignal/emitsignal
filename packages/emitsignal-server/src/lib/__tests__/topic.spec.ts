@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'bun:test';
+import { describe, expect, it, mock } from 'bun:test';
+
+import { fileStorageMock, prismaMock } from '../../__tests__/mocks';
+
+mock.module('../prisma', () => ({ prisma: prismaMock }));
+mock.module('../storage', () => ({ FileStorageService: fileStorageMock }));
 
 import { parseActions, parseTags, serializeMessage, serializeTags, TOPIC_NAME_RE } from '../topic';
 
@@ -80,24 +85,24 @@ describe('serializeTags', () => {
 });
 
 describe('serializeMessage', () => {
-    it('converts a DB message to API format', () => {
-        const dbMessage = {
-            actions: JSON.stringify([{ type: 'acknowledge' }]),
-            body: 'Hello',
-            createdAt: new Date(1000000000000),
-            id: 'msg-1',
-            priority: 3,
-            scheduledAt: null,
-            tags: JSON.stringify(['test']),
-            title: 'Test',
-            topicId: 'topic-1',
-        };
+    const dbMessage = {
+        actions: JSON.stringify([{ type: 'acknowledge' }]),
+        body: 'Hello',
+        createdAt: new Date(1000000000000),
+        id: 'msg-1',
+        priority: 3,
+        tags: JSON.stringify(['test']),
+        title: 'Test',
+        topicId: 'topic-1',
+    };
 
-        const result = serializeMessage(dbMessage, 5);
+    it('converts a DB message to API format', async () => {
+        const result = await serializeMessage(dbMessage, 5);
 
         expect(result).toEqual({
             acknowledgmentCount: 5,
             actions: [{ type: 'acknowledge' }],
+            attachments: [],
             body: 'Hello',
             createdAt: 1000000000000,
             id: 'msg-1',
@@ -108,20 +113,43 @@ describe('serializeMessage', () => {
         });
     });
 
-    it('defaults acknowledgmentCount to 0', () => {
-        const dbMessage = {
+    it('includes attachments with URLs when present', async () => {
+        prismaMock.attachment.findMany.mockResolvedValueOnce([
+            {
+                filename: 'screenshot.png',
+                mimeType: 'image/png',
+                size: 1024,
+                storageKey: 'abc.png',
+            },
+        ]);
+
+        fileStorageMock.provider.getUrl.mockResolvedValueOnce('https://example.com/abc.png');
+
+        const result = await serializeMessage(dbMessage);
+
+        expect(result.attachments).toEqual([
+            {
+                filename: 'screenshot.png',
+                mimeType: 'image/png',
+                size: 1024,
+                storageKey: 'abc.png',
+                url: 'https://example.com/abc.png',
+            },
+        ]);
+    });
+
+    it('defaults acknowledgmentCount to 0', async () => {
+        const result = await serializeMessage({
             actions: '[]',
             body: '',
             createdAt: new Date(0),
             id: 'msg-1',
             priority: 1,
-            scheduledAt: null,
             tags: '[]',
             title: '',
             topicId: 't1',
-        };
-
-        const result = serializeMessage(dbMessage);
+        });
         expect(result.acknowledgmentCount).toBe(0);
+        expect(result.attachments).toEqual([]);
     });
 });
