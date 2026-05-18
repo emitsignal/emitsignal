@@ -7,6 +7,7 @@ import { magicLink } from './http/auth/magic-link';
 import { me } from './http/auth/me';
 import { verify } from './http/auth/verify';
 import { acknowledge } from './http/messages/acknowledge';
+import { attachments } from './http/messages/attachments';
 import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
 import { updatePushToken } from './http/push-tokens/update';
@@ -24,10 +25,12 @@ import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
 import { loggerPlugin } from './lib/logger-plugin';
 import { emailQueue, pushQueue, redisConnection, scheduleQueue } from './lib/queue';
+import { FileStorageService } from './lib/storage';
 import { environment } from './schema/environment';
 
 Email.init(environment);
 EmailService.init(emailQueue);
+FileStorageService.init(environment);
 
 const app = new Elysia()
     .use(loggerPlugin)
@@ -39,6 +42,10 @@ const app = new Elysia()
     .use(cors({ allowedHeaders: '*' }))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
     .use(acknowledge)
+    .use(attachments)
+    .get('/uploads/:file', async ({ params }) => {
+        return Bun.file(`${environment.UPLOAD_DIR}/${params.file}`);
+    })
     .use(getTopic)
     .use(listen)
     .use(listenMulti)

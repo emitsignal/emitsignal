@@ -24,6 +24,22 @@ model ApiKey {
     @@index([userId])
 }
 
+model Attachment {
+    id         String   @id @default(cuid())
+    messageId  String
+    filename   String
+    mimeType   String
+    size       Int
+    storageKey String
+    expiresAt  DateTime
+    createdAt  DateTime @default(now())
+
+    message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+    @@index([messageId])
+    @@index([expiresAt])
+}
+
 model Acknowledgment {
     id        String   @id @default(cuid())
     messageId String
@@ -53,6 +69,7 @@ model Message {
     topicId     String
 
     acknowledgments Acknowledgment[]
+    attachments     Attachment[]
     sender          User?              @relation("MessageSender", fields: [senderId], references: [id])
     topic           Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
