@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
@@ -100,6 +101,14 @@ export default function MessageDetailScreen() {
 
                     <Text style={styles.title}>{message.title}</Text>
                     <Text style={styles.body}>{message.body}</Text>
+
+                    {message.attachments && message.attachments.length > 0 ? (
+                        <View style={styles.attachments}>
+                            {message.attachments.map((att, i) => (
+                                <AttachmentPreview attachment={att} key={i} />
+                            ))}
+                        </View>
+                    ) : null}
 
                     <View style={styles.tagsRow}>
                         {message.tags.map((tag) => (
@@ -243,6 +252,10 @@ const styles = StyleSheet.create({
         color: W.fg,
         fontSize: 12.5,
         fontWeight: '600',
+    },
+    attachments: {
+        gap: 8,
+        marginTop: 14,
     },
     backBtn: {
         alignItems: 'center',

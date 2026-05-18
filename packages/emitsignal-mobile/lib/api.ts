@@ -10,9 +10,18 @@ export interface Action {
     url?: string;
 }
 
+export interface Attachment {
+    filename: string;
+    mimeType: string;
+    size: number;
+    storageKey: string;
+    url: string;
+}
+
 export interface Message {
     acknowledgmentCount: number;
     actions: Action[];
+    attachments: Attachment[];
     body: string;
     createdAt: number;
     id: string;
