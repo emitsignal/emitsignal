@@ -5,9 +5,9 @@ import { EmailService } from '../email-service';
 describe('EmailService', () => {
     it('init stores the queue for later use', async () => {
         const add = mock(() => Promise.resolve());
-        const queue = { add } as any;
+        const queue = { add };
 
-        EmailService.init(queue);
+        EmailService.init(queue as unknown as Parameters<typeof EmailService.init>[0]);
 
         await EmailService.send({
             from: 'from@test.com',
@@ -21,9 +21,9 @@ describe('EmailService', () => {
 
     it('send calls queue.add with correct args', async () => {
         const add = mock(() => Promise.resolve());
-        const queue = { add } as any;
+        const queue = { add };
 
-        EmailService.init(queue);
+        EmailService.init(queue as unknown as Parameters<typeof EmailService.init>[0]);
 
         const options = {
             from: 'from@test.com',
@@ -39,9 +39,9 @@ describe('EmailService', () => {
 
     it('send passes through all email options', async () => {
         const add = mock(() => Promise.resolve());
-        const queue = { add } as any;
+        const queue = { add };
 
-        EmailService.init(queue);
+        EmailService.init(queue as unknown as Parameters<typeof EmailService.init>[0]);
 
         const options = {
             cc: 'cc@test.com',
@@ -53,11 +53,11 @@ describe('EmailService', () => {
 
         await EmailService.send(options);
 
-        const call = add.mock.calls[0] as unknown as [string, typeof options];
-        expect(call[0]).toBe('send-email');
-        expect(call[1].from).toBe('noreply@test.com');
-        expect(call[1].html).toBe('<p>Body</p>');
-        expect(call[1].subject).toBe('Subject');
-        expect(call[1].to).toBe('to@test.com');
+        const callArgs = add.mock.calls[0] as unknown as [string, typeof options];
+        expect(callArgs[0]).toBe('send-email');
+        expect(callArgs[1].from).toBe('noreply@test.com');
+        expect(callArgs[1].html).toBe('<p>Body</p>');
+        expect(callArgs[1].subject).toBe('Subject');
+        expect(callArgs[1].to).toBe('to@test.com');
     });
 });
