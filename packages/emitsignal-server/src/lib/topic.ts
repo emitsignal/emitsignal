@@ -3,7 +3,7 @@ import type { Action } from './actions';
 import { prisma } from './prisma';
 import { FileStorageService } from './storage';
 
-export const TOPIC_NAME_RE = /^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/i;
+export const TOPIC_NAME_REGEX = /^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/i;
 
 export async function getOrCreateTopic(name: string, ownerId?: string) {
     const existing = await prisma.topic.findUnique({ where: { name } });
@@ -72,25 +72,38 @@ export async function serializeMessage(
         topicId: string;
     },
     acknowledgmentCount = 0,
+    includeAttachments = false,
 ) {
-    const dbAttachments = await prisma.attachment.findMany({
-        select: { filename: true, mimeType: true, size: true, storageKey: true },
-        where: { messageId: message.id },
-    });
+    const attachments: Array<{
+        filename: string;
+        mimeType: string;
+        size: number;
+        storageKey: string;
+        url: string;
+    }> = [];
 
-    const attachments = await Promise.all(
-        dbAttachments.map(async (att) => {
-            const url = await FileStorageService.provider.getUrl(att.storageKey);
+    if (includeAttachments) {
+        const dbAttachments = await prisma.attachment.findMany({
+            select: { filename: true, mimeType: true, size: true, storageKey: true },
+            where: { messageId: message.id },
+        });
 
-            return {
-                filename: att.filename,
-                mimeType: att.mimeType,
-                size: att.size,
-                storageKey: att.storageKey,
-                url,
-            };
-        }),
-    );
+        const resolved = await Promise.all(
+            dbAttachments.map(async (attachment) => {
+                const url = await FileStorageService.provider.getUrl(attachment.storageKey);
+
+                return {
+                    filename: attachment.filename,
+                    mimeType: attachment.mimeType,
+                    size: attachment.size,
+                    storageKey: attachment.storageKey,
+                    url,
+                };
+            }),
+        );
+
+        attachments.push(...resolved);
+    }
 
     return {
         acknowledgmentCount,

@@ -5,14 +5,20 @@ import { fileStorageMock, prismaMock } from '../../__tests__/mocks';
 mock.module('../prisma', () => ({ prisma: prismaMock }));
 mock.module('../storage', () => ({ FileStorageService: fileStorageMock }));
 
-import { parseActions, parseTags, serializeMessage, serializeTags, TOPIC_NAME_RE } from '../topic';
+import {
+    parseActions,
+    parseTags,
+    serializeMessage,
+    serializeTags,
+    TOPIC_NAME_REGEX,
+} from '../topic';
 
-describe('TOPIC_NAME_RE', () => {
+describe('TOPIC_NAME_REGEX', () => {
     const validNames = ['my-topic', 'a/b_c', 'a1', 'UPPER', 'CamelCase', 'test-ns/my-topic', 'abc'];
 
     validNames.forEach((name) => {
         it(`accepts "${name}"`, () => {
-            expect(TOPIC_NAME_RE.test(name)).toBe(true);
+            expect(TOPIC_NAME_REGEX.test(name)).toBe(true);
         });
     });
 
@@ -20,7 +26,7 @@ describe('TOPIC_NAME_RE', () => {
 
     invalidNames.forEach((name) => {
         it(`rejects "${name}"`, () => {
-            expect(TOPIC_NAME_RE.test(name)).toBe(false);
+            expect(TOPIC_NAME_REGEX.test(name)).toBe(false);
         });
     });
 });
@@ -125,7 +131,7 @@ describe('serializeMessage', () => {
 
         fileStorageMock.provider.getUrl.mockResolvedValueOnce('https://example.com/abc.png');
 
-        const result = await serializeMessage(dbMessage);
+        const result = await serializeMessage(dbMessage, 0, true);
 
         expect(result.attachments).toEqual([
             {
