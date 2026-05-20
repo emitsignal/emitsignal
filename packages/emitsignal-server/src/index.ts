@@ -8,6 +8,7 @@ import { me } from './http/auth/me';
 import { verify } from './http/auth/verify';
 import { acknowledge } from './http/messages/acknowledge';
 import { attachments } from './http/messages/attachments';
+import { getMessage } from './http/messages/get';
 import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
 import { updatePushToken } from './http/push-tokens/update';
@@ -43,6 +44,7 @@ const app = new Elysia()
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
     .use(acknowledge)
     .use(attachments)
+    .use(getMessage)
     .get('/uploads/:file', async ({ params }) => {
         return Bun.file(`${environment.UPLOAD_DIR}/${params.file}`);
     })
