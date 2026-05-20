@@ -8,32 +8,28 @@ import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
-import { api, type Message, type Topic } from '@/lib/api';
+import { api, type Message } from '@/lib/api';
 
 export default function MessageDetailScreen() {
     const [ackCount, setAckCount] = useState(0);
     const [acknowledged, setAcknowledged] = useState(false);
     const [message, setMessage] = useState<Message | null>(null);
-    const [topic, setTopic] = useState<null | Topic>(null);
     const { deviceId } = useDevice();
     const { id } = useLocalSearchParams<{ id: string }>();
 
     useEffect(() => {
         let cancelled = false;
+
         async function load() {
-            const allTopics = await api.listTopics();
+            try {
+                const msg = await api.getMessage(id);
 
-            for (const topic of allTopics) {
-                const messages = await api.listMessages(topic.name, 200);
-                const found = messages.find((message) => message.id === id);
-
-                if (found && !cancelled) {
-                    setMessage(found);
-                    setTopic(topic);
-                    setAckCount(found.acknowledgmentCount);
-
-                    return;
+                if (!cancelled) {
+                    setMessage(msg);
+                    setAckCount(msg.acknowledgmentCount);
                 }
+            } catch (error) {
+                console.warn('Failed to load message:', error);
             }
         }
 
@@ -67,7 +63,7 @@ export default function MessageDetailScreen() {
         }
     };
 
-    if (!message || !topic) {
+    if (!message) {
         return (
             <SafeAreaView style={styles.root}>
                 <Text style={styles.loading}>loading…</Text>
@@ -87,7 +83,7 @@ export default function MessageDetailScreen() {
                     <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
                 <WLogo pulse size={11} />
-                <Text style={styles.channelLabel}>{topic.name}</Text>
+                <Text style={styles.channelLabel}>{message.topicName ?? ''}</Text>
             </View>
 
             <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
@@ -173,7 +169,7 @@ export default function MessageDetailScreen() {
                                 priority: message.priority,
                                 tags: message.tags,
                                 title: message.title,
-                                topic: topic.name,
+                                topic: message.topicName,
                             },
                             null,
                             2,
@@ -184,7 +180,7 @@ export default function MessageDetailScreen() {
                 <SectionHead>reproduce · curl</SectionHead>
                 <View style={styles.codeWrap}>
                     <WCode language="BASH">
-                        {`curl -X POST ${api.baseUrl}/topic/${topic.name} \\
+                        {`curl -X POST ${api.baseUrl}/topic/${message.topicName} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
       actions: message.actions.length ? message.actions : undefined,
@@ -199,7 +195,11 @@ export default function MessageDetailScreen() {
                 <SectionHead>delivery</SectionHead>
                 {[
                     { e: 'received', ok: true, t: formatTime(message.createdAt) },
-                    { e: `routed → ${topic.name}`, ok: true, t: formatTime(message.createdAt) },
+                    {
+                        e: `routed → ${message.topicName}`,
+                        ok: true,
+                        t: formatTime(message.createdAt),
+                    },
                     { e: 'push → fcm', ok: true, t: formatTime(message.createdAt + 1000) },
                     {
                         e: 'delivered · this device',

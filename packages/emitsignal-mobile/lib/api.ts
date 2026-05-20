@@ -29,6 +29,7 @@ export interface Message {
     tags: string[];
     title: string;
     topicId: string;
+    topicName?: string;
 }
 
 export interface PushToken {
@@ -96,6 +97,10 @@ export const api = {
     },
 
     baseUrl: API_URL,
+
+    getMessage(id: string) {
+        return request<Message>(`/messages/${encodeURIComponent(id)}`);
+    },
 
     getTopic(name: string) {
         return request<TopicWithCounts>(`/topics/${encodeURIComponent(name)}`);
