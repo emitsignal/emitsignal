@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo } from '@/components/base-theme';
@@ -18,8 +18,8 @@ const PLATFORM_LABEL: Record<string, string> = {
 };
 
 export default function AuthPerms() {
-    const { deviceId } = useDevice();
-    const { token } = useSession();
+    const { deviceId, refreshPushToken } = useDevice();
+    const { token, user } = useSession();
     const [granted, setGranted] = useState(false);
     const [chosen, setChosen] = useState(false);
     const [tokens, setTokens] = useState<PushToken[]>([]);
@@ -40,12 +40,30 @@ export default function AuthPerms() {
 
     const handleAllow = async () => {
         setChosen(true);
+        let pushToken: null | string = null;
         try {
             const { status } = await Notifications.requestPermissionsAsync();
 
             setGranted(status === 'granted');
+            if (status === 'granted') {
+                pushToken = await refreshPushToken();
+            }
         } catch {
             setGranted(true); // simulator fallback
+            pushToken = await refreshPushToken();
+        }
+
+        if (pushToken && deviceId) {
+            const platform = (
+                Platform.OS === 'ios' || Platform.OS === 'android' ? Platform.OS : 'web'
+            ) as 'android' | 'ios' | 'web';
+
+            api.registerPushToken({
+                deviceId,
+                platform,
+                token: pushToken,
+                userId: user?.id ?? null,
+            }).catch((error) => console.warn('push-token register failed', error));
         }
     };
 

@@ -118,7 +118,7 @@ export function useDeviceInfo() {
         const init = async () => {
             try {
                 const deviceId = await initializeDeviceId();
-                const pushToken = await registerPushNotifications();
+                const pushToken = await AsyncStorage.getItem(PUSH_TOKEN_KEY);
 
                 setDeviceInfo({
                     deviceId,
