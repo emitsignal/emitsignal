@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WCode } from '@/components/base-theme';
 import { Fonts, W } from '@/constants/theme';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { API_URL } from '@/lib/api';
 
 export default function AuthWelcome() {
     const { markOnboardingComplete } = useOnboarding();
@@ -37,6 +38,7 @@ export default function AuthWelcome() {
                 <Animated.View
                     style={[styles.dot, { opacity: pulse, transform: [{ scale: pulse }] }]}
                 />
+
                 <Text style={styles.kicker}>EmitSignal · v0.1</Text>
                 <Text style={styles.title}>
                     Push notifications{'\n'}with <Text style={{ color: W.violet }}>one curl</Text>.
@@ -45,9 +47,10 @@ export default function AuthWelcome() {
                     Subscribe to any topic. Publish from a shell, a cron, a CI, a webhook. Arrives
                     on your phone in under a second.
                 </Text>
+
                 <View style={{ marginTop: 16 }}>
                     <WCode language="NO ACCOUNT NEEDED · TRY IT">
-                        {`$ curl -d "hi" emitsignal.local/alex-tryout`}
+                        {`$ curl -d "hi" ${API_URL.replace('https://', '').replace('http://', '')}/welcome`}
                     </WCode>
                 </View>
             </View>
@@ -56,6 +59,7 @@ export default function AuthWelcome() {
                 <Pressable onPress={() => router.push('/auth/sign-in')} style={styles.cta}>
                     <Text style={styles.ctaText}>get started →</Text>
                 </Pressable>
+
                 <Pressable
                     onPress={async () => {
                         await markOnboardingComplete();
