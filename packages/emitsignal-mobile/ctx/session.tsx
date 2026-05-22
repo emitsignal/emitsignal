@@ -43,6 +43,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                         user: SessionUser;
                     };
 
+                    setAuthToken(parsed.token);
+
                     await api.me();
 
                     if (cancelled) {
@@ -51,7 +53,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
                     setToken(parsed.token);
                     setUser(parsed.user);
-                    setAuthToken(parsed.token);
                 } catch {
                     await AsyncStorage.removeItem(SESSION_KEY);
                     setAuthToken(null);
