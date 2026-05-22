@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { DebugSectionsProvider } from '@/ctx/debug-sections';
 import { DeviceProvider } from '@/ctx/device';
 import { SessionProvider } from '@/ctx/session';
 import { ThemeProvider } from '@/ctx/theme';
@@ -16,11 +17,13 @@ import { useForegroundNotifications } from '@/hooks/use-foreground-notifications
 export default function RootLayout() {
     return (
         <ThemeProvider>
-            <SessionProvider>
-                <DeviceProvider>
-                    <RootLayoutContent />
-                </DeviceProvider>
-            </SessionProvider>
+            <DebugSectionsProvider>
+                <SessionProvider>
+                    <DeviceProvider>
+                        <RootLayoutContent />
+                    </DeviceProvider>
+                </SessionProvider>
+            </DebugSectionsProvider>
         </ThemeProvider>
     );
 }

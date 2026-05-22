@@ -7,6 +7,7 @@ import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
 import { api, type Message } from '@/lib/api';
 
@@ -14,6 +15,7 @@ export default function MessageDetailScreen() {
     const [ackCount, setAckCount] = useState(0);
     const [acknowledged, setAcknowledged] = useState(false);
     const [message, setMessage] = useState<Message | null>(null);
+    const { sections } = useDebugSections();
     const { deviceId } = useDevice();
     const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -156,31 +158,37 @@ export default function MessageDetailScreen() {
                     ) : null}
                 </View>
 
-                <SectionHead>payload</SectionHead>
+                {sections.showPayload ? (
+                    <>
+                        <SectionHead>payload</SectionHead>
 
-                <View style={styles.codeWrap}>
-                    <WCode language="JSON">
-                        {JSON.stringify(
-                            {
-                                acknowledgmentCount: message.acknowledgmentCount,
-                                actions: message.actions,
-                                body: message.body,
-                                createdAt: new Date(message.createdAt).toISOString(),
-                                priority: message.priority,
-                                tags: message.tags,
-                                title: message.title,
-                                topic: message.topicName,
-                            },
-                            null,
-                            2,
-                        )}
-                    </WCode>
-                </View>
+                        <View style={styles.codeWrap}>
+                            <WCode language="JSON">
+                                {JSON.stringify(
+                                    {
+                                        acknowledgmentCount: message.acknowledgmentCount,
+                                        actions: message.actions,
+                                        body: message.body,
+                                        createdAt: new Date(message.createdAt).toISOString(),
+                                        priority: message.priority,
+                                        tags: message.tags,
+                                        title: message.title,
+                                        topic: message.topicName,
+                                    },
+                                    null,
+                                    2,
+                                )}
+                            </WCode>
+                        </View>
+                    </>
+                ) : null}
 
-                <SectionHead>reproduce · curl</SectionHead>
-                <View style={styles.codeWrap}>
-                    <WCode language="BASH">
-                        {`curl -X POST ${api.baseUrl}/topic/${message.topicName} \\
+                {sections.showCurl ? (
+                    <>
+                        <SectionHead>reproduce · curl</SectionHead>
+                        <View style={styles.codeWrap}>
+                            <WCode language="BASH">
+                                {`curl -X POST ${api.baseUrl}/topic/${message.topicName} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
       actions: message.actions.length ? message.actions : undefined,
@@ -189,32 +197,44 @@ export default function MessageDetailScreen() {
       tags: message.tags,
       title: message.title,
   })}'`}
-                    </WCode>
-                </View>
+                            </WCode>
+                        </View>
+                    </>
+                ) : null}
 
-                <SectionHead>delivery</SectionHead>
-                {[
-                    { e: 'received', ok: true, t: formatTime(message.createdAt) },
-                    {
-                        e: `routed → ${message.topicName}`,
-                        ok: true,
-                        t: formatTime(message.createdAt),
-                    },
-                    { e: 'push → fcm', ok: true, t: formatTime(message.createdAt + 1000) },
-                    {
-                        e: 'delivered · this device',
-                        ok: true,
-                        t: formatTime(message.createdAt + 2000),
-                    },
-                ].map((s, i) => (
-                    <View key={i} style={styles.timelineRow}>
-                        <Text style={styles.timelineTime}>{s.t}</Text>
-                        <Text style={[styles.timelineDot, { color: s.ok ? W.green : W.red }]}>
-                            {s.ok ? '✓' : '✗'}
-                        </Text>
-                        <Text style={styles.timelineText}>{s.e}</Text>
-                    </View>
-                ))}
+                {sections.showDelivery ? (
+                    <>
+                        <SectionHead>delivery</SectionHead>
+                        {[
+                            { e: 'received', ok: true, t: formatTime(message.createdAt) },
+                            {
+                                e: `routed → ${message.topicName}`,
+                                ok: true,
+                                t: formatTime(message.createdAt),
+                            },
+                            {
+                                e: 'push → fcm',
+                                ok: true,
+                                t: formatTime(message.createdAt + 1000),
+                            },
+                            {
+                                e: 'delivered · this device',
+                                ok: true,
+                                t: formatTime(message.createdAt + 2000),
+                            },
+                        ].map((s, i) => (
+                            <View key={i} style={styles.timelineRow}>
+                                <Text style={styles.timelineTime}>{s.t}</Text>
+                                <Text
+                                    style={[styles.timelineDot, { color: s.ok ? W.green : W.red }]}
+                                >
+                                    {s.ok ? '✓' : '✗'}
+                                </Text>
+                                <Text style={styles.timelineText}>{s.e}</Text>
+                            </View>
+                        ))}
+                    </>
+                ) : null}
             </ScrollView>
         </SafeAreaView>
     );

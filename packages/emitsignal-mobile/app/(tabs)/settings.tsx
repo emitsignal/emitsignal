@@ -7,6 +7,7 @@ import type { ThemePreference } from '@/storage/theme';
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
+import { useDebugSections } from '@/ctx/debug-sections';
 import { useSession } from '@/ctx/session';
 import { useTheme } from '@/ctx/theme';
 
@@ -17,6 +18,7 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
 ];
 
 export default function SettingsScreen() {
+    const { sections, setSection } = useDebugSections();
     const { setTheme, theme } = useTheme();
     const { signOut, user } = useSession();
 
@@ -83,6 +85,30 @@ export default function SettingsScreen() {
                     )}
                 </View>
 
+                <SectionLabel>DEBUG</SectionLabel>
+                <View style={styles.group}>
+                    {[
+                        { key: 'showPayload' as const, label: 'Show payload' },
+                        { key: 'showCurl' as const, label: 'Show curl command' },
+                        { key: 'showDelivery' as const, label: 'Show delivery' },
+                    ].map(({ key, label }) => (
+                        <Pressable
+                            key={key}
+                            onPress={() => setSection(key, !sections[key])}
+                            style={[styles.row, sections[key] && styles.rowActive]}
+                        >
+                            <Text style={styles.rowLabel}>{label}</Text>
+                            {sections[key] ? (
+                                <IconSymbol
+                                    color={W.violet}
+                                    name="checkmark.circle.fill"
+                                    size={18}
+                                />
+                            ) : null}
+                        </Pressable>
+                    ))}
+                </View>
+
                 <SectionLabel>ABOUT</SectionLabel>
                 <View style={styles.group}>
                     <View style={styles.row}>
@@ -123,7 +149,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 14,
     },
-    rowActive: { backgroundColor: W.violetBg },
+    rowActive: { backgroundColor: W.violetBg, paddingVertical: 13 },
     rowLabel: { color: W.fg, flex: 1, fontSize: 14 },
     rowValue: { color: W.fgMuted, fontFamily: Fonts.mono, fontSize: 12 },
     sectionLabelLine: {
