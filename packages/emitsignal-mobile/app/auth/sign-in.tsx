@@ -18,7 +18,7 @@ import { Fonts, W } from '@/constants/theme';
 import { api } from '@/lib/api';
 
 export default function AuthSignIn() {
-    const [email, setEmail] = useState('alex@hey.sh');
+    const [email, setEmail] = useState('');
     const [busy, setBusy] = useState(false);
 
     const handleSend = async () => {
@@ -92,11 +92,11 @@ export default function AuthSignIn() {
 
                     {[
                         { icon: 'globe' as const, label: 'continue with GitHub' },
-                        { icon: 'key' as const, label: 'continue with SSH key' },
-                    ].map((opt) => (
-                        <Pressable key={opt.label} onPress={handleSend} style={styles.altBtn}>
-                            <IconSymbol color={W.violet} name={opt.icon} size={14} />
-                            <Text style={styles.altText}>{opt.label}</Text>
+                        { icon: 'key' as const, label: 'continue with Apple' },
+                    ].map((option) => (
+                        <Pressable key={option.label} onPress={handleSend} style={styles.altBtn}>
+                            <IconSymbol color={W.violet} name={option.icon} size={14} />
+                            <Text style={styles.altText}>{option.label}</Text>
                             <IconSymbol color={W.fgDim} name="chevron.right" size={13} />
                         </Pressable>
                     ))}
