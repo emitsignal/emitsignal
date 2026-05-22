@@ -16,4 +16,4 @@ async function shutdown() {
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-logger.info('🔔 schedule worker started');
+logger.info('⏱️ schedule worker started');
