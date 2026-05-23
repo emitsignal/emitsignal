@@ -19,57 +19,83 @@ import { useDevice } from '@/ctx/device';
 import { api, type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
-    const { deviceId } = useDevice();
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const { deviceId } = useDevice();
 
-    const refresh = useCallback(async () => {
-        if (!deviceId) return;
+    const refresh = useCallback(
+        async ({ silent = false }: { silent?: boolean } = {}) => {
+            if (!deviceId) {
+                return;
+            }
 
-        setLoading(true);
+            if (!silent) {
+                setLoading(true);
+            }
 
-        try {
-            const subscriptions = await api.listSubscriptions(deviceId);
-            setSubscriptions(subscriptions);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    }, [deviceId]);
+            try {
+                setSubscriptions(await api.listSubscriptions(deviceId));
+            } catch (error) {
+                console.error(error);
+            }
+
+            if (!silent) {
+                setLoading(false);
+            }
+        },
+        [deviceId],
+    );
+
+    const onPullToRefresh = useCallback(async () => {
+        setRefreshing(true);
+
+        await refresh({ silent: true });
+
+        setRefreshing(false);
+    }, [refresh]);
 
     useEffect(() => {
-        if (deviceId) refresh();
+        if (deviceId) {
+            refresh();
+        }
     }, [deviceId]);
 
     useFocusEffect(
         useCallback(() => {
-            if (deviceId) refresh();
+            if (deviceId) {
+                refresh({ silent: true });
+            }
         }, [deviceId, refresh]),
     );
 
     const filtered = useMemo(() => {
-        if (!query.trim()) return subscriptions;
+        if (!query.trim()) {
+            return subscriptions;
+        }
+
         const q = query.trim().toLowerCase();
+
         return subscriptions.filter(
-            (s) =>
-                s.topic.name.toLowerCase().includes(q) ||
-                s.topic.displayName.toLowerCase().includes(q),
+            (subscription) =>
+                subscription.topic.name.toLowerCase().includes(q) ||
+                subscription.topic.displayName.toLowerCase().includes(q),
         );
     }, [subscriptions, query]);
 
-    const handleUnsubscribe = (sub: Subscription) => {
+    const handleUnsubscribe = (subscription: Subscription) => {
         if (!deviceId) {
             return;
         }
 
-        Alert.alert('Unsubscribe', `Stop receiving messages from ${sub.topic.name}?`, [
+        Alert.alert('Unsubscribe', `Stop receiving messages from ${subscription.topic.name}?`, [
             { style: 'cancel', text: 'Cancel' },
             {
                 onPress: async () => {
-                    await api.unsubscribe(deviceId, sub.topic.name);
-                    await refresh();
+                    await api.unsubscribe(deviceId, subscription.topic.name);
+
+                    await refresh({ silent: true });
                 },
                 style: 'destructive',
                 text: 'Unsubscribe',
@@ -120,8 +146,8 @@ export default function ChannelsScreen() {
                 refreshControl={
                     <RefreshControl
                         colors={[W.violet]}
-                        onRefresh={refresh}
-                        refreshing={loading}
+                        onRefresh={onPullToRefresh}
+                        refreshing={refreshing}
                         tintColor={W.violet}
                     />
                 }
@@ -157,14 +183,14 @@ function ChannelRow({
     // history this can be derived from real data.
     const seed = sub.topic.id.charCodeAt(sub.topic.id.length - 1);
     const data = Array.from({ length: 12 }, (_, i) => Math.abs(Math.sin((seed + i) * 0.7)) * 5);
-    const prio = ((seed % 5) + 1 || 3) as 1 | 2 | 3 | 4 | 5;
+    const priority = ((seed % 5) + 1 || 3) as 1 | 2 | 3 | 4 | 5;
 
     return (
         <Pressable onLongPress={onLongPress} onPress={onPress} style={styles.channelRow}>
             <WTopicAvatar name={sub.topic.name} size={36} />
             <View style={{ flex: 1, minWidth: 0 }}>
                 <View style={styles.channelHeader}>
-                    <WDot level={prio} size={5} />
+                    <WDot level={priority} size={5} />
                     <Text style={styles.channelName}>{sub.topic.name}</Text>
                 </View>
                 {sub.topic.description ? (
@@ -173,7 +199,7 @@ function ChannelRow({
                     </Text>
                 ) : null}
                 <View style={{ marginTop: 6 }}>
-                    <ActivitySparkline color={PriorityColors[prio]} data={data} height={14} />
+                    <ActivitySparkline color={PriorityColors[priority]} data={data} height={14} />
                 </View>
             </View>
         </Pressable>
