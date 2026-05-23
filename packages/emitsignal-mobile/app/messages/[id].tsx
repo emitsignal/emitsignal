@@ -102,9 +102,28 @@ export default function MessageDetailScreen() {
 
                     {message.attachments && message.attachments.length > 0 ? (
                         <View style={styles.attachments}>
-                            {message.attachments.map((att, i) => (
-                                <AttachmentPreview attachment={att} key={i} />
-                            ))}
+                            {message.attachments.map((att, i) => {
+                                const isImg = att.mimeType.startsWith('image/');
+                                return (
+                                    <AttachmentPreview
+                                        attachment={att}
+                                        key={i}
+                                        onPress={
+                                            isImg
+                                                ? () =>
+                                                      router.push({
+                                                          pathname: '/image-viewer',
+                                                          params: {
+                                                              filename: att.filename,
+                                                              size: String(att.size),
+                                                              url: att.url,
+                                                          },
+                                                      })
+                                                : undefined
+                                        }
+                                    />
+                                );
+                            })}
                         </View>
                     ) : null}
 

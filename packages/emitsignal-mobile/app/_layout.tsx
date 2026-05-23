@@ -5,8 +5,11 @@ import {
 } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import { W } from '@/constants/theme';
 import { DebugSectionsProvider } from '@/ctx/debug-sections';
 import { DeviceProvider } from '@/ctx/device';
 import { SessionProvider } from '@/ctx/session';
@@ -33,6 +36,10 @@ function RootLayoutContent() {
 
     const colorScheme = useColorScheme();
 
+    useEffect(() => {
+        SystemUI.setBackgroundColorAsync(W.bg);
+    }, []);
+
     return (
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack screenOptions={{ headerShown: false }}>
@@ -42,6 +49,13 @@ function RootLayoutContent() {
                 <Stack.Screen name="topics" />
                 <Stack.Screen name="messages" />
                 <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+                <Stack.Screen
+                    name="image-viewer"
+                    options={{
+                        animation: 'slide_from_bottom',
+                        presentation: 'transparentModal',
+                    }}
+                />
             </Stack>
             <StatusBar style="light" />
         </NavigationThemeProvider>

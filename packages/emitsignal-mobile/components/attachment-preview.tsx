@@ -2,16 +2,22 @@ import { Image } from 'expo-image';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Attachment } from '@/lib/api';
+import { formatSize } from '@/lib/format';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 
 interface Props {
     attachment: Attachment;
+    onPress?: () => void;
 }
 
-export function AttachmentPreview({ attachment }: Props) {
+export function AttachmentPreview({ attachment, onPress }: Props) {
     const handleOpen = () => {
+        if (onPress) {
+            onPress();
+            return;
+        }
         Linking.openURL(attachment.url).catch(() => {});
     };
 
@@ -38,12 +44,6 @@ export function AttachmentPreview({ attachment }: Props) {
             <IconSymbol color={W.fgDim} name="arrow.down.to.line" size={14} />
         </Pressable>
     );
-}
-
-function formatSize(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function isImage(mimeType: string): boolean {
