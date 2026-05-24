@@ -112,12 +112,12 @@ export default function MessageDetailScreen() {
                                             isImg
                                                 ? () =>
                                                       router.push({
-                                                          pathname: '/image-viewer',
                                                           params: {
                                                               filename: att.filename,
                                                               size: String(att.size),
                                                               url: att.url,
                                                           },
+                                                          pathname: '/image-viewer',
                                                       })
                                                 : undefined
                                         }

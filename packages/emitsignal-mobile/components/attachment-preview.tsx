@@ -2,10 +2,10 @@ import { Image } from 'expo-image';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Attachment } from '@/lib/api';
-import { formatSize } from '@/lib/format';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
+import { formatSize } from '@/lib/format';
 
 interface Props {
     attachment: Attachment;

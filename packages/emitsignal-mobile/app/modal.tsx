@@ -106,7 +106,7 @@ export default function SubscribeModal() {
 curl -d "hello" ${api.baseUrl}/topic/${topic}
 
 # from a script
-wsp publish ${topic} "deploy ok"`}
+emitsignal publish ${topic} "deploy ok"`}
                             </WCode>
                         </View>
                     </ScrollView>
