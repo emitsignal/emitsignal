@@ -5,6 +5,18 @@
             "skillPath": "skills/react-email/SKILL.md",
             "source": "resend/react-email",
             "sourceType": "github"
+        },
+        "tanstack-start": {
+            "computedHash": "e9d8355fe3e47b118e739081f1123c52aa0ecde57da840722177e1ad5caf9908",
+            "skillPath": "plugins/tanstack-start/skills/tanstack-start/SKILL.md",
+            "source": "tanstack-skills/tanstack-skills",
+            "sourceType": "github"
+        },
+        "vercel-react-best-practices": {
+            "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212",
+            "skillPath": "skills/react-best-practices/SKILL.md",
+            "source": "vercel-labs/agent-skills",
+            "sourceType": "github"
         }
     },
     "version": 1
