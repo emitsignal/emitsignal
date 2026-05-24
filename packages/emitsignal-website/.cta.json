@@ -1,0 +1,13 @@
+{
+    "addOnOptions": {},
+    "envVarValues": {},
+    "git": false,
+    "includeExamples": false,
+    "install": true,
+    "mode": "file-router",
+    "packageManager": "npm",
+    "projectName": "emitsignal-website",
+    "routerOnly": false,
+    "typescript": true,
+    "version": 1
+}
