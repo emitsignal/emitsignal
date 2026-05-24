@@ -12,6 +12,7 @@
             "package": "com.emitsignal",
             "predictiveBackGestureEnabled": false
         },
+        "backgroundColor": "#0f0a1a",
         "experiments": {
             "reactCompiler": true,
             "typedRoutes": false
