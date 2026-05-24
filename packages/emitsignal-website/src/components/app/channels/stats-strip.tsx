@@ -1,33 +1,29 @@
-interface Stat {
-    label: string;
-    sub: string;
-    value: string;
-}
-
-const STATS: Stat[] = [
-    { label: 'last 24h', sub: '+18 vs prev', value: '142' },
-    { label: 'p5 events', sub: '2 active', value: '6' },
-    { label: 'avg latency', sub: 'p99 312ms', value: '124ms' },
-    { label: 'ack rate', sub: '12 → on-call', value: '88%' },
-];
+import type { Message, Subscription } from '#/lib/api';
 
 const VOLUME = [
     12, 10, 14, 11, 15, 18, 22, 19, 25, 32, 28, 40, 38, 52, 48, 61, 68, 72, 80, 76, 68, 54, 42, 38,
 ];
 
-export function StatsStrip() {
+interface Props {
+    messages: Message[];
+    subscription: null | Subscription;
+}
+
+export function StatsStrip({ messages, subscription }: Props) {
+    const p5Count = messages.filter((message) => message.priority === 5).length;
+
     const max = Math.max(...VOLUME);
+
     return (
         <div className="grid shrink-0 grid-cols-[repeat(4,1fr)_1.4fr] items-center gap-5.5 border-b border-line px-5.5 py-4.5">
-            {STATS.map((s) => (
-                <div key={s.label}>
-                    <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
-                        {s.label}
-                    </p>
-                    <p className="m-0 text-[24px] font-semibold tracking-[-0.6px]">{s.value}</p>
-                    <p className="m-0 mt-0.5 font-mono text-[10.5px] text-faint">{s.sub}</p>
-                </div>
-            ))}
+            <StatItem label="last 24h" sub="total messages" value={String(messages.length)} />
+            <StatItem label="p5 events" sub="max priority" value={String(p5Count)} />
+            <StatItem label="subscribers" sub="devices" value={subscription ? '1+' : '0'} />
+            <StatItem
+                label="topic"
+                sub={subscription?.topic.isPublic ? 'public' : 'private'}
+                value={subscription?.topic.displayName ?? '—'}
+            />
             <div>
                 <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
                     VOLUME · 24H
@@ -56,6 +52,18 @@ export function StatsStrip() {
                     ))}
                 </svg>
             </div>
+        </div>
+    );
+}
+
+function StatItem({ label, sub, value }: { label: string; sub: string; value: string }) {
+    return (
+        <div>
+            <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
+                {label}
+            </p>
+            <p className="m-0 truncate text-[24px] font-semibold tracking-[-0.6px]">{value}</p>
+            <p className="m-0 mt-0.5 font-mono text-[10.5px] text-faint">{sub}</p>
         </div>
     );
 }

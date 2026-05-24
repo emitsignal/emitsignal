@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 
-import { Avatar } from '#/components/ui/avatar';
+import type { Subscription } from '#/lib/api';
+
 import { Code } from '#/components/ui/code';
 import { SubHead } from '#/components/ui/sub-head';
 
@@ -17,36 +18,30 @@ const RULES: RoutingRule[] = [
     { color: 'text-danger', condition: 'tag:sev2', target: 'page on-call rotation' },
 ];
 
-const SUBSCRIBERS = ['alex', 'maya', 'jordan', 'on-call'];
+interface Props {
+    subscription: null | Subscription;
+}
 
-export function RoutingRail() {
+export function RoutingRail({ subscription }: Props) {
+    const topicName = subscription?.topic.name ?? '';
+
     return (
         <aside className="w-[320px] shrink-0 overflow-auto p-5.5">
             <SubHead>ROUTING</SubHead>
             <div className="mb-4.5">
-                {RULES.map((rule, i) => (
-                    <RuleRow key={i} rule={rule} />
+                {RULES.map((rule, index) => (
+                    <RuleRow key={index} rule={rule} />
                 ))}
+
                 <button className="flex items-center gap-1 pt-2.5 font-mono text-[11px] text-accent">
                     <Plus size={11} /> add rule
                 </button>
             </div>
 
-            <SubHead>SUBSCRIBERS · 4</SubHead>
-            <div className="mb-4.5 flex flex-wrap gap-2">
-                {SUBSCRIBERS.map((n) => (
-                    <div
-                        className="flex items-center gap-1.5 rounded-full border border-line bg-elev px-2 py-1"
-                        key={n}
-                    >
-                        <Avatar name={n} rounded={100} size={18} />
-                        <span className="text-[11.5px]">{n}</span>
-                    </div>
-                ))}
-            </div>
-
             <SubHead>WEBHOOK</SubHead>
-            <Code language="POST">https://emitsignal.com/alerts/prod</Code>
+            <Code language="POST">
+                {topicName ? `https://emitsignal.com/${topicName}` : 'subscribe to a channel first'}
+            </Code>
         </aside>
     );
 }

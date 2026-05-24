@@ -1,10 +1,11 @@
-import { Link } from '@tanstack/react-router';
-import { Bell, Key, LayoutGrid, type LucideIcon, Settings, Terminal } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { Bell, Key, LayoutGrid, LogOut, type LucideIcon, Settings, Terminal } from 'lucide-react';
 
 import { Avatar } from '#/components/ui/avatar';
 import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
-import { SAMPLE_CHANNELS } from '#/lib/data';
+import { useSession } from '#/ctx/session';
+import { useSubscriptions } from '#/hooks/use-subscriptions';
 
 interface NavItem {
     badge?: number;
@@ -14,19 +15,30 @@ interface NavItem {
     to: string;
 }
 
-const NAV: NavItem[] = [
-    { badge: 7, exact: true, icon: Bell, label: 'Inbox', to: '/app' },
-    { badge: 8, icon: LayoutGrid, label: 'Channels', to: '/app/channels' },
-    { icon: Terminal, label: 'Publish', to: '/app/publish' },
-    { icon: Key, label: 'API Keys', to: '/app/keys' },
-];
-
 const INACTIVE =
     'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-normal text-muted no-underline hover:bg-elev/60';
 const ACTIVE =
     'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-accent no-underline bg-accent/10';
 
 export function Sidebar() {
+    const { signOut, user } = useSession();
+    const { subscriptions } = useSubscriptions();
+    const navigate = useNavigate();
+
+    const channelCount = subscriptions.length;
+
+    const NAV: NavItem[] = [
+        { exact: true, icon: Bell, label: 'Inbox', to: '/app' },
+        { badge: channelCount, icon: LayoutGrid, label: 'Channels', to: '/app/channels' },
+        { icon: Terminal, label: 'Publish', to: '/app/publish' },
+        { icon: Key, label: 'API Keys', to: '/app/keys' },
+    ];
+
+    const handleSignOut = async () => {
+        await signOut();
+        navigate({ to: '/' });
+    };
+
     return (
         <aside className="flex w-[210px] shrink-0 flex-col gap-0.5 border-r border-line p-2.5 pt-4">
             <div className="px-2.5 pb-3.5 pt-1">
@@ -42,18 +54,36 @@ export function Sidebar() {
             <p className="mt-4.5 px-2.5 pb-1.5 font-mono text-[9.5px] tracking-[1.5px] text-dim">
                 CHANNELS
             </p>
-            {SAMPLE_CHANNELS.slice(0, 6).map((channel) => (
-                <div
-                    className="flex items-center gap-2 px-2.5 py-1 font-mono text-[11.5px] text-muted"
-                    key={channel.id}
+            {subscriptions.length === 0 && (
+                <p className="px-2.5 py-1 font-mono text-[10px] text-dim">no subscriptions yet</p>
+            )}
+            {subscriptions.slice(0, 6).map((s) => (
+                <Link
+                    className="flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60"
+                    key={s.id}
+                    search={{ topic: s.topic.name }}
+                    to="/app/channels"
                 >
-                    <Dot level={channel.prio} size={5} />
-                    <span className="flex-1 truncate">{channel.name}</span>
-                    {channel.unread > 0 && <span className="text-accent">{channel.unread}</span>}
-                </div>
+                    <Dot level={1} size={5} />
+                    <span className="flex-1 truncate">{s.topic.name}</span>
+                </Link>
             ))}
 
-            <SidebarUser />
+            <div className="mt-auto">
+                {user && (
+                    <div className="flex items-center gap-2 border-t border-line p-2.5">
+                        <Avatar name={user.email} rounded={100} size={22} />
+                        <span className="flex-1 truncate text-[12px]">{user.email}</span>
+                        <button
+                            className="cursor-pointer rounded p-1 text-dim hover:bg-elev hover:text-fg"
+                            onClick={handleSignOut}
+                            title="Sign out"
+                        >
+                            <LogOut size={14} />
+                        </button>
+                    </div>
+                )}
+            </div>
         </aside>
     );
 }
@@ -71,7 +101,7 @@ function SidebarLink({ item }: { item: NavItem }) {
                 <>
                     <Icon size={14} />
                     <span className="flex-1">{item.label}</span>
-                    {item.badge !== undefined && (
+                    {item.badge !== undefined && item.badge > 0 && (
                         <span
                             className={`font-mono text-[10px] ${isActive ? 'text-accent' : 'text-dim'}`}
                         >
@@ -89,15 +119,6 @@ function SidebarStatic({ icon: Icon, label }: { icon: LucideIcon; label: string 
         <div className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-muted">
             <Icon size={14} />
             <span className="flex-1">{label}</span>
-        </div>
-    );
-}
-
-function SidebarUser() {
-    return (
-        <div className="mt-auto flex items-center gap-2 border-t border-line p-2.5">
-            <Avatar name="alex" rounded={100} size={22} />
-            <span className="text-[12px]">alex@emitsignal</span>
         </div>
     );
 }

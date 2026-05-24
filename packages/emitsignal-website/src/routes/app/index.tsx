@@ -1,14 +1,27 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Plus, Search } from 'lucide-react';
+import { useState } from 'react';
+
+import type { Message } from '#/lib/api';
 
 import { NotifRow } from '#/components/app/inbox/notif-row';
 import { InboxPreview } from '#/components/app/inbox/preview';
 import { Toolbar } from '#/components/app/toolbar';
-import { SAMPLE_NOTIFS } from '#/lib/data';
+import { useFeed } from '#/hooks/use-emit-signal';
 
 export const Route = createFileRoute('/app/')({ component: InboxPage });
 
 function InboxPage() {
+    const { loading, messages, subscriptions } = useFeed();
+    const [selectedId, setSelectedId] = useState<null | string>(null);
+
+    const channelCount = subscriptions.length;
+    const subtitle = loading
+        ? 'loading…'
+        : `${messages.length} messages · ${channelCount} channels active`;
+
+    const selected = messages.find((m) => m.id === selectedId) ?? null;
+
     return (
         <>
             <Toolbar
@@ -18,29 +31,66 @@ function InboxPage() {
                         <SubscribeButton />
                     </>
                 }
-                subtitle="7 unread · 3 channels active"
+                subtitle={subtitle}
                 title="Inbox"
             />
 
             <div className="flex min-h-0 flex-1">
-                <NotifList />
-                <InboxPreview />
+                <NotifList messages={messages} onSelect={setSelectedId} selectedId={selectedId} />
+                <InboxPreview message={selected} />
             </div>
         </>
     );
 }
 
-function NotifList() {
+function NotifList({
+    messages,
+    onSelect,
+    selectedId,
+}: {
+    messages: Message[];
+    onSelect: (id: string) => void;
+    selectedId: null | string;
+}) {
+    if (messages.length === 0) {
+        return (
+            <div className="flex w-[380px] shrink-0 items-center justify-center border-r border-line p-4 font-mono text-[12px] text-dim">
+                no messages yet — subscribe to a channel
+            </div>
+        );
+    }
+
+    const now = messages.slice(0, 2);
+    const earlier = messages.slice(2);
+
     return (
         <div className="w-[380px] shrink-0 overflow-auto border-r border-line">
-            <SectionLabel>NOW</SectionLabel>
-            {SAMPLE_NOTIFS.slice(0, 2).map((n, i) => (
-                <NotifRow active={i === 1} key={n.id} notif={n} />
-            ))}
-            <SectionLabel>EARLIER</SectionLabel>
-            {SAMPLE_NOTIFS.slice(2).map((n) => (
-                <NotifRow key={n.id} notif={n} />
-            ))}
+            {now.length > 0 && (
+                <>
+                    <SectionLabel>NOW</SectionLabel>
+                    {now.map((m) => (
+                        <NotifRow
+                            active={m.id === selectedId}
+                            key={m.id}
+                            message={m}
+                            onClick={() => onSelect(m.id)}
+                        />
+                    ))}
+                </>
+            )}
+            {earlier.length > 0 && (
+                <>
+                    <SectionLabel>EARLIER</SectionLabel>
+                    {earlier.map((m) => (
+                        <NotifRow
+                            active={m.id === selectedId}
+                            key={m.id}
+                            message={m}
+                            onClick={() => onSelect(m.id)}
+                        />
+                    ))}
+                </>
+            )}
         </div>
     );
 }

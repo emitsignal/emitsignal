@@ -1,14 +1,18 @@
-import type { SampleNotif } from '#/lib/data';
+import type { Message } from '#/lib/api';
 
 import { Dot } from '#/components/ui/dot';
 import { cn } from '#/lib/cn';
+import { relativeTime } from '#/lib/format';
 
 interface NotifRowProps {
     active?: boolean;
-    notif: SampleNotif;
+    message: Message;
+    onClick?: () => void;
 }
 
-export function NotifRow({ active = false, notif }: NotifRowProps) {
+export function NotifRow({ active = false, message, onClick }: NotifRowProps) {
+    const channel = message.topicName ?? message.topicId;
+
     return (
         <div
             className={cn(
@@ -17,15 +21,23 @@ export function NotifRow({ active = false, notif }: NotifRowProps) {
                     ? 'border-l-[3px] border-l-accent bg-elev'
                     : 'border-l-[3px] border-l-transparent',
             )}
+            onClick={onClick}
+            onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                    onClick?.();
+                }
+            }}
         >
-            <Dot level={notif.priority} />
+            <Dot level={message.priority} />
             <div className="min-w-0 flex-1">
                 <div className="mb-0.5 flex items-baseline gap-2">
-                    <span className="font-mono text-[10.5px] text-dim">{notif.channel}</span>
-                    <span className="ml-auto font-mono text-[10px] text-dim">{notif.time}</span>
+                    <span className="font-mono text-[10.5px] text-dim">{channel}</span>
+                    <span className="ml-auto font-mono text-[10px] text-dim">
+                        {relativeTime(message.createdAt)}
+                    </span>
                 </div>
-                <p className="mb-0.5 truncate text-[13px] font-semibold text-fg">{notif.title}</p>
-                <p className="truncate text-[12px] text-muted">{notif.body}</p>
+                <p className="mb-0.5 truncate text-[13px] font-semibold text-fg">{message.title}</p>
+                <p className="truncate text-[12px] text-muted">{message.body}</p>
             </div>
         </div>
     );
