@@ -108,18 +108,18 @@ export function HeroTerminal() {
                     <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
                 </span>
                 <span className="ml-3 font-mono text-[11.5px] text-dim">
-                    wsp listen — 8 channels · live
+                    emitsignal listen — 8 channels · live
                 </span>
                 <span className="ml-auto flex items-center gap-1.5 font-mono text-[10.5px] text-success">
                     <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
-                    ws · connected
+                    sse · connected
                 </span>
             </div>
 
             {/* prompt */}
             <div className="px-4.5 pb-1.5 pt-3.5 font-mono text-[12.5px]">
                 <span className="text-success">$</span>{' '}
-                <span className="text-fg">wsp listen --priority &gt;=2 --format pretty</span>
+                <span className="text-fg">emitsignal listen --priority &gt;=2 --format pretty</span>
             </div>
 
             {/* scrolling stream */}

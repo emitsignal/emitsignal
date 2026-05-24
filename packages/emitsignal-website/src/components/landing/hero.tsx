@@ -118,11 +118,11 @@ function TryItNowCurl() {
             <div className="text-fg">
                 <span className="text-success">$</span> <span className="text-dim">curl -d</span>{' '}
                 <span className="text-warn">"hi from the marketing site"</span>{' '}
-                <span className="text-accent">emitsignal.sh/me-tryout</span>
+                <span className="text-accent">emitsignal.com/me-tryout</span>
             </div>
             <p className="mt-1.5 text-[12.5px] text-accent">
                 ✓ delivered · open this URL on your phone to read it →{' '}
-                <span className="underline">emitsignal.sh/r/me-tryout</span>
+                <span className="underline">emitsignal.com/r/me-tryout</span>
             </p>
         </div>
     );

@@ -21,14 +21,14 @@ const CASES: UseCase[] = [
     },
     {
         channel: 'deploy/prod',
-        code: 'CI → wsp publish deploy/prod',
+        code: 'CI → emitsignal publish deploy/prod',
         color: 'text-accent',
         priority: 4,
         title: 'Deploys announced everywhere.',
     },
     {
         channel: 'cron/backup',
-        code: 'wsp run "pg_dump | gzip > /tmp"',
+        code: 'emitsignal run "pg_dump | gzip > /tmp"',
         color: 'text-warn',
         priority: 3,
         title: 'Cron jobs that tell you they’re alive.',
@@ -42,7 +42,7 @@ const CASES: UseCase[] = [
     },
     {
         channel: 'me/personal',
-        code: 'echo "$THING" | wsp publish me',
+        code: 'echo "$THING" | emitsignal publish me',
         color: 'text-info',
         priority: 2,
         title: 'A pager for your own life.',

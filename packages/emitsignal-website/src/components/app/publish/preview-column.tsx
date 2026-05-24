@@ -25,7 +25,7 @@ export function PreviewColumn() {
 
             <SubHead>EQUIVALENT · curl</SubHead>
             <Code language="BASH">
-                {`curl -X POST emitsignal.sh/deploy/prod \\
+                {`curl -X POST emitsignal.com/deploy/prod \\
   -H "Authorization: Bearer es_live_••••" \\
   -H "Priority: 4" \\
   -H "Tags: vercel,prod,release" \\

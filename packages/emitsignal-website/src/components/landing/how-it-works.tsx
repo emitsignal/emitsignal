@@ -11,14 +11,14 @@ interface Step {
 const STEPS: Step[] = [
     {
         code: `# from a shell
-$ echo "v2.14.3 shipped" | wsp publish deploy/prod -p4
+$ echo "v2.14.3 shipped" | emitsignal publish deploy/prod -p4
 
 # from CI (one line)
-$ curl emitsignal.sh/ci/web -d "build #4821 passed"
+$ curl emitsignal.com/ci/web -d "build #4821 passed"
 
 # from anywhere
 $ pg_dump prod | gzip > /tmp/bak.gz && \\
-    wsp publish cron/backup "$(date) ✓"`,
+    emitsignal publish cron/backup "$(date) ✓"`,
         n: '01',
         sub: 'Curl, the CLI, a webhook, GitHub Actions, a python script, or a one-line shell pipe. If it can hit an HTTP endpoint, it can publish.',
         title: 'Publish from anywhere.',
@@ -37,13 +37,13 @@ hour:between(0,7)     → batch · digest at 08:00`,
     },
     {
         code: `# read from your terminal
-$ wsp listen alerts/prod
+$ emitsignal listen alerts/prod
 
 # read in a TUI
-$ wsp tui
+$ emitsignal tui
 
 # read in a script
-$ wsp listen --format json | jq -r .title
+$ emitsignal listen --format json | jq -r .title
 
 # read on your phone, web, slack — automatic`,
         n: '03',

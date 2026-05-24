@@ -31,7 +31,7 @@ export function Surfaces() {
                 <SurfaceCard
                     desc="Listen, publish, tui."
                     icon={Terminal}
-                    label="CLI · wsp"
+                    label="CLI · emitsignal"
                     span={7}
                 >
                     <CLIPreview />

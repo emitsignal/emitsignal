@@ -106,7 +106,7 @@ export function Footer() {
                     <span>© 2026 EmitSignal Labs · made by humans, paged by computers</span>
                     <span className="ml-auto flex items-center gap-1.5">
                         <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
-                        all systems normal · status.emitsignal.sh
+                        all systems normal · status.emitsignal.com
                     </span>
                 </div>
             </div>

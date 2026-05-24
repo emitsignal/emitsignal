@@ -7,7 +7,7 @@ interface LogoProps {
     size?: number;
 }
 
-export function Logo({ className, label = 'emitsignal', pulse = false, size = 14 }: LogoProps) {
+export function Logo({ className, label = 'EmitSignal', pulse = false, size = 14 }: LogoProps) {
     return (
         <span
             className={cn('inline-flex items-center font-mono font-medium text-fg', className)}

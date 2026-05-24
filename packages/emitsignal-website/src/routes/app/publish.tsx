@@ -21,7 +21,7 @@ function ComposePage() {
                         </button>
                     </div>
                 }
-                subtitle="POST emitsignal.sh/:topic"
+                subtitle="POST emitsignal.com/:topic"
                 title="Publish a message"
             />
 

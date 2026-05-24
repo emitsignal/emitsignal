@@ -46,7 +46,7 @@ export function RoutingRail() {
             </div>
 
             <SubHead>WEBHOOK</SubHead>
-            <Code language="POST">https://emitsignal.sh/alerts/prod</Code>
+            <Code language="POST">https://emitsignal.com/alerts/prod</Code>
         </aside>
     );
 }
