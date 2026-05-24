@@ -136,9 +136,16 @@ export default function ChannelsScreen() {
                 ListEmptyComponent={
                     !loading ? (
                         <View style={styles.empty}>
-                            <Text style={styles.emptyTitle}>No channels yet</Text>
+                            <WDot level={2} size={10} />
+                            <Text style={styles.emptyTitle}>
+                                {query.trim()
+                                    ? `No results for "${query.trim()}"`
+                                    : 'No channels yet'}
+                            </Text>
                             <Text style={styles.emptyBody}>
-                                Tap the + button to subscribe to a topic.
+                                {query.trim()
+                                    ? 'Try a different search term.'
+                                    : 'Tap the + button to subscribe to a topic.'}
                             </Text>
                         </View>
                     ) : null
@@ -235,16 +242,21 @@ const styles = StyleSheet.create({
     empty: {
         alignItems: 'center',
         flex: 1,
+        gap: 10,
         justifyContent: 'center',
         padding: 40,
     },
     emptyBody: {
         color: W.fgMuted,
         fontSize: 13,
-        marginTop: 8,
         textAlign: 'center',
     },
-    emptyTitle: { color: W.fg, fontSize: 16, fontWeight: '600' },
+    emptyTitle: {
+        color: W.fg,
+        fontSize: 16,
+        fontWeight: '600',
+        marginTop: 6,
+    },
     fab: {
         alignItems: 'center',
         backgroundColor: W.violet,
