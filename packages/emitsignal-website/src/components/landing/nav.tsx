@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 
 import { Link } from '@tanstack/react-router';
 
+import { Avatar } from '#/components/ui/avatar';
 import { Logo } from '#/components/ui/logo';
+import { useSession } from '#/ctx/session';
 
 interface NavLink {
     href: string;
@@ -27,6 +29,8 @@ const LINKS: NavLink[] = [
 ];
 
 export function Nav() {
+    const { user } = useSession();
+
     return (
         <nav className="sticky top-0 z-10 flex items-center gap-7 border-b border-line bg-bg/85 px-8 py-3.5 font-mono text-[12.5px] backdrop-blur-md">
             <Link className="text-fg no-underline" to="/">
@@ -40,15 +44,29 @@ export function Nav() {
                 ))}
             </div>
             <div className="ml-auto flex items-center gap-3">
-                <Link className="text-muted no-underline hover:text-fg" to="/app">
-                    Sign in
-                </Link>
-                <Link
-                    className="rounded-md bg-accent px-3.5 py-1.5 font-semibold text-bg no-underline hover:bg-accent-dim"
-                    to="/app"
-                >
-                    Get started
-                </Link>
+                {user ? (
+                    <>
+                        <Link
+                            className="flex items-center gap-2 text-muted no-underline hover:text-fg"
+                            to="/app"
+                        >
+                            <Avatar name={user.email} rounded={100} size={22} />
+                            <span>Dashboard</span>
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link className="text-muted no-underline hover:text-fg" to="/sign-in">
+                            Sign in
+                        </Link>
+                        <Link
+                            className="rounded-md bg-accent px-3.5 py-1.5 font-semibold text-bg no-underline hover:bg-accent-dim"
+                            to="/sign-in"
+                        >
+                            Get started
+                        </Link>
+                    </>
+                )}
             </div>
         </nav>
     );

@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
@@ -16,6 +18,16 @@ import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppKeysRouteImport } from './routes/app/keys'
 import { Route as AppChannelsRouteImport } from './routes/app/channels'
 
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -50,6 +62,8 @@ const AppChannelsRoute = AppChannelsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
@@ -57,6 +71,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
+  '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
@@ -66,6 +82,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
@@ -76,16 +94,27 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/sign-in'
+    | '/verify'
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app/channels' | '/app/keys' | '/app/publish' | '/app'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/verify'
+    | '/app/channels'
+    | '/app/keys'
+    | '/app/publish'
+    | '/app'
   id:
     | '__root__'
     | '/'
     | '/app'
+    | '/sign-in'
+    | '/verify'
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
@@ -95,10 +124,26 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  SignInRoute: typeof SignInRoute
+  VerifyRoute: typeof VerifyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -163,6 +208,8 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  SignInRoute: SignInRoute,
+  VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,8 +1,22 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { Sidebar } from '#/components/app/sidebar';
+import { getSession } from '#/lib/storage';
 
-export const Route = createFileRoute('/app')({ component: WebShell });
+export const Route = createFileRoute('/app')({
+    beforeLoad: () => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const session = getSession();
+
+        if (!session) {
+            throw redirect({ to: '/sign-in' });
+        }
+    },
+    component: WebShell,
+});
 
 function WebShell() {
     return (
