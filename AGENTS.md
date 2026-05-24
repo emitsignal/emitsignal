@@ -146,6 +146,10 @@ See `.cursor/rules/use-bun-instead-of-node-vite-npm-pnpm.mdc`:
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) format: `<prefix>: <description>`.
 
+Avoid using `body` and `footer` in commits; prefer self-descriptive titles.
+
+Only add a `body` to a commit if the change made could have an impact, especially in refactorings that cause breaking changes.
+
 ### Prefixes
 
 | Prefix     | Use when                                                  |
