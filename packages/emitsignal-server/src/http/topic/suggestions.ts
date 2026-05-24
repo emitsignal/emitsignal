@@ -23,14 +23,7 @@ export const suggestions = new Elysia().get(
         const seen = new Set<string>();
         const result: { description: null | string; displayName: string; name: string }[] = [];
 
-        // 1. EmitSignal curated (1-2)
-        for (const curated of CURATED) {
-            if (result.length >= MAX_TOTAL) break;
-            result.push(curated);
-            seen.add(curated.name);
-        }
-
-        // 2. Collect device subscription names for exclusion
+        // 1. Collect device subscription names for exclusion
         let subscribedNames: string[] = [];
 
         if (query.deviceId) {
@@ -39,6 +32,14 @@ export const suggestions = new Elysia().get(
                 where: { deviceId: query.deviceId },
             });
             subscribedNames = deviceSubs.map((subscription) => subscription.topic.name);
+        }
+
+        // 2. EmitSignal curated (1-2) — skip if already subscribed
+        for (const curated of CURATED) {
+            if (result.length >= MAX_TOTAL) break;
+            if (subscribedNames.includes(curated.name)) continue;
+            result.push(curated);
+            seen.add(curated.name);
         }
 
         // 3. Trending (1-3) — exclude curated + device's own subscriptions
@@ -66,33 +67,6 @@ export const suggestions = new Elysia().get(
             });
 
             seen.add(topic.name);
-        }
-
-        // 4. Device subscriptions (1-3) — topics the user already follows
-        if (query.deviceId && result.length < MAX_TOTAL) {
-            const deviceSubs = await prisma.subscription.findMany({
-                include: { topic: true },
-                orderBy: { createdAt: 'desc' },
-                take: 3,
-                where: {
-                    deviceId: query.deviceId,
-                    topic: { name: { notIn: [...seen] } },
-                },
-            });
-
-            for (const subscription of deviceSubs) {
-                if (result.length >= MAX_TOTAL) {
-                    break;
-                }
-
-                result.push({
-                    description: subscription.topic.description,
-                    displayName: subscription.topic.displayName,
-                    name: subscription.topic.name,
-                });
-
-                seen.add(subscription.topic.name);
-            }
         }
 
         return result;

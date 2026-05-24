@@ -78,20 +78,26 @@ export default function SubscribeModal() {
                             </Text>
                         </View>
 
-                        <View style={styles.section}>
-                            <Text style={styles.sectionLabel}>SUGGESTED</Text>
-                            {suggestions?.map((suggestion) => (
-                                <Pressable
-                                    key={suggestion.name}
-                                    onPress={() => setTopic(suggestion.name)}
-                                    style={styles.suggestedRow}
-                                >
-                                    <WTopicAvatar name={suggestion.name} rounded={6} size={24} />
-                                    <Text style={styles.suggestedText}>{suggestion.name}</Text>
-                                    <IconSymbol color={W.fgDim} name="plus" size={13} />
-                                </Pressable>
-                            ))}
-                        </View>
+                        {suggestions && suggestions.length > 0 ? (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionLabel}>SUGGESTED</Text>
+                                {suggestions.map((suggestion) => (
+                                    <Pressable
+                                        key={suggestion.name}
+                                        onPress={() => setTopic(suggestion.name)}
+                                        style={styles.suggestedRow}
+                                    >
+                                        <WTopicAvatar
+                                            name={suggestion.name}
+                                            rounded={6}
+                                            size={24}
+                                        />
+                                        <Text style={styles.suggestedText}>{suggestion.name}</Text>
+                                        <IconSymbol color={W.fgDim} name="plus" size={13} />
+                                    </Pressable>
+                                ))}
+                            </View>
+                        ) : null}
 
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>PUBLISH FROM</Text>

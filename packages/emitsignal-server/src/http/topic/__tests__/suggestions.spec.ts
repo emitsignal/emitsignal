@@ -77,56 +77,57 @@ describe('GET /suggestions', () => {
         expect(trendingCall[0].where.name.notIn).toContain('my-topic');
     });
 
-    it('fills remaining slots with device subscriptions', async () => {
+    it('excludes curated topics the device is already subscribed to', async () => {
+        prismaMock.subscription.findMany.mockResolvedValueOnce([
+            { topic: { name: 'emitsignal/news' } },
+        ]);
+
+        prismaMock.topic.findMany.mockResolvedValueOnce([makeTrendingTopic('ta', 'trend-a', 10)]);
+
+        const res = await app.handle(new Request('http://localhost/suggestions?deviceId=dev-1'));
+
+        expect(res.status).toBe(200);
+
+        const data = await res.json();
+
+        expect(data).toHaveLength(2);
+        expect(data[0]).toMatchObject({ name: 'emitsignal/discover' });
+        expect(data[1]).toMatchObject({ name: 'trend-a' });
+    });
+
+    it('does not pad with device subscriptions when trending is scarce', async () => {
         prismaMock.subscription.findMany.mockResolvedValueOnce([]);
 
         prismaMock.topic.findMany.mockResolvedValueOnce([
             makeTrendingTopic('t-solo', 'solo-trend', 10),
         ]);
 
-        prismaMock.subscription.findMany.mockResolvedValueOnce([
-            { topic: makeDeviceSub('sub1', 'my-sub-1') },
-            { topic: makeDeviceSub('sub2', 'my-sub-2') },
-            { topic: makeDeviceSub('sub3', 'my-sub-3') },
-        ]);
-
         const res = await app.handle(new Request('http://localhost/suggestions?deviceId=dev-1'));
 
         expect(res.status).toBe(200);
 
         const data = await res.json();
 
-        expect(data).toHaveLength(5);
+        expect(data).toHaveLength(3);
         expect(data[0]).toMatchObject({ name: 'emitsignal/news' });
         expect(data[1]).toMatchObject({ name: 'emitsignal/discover' });
         expect(data[2]).toMatchObject({ name: 'solo-trend' });
-        expect(data[3]).toMatchObject({ name: 'my-sub-1' });
-        expect(data[4]).toMatchObject({ name: 'my-sub-2' });
     });
 
-    it('fills remaining slots from device subscriptions when no trending available', async () => {
+    it('returns fewer than MAX_TOTAL when not enough candidates exist', async () => {
         prismaMock.subscription.findMany.mockResolvedValueOnce([{ topic: { name: 'only-topic' } }]);
 
         prismaMock.topic.findMany.mockResolvedValueOnce([]);
 
-        prismaMock.subscription.findMany.mockResolvedValueOnce([
-            { topic: makeDeviceSub('d1', 'device-1') },
-            { topic: makeDeviceSub('d2', 'device-2') },
-            { topic: makeDeviceSub('d3', 'device-3') },
-        ]);
-
         const res = await app.handle(new Request('http://localhost/suggestions?deviceId=dev-1'));
 
         expect(res.status).toBe(200);
 
         const data = await res.json();
 
-        expect(data).toHaveLength(5);
+        expect(data).toHaveLength(2);
         expect(data[0]).toMatchObject({ name: 'emitsignal/news' });
         expect(data[1]).toMatchObject({ name: 'emitsignal/discover' });
-        expect(data[2]).toMatchObject({ name: 'device-1' });
-        expect(data[3]).toMatchObject({ name: 'device-2' });
-        expect(data[4]).toMatchObject({ name: 'device-3' });
     });
 
     it('caps at 5 suggestions when more candidates are available', async () => {
