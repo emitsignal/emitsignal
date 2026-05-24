@@ -1,4 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
+
+@theme {
+    /* Backgrounds */
+    --color-bg: #0f0a1a;
+    --color-elev: #1a1625;
+    --color-elev-2: #231c33;
+    --color-line: #2a2340;
+    --color-chip: #1f1930;
+    --color-deep: #06030f;
+
+    /* Text */
+    --color-fg: #f5f0ff;
+    --color-muted: #b8a9d9;
+    --color-dim: #7a6d99;
+    --color-faint: #4a4166;
+
+    /* Accent (violet) */
+    --color-accent: #a78bfa;
+    --color-accent-dim: #7c3aed;
+    --color-accent-deep: #5b21b6;
+
+    /* Semantic */
+    --color-success: #4ade80;
+    --color-warn: #fbbf24;
+    --color-danger: #f87171;
+    --color-info: #67e8f9;
+    --color-pink: #f0abfc;
+
+    /* Priority 1–5 */
+    --color-p1: #818cf8;
+    --color-p2: #a78bfa;
+    --color-p3: #c4b5fd;
+    --color-p4: #fbbf24;
+    --color-p5: #f87171;
+
+    /* Fonts */
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+
+@keyframes signal-pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.55;
+        transform: scale(0.85);
+    }
+}
+
+@keyframes signal-caret {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes signal-stream {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-50%);
+    }
+}
 
 * {
     box-sizing: border-box;
@@ -12,4 +79,24 @@ body,
 
 body {
     margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-elev-2);
 }

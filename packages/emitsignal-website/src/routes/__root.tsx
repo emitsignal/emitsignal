@@ -6,22 +6,15 @@ import appCss from '../styles.css?url';
 
 export const Route = createRootRoute({
     head: () => ({
-        links: [
-            {
-                href: appCss,
-                rel: 'stylesheet',
-            },
-        ],
+        links: [{ href: appCss, rel: 'stylesheet' }],
         meta: [
+            { charSet: 'utf-8' },
+            { content: 'width=device-width, initial-scale=1', name: 'viewport' },
+            { title: 'EmitSignal — push notifications with one curl' },
             {
-                charSet: 'utf-8',
-            },
-            {
-                content: 'width=device-width, initial-scale=1',
-                name: 'viewport',
-            },
-            {
-                title: 'TanStack Start Starter',
+                content:
+                    'A pubsub layer for humans. Pipe anything into a topic from your shell, CI, cron, or a webhook — get it on your phone, terminal, slack, or email.',
+                name: 'description',
             },
         ],
     }),
@@ -37,9 +30,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <body>
                 {children}
                 <TanStackDevtools
-                    config={{
-                        position: 'bottom-right',
-                    }}
+                    config={{ position: 'bottom-right' }}
                     plugins={[
                         {
                             name: 'Tanstack Router',
