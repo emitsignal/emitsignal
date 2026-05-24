@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     FlatList,
     Pressable,
@@ -16,32 +16,58 @@ import type { Message, Subscription } from '@/lib/api';
 import { WChip, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useFeed } from '@/hooks/use-emit-signal';
+import { addReadId, getReadIds } from '@/storage/read-messages';
 
-const FILTERS = ['all', 'p4+', 'unread', 'deploy', 'alerts', 'ci'] as const;
-type Filter = (typeof FILTERS)[number];
+const FIXED_FILTERS = ['all', 'p4+', 'unread'] as const;
 
 export default function FeedScreen() {
     const { error, loading, messages, refresh, subscriptions } = useFeed();
-    const [filter, setFilter] = useState<Filter>('all');
+    const [filter, setFilter] = useState<string>('all');
+    const [readIds, setReadIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        getReadIds().then(setReadIds);
+    }, []);
 
     const subscriptionMap = useMemo(() => {
-        const m = new Map<string, Subscription>();
-        for (const s of subscriptions) m.set(s.topic.id, s);
-        return m;
+        const map = new Map<string, Subscription>();
+
+        for (const subscription of subscriptions) {
+            map.set(subscription.topic.id, subscription);
+        }
+
+        return map;
     }, [subscriptions]);
+
+    const tagFilters = useMemo(() => {
+        const tags = new Set<string>();
+
+        for (const message of messages) {
+            for (const tag of message.tags) {
+                tags.add(tag);
+            }
+        }
+
+        return [...tags].sort();
+    }, [messages]);
+
+    const allFilters = useMemo(() => [...FIXED_FILTERS, ...tagFilters], [tagFilters]);
 
     const filtered = useMemo(() => {
         if (filter === 'all') {
             return messages;
         }
+
         if (filter === 'p4+') {
             return messages.filter((message) => message.priority >= 4);
         }
-        return messages.filter((message) => {
-            const subscription = subscriptionMap.get(message.topicId);
-            return subscription?.topic.name.includes(filter);
-        });
-    }, [filter, messages, subscriptionMap]);
+
+        if (filter === 'unread') {
+            return messages.filter((message) => !readIds.has(message.id));
+        }
+
+        return messages.filter((message) => message.tags.includes(filter));
+    }, [filter, messages, readIds]);
 
     const now = filtered.slice(0, 2);
     const earlier = filtered.slice(2);
@@ -67,7 +93,7 @@ export default function FeedScreen() {
                 showsHorizontalScrollIndicator={false}
                 style={styles.filterScroll}
             >
-                {FILTERS.map((filterItem) => (
+                {allFilters.map((filterItem) => (
                     <Pressable
                         key={filterItem}
                         onPress={() => setFilter(filterItem)}
@@ -99,7 +125,9 @@ export default function FeedScreen() {
                 keyExtractor={(item, i) =>
                     item.kind === 'label' ? `${item.text}-${i}` : item.message.id
                 }
-                ListEmptyComponent={!loading ? <EmptyFeed message={error?.message} /> : null}
+                ListEmptyComponent={
+                    !loading ? <EmptyFeed filter={filter} message={error?.message} /> : null
+                }
                 refreshControl={
                     <RefreshControl
                         colors={[W.violet]}
@@ -114,7 +142,14 @@ export default function FeedScreen() {
                     ) : (
                         <NotifRow
                             message={item.message}
-                            onPress={() => router.push(`/messages/${item.message.id}`)}
+                            onPress={() => {
+                                const id = item.message.id;
+
+                                setReadIds((prev) => new Set(prev).add(id));
+
+                                addReadId(id);
+                                router.push(`/messages/${item.message.id}`);
+                            }}
                             topicName={
                                 subscriptionMap.get(item.message.topicId)?.topic.name ?? 'unknown'
                             }
@@ -126,15 +161,24 @@ export default function FeedScreen() {
     );
 }
 
-function EmptyFeed({ message }: { message?: string }) {
+function EmptyFeed({ filter, message }: { filter: string; message?: string }) {
     return (
         <View style={styles.empty}>
             <WDot level={2} size={10} />
             <Text style={styles.emptyTitle}>
-                {message ? 'Could not load feed' : 'No messages yet'}
+                {message
+                    ? 'Could not load feed'
+                    : filter !== 'all'
+                      ? `No ${filter} messages`
+                      : 'No messages yet'}
             </Text>
+
             <Text style={styles.emptyBody}>
-                {message ?? 'Subscribe to a channel to start receiving notifications.'}
+                {message
+                    ? message
+                    : filter !== 'all'
+                      ? 'Try a different filter'
+                      : 'Subscribe to a channel to start receiving notifications.'}
             </Text>
         </View>
     );
@@ -160,16 +204,20 @@ function NotifRow({
                     },
                 ]}
             />
+
             <WTopicAvatar name={topicName} size={34} />
+
             <View style={{ flex: 1, minWidth: 0 }}>
                 <View style={styles.rowMeta}>
                     <Text style={styles.rowChannel}>{topicName}</Text>
                     <Text style={styles.rowTime}>{relativeTime(message.createdAt)}</Text>
                 </View>
+
                 <Text style={styles.rowTitle}>{message.title}</Text>
                 <Text numberOfLines={2} style={styles.rowBody}>
                     {message.body}
                 </Text>
+
                 {message.tags.length > 0 ? (
                     <View style={styles.tagRow}>
                         {message.tags.slice(0, 3).map((tag) => (
