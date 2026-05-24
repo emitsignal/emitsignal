@@ -56,6 +56,12 @@ export interface Topic {
     name: string;
 }
 
+export interface TopicSuggestion {
+    description: null | string;
+    displayName: string;
+    name: string;
+}
+
 export interface TopicWithCounts extends Topic {
     messageCount: number;
     subscriberCount: number;
@@ -101,6 +107,12 @@ export const api = {
 
     getMessage(id: string) {
         return request<Message>(`/messages/${encodeURIComponent(id)}`);
+    },
+
+    getSuggestions(deviceId?: string) {
+        const query = deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : '';
+
+        return request<TopicSuggestion[]>(`/suggestions${query}`);
     },
 
     getTopic(name: string) {

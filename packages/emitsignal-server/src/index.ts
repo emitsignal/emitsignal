@@ -21,6 +21,7 @@ import { listen } from './http/topic/listen';
 import { listenMulti } from './http/topic/listen-multi';
 import { messages } from './http/topic/messages';
 import { publish } from './http/topic/publish';
+import { suggestions } from './http/topic/suggestions';
 import { Email } from './lib/email';
 import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
@@ -60,6 +61,7 @@ const app = new Elysia()
     .use(publish)
     .use(registerPushToken)
     .use(subscribe)
+    .use(suggestions)
     .use(unsubscribe)
     .use(updatePushToken)
     .use(verify);

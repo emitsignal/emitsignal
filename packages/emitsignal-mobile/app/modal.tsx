@@ -16,20 +16,14 @@ import { WCode, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
+import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 import { api } from '@/lib/api';
-
-const SUGGESTED = [
-    'deploy/staging',
-    'k8s/cluster-a',
-    'stripe/charges',
-    'github/issues',
-    'monitoring/uptime',
-];
 
 export default function SubscribeModal() {
     const { deviceId } = useDevice();
     const [topic, setTopic] = useState('alerts/prod');
     const [busy, setBusy] = useState(false);
+    const { data: suggestions } = useTopicSuggestions(deviceId);
 
     const handleSubscribe = async () => {
         if (!deviceId || !topic.trim()) {
@@ -86,14 +80,14 @@ export default function SubscribeModal() {
 
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>SUGGESTED</Text>
-                            {SUGGESTED.map((suggestion) => (
+                            {suggestions?.map((suggestion) => (
                                 <Pressable
-                                    key={suggestion}
-                                    onPress={() => setTopic(suggestion)}
+                                    key={suggestion.name}
+                                    onPress={() => setTopic(suggestion.name)}
                                     style={styles.suggestedRow}
                                 >
-                                    <WTopicAvatar name={suggestion} rounded={6} size={24} />
-                                    <Text style={styles.suggestedText}>{suggestion}</Text>
+                                    <WTopicAvatar name={suggestion.name} rounded={6} size={24} />
+                                    <Text style={styles.suggestedText}>{suggestion.name}</Text>
                                     <IconSymbol color={W.fgDim} name="plus" size={13} />
                                 </Pressable>
                             ))}

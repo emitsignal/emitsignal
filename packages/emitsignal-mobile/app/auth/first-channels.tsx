@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,23 +8,31 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 import { api } from '@/lib/api';
-
-const SUGGESTED = [
-    { desc: 'Production deploys', name: 'deploy/prod' },
-    { desc: 'Server alerts & pages', name: 'alerts/prod' },
-    { desc: 'Frontend CI builds', name: 'ci/web' },
-    { desc: 'Errors & exceptions', name: 'errors/web' },
-];
 
 export default function AuthFirstChannels() {
     const { deviceId } = useDevice();
     const { markOnboardingComplete } = useOnboarding();
-    const [picked, setPicked] = useState<Record<string, boolean>>({
-        'alerts/prod': true,
-        'deploy/prod': true,
-    });
+    const { data: suggestions } = useTopicSuggestions(deviceId);
+    const [picked, setPicked] = useState<Record<string, boolean>>({});
     const [busy, setBusy] = useState(false);
+
+    useEffect(() => {
+        if (!suggestions) {
+            return;
+        }
+
+        const initial: Record<string, boolean> = {};
+
+        for (const suggestion of suggestions) {
+            if (suggestion.name.startsWith('emitsignal/')) {
+                initial[suggestion.name] = true;
+            }
+        }
+
+        setPicked(initial);
+    }, [suggestions]);
 
     const toggle = (name: string) => setPicked((p) => ({ ...p, [name]: !p[name] }));
 
@@ -65,7 +73,7 @@ export default function AuthFirstChannels() {
                 </Text>
 
                 <ScrollView style={{ flex: 1 }}>
-                    {SUGGESTED.map((suggestion) => {
+                    {suggestions?.map((suggestion) => {
                         const on = !!picked[suggestion.name];
                         return (
                             <Pressable
@@ -76,8 +84,11 @@ export default function AuthFirstChannels() {
                                 <WTopicAvatar name={suggestion.name} rounded={8} size={34} />
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.rowName}>{suggestion.name}</Text>
-                                    <Text style={styles.rowDesc}>{suggestion.desc}</Text>
+                                    <Text style={styles.rowDesc}>
+                                        {suggestion.description ?? ''}
+                                    </Text>
                                 </View>
+
                                 <View style={[styles.checkbox, on && styles.checkboxOn]}>
                                     {on ? (
                                         <IconSymbol
