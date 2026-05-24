@@ -2,12 +2,11 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { Message } from '@/lib/api';
-
-import { WChip, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { WChip, WCode, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useTopicMessages } from '@/hooks/use-emit-signal';
+import { api, type Message } from '@/lib/api';
 
 export default function TopicScreen() {
     const params = useLocalSearchParams<{ topic: string | string[] }>();
@@ -132,6 +131,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         textAlign: 'center',
     },
+    emptyExample: { marginTop: 20, width: '100%' },
     emptyTitle: { color: W.fg, fontSize: 16, fontWeight: '600' },
     metaRow: { flexDirection: 'row', marginBottom: 4 },
     mono: { fontFamily: Fonts.mono },
