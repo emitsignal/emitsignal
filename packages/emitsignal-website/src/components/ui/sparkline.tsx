@@ -15,7 +15,7 @@ export function Sparkline({
     const max = Math.max(...data, 1);
     const step = width / (data.length - 1);
     const points = data
-        .map((v, i) => `${i * step},${height - (v / max) * (height - 4) - 2}`)
+        .map((value, index) => `${index * step},${height - (value / max) * (height - 4) - 2}`)
         .join(' ');
     const lastY = height - (data[data.length - 1] / max) * (height - 4) - 2;
     return (

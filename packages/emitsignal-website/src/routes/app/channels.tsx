@@ -24,8 +24,12 @@ function ChannelView() {
 
     const selectedTopic = topic || subscriptions[0]?.topic.name || '';
 
-    const subscription = subscriptions.find((s) => s.topic.name === selectedTopic);
-    const subs = subscriptions.filter((s) => s.topic.name === selectedTopic);
+    const subscription = subscriptions.find(
+        (subscription) => subscription.topic.name === selectedTopic,
+    );
+    const matchingSubscriptions = subscriptions.filter(
+        (subscription) => subscription.topic.name === selectedTopic,
+    );
 
     return (
         <>
@@ -40,7 +44,7 @@ function ChannelView() {
                         </button>
                     ) : null
                 }
-                subtitle={`${messages.length} messages · ${subs.length} subscriber${subs.length !== 1 ? 's' : ''}`}
+                subtitle={`${messages.length} messages · ${matchingSubscriptions.length} subscriber${matchingSubscriptions.length !== 1 ? 's' : ''}`}
                 title={
                     <span className="flex items-center gap-2.5">
                         <span className="font-normal text-dim">Channels /</span>
@@ -51,19 +55,22 @@ function ChannelView() {
             />
 
             <div className="flex flex-wrap gap-4 border-b border-line px-5 py-3">
-                {subscriptions.map((s) => (
+                {subscriptions.map((subscription) => (
                     <button
                         className={`rounded-full px-3 py-1 font-mono text-[11.5px] ${
-                            s.topic.name === selectedTopic
+                            subscription.topic.name === selectedTopic
                                 ? 'bg-accent/10 text-accent'
                                 : 'text-muted hover:bg-elev'
                         }`}
-                        key={s.id}
+                        key={subscription.id}
                         onClick={() =>
-                            navigate({ search: { topic: s.topic.name }, to: '/app/channels' })
+                            navigate({
+                                search: { topic: subscription.topic.name },
+                                to: '/app/channels',
+                            })
                         }
                     >
-                        {s.topic.name}
+                        {subscription.topic.name}
                     </button>
                 ))}
             </div>

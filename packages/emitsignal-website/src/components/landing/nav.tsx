@@ -36,9 +36,13 @@ export function Nav() {
                 <Logo pulse />
             </Link>
             <div className="ml-4 flex gap-[22px]">
-                {LINKS.map((l, i) => (
-                    <a className="text-muted no-underline hover:text-fg" href={l.href} key={i}>
-                        {l.label}
+                {LINKS.map((link, index) => (
+                    <a
+                        className="text-muted no-underline hover:text-fg"
+                        href={link.href}
+                        key={index}
+                    >
+                        {link.label}
                     </a>
                 ))}
             </div>

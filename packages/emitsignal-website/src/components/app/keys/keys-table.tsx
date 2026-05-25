@@ -62,8 +62,8 @@ export function KeysTable() {
                 <span>REQUESTS · 7D</span>
                 <span />
             </div>
-            {KEYS.map((key, i) => (
-                <KeyRow apiKey={key} key={i} last={i === KEYS.length - 1} />
+            {KEYS.map((apiKey, index) => (
+                <KeyRow apiKey={apiKey} key={index} last={index === KEYS.length - 1} />
             ))}
         </div>
     );

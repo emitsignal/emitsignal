@@ -82,14 +82,14 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
         headers['Authorization'] = `Bearer ${authToken}`;
     }
 
-    const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+    const response = await fetch(`${API_URL}${path}`, { ...init, headers });
 
-    if (!res.ok) {
-        const text = await res.text().catch(() => res.statusText);
-        throw new Error(`${res.status} ${text}`);
+    if (!response.ok) {
+        const text = await response.text().catch(() => response.statusText);
+        throw new Error(`${response.status} ${text}`);
     }
 
-    return res.json() as Promise<T>;
+    return response.json() as Promise<T>;
 }
 
 export const api = {
@@ -133,8 +133,8 @@ export const api = {
     },
 
     listTopics(query?: string) {
-        const q = query ? `?q=${encodeURIComponent(query)}` : '';
-        return request<Topic[]>(`/topics${q}`);
+        const queryString = query ? `?q=${encodeURIComponent(query)}` : '';
+        return request<Topic[]>(`/topics${queryString}`);
     },
 
     me() {
@@ -211,11 +211,11 @@ export const api = {
 };
 
 export function sseMultiUrl(topics: string[]): string {
-    const param = topics.map((topic) => encodeURIComponent(topic)).join(',');
-    return `${API_URL}/listen${param ? `?topics=${param}` : ''}`;
+    const encodedTopics = topics.map((topic) => encodeURIComponent(topic)).join(',');
+    return `${API_URL}/listen${encodedTopics ? `?topics=${encodedTopics}` : ''}`;
 }
 
 export function sseUrl(topicName: string, since?: number): string {
-    const sinceParam = since ? `?since=${since}` : '';
-    return `${API_URL}/topics/${encodeURIComponent(topicName)}/listen${sinceParam}`;
+    const sinceParameter = since ? `?since=${since}` : '';
+    return `${API_URL}/topics/${encodeURIComponent(topicName)}/listen${sinceParameter}`;
 }

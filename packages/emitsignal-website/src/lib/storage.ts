@@ -23,11 +23,11 @@ export function getDeviceId(): string {
         return existing;
     }
 
-    const id = crypto.randomUUID();
+    const deviceId = crypto.randomUUID();
 
-    localStorage.setItem(DEVICE_ID_KEY, id);
+    localStorage.setItem(DEVICE_ID_KEY, deviceId);
 
-    return id;
+    return deviceId;
 }
 
 export function getSession(): null | StoredSession {

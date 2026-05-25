@@ -8,7 +8,7 @@ interface BaseProps {
     children: ReactNode;
     className?: string;
     icon?: ReactNode;
-    mono?: boolean;
+    monospace?: boolean;
     variant?: Variant;
 }
 
@@ -35,13 +35,17 @@ const VARIANT_CLASS: Record<Variant, string> = {
 
 export function Button({
     children,
-    className,
     icon,
-    mono = true,
+    monospace = true,
     variant = 'secondary',
     ...props
 }: ButtonProps) {
-    const cls = cn(BASE_CLASS, VARIANT_CLASS[variant], mono ? 'font-mono' : 'font-sans', className);
+    const className = cn(
+        BASE_CLASS,
+        VARIANT_CLASS[variant],
+        monospace ? 'font-mono' : 'font-sans',
+        props.className,
+    );
     const inner = (
         <>
             {children}
@@ -50,13 +54,13 @@ export function Button({
     );
     if ('to' in props && props.to) {
         return (
-            <Link className={cls} to={props.to as never}>
+            <Link className={className} to={props.to as never}>
                 {inner}
             </Link>
         );
     }
     return (
-        <a className={cls} href={props.href ?? '#'}>
+        <a className={className} href={props.href ?? '#'}>
             {inner}
         </a>
     );

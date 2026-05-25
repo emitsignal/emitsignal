@@ -6,7 +6,9 @@ const MAX = 100;
 export function MetricChart() {
     const toX = (i: number) => (i / (POINTS.length - 1)) * WIDTH;
     const toY = (v: number) => HEIGHT - (v / MAX) * HEIGHT;
-    const path = POINTS.map((p, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${toY(p)}`).join(' ');
+    const path = POINTS.map(
+        (point, index) => `${index === 0 ? 'M' : 'L'}${toX(index)},${toY(point)}`,
+    ).join(' ');
     const area = `${path} L${WIDTH},${HEIGHT} L0,${HEIGHT} Z`;
 
     return (

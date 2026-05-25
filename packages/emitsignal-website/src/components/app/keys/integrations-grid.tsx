@@ -33,8 +33,8 @@ const INTEGRATIONS: Integration[] = [
 export function IntegrationsGrid() {
     return (
         <div className="grid grid-cols-3 gap-3">
-            {INTEGRATIONS.map((it) => (
-                <IntegrationCard integration={it} key={it.name} />
+            {INTEGRATIONS.map((integration) => (
+                <IntegrationCard integration={integration} key={integration.name} />
             ))}
         </div>
     );

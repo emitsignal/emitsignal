@@ -7,7 +7,7 @@ interface AvatarProps {
 
 export function Avatar({ monogram, name, rounded = 8, size = 36 }: AvatarProps) {
     const hue = hashHue(name);
-    const m =
+    const computedMonogram =
         monogram ??
         name
             .replace(/[^a-z0-9]/gi, '')
@@ -26,13 +26,17 @@ export function Avatar({ monogram, name, rounded = 8, size = 36 }: AvatarProps) 
                 width: size,
             }}
         >
-            {m}
+            {computedMonogram}
         </div>
     );
 }
 
 function hashHue(name: string): number {
-    let h = 0;
-    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xfffff;
-    return h % 360;
+    let hash = 0;
+
+    for (let index = 0; index < name.length; index++) {
+        hash = (hash * 31 + name.charCodeAt(index)) & 0xfffff;
+    }
+
+    return hash % 360;
 }

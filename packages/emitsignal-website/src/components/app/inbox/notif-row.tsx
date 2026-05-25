@@ -4,13 +4,13 @@ import { Dot } from '#/components/ui/dot';
 import { cn } from '#/lib/cn';
 import { relativeTime } from '#/lib/format';
 
-interface NotifRowProps {
+interface NotificationRowProps {
     active?: boolean;
     message: Message;
     onClick?: () => void;
 }
 
-export function NotifRow({ active = false, message, onClick }: NotifRowProps) {
+export function NotificationRow({ active = false, message, onClick }: NotificationRowProps) {
     const channel = message.topicName ?? message.topicId;
 
     return (

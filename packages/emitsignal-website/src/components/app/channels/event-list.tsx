@@ -45,12 +45,12 @@ function EventRow({ event }: { event: Message }) {
 
                 <p className="m-0 mb-1.5 text-[12.5px] text-muted">{event.body}</p>
                 <div className="flex gap-1.5">
-                    {event.tags.map((t) => (
+                    {event.tags.map((tag) => (
                         <span
                             className="rounded border border-line bg-chip px-1.5 py-0.5 font-mono text-[10px] text-muted"
-                            key={t}
+                            key={tag}
                         >
-                            {t}
+                            {tag}
                         </span>
                     ))}
                 </div>

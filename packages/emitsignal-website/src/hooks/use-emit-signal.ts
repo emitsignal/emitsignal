@@ -55,7 +55,7 @@ export function useFeed() {
         refresh();
     }, [refresh]);
 
-    const topicNames = state.subscriptions.map((s) => s.topic.name);
+    const topicNames = state.subscriptions.map((subscription) => subscription.topic.name);
     const sseTarget = topicNames.length ? sseMultiUrl(topicNames) : null;
 
     useSSE({
@@ -64,7 +64,7 @@ export function useFeed() {
             const incoming = data as { topicName?: string } & Message;
 
             setState((prev) => {
-                if (prev.messages.some((m) => m.id === incoming.id)) return prev;
+                if (prev.messages.some((message) => message.id === incoming.id)) return prev;
                 return {
                     ...prev,
                     messages: [incoming, ...prev.messages].slice(0, 200),
@@ -88,9 +88,9 @@ export function useTopicMessages(topicName: null | string) {
 
         setLoading(true);
         api.listMessages(topicName)
-            .then((msgs) => {
+            .then((fetchedMessages) => {
                 if (!cancelled) {
-                    setMessages(msgs);
+                    setMessages(fetchedMessages);
                     setLoading(false);
                 }
             })
@@ -108,7 +108,7 @@ export function useTopicMessages(topicName: null | string) {
             if (event !== 'message') return;
             const incoming = data as Message;
             setMessages((prev) => {
-                if (prev.some((m) => m.id === incoming.id)) return prev;
+                if (prev.some((message) => message.id === incoming.id)) return prev;
                 return [incoming, ...prev];
             });
         },

@@ -2,12 +2,12 @@ import type { ReactNode } from 'react';
 
 import { cn } from '#/lib/cn';
 
-interface SubHeadProps {
+interface SubHeadingProps {
     children: ReactNode;
     className?: string;
 }
 
-export function SubHead({ children, className }: SubHeadProps) {
+export function SubHeading({ children, className }: SubHeadingProps) {
     return (
         <div
             className={cn(

@@ -1,4 +1,4 @@
-import { SubHead } from '#/components/ui/sub-head';
+import { SubHeading } from '#/components/ui/sub-head';
 import { cn } from '#/lib/cn';
 
 interface DeliveryOption {
@@ -21,7 +21,7 @@ const SELECTED_PRIORITY = 4;
 export function ComposeForm() {
     return (
         <div className="min-w-0 flex-1 overflow-auto border-r border-line p-7">
-            <SubHead>topic</SubHead>
+            <SubHeading>topic</SubHeading>
             <div className="mb-5.5 flex items-center rounded-lg border border-accent/40 bg-elev px-3.5 py-2.5">
                 <span className="font-mono text-[13px] text-dim">emitsignal.com/</span>
                 <span className="font-mono text-[13px] font-medium text-fg">deploy/prod</span>
@@ -30,12 +30,12 @@ export function ComposeForm() {
                 </span>
             </div>
 
-            <SubHead>title</SubHead>
+            <SubHeading>title</SubHeading>
             <div className="mb-4 rounded-lg border border-line bg-elev px-3.5 py-3 text-[15px] font-semibold">
                 Deploy succeeded · api-gateway v2.14.3
             </div>
 
-            <SubHead>body · markdown</SubHead>
+            <SubHeading>body · markdown</SubHeading>
             <div className="mb-5.5 min-h-[70px] rounded-lg border border-line bg-elev px-3.5 py-3 text-[13px] leading-[1.5] text-muted">
                 Rolled out <strong className="text-fg">api-gateway v2.14.3</strong> to prod in 1m
                 42s.
@@ -45,23 +45,27 @@ export function ComposeForm() {
 
             <div className="mb-5.5 grid grid-cols-[1fr_1.4fr] gap-5">
                 <div>
-                    <SubHead>priority</SubHead>
+                    <SubHeading>priority</SubHeading>
                     <div className="flex gap-1.5">
-                        {[1, 2, 3, 4, 5].map((p) => (
-                            <PriorityChip key={p} selected={p === SELECTED_PRIORITY} value={p} />
+                        {[1, 2, 3, 4, 5].map((priority) => (
+                            <PriorityChip
+                                key={priority}
+                                selected={priority === SELECTED_PRIORITY}
+                                value={priority}
+                            />
                         ))}
                     </div>
                 </div>
                 <div>
-                    <SubHead>tags</SubHead>
+                    <SubHeading>tags</SubHeading>
                     <TagInput />
                 </div>
             </div>
 
-            <SubHead>delivery</SubHead>
+            <SubHeading>delivery</SubHeading>
             <div className="flex flex-wrap gap-2">
-                {DELIVERY.map((d, i) => (
-                    <DeliveryChip key={i} option={d} />
+                {DELIVERY.map((delivery, index) => (
+                    <DeliveryChip key={index} option={delivery} />
                 ))}
             </div>
         </div>
@@ -107,12 +111,12 @@ function PriorityChip({ selected, value }: { selected: boolean; value: number })
 function TagInput() {
     return (
         <div className="flex h-[38px] items-center gap-1.5 rounded-lg border border-line bg-elev px-2 py-1.5">
-            {TAGS.map((t) => (
+            {TAGS.map((tag) => (
                 <span
                     className="rounded border border-line bg-chip px-2 py-0.5 font-mono text-[11px] text-muted"
-                    key={t}
+                    key={tag}
                 >
-                    {t}
+                    {tag}
                     <span className="ml-1.5 text-faint">×</span>
                 </span>
             ))}

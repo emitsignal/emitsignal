@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 
 import { KeysTable } from '#/components/app/keys/keys-table';
 import { Toolbar } from '#/components/app/toolbar';
-import { SubHead } from '#/components/ui/sub-head';
+import { SubHeading } from '#/components/ui/sub-head';
 
 export const Route = createFileRoute('/app/keys')({ component: KeysPage });
 
@@ -21,7 +21,7 @@ function KeysPage() {
             />
 
             <div className="flex-1 overflow-auto px-5.5 py-5">
-                <SubHead>KEYS</SubHead>
+                <SubHeading>KEYS</SubHeading>
                 <KeysTable />
             </div>
         </>

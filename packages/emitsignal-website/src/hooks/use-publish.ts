@@ -24,12 +24,12 @@ export function usePublish() {
 
             return result;
         } catch (error) {
-            const err = error instanceof Error ? error : new Error(String(error));
+            const wrappedError = error instanceof Error ? error : new Error(String(error));
 
-            setError(err);
+            setError(wrappedError);
             setLoading(false);
 
-            throw err;
+            throw wrappedError;
         }
     }, []);
 

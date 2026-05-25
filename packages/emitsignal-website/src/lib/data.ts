@@ -112,7 +112,7 @@ export interface SampleChannel {
     desc: string;
     id: string;
     name: string;
-    prio: number;
+    priority: number;
     unread: number;
 }
 
@@ -123,7 +123,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Production deployments',
         id: 'c1',
         name: 'deploy/prod',
-        prio: 4,
+        priority: 4,
         unread: 2,
     },
     {
@@ -132,7 +132,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Server alerts & pages',
         id: 'c2',
         name: 'alerts/prod',
-        prio: 5,
+        priority: 5,
         unread: 1,
     },
     {
@@ -141,7 +141,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Frontend CI pipelines',
         id: 'c3',
         name: 'ci/web',
-        prio: 3,
+        priority: 3,
         unread: 0,
     },
     {
@@ -150,7 +150,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Repo events',
         id: 'c4',
         name: 'github/emitsignal',
-        prio: 2,
+        priority: 2,
         unread: 1,
     },
     {
@@ -159,7 +159,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Nightly jobs',
         id: 'c5',
         name: 'cron/backup',
-        prio: 3,
+        priority: 3,
         unread: 0,
     },
     {
@@ -168,7 +168,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Sentry → emitsignal bridge',
         id: 'c6',
         name: 'errors/web',
-        prio: 5,
+        priority: 5,
         unread: 3,
     },
     {
@@ -177,7 +177,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Home assistant stream',
         id: 'c7',
         name: 'home/sensors',
-        prio: 2,
+        priority: 2,
         unread: 0,
     },
     {
@@ -186,7 +186,7 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         desc: 'Webhooks',
         id: 'c8',
         name: 'stripe/payments',
-        prio: 3,
+        priority: 3,
         unread: 0,
     },
 ];

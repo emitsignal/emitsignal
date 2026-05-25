@@ -24,11 +24,11 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
 
     const refresh = useCallback(async () => {
         try {
-            const subs = await api.listSubscriptions(deviceId);
-            setSubscriptions(subs);
+            const fetchedSubscriptions = await api.listSubscriptions(deviceId);
+            setSubscriptions(fetchedSubscriptions);
             setError(null);
-        } catch (err) {
-            setError(err instanceof Error ? err : new Error(String(err)));
+        } catch (error) {
+            setError(error instanceof Error ? error : new Error(String(error)));
         } finally {
             setLoading(false);
         }
@@ -55,18 +55,20 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
     );
 
     return (
-        <SubscriptionsContext.Provider value={{ error, loading, subscribe, subscriptions, unsubscribe }}>
+        <SubscriptionsContext.Provider
+            value={{ error, loading, subscribe, subscriptions, unsubscribe }}
+        >
             {children}
         </SubscriptionsContext.Provider>
     );
 }
 
 export function useSubscriptions() {
-    const ctx = useContext(SubscriptionsContext);
+    const context = useContext(SubscriptionsContext);
 
-    if (!ctx) {
+    if (!context) {
         throw new Error('useSubscriptions must be used within SubscriptionsProvider');
     }
 
-    return ctx;
+    return context;
 }

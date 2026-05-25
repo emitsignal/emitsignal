@@ -68,13 +68,13 @@ export function Footer() {
                             One curl. Everywhere you read.
                         </p>
                         <div className="mt-4.5 flex gap-2.5">
-                            {SOCIAL_BADGES.map((s) => (
+                            {SOCIAL_BADGES.map((badge) => (
                                 <a
                                     className="flex h-7 w-7 items-center justify-center rounded-md border border-line bg-elev font-mono text-[10px] text-muted no-underline hover:text-fg"
                                     href="#"
-                                    key={s}
+                                    key={badge}
                                 >
-                                    {s}
+                                    {badge}
                                 </a>
                             ))}
                         </div>

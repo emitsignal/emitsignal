@@ -25,8 +25,8 @@ export function useSubscriptions() {
             const subscriptions = await api.listSubscriptions(deviceId);
             setState({ error: null, loading: false, subscriptions });
         } catch (error) {
-            setState((prev) => ({
-                ...prev,
+            setState((previous) => ({
+                ...previous,
                 error: error instanceof Error ? error : new Error(String(error)),
                 loading: false,
             }));

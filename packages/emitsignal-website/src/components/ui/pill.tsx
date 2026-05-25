@@ -4,7 +4,7 @@ import { cn } from '#/lib/cn';
 
 interface PillProps {
     children: ReactNode;
-    mono?: boolean;
+    monospace?: boolean;
     solid?: boolean;
     tone?: Tone;
 }
@@ -25,12 +25,12 @@ const TONE_SOLID: Record<Tone, string> = {
     warn: 'bg-warn text-bg',
 };
 
-export function Pill({ children, mono = true, solid = false, tone = 'accent' }: PillProps) {
+export function Pill({ children, monospace = true, solid = false, tone = 'accent' }: PillProps) {
     return (
         <span
             className={cn(
                 'inline-flex items-center rounded-full px-2 py-[3px] text-[10.5px] font-semibold tracking-[0.4px]',
-                mono ? 'font-mono' : 'font-sans',
+                monospace ? 'font-mono' : 'font-sans',
                 solid ? TONE_SOLID[tone] : `border ${TONE_RING[tone]}`,
             )}
         >

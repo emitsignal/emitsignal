@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import type { Subscription } from '#/lib/api';
 
 import { Code } from '#/components/ui/code';
-import { SubHead } from '#/components/ui/sub-head';
+import { SubHeading } from '#/components/ui/sub-head';
 
 interface RoutingRule {
     color: string;
@@ -27,7 +27,7 @@ export function RoutingRail({ subscription }: Props) {
 
     return (
         <aside className="w-[320px] shrink-0 overflow-auto p-5.5">
-            <SubHead>ROUTING</SubHead>
+            <SubHeading>ROUTING</SubHeading>
             <div className="mb-4.5">
                 {RULES.map((rule, index) => (
                     <RuleRow key={index} rule={rule} />
@@ -38,7 +38,7 @@ export function RoutingRail({ subscription }: Props) {
                 </button>
             </div>
 
-            <SubHead>WEBHOOK</SubHead>
+            <SubHeading>WEBHOOK</SubHeading>
             <Code language="POST">
                 {topicName ? `https://emitsignal.com/${topicName}` : 'subscribe to a channel first'}
             </Code>

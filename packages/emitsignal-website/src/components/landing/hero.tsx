@@ -29,8 +29,8 @@ export function Hero() {
                     USED BY 2,400+ DEV TEAMS · PUBLISHING 90M+ SIGNALS / MONTH
                 </p>
                 <div className="flex items-center justify-around gap-8 font-mono text-[14px] font-semibold text-muted opacity-55">
-                    {PARTNER_LOGOS.map((n) => (
-                        <span key={n}>{n}</span>
+                    {PARTNER_LOGOS.map((name) => (
+                        <span key={name}>{name}</span>
                     ))}
                 </div>
             </div>

@@ -12,7 +12,7 @@ interface Tier {
     highlighted?: boolean;
     name: string;
     price: string;
-    priceSub: string;
+    priceSubtitle: string;
     tag?: string;
 }
 
@@ -29,7 +29,7 @@ const TIERS: Tier[] = [
         ],
         name: 'Free',
         price: '$0',
-        priceSub: 'forever, for hobby use',
+        priceSubtitle: 'forever, for hobby use',
     },
     {
         cta: 'Start 14-day trial',
@@ -45,7 +45,7 @@ const TIERS: Tier[] = [
         highlighted: true,
         name: 'Team',
         price: '$24',
-        priceSub: '/ user / month',
+        priceSubtitle: '/ user / month',
         tag: 'most popular',
     },
     {
@@ -61,7 +61,7 @@ const TIERS: Tier[] = [
         ],
         name: 'Enterprise',
         price: 'Custom',
-        priceSub: 'volume + on-prem',
+        priceSubtitle: 'volume + on-prem',
     },
 ];
 
@@ -120,16 +120,16 @@ function TierCard({ tier }: { tier: Tier }) {
             </p>
             <div className="mb-1.5 flex items-baseline gap-2">
                 <span className="text-[44px] font-semibold tracking-[-1.4px]">{tier.price}</span>
-                <span className="font-mono text-[12.5px] text-dim">{tier.priceSub}</span>
+                <span className="font-mono text-[12.5px] text-dim">{tier.priceSubtitle}</span>
             </div>
             <p className="min-h-[42px] m-0 mb-5.5 text-[14px] leading-[1.5] text-muted">
                 {tier.description}
             </p>
             <ul className="m-0 mb-6.5 flex list-none flex-col gap-2.5 p-0">
-                {tier.features.map((f) => (
-                    <li className="flex items-start gap-2.5 text-[13px] text-muted" key={f}>
+                {tier.features.map((feature) => (
+                    <li className="flex items-start gap-2.5 text-[13px] text-muted" key={feature}>
                         <span className="font-mono leading-[1.5] text-accent">→</span>
-                        <span className="leading-[1.5]">{f}</span>
+                        <span className="leading-[1.5]">{feature}</span>
                     </li>
                 ))}
             </ul>

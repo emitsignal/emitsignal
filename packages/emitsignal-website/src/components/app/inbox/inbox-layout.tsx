@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import type { Message } from '#/lib/api';
 
-import { NotifRow } from '#/components/app/inbox/notif-row';
+import { NotificationRow } from '#/components/app/inbox/notif-row';
 import { InboxPreview } from '#/components/app/inbox/preview';
 import { Toolbar } from '#/components/app/toolbar';
 import { useSubscriptions } from '#/ctx/subscriptions';
@@ -19,7 +19,9 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
         ? 'loading…'
         : `${messages.length} messages · ${channelCount} channels active`;
 
-    const selected = selectedId ? (messages.find((m) => m.id === selectedId) ?? null) : null;
+    const selected = selectedId
+        ? (messages.find((message) => message.id === selectedId) ?? null)
+        : null;
 
     const handleSelect = (id: string) => {
         navigate({ params: { messageId: id }, to: '/app/inbox/$messageId' });
@@ -30,14 +32,18 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
             <Toolbar actions={<SubscribeButton />} subtitle={subtitle} title="Inbox" />
 
             <div className="flex min-h-0 flex-1">
-                <NotifList messages={messages} onSelect={handleSelect} selectedId={selectedId} />
+                <NotificationList
+                    messages={messages}
+                    onSelect={handleSelect}
+                    selectedId={selectedId}
+                />
                 <InboxPreview message={selected} />
             </div>
         </>
     );
 }
 
-function NotifList({
+function NotificationList({
     messages,
     onSelect,
     selectedId,
@@ -62,12 +68,12 @@ function NotifList({
             {now.length > 0 && (
                 <>
                     <SectionLabel>NOW</SectionLabel>
-                    {now.map((m) => (
-                        <NotifRow
-                            active={m.id === selectedId}
-                            key={m.id}
-                            message={m}
-                            onClick={() => onSelect(m.id)}
+                    {now.map((message) => (
+                        <NotificationRow
+                            active={message.id === selectedId}
+                            key={message.id}
+                            message={message}
+                            onClick={() => onSelect(message.id)}
                         />
                     ))}
                 </>
@@ -75,12 +81,12 @@ function NotifList({
             {earlier.length > 0 && (
                 <>
                     <SectionLabel>EARLIER</SectionLabel>
-                    {earlier.map((m) => (
-                        <NotifRow
-                            active={m.id === selectedId}
-                            key={m.id}
-                            message={m}
-                            onClick={() => onSelect(m.id)}
+                    {earlier.map((message) => (
+                        <NotificationRow
+                            active={message.id === selectedId}
+                            key={message.id}
+                            message={message}
+                            onClick={() => onSelect(message.id)}
                         />
                     ))}
                 </>
@@ -132,10 +138,10 @@ function SubscribeButton() {
             <input
                 autoFocus
                 className="w-[180px] rounded-md border border-line bg-elev px-2.5 py-1.5 font-mono text-[12px] text-fg outline-none placeholder:text-dim"
-                onChange={(e) => setTopic(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSubscribe();
-                    if (e.key === 'Escape') setOpen(false);
+                onChange={(event) => setTopic(event.target.value)}
+                onKeyDown={(event) => {
+                    if (event.key === 'Enter') handleSubscribe();
+                    if (event.key === 'Escape') setOpen(false);
                 }}
                 placeholder="topic/name"
                 value={topic}

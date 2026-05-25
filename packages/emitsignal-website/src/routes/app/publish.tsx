@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { PreviewColumn } from '#/components/app/publish/preview-column';
 import { Toolbar } from '#/components/app/toolbar';
-import { SubHead } from '#/components/ui/sub-head';
+import { SubHeading } from '#/components/ui/sub-head';
 import { usePublish } from '#/hooks/use-publish';
 import { useTopics } from '#/hooks/use-topics';
 import { api } from '#/lib/api';
@@ -37,7 +37,7 @@ function ComposePage() {
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState('');
 
-    const selectedTopic = topics.find((t) => t.name === topicName) ?? null;
+    const selectedTopic = topics.find((topic) => topic.name === topicName) ?? null;
 
     const handlePublish = async () => {
         if (!topicName.trim() || !title.trim()) return;
@@ -65,7 +65,7 @@ function ComposePage() {
     };
 
     const removeTag = (tag: string) => {
-        setTags(tags.filter((t) => t !== tag));
+        setTags(tags.filter((existingTag) => existingTag !== tag));
     };
 
     return (
@@ -105,23 +105,23 @@ function ComposePage() {
 
             <div className="flex min-h-0 flex-1">
                 <div className="min-w-0 flex-1 overflow-auto border-r border-line p-7">
-                    <SubHead>topic</SubHead>
+                    <SubHeading>topic</SubHeading>
                     <div className="mb-5.5">
                         <input
                             className="w-full rounded-lg border border-accent/40 bg-elev px-3.5 py-2.5 font-mono text-[13px] text-fg outline-none placeholder:text-faint focus:border-accent"
-                            onChange={(e) => setTopicName(e.target.value)}
+                            onChange={(event) => setTopicName(event.target.value)}
                             placeholder="deploy/prod"
                             value={topicName}
                         />
                         {topics.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1.5">
-                                {topics.slice(0, 6).map((t) => (
+                                {topics.slice(0, 6).map((topic) => (
                                     <button
                                         className="rounded-full border border-line bg-chip px-2 py-0.5 font-mono text-[11px] text-muted hover:bg-elev"
-                                        key={t.id}
-                                        onClick={() => setTopicName(t.name)}
+                                        key={topic.id}
+                                        onClick={() => setTopicName(topic.name)}
                                     >
-                                        {t.name}
+                                        {topic.name}
                                     </button>
                                 ))}
                             </div>
@@ -134,48 +134,48 @@ function ComposePage() {
                         )}
                     </div>
 
-                    <SubHead>title</SubHead>
+                    <SubHeading>title</SubHeading>
                     <input
                         className="mb-4 w-full rounded-lg border border-line bg-elev px-3.5 py-3 font-mono text-[15px] font-semibold text-fg outline-none placeholder:text-faint focus:border-accent"
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(event) => setTitle(event.target.value)}
                         placeholder="Deploy succeeded · api-gateway v2.14.3"
                         value={title}
                     />
 
-                    <SubHead>body · markdown</SubHead>
+                    <SubHeading>body · markdown</SubHeading>
                     <textarea
                         className="mb-5.5 min-h-[100px] w-full resize-y rounded-lg border border-line bg-elev px-3.5 py-3 font-mono text-[13px] leading-[1.5] text-muted outline-none placeholder:text-faint focus:border-accent"
-                        onChange={(e) => setBody(e.target.value)}
+                        onChange={(event) => setBody(event.target.value)}
                         placeholder="Describe your message…"
                         value={body}
                     />
 
                     <div className="mb-5.5 grid grid-cols-[1fr_1.4fr] gap-5">
                         <div>
-                            <SubHead>priority</SubHead>
+                            <SubHeading>priority</SubHeading>
                             <div className="flex gap-1.5">
-                                {[1, 2, 3, 4, 5].map((p) => (
+                                {[1, 2, 3, 4, 5].map((priorityValue) => (
                                     <PriorityChip
-                                        key={p}
-                                        onClick={() => setPriority(p)}
-                                        selected={p === priority}
-                                        value={p}
+                                        key={priorityValue}
+                                        onClick={() => setPriority(priorityValue)}
+                                        selected={priorityValue === priority}
+                                        value={priorityValue}
                                     />
                                 ))}
                             </div>
                         </div>
                         <div>
-                            <SubHead>tags</SubHead>
+                            <SubHeading>tags</SubHeading>
                             <div className="flex min-h-[38px] flex-wrap items-center gap-1.5 rounded-lg border border-line bg-elev px-2 py-1.5">
-                                {tags.map((t) => (
+                                {tags.map((tag) => (
                                     <span
                                         className="rounded border border-line bg-chip px-2 py-0.5 font-mono text-[11px] text-muted"
-                                        key={t}
+                                        key={tag}
                                     >
-                                        {t}
+                                        {tag}
                                         <button
                                             className="ml-1.5 cursor-pointer border-none bg-transparent p-0 font-mono text-[11px] text-faint hover:text-dim"
-                                            onClick={() => removeTag(t)}
+                                            onClick={() => removeTag(tag)}
                                         >
                                             ×
                                         </button>
@@ -183,13 +183,17 @@ function ComposePage() {
                                 ))}
                                 <input
                                     className="min-w-[60px] flex-1 border-none bg-transparent font-mono text-[11px] text-fg outline-none placeholder:text-dim"
-                                    onChange={(e) => setTagInput(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' || e.key === ',') {
-                                            e.preventDefault();
+                                    onChange={(event) => setTagInput(event.target.value)}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter' || event.key === ',') {
+                                            event.preventDefault();
                                             addTag(tagInput);
                                         }
-                                        if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+                                        if (
+                                            event.key === 'Backspace' &&
+                                            !tagInput &&
+                                            tags.length > 0
+                                        ) {
                                             removeTag(tags[tags.length - 1]);
                                         }
                                     }}
@@ -200,10 +204,10 @@ function ComposePage() {
                         </div>
                     </div>
 
-                    <SubHead>delivery</SubHead>
+                    <SubHeading>delivery</SubHeading>
                     <div className="flex flex-wrap gap-2">
-                        {DELIVERY.map((d, i) => (
-                            <DeliveryChip key={i} option={d} />
+                        {DELIVERY.map((delivery, index) => (
+                            <DeliveryChip key={index} option={delivery} />
                         ))}
                     </div>
                 </div>

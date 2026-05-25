@@ -88,10 +88,10 @@ export function Sidebar() {
                         <input
                             autoFocus
                             className="w-[90px] rounded border border-line bg-elev px-1.5 py-0.5 font-mono text-[10px] text-fg outline-none placeholder:text-dim"
-                            onChange={(e) => setNewTopic(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') handleSubscribe();
-                                if (e.key === 'Escape') setAdding(false);
+                            onChange={(event) => setNewTopic(event.target.value)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') handleSubscribe();
+                                if (event.key === 'Escape') setAdding(false);
                             }}
                             placeholder="topic/name"
                             value={newTopic}
@@ -116,15 +116,15 @@ export function Sidebar() {
             {subscriptions.length === 0 && (
                 <p className="px-2.5 py-1 font-mono text-[10px] text-dim">no subscriptions yet</p>
             )}
-            {subscriptions.slice(0, 6).map((s) => (
+            {subscriptions.slice(0, 6).map((subscription) => (
                 <Link
                     className="flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60"
-                    key={s.id}
-                    search={{ topic: s.topic.name }}
+                    key={subscription.id}
+                    search={{ topic: subscription.topic.name }}
                     to="/app/channels"
                 >
                     <Dot level={1} size={5} />
-                    <span className="flex-1 truncate">{s.topic.name}</span>
+                    <span className="flex-1 truncate">{subscription.topic.name}</span>
                 </Link>
             ))}
 

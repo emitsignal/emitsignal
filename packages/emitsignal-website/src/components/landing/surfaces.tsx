@@ -63,11 +63,11 @@ const SPAN_CLASS: Record<number, string> = {
 };
 
 interface MobileItem {
-    ch: string;
-    m: string;
-    p: number;
-    t: string;
-    tm: string;
+    channel: string;
+    message: string;
+    priority: number;
+    time: string;
+    title: string;
 }
 
 function CLIPreview() {
@@ -117,27 +117,45 @@ function SurfaceCard({ children, desc, icon: Icon, label, span }: SurfaceCardPro
     );
 }
 const MOBILE_ITEMS: MobileItem[] = [
-    { ch: 'alerts/prod', m: 'mem.used > 92%', p: 5, t: 'High memory on api-02', tm: '2m' },
-    { ch: 'deploy/prod', m: 'api-gateway · 1m 42s', p: 4, t: 'v2.14.3 shipped', tm: '4m' },
-    { ch: 'ci/web', m: '247 tests green', p: 3, t: 'Build passed', tm: '12m' },
+    {
+        channel: 'alerts/prod',
+        message: 'mem.used > 92%',
+        priority: 5,
+        time: '2m',
+        title: 'High memory on api-02',
+    },
+    {
+        channel: 'deploy/prod',
+        message: 'api-gateway · 1m 42s',
+        priority: 4,
+        time: '4m',
+        title: 'v2.14.3 shipped',
+    },
+    {
+        channel: 'ci/web',
+        message: '247 tests green',
+        priority: 3,
+        time: '12m',
+        title: 'Build passed',
+    },
 ];
 
 function MobilePreview() {
     return (
         <div className="mt-4.5 rounded-xl border border-line bg-deep p-3.5">
-            {MOBILE_ITEMS.map((n, i) => (
+            {MOBILE_ITEMS.map((item, index) => (
                 <div
-                    className={`flex gap-2.5 py-2 ${i < MOBILE_ITEMS.length - 1 ? 'border-b border-line' : ''}`}
-                    key={i}
+                    className={`flex gap-2.5 py-2 ${index < MOBILE_ITEMS.length - 1 ? 'border-b border-line' : ''}`}
+                    key={index}
                 >
-                    <Dot level={n.p} />
+                    <Dot level={item.priority} />
                     <div className="min-w-0 flex-1">
                         <div className="flex justify-between gap-2">
-                            <span className="font-mono text-[10.5px] text-dim">{n.ch}</span>
-                            <span className="font-mono text-[10px] text-faint">{n.tm}</span>
+                            <span className="font-mono text-[10.5px] text-dim">{item.channel}</span>
+                            <span className="font-mono text-[10px] text-faint">{item.time}</span>
                         </div>
-                        <div className="mt-0.5 text-[13px] font-semibold text-fg">{n.t}</div>
-                        <div className="text-[11.5px] text-muted">{n.m}</div>
+                        <div className="mt-0.5 text-[13px] font-semibold text-fg">{item.title}</div>
+                        <div className="text-[11.5px] text-muted">{item.message}</div>
                     </div>
                 </div>
             ))}
@@ -160,14 +178,16 @@ function WebPreview() {
                     <div className="py-0.5 text-muted">● Keys</div>
                 </div>
                 <div className="flex-1 p-2.5">
-                    {[5, 4, 3, 2].map((p) => (
+                    {[5, 4, 3, 2].map((priority) => (
                         <div
                             className="flex gap-2 py-0.5 font-mono text-[10.5px] text-muted"
-                            key={p}
+                            key={priority}
                         >
-                            <Dot level={p} size={5} />
+                            <Dot level={priority} size={5} />
                             <span>alerts/prod</span>
-                            <span className="min-w-0 flex-1 truncate text-fg">p{p} event</span>
+                            <span className="min-w-0 flex-1 truncate text-fg">
+                                p{priority} event
+                            </span>
                         </div>
                     ))}
                 </div>
@@ -175,4 +195,3 @@ function WebPreview() {
         </div>
     );
 }
-

@@ -30,14 +30,14 @@ function VerifyPage() {
 
     useEffect(() => {
         if (devCode && code === '') {
-            let i = 0;
+            let index = 0;
 
-            const id = setInterval(() => {
-                i++;
-                setCode(devCode.slice(0, i));
-                if (i >= devCode.length) clearInterval(id);
+            const intervalId = setInterval(() => {
+                index++;
+                setCode(devCode.slice(0, index));
+                if (index >= devCode.length) clearInterval(intervalId);
             }, 380);
-            return () => clearInterval(id);
+            return () => clearInterval(intervalId);
         }
     }, [devCode]);
 
@@ -50,20 +50,20 @@ function VerifyPage() {
         setError('');
 
         try {
-            const res = await api.verifyMagicLink(email, code);
+            const result = await api.verifyMagicLink(email, code);
 
-            await signIn(res.token, res.user);
+            await signIn(result.token, result.user);
 
             navigate({ to: '/app' });
-        } catch (err) {
-            setError(err instanceof Error ? err.message : String(err));
+        } catch (error) {
+            setError(error instanceof Error ? error.message : String(error));
         } finally {
             setBusy(false);
         }
     };
 
     const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? '');
-    const activeIdx = code.length;
+    const activeIndex = code.length;
 
     const handleInputChange = (value: string) => {
         setCode(
@@ -99,7 +99,7 @@ function VerifyPage() {
                     {cells.map((cell, index) => (
                         <div
                             className={`flex h-14 w-12 items-center justify-center rounded-lg border-1.5 font-mono text-[20px] font-semibold text-fg ${
-                                index === activeIdx
+                                index === activeIndex
                                     ? 'border-accent bg-elev'
                                     : 'border-line bg-elev'
                             }`}

@@ -136,8 +136,8 @@ export function HeroTerminal() {
                     className="will-change-transform"
                     style={{ animation: 'signal-stream 28s linear infinite' }}
                 >
-                    {events.map((e, i) => (
-                        <StreamRow event={e} key={i} />
+                    {events.map((event, index) => (
+                        <StreamRow event={event} key={index} />
                     ))}
                 </div>
             </div>

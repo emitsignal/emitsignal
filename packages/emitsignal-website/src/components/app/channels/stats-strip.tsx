@@ -16,12 +16,12 @@ export function StatsStrip({ messages, subscription }: Props) {
 
     return (
         <div className="grid shrink-0 grid-cols-[repeat(4,1fr)_1.4fr] items-center gap-5.5 border-b border-line px-5.5 py-4.5">
-            <StatItem label="last 24h" sub="total messages" value={String(messages.length)} />
-            <StatItem label="p5 events" sub="max priority" value={String(p5Count)} />
-            <StatItem label="subscribers" sub="devices" value={subscription ? '1+' : '0'} />
+            <StatItem label="last 24h" subtitle="total messages" value={String(messages.length)} />
+            <StatItem label="p5 events" subtitle="max priority" value={String(p5Count)} />
+            <StatItem label="subscribers" subtitle="devices" value={subscription ? '1+' : '0'} />
             <StatItem
                 label="topic"
-                sub={subscription?.topic.isPublic ? 'public' : 'private'}
+                subtitle={subscription?.topic.isPublic ? 'public' : 'private'}
                 value={subscription?.topic.displayName ?? '—'}
             />
             <div>
@@ -34,20 +34,20 @@ export function StatsStrip({ messages, subscription }: Props) {
                     viewBox={`0 0 ${VOLUME.length * 8} 56`}
                     width="100%"
                 >
-                    {VOLUME.map((v, i) => (
+                    {VOLUME.map((value, index) => (
                         <rect
                             fill={
-                                i >= VOLUME.length - 4
+                                index >= VOLUME.length - 4
                                     ? 'var(--color-danger)'
                                     : 'var(--color-accent)'
                             }
-                            height={(v / max) * 52}
-                            key={i}
-                            opacity={i >= VOLUME.length - 4 ? 0.9 : 0.55}
+                            height={(value / max) * 52}
+                            key={index}
+                            opacity={index >= VOLUME.length - 4 ? 0.9 : 0.55}
                             rx="1"
                             width="6"
-                            x={i * 8}
-                            y={56 - (v / max) * 52}
+                            x={index * 8}
+                            y={56 - (value / max) * 52}
                         />
                     ))}
                 </svg>
@@ -56,14 +56,14 @@ export function StatsStrip({ messages, subscription }: Props) {
     );
 }
 
-function StatItem({ label, sub, value }: { label: string; sub: string; value: string }) {
+function StatItem({ label, subtitle, value }: { label: string; subtitle: string; value: string }) {
     return (
         <div>
             <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
                 {label}
             </p>
             <p className="m-0 truncate text-[24px] font-semibold tracking-[-0.6px]">{value}</p>
-            <p className="m-0 mt-0.5 font-mono text-[10.5px] text-faint">{sub}</p>
+            <p className="m-0 mt-0.5 font-mono text-[10.5px] text-faint">{subtitle}</p>
         </div>
     );
 }

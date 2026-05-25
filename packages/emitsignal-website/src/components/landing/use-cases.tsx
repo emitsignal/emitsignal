@@ -69,8 +69,8 @@ export function UseCases() {
             </p>
 
             <div className="grid grid-cols-3 gap-3.5">
-                {CASES.map((c, i) => (
-                    <UseCaseCard key={i} useCase={c} />
+                {CASES.map((useCase, index) => (
+                    <UseCaseCard key={index} useCase={useCase} />
                 ))}
             </div>
         </Section>

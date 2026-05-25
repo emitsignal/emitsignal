@@ -59,9 +59,9 @@ function SignInPage() {
                     autoCapitalize="off"
                     autoCorrect="off"
                     className="mb-4 w-full rounded-lg border border-accent bg-elev px-4 py-3.5 font-mono text-[14px] text-fg outline-none placeholder:text-faint focus:border-accent"
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSend();
+                    onChange={(event) => setEmail(event.target.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter') handleSend();
                     }}
                     placeholder="you@example.com"
                     type="email"
