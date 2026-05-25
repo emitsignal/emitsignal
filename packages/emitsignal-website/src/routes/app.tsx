@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { Sidebar } from '#/components/app/sidebar';
+import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { getSession } from '#/lib/storage';
 
 export const Route = createFileRoute('/app')({
@@ -20,11 +21,13 @@ export const Route = createFileRoute('/app')({
 
 function WebShell() {
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-bg font-sans text-fg">
-            <Sidebar />
-            <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
-                <Outlet />
-            </main>
-        </div>
+        <SubscriptionsProvider>
+            <div className="flex h-screen w-full overflow-hidden bg-bg font-sans text-fg">
+                <Sidebar />
+                <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+                    <Outlet />
+                </main>
+            </div>
+        </SubscriptionsProvider>
     );
 }

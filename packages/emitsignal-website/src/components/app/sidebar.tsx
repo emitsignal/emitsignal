@@ -1,11 +1,21 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Bell, Key, LayoutGrid, LogOut, type LucideIcon, Settings, Terminal } from 'lucide-react';
+import {
+    Bell,
+    Key,
+    LayoutGrid,
+    LogOut,
+    type LucideIcon,
+    Plus,
+    Settings,
+    Terminal,
+} from 'lucide-react';
+import { useState } from 'react';
 
 import { Avatar } from '#/components/ui/avatar';
 import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { useSession } from '#/ctx/session';
-import { useSubscriptions } from '#/hooks/use-subscriptions';
+import { useSubscriptions } from '#/ctx/subscriptions';
 
 interface NavItem {
     badge?: number;
@@ -22,13 +32,17 @@ const ACTIVE =
 
 export function Sidebar() {
     const { signOut, user } = useSession();
-    const { subscriptions } = useSubscriptions();
+    const { subscribe, subscriptions } = useSubscriptions();
     const navigate = useNavigate();
+
+    const [adding, setAdding] = useState(false);
+    const [newTopic, setNewTopic] = useState('');
+    const [subscribing, setSubscribing] = useState(false);
 
     const channelCount = subscriptions.length;
 
     const NAV: NavItem[] = [
-        { exact: true, icon: Bell, label: 'Inbox', to: '/app' },
+        { exact: true, icon: Bell, label: 'Inbox', to: '/app/inbox' },
         { badge: channelCount, icon: LayoutGrid, label: 'Channels', to: '/app/channels' },
         { icon: Terminal, label: 'Publish', to: '/app/publish' },
         { icon: Key, label: 'API Keys', to: '/app/keys' },
@@ -37,6 +51,22 @@ export function Sidebar() {
     const handleSignOut = async () => {
         await signOut();
         navigate({ to: '/' });
+    };
+
+    const handleSubscribe = async () => {
+        const trimmed = newTopic.trim();
+        if (!trimmed) return;
+        setSubscribing(true);
+        try {
+            await subscribe(trimmed);
+            setNewTopic('');
+            setAdding(false);
+            navigate({ search: { topic: trimmed }, to: '/app/channels' });
+        } catch {
+            // ignore
+        } finally {
+            setSubscribing(false);
+        }
     };
 
     return (
@@ -51,9 +81,38 @@ export function Sidebar() {
 
             <SidebarStatic icon={Settings} label="Settings" />
 
-            <p className="mt-4.5 px-2.5 pb-1.5 font-mono text-[9.5px] tracking-[1.5px] text-dim">
-                CHANNELS
-            </p>
+            <div className="mt-4.5 flex items-center px-2.5 pb-1.5">
+                <p className="font-mono text-[9.5px] tracking-[1.5px] text-dim">CHANNELS</p>
+                {adding ? (
+                    <div className="ml-auto flex items-center gap-1">
+                        <input
+                            autoFocus
+                            className="w-[90px] rounded border border-line bg-elev px-1.5 py-0.5 font-mono text-[10px] text-fg outline-none placeholder:text-dim"
+                            onChange={(e) => setNewTopic(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSubscribe();
+                                if (e.key === 'Escape') setAdding(false);
+                            }}
+                            placeholder="topic/name"
+                            value={newTopic}
+                        />
+                        <button
+                            className="font-mono text-[10px] text-accent hover:text-fg disabled:opacity-50"
+                            disabled={!newTopic.trim() || subscribing}
+                            onClick={handleSubscribe}
+                        >
+                            {subscribing ? '…' : 'ok'}
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="ml-auto flex h-4 w-4 items-center justify-center rounded text-dim hover:text-fg"
+                        onClick={() => setAdding(true)}
+                    >
+                        <Plus size={12} />
+                    </button>
+                )}
+            </div>
             {subscriptions.length === 0 && (
                 <p className="px-2.5 py-1 font-mono text-[10px] text-dim">no subscriptions yet</p>
             )}

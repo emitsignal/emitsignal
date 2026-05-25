@@ -17,7 +17,6 @@ const COLUMNS: FooterColumn[] = [
             { href: '#surfaces', label: 'CLI' },
             { href: '/app', label: 'Web dashboard' },
             { href: '#surfaces', label: 'Mobile' },
-            { href: '#surfaces', label: 'Integrations' },
             { href: '#how', label: 'API' },
             { href: '#', label: 'Changelog' },
         ],

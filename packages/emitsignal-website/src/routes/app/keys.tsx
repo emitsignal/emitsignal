@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 
-import { IntegrationsGrid } from '#/components/app/keys/integrations-grid';
 import { KeysTable } from '#/components/app/keys/keys-table';
 import { Toolbar } from '#/components/app/toolbar';
 import { SubHead } from '#/components/ui/sub-head';
@@ -17,16 +16,13 @@ function KeysPage() {
                         <Plus size={12} /> New key
                     </button>
                 }
-                subtitle="5 keys · 4 integrations connected"
+                subtitle="5 keys"
                 title="API Keys & Integrations"
             />
 
             <div className="flex-1 overflow-auto px-5.5 py-5">
                 <SubHead>KEYS</SubHead>
                 <KeysTable />
-
-                <SubHead>INTEGRATIONS</SubHead>
-                <IntegrationsGrid />
             </div>
         </>
     );

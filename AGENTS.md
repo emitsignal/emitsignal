@@ -72,6 +72,15 @@ bun run reset-project    # Reset project to starter state
 - Prefer `interface` over `type` for object shapes
 - Use `keyof typeof` for accessing object keys safely
 
+### Key Development Principles
+
+- Functional components only (no class components)
+- Types over interfaces (except when extending third-party interfaces)
+- No 'any' type allowed — strict TypeScript enforced
+- Composition over inheritance
+- No abbreviations in variable names (subscription not s, priority not prio)
+-
+
 ### Naming Conventions
 
 - Components: PascalCase (e.g., `ThemedText`, `HomeScreen`)
@@ -79,6 +88,7 @@ bun run reset-project    # Reset project to starter state
 - Files: kebab-case (e.g., `use-theme-color.ts`, `themed-text.tsx`)
 - Types/Interfaces: PascalCase with descriptive names
 - Constants: UPPER_SNAKE_CASE for true constants
+- TypeScript generics: descriptive names (TSomething not T)
 
 ### React Components
 

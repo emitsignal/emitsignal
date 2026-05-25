@@ -26,6 +26,8 @@ export function InboxPreview({ message }: { message: Message | null }) {
     }
 
     const channel = message.topicName ?? message.topicId;
+    const hasAcknowledge = message.actions.some((a) => a.type === 'acknowledge');
+    const otherActions = message.actions.filter((a) => a.type !== 'acknowledge');
 
     return (
         <div className="min-w-0 flex-1 overflow-auto p-7">
@@ -62,19 +64,26 @@ export function InboxPreview({ message }: { message: Message | null }) {
                 </div>
             )}
 
-            <div className="mb-6.5 flex gap-2">
-                <button className="rounded-md bg-accent px-3.5 py-2 text-[12.5px] font-semibold text-bg hover:bg-accent-dim">
-                    Acknowledge
-                </button>
-                {message.actions.map((action, i) => (
-                    <button
-                        className="rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg hover:bg-elev-2"
-                        key={i}
-                    >
-                        {action.label ?? action.type}
-                    </button>
-                ))}
-            </div>
+            {(hasAcknowledge || otherActions.length > 0) && (
+                <div className="mb-6.5 flex gap-2">
+                    {hasAcknowledge && (
+                        <button className="rounded-md bg-accent px-3.5 py-2 text-[12.5px] font-semibold text-bg hover:bg-accent-dim">
+                            Acknowledge
+                        </button>
+                    )}
+                    {otherActions.map((a, i) => (
+                        <a
+                            className="rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg no-underline hover:bg-elev-2"
+                            href={a.url ?? '#'}
+                            key={i}
+                            rel="noopener noreferrer"
+                            target={a.url ? '_blank' : undefined}
+                        >
+                            {a.label ?? a.type}
+                        </a>
+                    ))}
+                </div>
+            )}
 
             <SubHead>METRIC</SubHead>
             <MetricChart />

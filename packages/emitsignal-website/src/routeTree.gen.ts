@@ -17,6 +17,8 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppKeysRouteImport } from './routes/app/keys'
 import { Route as AppChannelsRouteImport } from './routes/app/channels'
+import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index'
+import { Route as AppInboxMessageIdRouteImport } from './routes/app/inbox/$messageId'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -58,6 +60,16 @@ const AppChannelsRoute = AppChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
+  id: '/inbox/',
+  path: '/inbox/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInboxMessageIdRoute = AppInboxMessageIdRouteImport.update({
+  id: '/inbox/$messageId',
+  path: '/inbox/$messageId',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +80,8 @@ export interface FileRoutesByFullPath {
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
   '/app/': typeof AppIndexRoute
+  '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/inbox/': typeof AppInboxIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,6 +91,8 @@ export interface FileRoutesByTo {
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
   '/app': typeof AppIndexRoute
+  '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/inbox': typeof AppInboxIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,6 +104,8 @@ export interface FileRoutesById {
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
   '/app/': typeof AppIndexRoute
+  '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/inbox/': typeof AppInboxIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,6 +118,8 @@ export interface FileRouteTypes {
     | '/app/keys'
     | '/app/publish'
     | '/app/'
+    | '/app/inbox/$messageId'
+    | '/app/inbox/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,6 +129,8 @@ export interface FileRouteTypes {
     | '/app/keys'
     | '/app/publish'
     | '/app'
+    | '/app/inbox/$messageId'
+    | '/app/inbox'
   id:
     | '__root__'
     | '/'
@@ -119,6 +141,8 @@ export interface FileRouteTypes {
     | '/app/keys'
     | '/app/publish'
     | '/app/'
+    | '/app/inbox/$messageId'
+    | '/app/inbox/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,6 +210,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChannelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/inbox/': {
+      id: '/app/inbox/'
+      path: '/inbox'
+      fullPath: '/app/inbox/'
+      preLoaderRoute: typeof AppInboxIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/inbox/$messageId': {
+      id: '/app/inbox/$messageId'
+      path: '/inbox/$messageId'
+      fullPath: '/app/inbox/$messageId'
+      preLoaderRoute: typeof AppInboxMessageIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -194,6 +232,8 @@ interface AppRouteChildren {
   AppKeysRoute: typeof AppKeysRoute
   AppPublishRoute: typeof AppPublishRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppInboxMessageIdRoute: typeof AppInboxMessageIdRoute
+  AppInboxIndexRoute: typeof AppInboxIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -201,6 +241,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppKeysRoute: AppKeysRoute,
   AppPublishRoute: AppPublishRoute,
   AppIndexRoute: AppIndexRoute,
+  AppInboxMessageIdRoute: AppInboxMessageIdRoute,
+  AppInboxIndexRoute: AppInboxIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

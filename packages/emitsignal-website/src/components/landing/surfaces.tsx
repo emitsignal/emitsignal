@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Bell, GitBranch, Globe, type LucideIcon, Terminal } from 'lucide-react';
+import { Bell, Globe, type LucideIcon, Terminal } from 'lucide-react';
 
 import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
@@ -51,14 +51,6 @@ export function Surfaces() {
                     span={5}
                 >
                     <WebPreview />
-                </SurfaceCard>
-                <SurfaceCard
-                    desc="14 sources, 9 sinks. Pipe between them."
-                    icon={GitBranch}
-                    label="Integrations · plug-and-play"
-                    span={7}
-                >
-                    <IntegrationsPreview />
                 </SurfaceCard>
             </div>
         </Section>
@@ -130,11 +122,6 @@ const MOBILE_ITEMS: MobileItem[] = [
     { ch: 'ci/web', m: '247 tests green', p: 3, t: 'Build passed', tm: '12m' },
 ];
 
-interface IntegrationCard {
-    color: string;
-    name: string;
-}
-
 function MobilePreview() {
     return (
         <div className="mt-4.5 rounded-xl border border-line bg-deep p-3.5">
@@ -188,34 +175,4 @@ function WebPreview() {
         </div>
     );
 }
-const INTEGRATIONS: IntegrationCard[] = [
-    { color: '#fff', name: 'GitHub' },
-    { color: '#a78bfa', name: 'Sentry' },
-    { color: '#67e8f9', name: 'Stripe' },
-    { color: '#f0abfc', name: 'Vercel' },
-    { color: '#fbbf24', name: 'Datadog' },
-    { color: '#a78bfa', name: 'Linear' },
-    { color: '#4ade80', name: 'PagerDuty' },
-    { color: '#a78bfa', name: 'Slack' },
-];
 
-function IntegrationsPreview() {
-    return (
-        <div className="mt-4.5 grid grid-cols-4 gap-2.5">
-            {INTEGRATIONS.map((it) => (
-                <div
-                    className="flex items-center gap-2.5 rounded-lg border border-line bg-deep p-2.5"
-                    key={it.name}
-                >
-                    <div
-                        className="flex h-[22px] w-[22px] items-center justify-center rounded-md font-mono text-[12px] font-bold"
-                        style={{ background: `${it.color}22`, color: it.color }}
-                    >
-                        {it.name[0]}
-                    </div>
-                    <span className="text-[12.5px]">{it.name}</span>
-                </div>
-            ))}
-        </div>
-    );
-}

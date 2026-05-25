@@ -111,7 +111,6 @@ export interface SampleChannel {
     count: number;
     desc: string;
     id: string;
-    muted: boolean;
     name: string;
     prio: number;
     unread: number;
@@ -123,7 +122,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 142,
         desc: 'Production deployments',
         id: 'c1',
-        muted: false,
         name: 'deploy/prod',
         prio: 4,
         unread: 2,
@@ -133,7 +131,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 23,
         desc: 'Server alerts & pages',
         id: 'c2',
-        muted: false,
         name: 'alerts/prod',
         prio: 5,
         unread: 1,
@@ -143,7 +140,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 891,
         desc: 'Frontend CI pipelines',
         id: 'c3',
-        muted: false,
         name: 'ci/web',
         prio: 3,
         unread: 0,
@@ -153,7 +149,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 240,
         desc: 'Repo events',
         id: 'c4',
-        muted: false,
         name: 'github/emitsignal',
         prio: 2,
         unread: 1,
@@ -163,7 +158,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 62,
         desc: 'Nightly jobs',
         id: 'c5',
-        muted: false,
         name: 'cron/backup',
         prio: 3,
         unread: 0,
@@ -173,7 +167,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 55,
         desc: 'Sentry → emitsignal bridge',
         id: 'c6',
-        muted: false,
         name: 'errors/web',
         prio: 5,
         unread: 3,
@@ -183,7 +176,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 2400,
         desc: 'Home assistant stream',
         id: 'c7',
-        muted: true,
         name: 'home/sensors',
         prio: 2,
         unread: 0,
@@ -193,7 +185,6 @@ export const SAMPLE_CHANNELS: SampleChannel[] = [
         count: 18,
         desc: 'Webhooks',
         id: 'c8',
-        muted: false,
         name: 'stripe/payments',
         prio: 3,
         unread: 0,
