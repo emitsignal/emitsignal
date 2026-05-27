@@ -1,36 +1,44 @@
-import { execSync } from 'node:child_process';
-import fs from 'node:fs';
+import { execa } from 'execa';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const TEST_DATABASE_URL = 'postgresql://emitsignal:emitsignal@localhost:5432/emitsignal_test';
+const POSTGRES_ADMIN_URL = 'postgresql://emitsignal:emitsignal@localhost:5432/postgres';
+
+const DOCKER_COMPOSE_FILE = path.resolve(
+    __dirname,
+    '../../packages/emitsignal-docker/docker-compose.dev.yml',
+);
+
 async function globalSetup() {
-    const dbDir = path.resolve(__dirname, '../emitsignal-server/db');
-    if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
-    }
+    console.log('[setup] starting postgres...');
 
-    const dbPath = path.resolve(dbDir, 'test-e2e.db');
-    if (fs.existsSync(dbPath)) {
-        fs.unlinkSync(dbPath);
-        console.log(`  [setup] deleted test database at ${dbPath}`);
-    }
+    await execa(
+        'docker',
+        ['compose', '-f', DOCKER_COMPOSE_FILE, 'up', '-d', 'postgres', 'redis', '--wait'],
+        {
+            stderr: 'inherit',
+            stdout: 'inherit',
+        },
+    );
 
-    const walPath = `${dbPath}-wal`;
-    if (fs.existsSync(walPath)) fs.unlinkSync(walPath);
-    const shmPath = `${dbPath}-shm`;
-    if (fs.existsSync(shmPath)) fs.unlinkSync(shmPath);
+    await execa('psql', [POSTGRES_ADMIN_URL, '-c', 'CREATE DATABASE emitsignal_test']).catch(
+        () => null,
+    );
 
-    const serverDir = path.resolve(__dirname, '../emitsignal-server');
-    console.log(`  [setup] pushing Prisma schema to test database...`);
-    execSync('bun x prisma db push --accept-data-loss --url "file:./db/test-e2e.db"', {
-        cwd: serverDir,
-        env: { ...process.env },
-        stdio: 'inherit',
+    console.log('[setup] pushing Prisma schema to test database...');
+
+    await execa('bunx', ['prisma', 'db', 'push', '--force-reset', '--accept-data-loss'], {
+        cwd: path.resolve(__dirname, '../emitsignal-server'),
+        env: { ...process.env, DATABASE_URL: TEST_DATABASE_URL },
+        stderr: 'inherit',
+        stdout: 'inherit',
     });
-    console.log(`  [setup] database ready`);
+
+    console.log('[setup] database ready');
 }
 
 export default globalSetup;

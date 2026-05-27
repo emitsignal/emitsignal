@@ -26,7 +26,7 @@ export async function waitForServer(retries = 30): Promise<void> {
         } catch {
             // server not ready yet
         }
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((response) => setTimeout(response, 1000));
     }
     throw new Error(`Server not ready after ${retries} retries`);
 }

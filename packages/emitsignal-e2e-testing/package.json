@@ -1,4 +1,7 @@
 {
+    "dependencies": {
+        "execa": "^9.6.1"
+    },
     "devDependencies": {
         "@playwright/test": "^1.52.0",
         "typescript": "^5"
