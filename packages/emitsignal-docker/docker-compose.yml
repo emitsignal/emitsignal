@@ -62,9 +62,16 @@ services:
             SMTP_PORT: '${SMTP_PORT:-587}'
             SMTP_USER: '${SMTP_USER:-}'
             UPLOAD_DIR: './uploads'
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.http.routers.emitsignal-server.rule=Host(`${API_DOMAIN}`)'
+            - 'traefik.http.routers.emitsignal-server.entrypoints=websecure'
+            - 'traefik.http.routers.emitsignal-server.tls.certresolver=letsencrypt'
+            - 'traefik.http.services.emitsignal-server.loadbalancer.server.port=5100'
+        networks:
+            - dokploy-network
+            - default
         restart: unless-stopped
-        ports:
-            - '${SERVER_PORT:-5100}:5100'
         volumes:
             - server_uploads:/app/packages/emitsignal-server/uploads
 
@@ -107,9 +114,16 @@ services:
             dockerfile: packages/emitsignal-docker/website/Dockerfile
             args:
                 VITE_API_URL: '${API_URL:-http://localhost:5100}'
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.http.routers.emitsignal-website.rule=Host(`${APP_DOMAIN}`)'
+            - 'traefik.http.routers.emitsignal-website.entrypoints=websecure'
+            - 'traefik.http.routers.emitsignal-website.tls.certresolver=letsencrypt'
+            - 'traefik.http.services.emitsignal-website.loadbalancer.server.port=3000'
+        networks:
+            - dokploy-network
+            - default
         restart: unless-stopped
-        ports:
-            - '${WEBSITE_PORT:-5000}:3000'
         depends_on:
             - server
 
@@ -117,3 +131,7 @@ volumes:
     postgres_data:
     redis_data:
     server_uploads:
+
+networks:
+    dokploy-network:
+        external: true
