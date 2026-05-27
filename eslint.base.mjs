@@ -23,17 +23,3 @@ export const baseConfig = ts.config(
         },
     },
 );
-
-export default ts.config(...baseConfig, {
-    ignores: [
-        '**/node_modules/**',
-        '**/dist/**',
-        '**/build/**',
-        '**/.expo/**',
-        '**/coverage/**',
-        '**/prisma/migrations/**',
-        '**/src/generated/**',
-        '**/*.config.js',
-        '**/*.config.mjs',
-    ],
-});
