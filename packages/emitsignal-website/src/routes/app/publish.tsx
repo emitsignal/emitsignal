@@ -183,6 +183,7 @@ function ComposePage() {
                                 ))}
                                 <input
                                     className="min-w-[60px] flex-1 border-none bg-transparent font-mono text-[11px] text-fg outline-none placeholder:text-dim"
+                                    data-testid="tag-input"
                                     onChange={(event) => setTagInput(event.target.value)}
                                     onKeyDown={(event) => {
                                         if (event.key === 'Enter' || event.key === ',') {

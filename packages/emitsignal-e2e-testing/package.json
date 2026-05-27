@@ -1,0 +1,14 @@
+{
+    "devDependencies": {
+        "@playwright/test": "^1.52.0",
+        "typescript": "^5"
+    },
+    "name": "@emitsignal/e2e-testing",
+    "private": true,
+    "scripts": {
+        "test": "playwright test",
+        "test:debug": "playwright test --debug",
+        "test:ui": "playwright test --ui"
+    },
+    "type": "module"
+}

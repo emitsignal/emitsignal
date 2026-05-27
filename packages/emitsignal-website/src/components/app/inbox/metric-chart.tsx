@@ -12,7 +12,7 @@ export function MetricChart() {
     const area = `${path} L${WIDTH},${HEIGHT} L0,${HEIGHT} Z`;
 
     return (
-        <div className="rounded-xl border border-line bg-elev p-3.5">
+        <div className="rounded-xl border border-line bg-elev p-3.5" data-testid="metric-chart">
             <svg className="block" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%">
                 <defs>
                     <linearGradient id="metric-gradient" x1="0" x2="0" y1="0" y2="1">

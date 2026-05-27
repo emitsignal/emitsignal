@@ -21,6 +21,7 @@ export function NotificationRow({ active = false, message, onClick }: Notificati
                     ? 'border-l-[3px] border-l-accent bg-elev'
                     : 'border-l-[3px] border-l-transparent',
             )}
+            data-testid="notification-row"
             onClick={onClick}
             onKeyDown={(event) => {
                 if (event.key === 'Enter') {
