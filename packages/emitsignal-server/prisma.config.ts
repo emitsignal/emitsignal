@@ -2,7 +2,7 @@ import { defineConfig } from 'prisma/config';
 
 export default defineConfig({
     datasource: {
-        url: process.env['DATABASE_URL'] ?? 'file:./db/emitsignal.db',
+        url: process.env['DATABASE_URL'],
     },
     migrations: {
         path: 'prisma/migrations',
