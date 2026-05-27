@@ -41,7 +41,7 @@
     "private": true,
     "scripts": {
         "build": "vite build",
-        "dev": "vite dev --port 5003",
+        "dev": "vite dev --port 5000",
         "preview": "vite preview",
         "test": "vitest run"
     },
