@@ -1,6 +1,7 @@
 .expo
 *.lock
 **/src/generated/**
+**/routeTree.gen.ts
 build
 bun.lock
 coverage

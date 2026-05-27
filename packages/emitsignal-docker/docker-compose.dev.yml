@@ -85,7 +85,7 @@ services:
             postgres:
                 condition: service_healthy
             redis:
-                condition: service_started
+                condition: service_healthy
 
     worker:
         command: >
@@ -111,9 +111,12 @@ services:
         volumes:
             - ../../:/app
         depends_on:
-            - postgres
-            - redis
-            - server
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            server:
+                condition: service_started
 
     website:
         command: >

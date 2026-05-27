@@ -8,260 +8,260 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as VerifyRouteImport } from './routes/verify';
-import { Route as SignInRouteImport } from './routes/sign-in';
-import { Route as AppRouteImport } from './routes/app';
-import { Route as IndexRouteImport } from './routes/index';
-import { Route as AppIndexRouteImport } from './routes/app/index';
-import { Route as AppPublishRouteImport } from './routes/app/publish';
-import { Route as AppKeysRouteImport } from './routes/app/keys';
-import { Route as AppChannelsRouteImport } from './routes/app/channels';
-import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index';
-import { Route as AppInboxMessageIdRouteImport } from './routes/app/inbox/$messageId';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppPublishRouteImport } from './routes/app/publish'
+import { Route as AppKeysRouteImport } from './routes/app/keys'
+import { Route as AppChannelsRouteImport } from './routes/app/channels'
+import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index'
+import { Route as AppInboxMessageIdRouteImport } from './routes/app/inbox/$messageId'
 
 const VerifyRoute = VerifyRouteImport.update({
-    id: '/verify',
-    path: '/verify',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
-    id: '/sign-in',
-    path: '/sign-in',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
-    id: '/app',
-    path: '/app',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => rootRouteImport,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppRoute,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPublishRoute = AppPublishRouteImport.update({
-    id: '/publish',
-    path: '/publish',
-    getParentRoute: () => AppRoute,
-} as any);
+  id: '/publish',
+  path: '/publish',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppKeysRoute = AppKeysRouteImport.update({
-    id: '/keys',
-    path: '/keys',
-    getParentRoute: () => AppRoute,
-} as any);
+  id: '/keys',
+  path: '/keys',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppChannelsRoute = AppChannelsRouteImport.update({
-    id: '/channels',
-    path: '/channels',
-    getParentRoute: () => AppRoute,
-} as any);
+  id: '/channels',
+  path: '/channels',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
-    id: '/inbox/',
-    path: '/inbox/',
-    getParentRoute: () => AppRoute,
-} as any);
+  id: '/inbox/',
+  path: '/inbox/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInboxMessageIdRoute = AppInboxMessageIdRouteImport.update({
-    id: '/inbox/$messageId',
-    path: '/inbox/$messageId',
-    getParentRoute: () => AppRoute,
-} as any);
+  id: '/inbox/$messageId',
+  path: '/inbox/$messageId',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-    '/': typeof IndexRoute;
-    '/app': typeof AppRouteWithChildren;
-    '/sign-in': typeof SignInRoute;
-    '/verify': typeof VerifyRoute;
-    '/app/channels': typeof AppChannelsRoute;
-    '/app/keys': typeof AppKeysRoute;
-    '/app/publish': typeof AppPublishRoute;
-    '/app/': typeof AppIndexRoute;
-    '/app/inbox/$messageId': typeof AppInboxMessageIdRoute;
-    '/app/inbox/': typeof AppInboxIndexRoute;
+  '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/verify': typeof VerifyRoute
+  '/app/channels': typeof AppChannelsRoute
+  '/app/keys': typeof AppKeysRoute
+  '/app/publish': typeof AppPublishRoute
+  '/app/': typeof AppIndexRoute
+  '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/inbox/': typeof AppInboxIndexRoute
 }
 export interface FileRoutesByTo {
-    '/': typeof IndexRoute;
-    '/sign-in': typeof SignInRoute;
-    '/verify': typeof VerifyRoute;
-    '/app/channels': typeof AppChannelsRoute;
-    '/app/keys': typeof AppKeysRoute;
-    '/app/publish': typeof AppPublishRoute;
-    '/app': typeof AppIndexRoute;
-    '/app/inbox/$messageId': typeof AppInboxMessageIdRoute;
-    '/app/inbox': typeof AppInboxIndexRoute;
+  '/': typeof IndexRoute
+  '/sign-in': typeof SignInRoute
+  '/verify': typeof VerifyRoute
+  '/app/channels': typeof AppChannelsRoute
+  '/app/keys': typeof AppKeysRoute
+  '/app/publish': typeof AppPublishRoute
+  '/app': typeof AppIndexRoute
+  '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/inbox': typeof AppInboxIndexRoute
 }
 export interface FileRoutesById {
-    __root__: typeof rootRouteImport;
-    '/': typeof IndexRoute;
-    '/app': typeof AppRouteWithChildren;
-    '/sign-in': typeof SignInRoute;
-    '/verify': typeof VerifyRoute;
-    '/app/channels': typeof AppChannelsRoute;
-    '/app/keys': typeof AppKeysRoute;
-    '/app/publish': typeof AppPublishRoute;
-    '/app/': typeof AppIndexRoute;
-    '/app/inbox/$messageId': typeof AppInboxMessageIdRoute;
-    '/app/inbox/': typeof AppInboxIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/verify': typeof VerifyRoute
+  '/app/channels': typeof AppChannelsRoute
+  '/app/keys': typeof AppKeysRoute
+  '/app/publish': typeof AppPublishRoute
+  '/app/': typeof AppIndexRoute
+  '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/inbox/': typeof AppInboxIndexRoute
 }
 export interface FileRouteTypes {
-    fileRoutesByFullPath: FileRoutesByFullPath;
-    fullPaths:
-        | '/'
-        | '/app'
-        | '/sign-in'
-        | '/verify'
-        | '/app/channels'
-        | '/app/keys'
-        | '/app/publish'
-        | '/app/'
-        | '/app/inbox/$messageId'
-        | '/app/inbox/';
-    fileRoutesByTo: FileRoutesByTo;
-    to:
-        | '/'
-        | '/sign-in'
-        | '/verify'
-        | '/app/channels'
-        | '/app/keys'
-        | '/app/publish'
-        | '/app'
-        | '/app/inbox/$messageId'
-        | '/app/inbox';
-    id:
-        | '__root__'
-        | '/'
-        | '/app'
-        | '/sign-in'
-        | '/verify'
-        | '/app/channels'
-        | '/app/keys'
-        | '/app/publish'
-        | '/app/'
-        | '/app/inbox/$messageId'
-        | '/app/inbox/';
-    fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/sign-in'
+    | '/verify'
+    | '/app/channels'
+    | '/app/keys'
+    | '/app/publish'
+    | '/app/'
+    | '/app/inbox/$messageId'
+    | '/app/inbox/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/sign-in'
+    | '/verify'
+    | '/app/channels'
+    | '/app/keys'
+    | '/app/publish'
+    | '/app'
+    | '/app/inbox/$messageId'
+    | '/app/inbox'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/sign-in'
+    | '/verify'
+    | '/app/channels'
+    | '/app/keys'
+    | '/app/publish'
+    | '/app/'
+    | '/app/inbox/$messageId'
+    | '/app/inbox/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-    IndexRoute: typeof IndexRoute;
-    AppRoute: typeof AppRouteWithChildren;
-    SignInRoute: typeof SignInRoute;
-    VerifyRoute: typeof VerifyRoute;
+  IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  SignInRoute: typeof SignInRoute
+  VerifyRoute: typeof VerifyRoute
 }
 
 declare module '@tanstack/react-router' {
-    interface FileRoutesByPath {
-        '/verify': {
-            id: '/verify';
-            path: '/verify';
-            fullPath: '/verify';
-            preLoaderRoute: typeof VerifyRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/sign-in': {
-            id: '/sign-in';
-            path: '/sign-in';
-            fullPath: '/sign-in';
-            preLoaderRoute: typeof SignInRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/app': {
-            id: '/app';
-            path: '/app';
-            fullPath: '/app';
-            preLoaderRoute: typeof AppRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/': {
-            id: '/';
-            path: '/';
-            fullPath: '/';
-            preLoaderRoute: typeof IndexRouteImport;
-            parentRoute: typeof rootRouteImport;
-        };
-        '/app/': {
-            id: '/app/';
-            path: '/';
-            fullPath: '/app/';
-            preLoaderRoute: typeof AppIndexRouteImport;
-            parentRoute: typeof AppRoute;
-        };
-        '/app/publish': {
-            id: '/app/publish';
-            path: '/publish';
-            fullPath: '/app/publish';
-            preLoaderRoute: typeof AppPublishRouteImport;
-            parentRoute: typeof AppRoute;
-        };
-        '/app/keys': {
-            id: '/app/keys';
-            path: '/keys';
-            fullPath: '/app/keys';
-            preLoaderRoute: typeof AppKeysRouteImport;
-            parentRoute: typeof AppRoute;
-        };
-        '/app/channels': {
-            id: '/app/channels';
-            path: '/channels';
-            fullPath: '/app/channels';
-            preLoaderRoute: typeof AppChannelsRouteImport;
-            parentRoute: typeof AppRoute;
-        };
-        '/app/inbox/': {
-            id: '/app/inbox/';
-            path: '/inbox';
-            fullPath: '/app/inbox/';
-            preLoaderRoute: typeof AppInboxIndexRouteImport;
-            parentRoute: typeof AppRoute;
-        };
-        '/app/inbox/$messageId': {
-            id: '/app/inbox/$messageId';
-            path: '/inbox/$messageId';
-            fullPath: '/app/inbox/$messageId';
-            preLoaderRoute: typeof AppInboxMessageIdRouteImport;
-            parentRoute: typeof AppRoute;
-        };
+  interface FileRoutesByPath {
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
     }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/publish': {
+      id: '/app/publish'
+      path: '/publish'
+      fullPath: '/app/publish'
+      preLoaderRoute: typeof AppPublishRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/keys': {
+      id: '/app/keys'
+      path: '/keys'
+      fullPath: '/app/keys'
+      preLoaderRoute: typeof AppKeysRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/channels': {
+      id: '/app/channels'
+      path: '/channels'
+      fullPath: '/app/channels'
+      preLoaderRoute: typeof AppChannelsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/inbox/': {
+      id: '/app/inbox/'
+      path: '/inbox'
+      fullPath: '/app/inbox/'
+      preLoaderRoute: typeof AppInboxIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/inbox/$messageId': {
+      id: '/app/inbox/$messageId'
+      path: '/inbox/$messageId'
+      fullPath: '/app/inbox/$messageId'
+      preLoaderRoute: typeof AppInboxMessageIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+  }
 }
 
 interface AppRouteChildren {
-    AppChannelsRoute: typeof AppChannelsRoute;
-    AppKeysRoute: typeof AppKeysRoute;
-    AppPublishRoute: typeof AppPublishRoute;
-    AppIndexRoute: typeof AppIndexRoute;
-    AppInboxMessageIdRoute: typeof AppInboxMessageIdRoute;
-    AppInboxIndexRoute: typeof AppInboxIndexRoute;
+  AppChannelsRoute: typeof AppChannelsRoute
+  AppKeysRoute: typeof AppKeysRoute
+  AppPublishRoute: typeof AppPublishRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppInboxMessageIdRoute: typeof AppInboxMessageIdRoute
+  AppInboxIndexRoute: typeof AppInboxIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-    AppChannelsRoute: AppChannelsRoute,
-    AppKeysRoute: AppKeysRoute,
-    AppPublishRoute: AppPublishRoute,
-    AppIndexRoute: AppIndexRoute,
-    AppInboxMessageIdRoute: AppInboxMessageIdRoute,
-    AppInboxIndexRoute: AppInboxIndexRoute,
-};
+  AppChannelsRoute: AppChannelsRoute,
+  AppKeysRoute: AppKeysRoute,
+  AppPublishRoute: AppPublishRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppInboxMessageIdRoute: AppInboxMessageIdRoute,
+  AppInboxIndexRoute: AppInboxIndexRoute,
+}
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren);
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-    IndexRoute: IndexRoute,
-    AppRoute: AppRouteWithChildren,
-    SignInRoute: SignInRoute,
-    VerifyRoute: VerifyRoute,
-};
+  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  SignInRoute: SignInRoute,
+  VerifyRoute: VerifyRoute,
+}
 export const routeTree = rootRouteImport
-    ._addFileChildren(rootRouteChildren)
-    ._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from './router.tsx';
-import type { createStart } from '@tanstack/react-start';
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
-    interface Register {
-        ssr: true;
-        router: Awaited<ReturnType<typeof getRouter>>;
-    }
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
