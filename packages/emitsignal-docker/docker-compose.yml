@@ -119,7 +119,7 @@ services:
             - 'traefik.http.routers.emitsignal-website.rule=Host(`${APP_DOMAIN}`)'
             - 'traefik.http.routers.emitsignal-website.entrypoints=websecure'
             - 'traefik.http.routers.emitsignal-website.tls.certresolver=letsencrypt'
-            - 'traefik.http.services.emitsignal-website.loadbalancer.server.port=3000'
+            - 'traefik.http.services.emitsignal-website.loadbalancer.server.port=5000'
         networks:
             - dokploy-network
             - default
