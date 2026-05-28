@@ -25,10 +25,11 @@ FROM oven/bun:1
 
 WORKDIR /app
 
-ENV PATH="/app/node_modules/.bin:${PATH}"
+ENV PATH="/app/packages/emitsignal-server/node_modules/.bin:/app/node_modules/.bin:${PATH}"
 
-# Copy installed modules from the deps stage
+# Copy installed modules from the deps stage (root-hoisted + server package-level)
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages/emitsignal-server/node_modules ./packages/emitsignal-server/node_modules
 
 # Copy root manifest (required for workspace resolution at runtime)
 COPY package.json ./
