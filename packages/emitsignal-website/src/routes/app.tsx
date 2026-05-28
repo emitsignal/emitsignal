@@ -1,24 +1,18 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { createIsomorphicFn } from '@tanstack/react-start';
 
 import { Sidebar } from '#/components/app/sidebar';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
+import { hasAuthCookie } from '#/lib/auth.server';
 import { getSession } from '#/lib/storage';
+
+const isAuthenticated = createIsomorphicFn()
+    .server(() => hasAuthCookie())
+    .client(() => !!getSession());
 
 export const Route = createFileRoute('/app')({
     beforeLoad: async () => {
-        if (typeof window === 'undefined') {
-            const { getCookie } = await import('@tanstack/react-start/server');
-
-            if (!getCookie('emitsignal_auth')) {
-                throw redirect({ to: '/sign-in' });
-            }
-
-            return;
-        }
-
-        const session = getSession();
-
-        if (!session) {
+        if (!(await isAuthenticated())) {
             throw redirect({ to: '/sign-in' });
         }
     },
