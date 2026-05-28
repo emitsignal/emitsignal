@@ -25,6 +25,8 @@ FROM oven/bun:1
 
 WORKDIR /app
 
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
 # Copy installed modules from the deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -39,7 +41,7 @@ WORKDIR /app/packages/emitsignal-server
 
 # Generate the Prisma client at build time so it is baked into the image.
 # The output path (src/generated/prisma/) is defined in prisma/schema.prisma.
-RUN bunx prisma generate
+RUN prisma generate
 
 # Ensure runtime directories exist for SQLite (dev) and local file uploads
 RUN mkdir -p db uploads
@@ -48,4 +50,4 @@ EXPOSE 5100
 
 # Default: apply pending migrations then start the API server.
 # The worker service overrides this CMD in docker-compose.yml.
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun src/index.ts"]
+CMD ["sh", "-c", "prisma migrate deploy && bun src/index.ts"]
