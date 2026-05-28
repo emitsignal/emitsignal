@@ -12,7 +12,7 @@ interface SectionProps {
 export function Section({ children, className, id, style }: SectionProps) {
     return (
         <section
-            className={cn('border-t border-line px-16 py-24', className)}
+            className={cn('border-t border-line px-5 py-12 sm:px-8 md:px-16 md:py-24', className)}
             id={id}
             style={style}
         >

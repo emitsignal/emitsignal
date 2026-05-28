@@ -3,37 +3,17 @@ import { ArrowRight, Terminal } from 'lucide-react';
 import { Button } from './button';
 import { HeroTerminal } from './hero-terminal';
 
-const PARTNER_LOGOS = [
-    'vercel',
-    'linear',
-    'planetscale',
-    'supabase',
-    'railway',
-    'fly.io',
-    'turso',
-    'cal.com',
-];
 
 export function Hero() {
     return (
-        <section className="relative overflow-hidden px-16 pb-16 pt-22">
+        <section className="relative overflow-hidden px-5 pb-10 pt-14 sm:px-8 md:px-16 md:pb-16 md:pt-22">
             <HeroBackground />
 
-            <div className="relative mx-auto grid max-w-[1280px] grid-cols-[1fr_1.05fr] items-center gap-16">
+            <div className="relative mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 md:grid-cols-[1fr_1.05fr] md:gap-16">
                 <HeroCopy />
                 <HeroTerminal />
             </div>
 
-            <div className="relative mx-auto mt-16 max-w-[1280px]">
-                <p className="mb-4 text-center font-mono text-[10.5px] tracking-[1.6px] text-dim">
-                    USED BY 2,400+ DEV TEAMS · PUBLISHING 90M+ SIGNALS / MONTH
-                </p>
-                <div className="flex items-center justify-around gap-8 font-mono text-[14px] font-semibold text-muted opacity-55">
-                    {PARTNER_LOGOS.map((name) => (
-                        <span key={name}>{name}</span>
-                    ))}
-                </div>
-            </div>
         </section>
     );
 }
@@ -70,7 +50,7 @@ function HeroCopy() {
                 v0.7.2 · the dev-native pubsub layer
             </div>
 
-            <h1 className="m-0 font-sans text-[76px] font-semibold leading-[0.98] tracking-[-2.6px] text-fg">
+            <h1 className="m-0 font-sans text-[44px] font-semibold leading-[0.98] tracking-[-1.6px] text-fg sm:text-[56px] sm:tracking-[-2px] md:text-[76px] md:tracking-[-2.6px]">
                 Push&nbsp;notifications
                 <br />
                 with{' '}
@@ -96,7 +76,7 @@ function HeroCopy() {
 
             <TryItNowCurl />
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
                 <Button icon={<ArrowRight size={13} />} to="/app" variant="primary">
                     Get started · free
                 </Button>

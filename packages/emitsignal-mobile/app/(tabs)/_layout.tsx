@@ -1,11 +1,25 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { W } from '@/constants/theme';
+import { useOnboarding } from '@/hooks/use-onboarding';
 
 export default function TabLayout() {
+    const { isLoading, isOnboardingComplete } = useOnboarding();
+
+    useEffect(() => {
+        if (!isLoading && !isOnboardingComplete) {
+            router.replace('/auth');
+        }
+    }, [isLoading, isOnboardingComplete]);
+
+    if (isLoading || !isOnboardingComplete) {
+        return null;
+    }
+
     return (
         <Tabs
             screenOptions={{

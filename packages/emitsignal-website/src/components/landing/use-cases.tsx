@@ -60,7 +60,7 @@ export function UseCases() {
     return (
         <Section id="use-cases">
             <Eyebrow>USE CASES</Eyebrow>
-            <h2 className="m-0 mb-4 max-w-[820px] text-[44px] font-semibold leading-[1.05] tracking-[-1.4px] text-fg">
+            <h2 className="m-0 mb-4 max-w-[820px] text-[28px] font-semibold leading-[1.05] tracking-[-1px] text-fg sm:text-[36px] md:text-[44px] md:tracking-[-1.4px]">
                 Anything that emits a status line.
             </h2>
             <p className="mb-10 max-w-[620px] font-sans text-[17px] leading-[1.55] text-muted">
@@ -68,7 +68,7 @@ export function UseCases() {
                 the API forgets how to count. Topics are strings — go wild.
             </p>
 
-            <div className="grid grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 md:grid-cols-3">
                 {CASES.map((useCase, index) => (
                     <UseCaseCard key={index} useCase={useCase} />
                 ))}

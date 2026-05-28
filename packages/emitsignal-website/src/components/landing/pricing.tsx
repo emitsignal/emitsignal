@@ -72,7 +72,7 @@ export function Pricing() {
             style={{ background: 'linear-gradient(180deg, transparent, rgba(26,22,37,0.33))' }}
         >
             <Eyebrow>PRICING</Eyebrow>
-            <h2 className="m-0 mb-4 max-w-[780px] text-[44px] font-semibold leading-[1.05] tracking-[-1.4px] text-fg">
+            <h2 className="m-0 mb-4 max-w-[780px] text-[28px] font-semibold leading-[1.05] tracking-[-1px] text-fg sm:text-[36px] md:text-[44px] md:tracking-[-1.4px]">
                 Pay for what you push.
             </h2>
             <p className="mb-10 max-w-[620px] font-sans text-[17px] leading-[1.55] text-muted">
@@ -80,7 +80,7 @@ export function Pricing() {
                 many teams stay on it.
             </p>
 
-            <div className="grid grid-cols-3 gap-[18px]">
+            <div className="grid grid-cols-1 gap-[18px] md:grid-cols-3">
                 {TIERS.map((tier) => (
                     <TierCard key={tier.name} tier={tier} />
                 ))}

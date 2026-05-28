@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router';
+
 import { Logo } from '#/components/ui/logo';
 
 interface FooterColumn {
@@ -6,19 +8,20 @@ interface FooterColumn {
 }
 
 interface FooterLink {
-    href: string;
+    href?: string;
     label: string;
+    to?: string;
 }
 
 const COLUMNS: FooterColumn[] = [
     {
         heading: 'product',
         links: [
-            { href: '#surfaces', label: 'CLI' },
-            { href: '/app', label: 'Web dashboard' },
-            { href: '#surfaces', label: 'Mobile' },
-            { href: '#how', label: 'API' },
-            { href: '#', label: 'Changelog' },
+            { label: 'CLI', to: '/cli' },
+            { label: 'Web dashboard', to: '/dashboard' },
+            { label: 'Mobile', to: '/mobile' },
+            { label: 'API', to: '/api' },
+            { label: 'Changelog', to: '/changelog' },
         ],
     },
     {
@@ -29,16 +32,6 @@ const COLUMNS: FooterColumn[] = [
             { href: '#', label: 'Reference' },
             { href: '#use-cases', label: 'Examples' },
             { href: '#', label: 'Open source' },
-        ],
-    },
-    {
-        heading: 'company',
-        links: [
-            { href: '#', label: 'About' },
-            { href: '#', label: 'Blog' },
-            { href: '#', label: 'Careers' },
-            { href: '#', label: 'Press kit' },
-            { href: '#', label: 'Brand' },
         ],
     },
     {
@@ -57,10 +50,10 @@ const SOCIAL_BADGES = ['gh', 'tw', 'rs', 'em'];
 
 export function Footer() {
     return (
-        <footer className="border-t border-line bg-[#0a0614] px-16 pb-8 pt-14">
+        <footer className="border-t border-line bg-[#0a0614] px-5 pb-8 pt-10 sm:px-8 md:px-16 md:pt-14">
             <div className="mx-auto max-w-[1280px]">
-                <div className="mb-12 grid grid-cols-[1.4fr_repeat(4,1fr)] gap-10">
-                    <div>
+                <div className="mb-8 grid grid-cols-2 gap-6 sm:grid-cols-3 md:mb-12 md:grid-cols-[1.4fr_repeat(3,1fr)] md:gap-10">
+                    <div className="col-span-2 sm:col-span-3 md:col-span-1">
                         <Logo pulse size={16} />
                         <p className="mt-4 max-w-[280px] text-[13px] leading-[1.6] text-muted">
                             The dev-native pubsub layer.
@@ -88,12 +81,21 @@ export function Footer() {
                             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
                                 {col.links.map((link) => (
                                     <li key={link.label}>
-                                        <a
-                                            className="text-[13px] text-muted no-underline hover:text-fg"
-                                            href={link.href}
-                                        >
-                                            {link.label}
-                                        </a>
+                                        {link.to ? (
+                                            <Link
+                                                className="text-[13px] text-muted no-underline hover:text-fg"
+                                                to={link.to}
+                                            >
+                                                {link.label}
+                                            </Link>
+                                        ) : (
+                                            <a
+                                                className="text-[13px] text-muted no-underline hover:text-fg"
+                                                href={link.href}
+                                            >
+                                                {link.label}
+                                            </a>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
@@ -101,9 +103,9 @@ export function Footer() {
                     ))}
                 </div>
 
-                <div className="flex items-center gap-4 border-t border-line pt-5.5 font-mono text-[11px] text-dim">
+                <div className="flex flex-col gap-2 border-t border-line pt-5.5 font-mono text-[11px] text-dim sm:flex-row sm:items-center sm:gap-4">
                     <span>© 2026 EmitSignal Labs · made by humans, paged by computers</span>
-                    <span className="ml-auto flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5 sm:ml-auto">
                         <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
                         all systems normal · status.emitsignal.com
                     </span>

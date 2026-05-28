@@ -11,7 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as MobileRouteImport } from './routes/mobile'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CliRouteImport } from './routes/cli'
+import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppPublishRouteImport } from './routes/app/publish'
@@ -30,9 +35,34 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MobileRoute = MobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CliRoute = CliRouteImport.update({
+  id: '/cli',
+  path: '/cli',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRoute = ApiRouteImport.update({
+  id: '/api',
+  path: '/api',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -73,7 +103,12 @@ const AppInboxMessageIdRoute = AppInboxMessageIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api': typeof ApiRoute
   '/app': typeof AppRouteWithChildren
+  '/changelog': typeof ChangelogRoute
+  '/cli': typeof CliRoute
+  '/dashboard': typeof DashboardRoute
+  '/mobile': typeof MobileRoute
   '/sign-in': typeof SignInRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
@@ -85,6 +120,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api': typeof ApiRoute
+  '/changelog': typeof ChangelogRoute
+  '/cli': typeof CliRoute
+  '/dashboard': typeof DashboardRoute
+  '/mobile': typeof MobileRoute
   '/sign-in': typeof SignInRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
@@ -97,7 +137,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api': typeof ApiRoute
   '/app': typeof AppRouteWithChildren
+  '/changelog': typeof ChangelogRoute
+  '/cli': typeof CliRoute
+  '/dashboard': typeof DashboardRoute
+  '/mobile': typeof MobileRoute
   '/sign-in': typeof SignInRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
@@ -111,7 +156,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api'
     | '/app'
+    | '/changelog'
+    | '/cli'
+    | '/dashboard'
+    | '/mobile'
     | '/sign-in'
     | '/verify'
     | '/app/channels'
@@ -123,6 +173,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api'
+    | '/changelog'
+    | '/cli'
+    | '/dashboard'
+    | '/mobile'
     | '/sign-in'
     | '/verify'
     | '/app/channels'
@@ -134,7 +189,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api'
     | '/app'
+    | '/changelog'
+    | '/cli'
+    | '/dashboard'
+    | '/mobile'
     | '/sign-in'
     | '/verify'
     | '/app/channels'
@@ -147,7 +207,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiRoute: typeof ApiRoute
   AppRoute: typeof AppRouteWithChildren
+  ChangelogRoute: typeof ChangelogRoute
+  CliRoute: typeof CliRoute
+  DashboardRoute: typeof DashboardRoute
+  MobileRoute: typeof MobileRoute
   SignInRoute: typeof SignInRoute
   VerifyRoute: typeof VerifyRoute
 }
@@ -168,11 +233,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mobile': {
+      id: '/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof MobileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cli': {
+      id: '/cli'
+      path: '/cli'
+      fullPath: '/cli'
+      preLoaderRoute: typeof CliRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api': {
+      id: '/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -249,7 +349,12 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiRoute: ApiRoute,
   AppRoute: AppRouteWithChildren,
+  ChangelogRoute: ChangelogRoute,
+  CliRoute: CliRoute,
+  DashboardRoute: DashboardRoute,
+  MobileRoute: MobileRoute,
   SignInRoute: SignInRoute,
   VerifyRoute: VerifyRoute,
 }

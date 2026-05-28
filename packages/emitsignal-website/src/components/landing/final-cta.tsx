@@ -5,7 +5,7 @@ import { Section } from './section';
 
 export function FinalCTA() {
     return (
-        <Section className="px-16 py-30">
+        <Section className="px-5 py-16 sm:px-8 md:px-16 md:py-30">
             <div className="relative text-center">
                 <div
                     className="pointer-events-none absolute -top-10 left-[20%] right-[20%] h-[200px] blur-3xl"
@@ -15,7 +15,7 @@ export function FinalCTA() {
                     }}
                 />
                 <div className="relative">
-                    <h2 className="mx-auto m-0 mb-4.5 max-w-[780px] font-sans text-[58px] font-semibold leading-none tracking-[-1.8px]">
+                    <h2 className="mx-auto m-0 mb-4.5 max-w-[780px] font-sans text-[32px] font-semibold leading-none tracking-[-1px] sm:text-[44px] md:text-[58px] md:tracking-[-1.8px]">
                         One pipe. Everywhere you read.
                     </h2>
                     <p className="mx-auto mb-9 max-w-[560px] text-[17px] leading-[1.55] text-muted">
@@ -23,7 +23,7 @@ export function FinalCTA() {
                         <strong className="text-fg">Thirty seconds</strong> from{' '}
                         <em className="not-italic text-fg">brew install</em> to your first signal.
                     </p>
-                    <div className="inline-flex items-center gap-3.5">
+                    <div className="inline-flex flex-wrap items-center justify-center gap-3.5">
                         <Button icon={<ArrowRight size={13} />} to="/app" variant="primary">
                             Get started · free
                         </Button>

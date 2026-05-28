@@ -5,8 +5,14 @@ import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { getSession } from '#/lib/storage';
 
 export const Route = createFileRoute('/app')({
-    beforeLoad: () => {
+    beforeLoad: async () => {
         if (typeof window === 'undefined') {
+            const { getCookie } = await import('@tanstack/react-start/server');
+
+            if (!getCookie('emitsignal_auth')) {
+                throw redirect({ to: '/sign-in' });
+            }
+
             return;
         }
 

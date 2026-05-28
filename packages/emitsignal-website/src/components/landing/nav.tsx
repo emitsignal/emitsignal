@@ -31,11 +31,11 @@ export function Nav() {
     const { user } = useSession();
 
     return (
-        <nav className="sticky top-0 z-10 flex items-center gap-7 border-b border-line bg-bg/85 px-8 py-3.5 font-mono text-[12.5px] backdrop-blur-md">
+        <nav className="sticky top-0 z-10 flex items-center gap-4 border-b border-line bg-bg/85 px-4 py-3.5 font-mono text-[12.5px] backdrop-blur-md sm:gap-7 sm:px-8">
             <Link className="text-fg no-underline" to="/">
                 <Logo pulse />
             </Link>
-            <div className="ml-4 flex gap-[22px]">
+            <div className="ml-4 hidden gap-[22px] md:flex">
                 {LINKS.map((link, index) => (
                     <a
                         className="text-muted no-underline hover:text-fg"
@@ -54,12 +54,15 @@ export function Nav() {
                             to="/app"
                         >
                             <Avatar name={user.email} rounded={100} size={22} />
-                            <span>Dashboard</span>
+                            <span className="hidden sm:inline">Dashboard</span>
                         </Link>
                     </>
                 ) : (
                     <>
-                        <Link className="text-muted no-underline hover:text-fg" to="/sign-in">
+                        <Link
+                            className="hidden text-muted no-underline hover:text-fg sm:inline"
+                            to="/sign-in"
+                        >
                             Sign in
                         </Link>
                         <Link

@@ -59,7 +59,7 @@ export function HowItWorks() {
     return (
         <Section id="how">
             <Eyebrow>HOW IT WORKS</Eyebrow>
-            <h2 className="m-0 mb-4 max-w-[780px] text-[44px] font-semibold leading-[1.05] tracking-[-1.4px] text-fg">
+            <h2 className="m-0 mb-4 max-w-[780px] text-[28px] font-semibold leading-[1.05] tracking-[-1px] text-fg sm:text-[36px] md:text-[44px] md:tracking-[-1.4px]">
                 One verb. Three steps. Zero SDKs.
             </h2>
             <p className="mb-10 max-w-[620px] font-sans text-[17px] leading-[1.55] text-muted">
@@ -78,7 +78,7 @@ export function HowItWorks() {
 
 function StepCard({ step }: { step: Step }) {
     return (
-        <div className="grid grid-cols-[1fr_1.4fr] items-center gap-10 rounded-2xl border border-line bg-elev px-9 py-8">
+        <div className="grid grid-cols-1 items-center gap-6 rounded-2xl border border-line bg-elev px-5 py-6 md:grid-cols-[1fr_1.4fr] md:gap-10 md:px-9 md:py-8">
             <div>
                 <p className="mb-2.5 font-mono text-[13px] font-semibold text-accent">
                     {step.stepNumber}

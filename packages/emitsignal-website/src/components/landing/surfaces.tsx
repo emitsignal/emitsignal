@@ -20,14 +20,14 @@ export function Surfaces() {
     return (
         <Section id="surfaces">
             <Eyebrow>SURFACES</Eyebrow>
-            <h2 className="m-0 mb-4 max-w-[820px] text-[44px] font-semibold leading-[1.05] tracking-[-1.4px] text-fg">
+            <h2 className="m-0 mb-4 max-w-[820px] text-[28px] font-semibold leading-[1.05] tracking-[-1px] text-fg sm:text-[36px] md:text-[44px] md:tracking-[-1.4px]">
                 Read & write from wherever you already work.
             </h2>
             <p className="mb-10 max-w-[620px] font-sans text-[17px] leading-[1.55] text-muted">
                 Same brand, same routing, every surface. Pick one or use all five — they sync.
             </p>
 
-            <div className="grid grid-cols-12 gap-[18px]">
+            <div className="grid grid-cols-1 gap-[18px] md:grid-cols-12">
                 <SurfaceCard
                     desc="Listen, publish, tui."
                     icon={Terminal}
@@ -58,8 +58,8 @@ export function Surfaces() {
 }
 
 const SPAN_CLASS: Record<number, string> = {
-    5: 'col-span-5',
-    7: 'col-span-7',
+    5: 'col-span-1 md:col-span-5',
+    7: 'col-span-1 md:col-span-7',
 };
 
 interface MobileItem {

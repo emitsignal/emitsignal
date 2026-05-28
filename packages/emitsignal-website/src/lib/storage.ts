@@ -50,8 +50,10 @@ export function getSession(): null | StoredSession {
 
 export function removeSession(): void {
     localStorage.removeItem(SESSION_KEY);
+    document.cookie = 'emitsignal_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
 }
 
 export function setSession(token: string, user: SessionUser): void {
     localStorage.setItem(SESSION_KEY, JSON.stringify({ token, user }));
+    document.cookie = 'emitsignal_auth=1; path=/; SameSite=Lax; Max-Age=2592000';
 }
