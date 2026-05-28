@@ -40,6 +40,7 @@ WORKDIR /app
 
 COPY --from=build /app/packages/emitsignal-website/.output ./.output
 
+ENV HOST=0.0.0.0
 ENV PORT=5000
 EXPOSE 5000
 
