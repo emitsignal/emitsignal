@@ -9,8 +9,13 @@ WORKDIR /app
 # Copy workspace manifest and lockfile
 COPY package.json bun.lock ./
 
-# Copy the website package manifest for dependency resolution
-COPY packages/emitsignal-website/package.json ./packages/emitsignal-website/
+# Copy all workspace package manifests so bun can validate the lockfile
+COPY packages/emitsignal-docker/package.json    ./packages/emitsignal-docker/
+COPY packages/emitsignal-e2e-testing/package.json ./packages/emitsignal-e2e-testing/
+COPY packages/emitsignal-emails/package.json    ./packages/emitsignal-emails/
+COPY packages/emitsignal-mobile/package.json    ./packages/emitsignal-mobile/
+COPY packages/emitsignal-server/package.json    ./packages/emitsignal-server/
+COPY packages/emitsignal-website/package.json   ./packages/emitsignal-website/
 
 # Install all workspace dependencies
 RUN bun install --frozen-lockfile

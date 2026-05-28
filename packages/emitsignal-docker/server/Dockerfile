@@ -9,9 +9,13 @@ WORKDIR /app
 # Copy workspace manifest and lockfile first to maximise layer cache hits
 COPY package.json bun.lock ./
 
-# Copy only the package manifests needed by the server
-COPY packages/emitsignal-server/package.json ./packages/emitsignal-server/
-COPY packages/emitsignal-emails/package.json  ./packages/emitsignal-emails/
+# Copy all workspace package manifests so bun can validate the lockfile
+COPY packages/emitsignal-docker/package.json    ./packages/emitsignal-docker/
+COPY packages/emitsignal-e2e-testing/package.json ./packages/emitsignal-e2e-testing/
+COPY packages/emitsignal-emails/package.json    ./packages/emitsignal-emails/
+COPY packages/emitsignal-mobile/package.json    ./packages/emitsignal-mobile/
+COPY packages/emitsignal-server/package.json    ./packages/emitsignal-server/
+COPY packages/emitsignal-website/package.json   ./packages/emitsignal-website/
 
 # Install all workspace dependencies (hoisted to /app/node_modules by Bun)
 RUN bun install --frozen-lockfile
