@@ -5,90 +5,6 @@ import { Nav } from '#/components/landing/nav';
 
 export const Route = createFileRoute('/cli')({ component: CLIPage });
 
-function Block({ children }: { children: React.ReactNode }) {
-    return (
-        <pre className="overflow-x-auto rounded-xl border border-line bg-deep px-4 py-3.5 font-mono text-[12.5px] leading-[1.7] text-fg">
-            {children}
-        </pre>
-    );
-}
-
-function Kicker({ children }: { children: React.ReactNode }) {
-    return (
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
-            {children}
-        </p>
-    );
-}
-
-function H2({ children }: { children: React.ReactNode }) {
-    return (
-        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
-            {children}
-        </h2>
-    );
-}
-
-function H3({ children }: { children: React.ReactNode }) {
-    return (
-        <h3 className="mb-2 mt-0 font-mono text-[15px] font-semibold text-fg">{children}</h3>
-    );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
-}
-
-function CommandRow({
-    args,
-    desc,
-    name,
-}: {
-    args?: string;
-    desc: string;
-    name: string;
-}) {
-    return (
-        <div className="flex flex-col gap-1 border-b border-line py-3.5 sm:flex-row sm:items-start sm:gap-6">
-            <div className="min-w-0 shrink-0 sm:w-[280px]">
-                <span className="font-mono text-[12.5px] text-accent">{name}</span>
-                {args && <span className="ml-1.5 font-mono text-[11.5px] text-dim">{args}</span>}
-            </div>
-            <p className="m-0 text-[13px] leading-[1.55] text-muted">{desc}</p>
-        </div>
-    );
-}
-
-function FlagRow({ default: def, desc, flag }: { default?: string; desc: string; flag: string }) {
-    return (
-        <div className="flex flex-col gap-1 border-b border-line py-3 sm:flex-row sm:items-start sm:gap-6">
-            <div className="shrink-0 sm:w-[240px]">
-                <span className="font-mono text-[12px] text-warn">{flag}</span>
-                {def && (
-                    <span className="ml-2 font-mono text-[10.5px] text-faint">
-                        default: {def}
-                    </span>
-                )}
-            </div>
-            <p className="m-0 text-[13px] leading-[1.55] text-muted">{desc}</p>
-        </div>
-    );
-}
-
-function Section({
-    children,
-    id,
-}: {
-    children: React.ReactNode;
-    id?: string;
-}) {
-    return (
-        <section className="border-t border-line py-14" id={id}>
-            {children}
-        </section>
-    );
-}
-
 export default function CLIPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
@@ -115,23 +31,20 @@ export default function CLIPage() {
                     </div>
                     <p className="font-mono text-[12px] text-dim">
                         or:{' '}
-                        <span className="text-muted">
-                            curl -sSL emitsignal.com/install | sh
-                        </span>
+                        <span className="text-muted">curl -sSL emitsignal.com/install | sh</span>
                     </p>
                 </div>
             </div>
 
             <div className="px-5 sm:px-8 md:px-16">
                 <div className="mx-auto max-w-[860px]">
-
                     {/* Installation */}
                     <Section id="install">
                         <Kicker>Installation</Kicker>
                         <H2>Get it running in 30 seconds.</H2>
                         <P>
-                            The CLI ships as a single static binary. No Node, no Python, no
-                            runtime. Pick your method — they all install the same binary.
+                            The CLI ships as a single static binary. No Node, no Python, no runtime.
+                            Pick your method — they all install the same binary.
                         </P>
 
                         <div className="space-y-3">
@@ -215,7 +128,11 @@ $ emitsignal listen --priority ">=3"
                     <Section id="commands">
                         <Kicker>Command Reference</Kicker>
                         <H2>All commands.</H2>
-                        <P>Every command accepts <code className="font-mono text-[13px] text-accent">--help</code> for inline documentation.</P>
+                        <P>
+                            Every command accepts{' '}
+                            <code className="font-mono text-[13px] text-accent">--help</code> for
+                            inline documentation.
+                        </P>
 
                         <div className="rounded-xl border border-line">
                             <div className="border-b border-line px-4 py-2.5 font-mono text-[10.5px] uppercase tracking-[1.4px] text-dim">
@@ -351,10 +268,7 @@ $ emitsignal listen --priority ">=3"
                                 desc="Disable color output. Also set NO_COLOR=1 for subprocesses."
                                 flag="--no-color"
                             />
-                            <FlagRow
-                                desc="Print help for any command."
-                                flag="--help, -h"
-                            />
+                            <FlagRow desc="Print help for any command." flag="--help, -h" />
                         </div>
                     </Section>
 
@@ -464,10 +378,7 @@ $ emitsignal listen deploy/prod --count 1`}</Block>
                                 desc="Replay the last N signals before streaming live."
                                 flag="--replay <n>"
                             />
-                            <FlagRow
-                                desc="Exit after receiving N signals."
-                                flag="--count <n>"
-                            />
+                            <FlagRow desc="Exit after receiving N signals." flag="--count <n>" />
                             <FlagRow
                                 desc="Only show signals since this time. Accepts RFC3339 or relative: '10m', '2h', '1d'."
                                 flag="--since <time>"
@@ -480,7 +391,11 @@ $ emitsignal listen deploy/prod --count 1`}</Block>
                         <Kicker>run</Kicker>
                         <H2>Wrap any command and signal its outcome.</H2>
                         <P>
-                            <code className="font-mono text-[13px] text-accent">emitsignal run</code> executes a shell command and automatically publishes a success or failure signal when it exits. Ideal for cron jobs and scripts.
+                            <code className="font-mono text-[13px] text-accent">
+                                emitsignal run
+                            </code>{' '}
+                            executes a shell command and automatically publishes a success or
+                            failure signal when it exits. Ideal for cron jobs and scripts.
                         </P>
                         <Block>{`# Basic usage — publishes to cron/<name> by default
 $ emitsignal run --name "nightly-backup" pg_dump prod | gzip > /tmp/bak.gz
@@ -533,7 +448,15 @@ $ emitsignal run --capture-output --topic ci/tests -- npm test
                         <Kicker>Configuration</Kicker>
                         <H2>Config file reference.</H2>
                         <P>
-                            The CLI stores its config in <code className="font-mono text-[13px] text-accent">~/.emitsignal/config.toml</code>. You can also use a project-local file by passing <code className="font-mono text-[13px] text-accent">--config ./emitsignal.toml</code>.
+                            The CLI stores its config in{' '}
+                            <code className="font-mono text-[13px] text-accent">
+                                ~/.emitsignal/config.toml
+                            </code>
+                            . You can also use a project-local file by passing{' '}
+                            <code className="font-mono text-[13px] text-accent">
+                                --config ./emitsignal.toml
+                            </code>
+                            .
                         </P>
                         <Block>{`# ~/.emitsignal/config.toml
 
@@ -571,7 +494,10 @@ only_failures = false`}</Block>
                         <Kicker>Environment Variables</Kicker>
                         <H2>Configure via environment.</H2>
                         <P>
-                            All config keys have env var equivalents, prefixed with <code className="font-mono text-[13px] text-accent">EMITSIGNAL_</code>. Environment variables override the config file. Useful for CI and Docker.
+                            All config keys have env var equivalents, prefixed with{' '}
+                            <code className="font-mono text-[13px] text-accent">EMITSIGNAL_</code>.
+                            Environment variables override the config file. Useful for CI and
+                            Docker.
                         </P>
 
                         <div className="rounded-xl border border-line px-4">
@@ -591,14 +517,8 @@ only_failures = false`}</Block>
                                 desc="Default priority for publish commands."
                                 flag="EMITSIGNAL_PRIORITY"
                             />
-                            <FlagRow
-                                desc="Path to config file."
-                                flag="EMITSIGNAL_CONFIG"
-                            />
-                            <FlagRow
-                                desc="Set to 1 to disable color output."
-                                flag="NO_COLOR"
-                            />
+                            <FlagRow desc="Path to config file." flag="EMITSIGNAL_CONFIG" />
+                            <FlagRow desc="Set to 1 to disable color output." flag="NO_COLOR" />
                         </div>
 
                         <div className="mt-5">
@@ -617,7 +537,9 @@ only_failures = false`}</Block>
                         <Kicker>TUI</Kicker>
                         <H2>Full-screen terminal inbox.</H2>
                         <P>
-                            The TUI is a full-featured terminal UI for reading and managing signals. It streams live updates over SSE and shows your full inbox with priorities, channels, and message detail.
+                            The TUI is a full-featured terminal UI for reading and managing signals.
+                            It streams live updates over SSE and shows your full inbox with
+                            priorities, channels, and message detail.
                         </P>
                         <Block>{`$ emitsignal tui`}</Block>
                         <div className="mt-4 overflow-hidden rounded-xl border border-line bg-deep font-mono text-[12px]">
@@ -626,18 +548,24 @@ only_failures = false`}</Block>
                             </div>
                             <div className="grid grid-cols-[220px_1fr]">
                                 <div className="border-r border-line p-2.5">
-                                    <div className="rounded bg-accent/15 px-2 py-1 text-accent">● Inbox (3)</div>
+                                    <div className="rounded bg-accent/15 px-2 py-1 text-accent">
+                                        ● Inbox (3)
+                                    </div>
                                     <div className="mt-1 px-2 py-1 text-muted">● Channels</div>
                                     <div className="mt-1 px-2 py-1 text-muted">● Publish</div>
-                                    <div className="mt-3 px-2 text-[10px] uppercase tracking-widest text-faint">Channels</div>
-                                    <div className="mt-1 px-2 py-0.5 text-muted">  alerts/prod</div>
-                                    <div className="px-2 py-0.5 text-muted">  deploy/prod</div>
-                                    <div className="px-2 py-0.5 text-muted">  cron/backup</div>
+                                    <div className="mt-3 px-2 text-[10px] uppercase tracking-widest text-faint">
+                                        Channels
+                                    </div>
+                                    <div className="mt-1 px-2 py-0.5 text-muted"> alerts/prod</div>
+                                    <div className="px-2 py-0.5 text-muted"> deploy/prod</div>
+                                    <div className="px-2 py-0.5 text-muted"> cron/backup</div>
                                 </div>
                                 <div className="p-2.5">
                                     <div className="flex items-center gap-2 rounded bg-elev px-2.5 py-2">
                                         <span className="text-danger">●</span>
-                                        <span className="flex-1 text-fg">High memory on api-02</span>
+                                        <span className="flex-1 text-fg">
+                                            High memory on api-02
+                                        </span>
                                         <span className="text-faint">2m · p5</span>
                                     </div>
                                     <div className="mt-1 flex items-center gap-2 px-2.5 py-2">
@@ -647,7 +575,9 @@ only_failures = false`}</Block>
                                     </div>
                                     <div className="mt-1 flex items-center gap-2 px-2.5 py-2">
                                         <span className="text-success">●</span>
-                                        <span className="flex-1 text-muted">Build passed · 247 tests</span>
+                                        <span className="flex-1 text-muted">
+                                            Build passed · 247 tests
+                                        </span>
                                         <span className="text-faint">12m · p3</span>
                                     </div>
                                 </div>
@@ -660,13 +590,28 @@ only_failures = false`}</Block>
                         <div className="mt-5">
                             <H3>Keybindings</H3>
                             <div className="rounded-xl border border-line px-4">
-                                <FlagRow desc="Move up / down through the list." flag="j / k  or  ↑ / ↓" />
-                                <FlagRow desc="Expand the selected signal to full detail." flag="Enter" />
-                                <FlagRow desc="Dismiss (mark as read) the selected signal." flag="d" />
+                                <FlagRow
+                                    desc="Move up / down through the list."
+                                    flag="j / k  or  ↑ / ↓"
+                                />
+                                <FlagRow
+                                    desc="Expand the selected signal to full detail."
+                                    flag="Enter"
+                                />
+                                <FlagRow
+                                    desc="Dismiss (mark as read) the selected signal."
+                                    flag="d"
+                                />
                                 <FlagRow desc="Dismiss all signals in the current view." flag="D" />
-                                <FlagRow desc="Open the filter bar. Type a topic glob or priority expression." flag="/" />
+                                <FlagRow
+                                    desc="Open the filter bar. Type a topic glob or priority expression."
+                                    flag="/"
+                                />
                                 <FlagRow desc="Open the publish dialog." flag="p" />
-                                <FlagRow desc="Replay the selected signal (re-deliver to all subscribers)." flag="r" />
+                                <FlagRow
+                                    desc="Replay the selected signal (re-deliver to all subscribers)."
+                                    flag="r"
+                                />
                                 <FlagRow desc="Go to previous screen." flag="Esc / q" />
                             </div>
                         </div>
@@ -680,44 +625,46 @@ only_failures = false`}</Block>
                         <div className="space-y-4">
                             {[
                                 {
-                                    desc: 'Alert when a log file mentions "error"',
                                     code: `$ tail -f /var/log/app.log | grep --line-buffered "error" \\
     | while read -r line; do
         emitsignal publish alerts/prod "$line" --priority 4
     done`,
+                                    desc: 'Alert when a log file mentions "error"',
                                 },
                                 {
-                                    desc: 'Notify when a long-running command finishes',
                                     code: `$ make build && emitsignal publish me/build "build succeeded" \\
     || emitsignal publish me/build "build failed" --priority 4`,
+                                    desc: 'Notify when a long-running command finishes',
                                 },
                                 {
-                                    desc: 'Wrap a cron job and signal success/failure',
                                     code: `# crontab -e
 0 3 * * * emitsignal run --topic cron/backup -- /usr/local/bin/nightly-backup.sh`,
+                                    desc: 'Wrap a cron job and signal success/failure',
                                 },
                                 {
-                                    desc: 'Wait for a signal before continuing (useful in scripts)',
                                     code: `$ emitsignal listen deploy/staging --count 1 --format json \\
     | jq -r '.message' > /tmp/deploy-status.txt
 $ cat /tmp/deploy-status.txt`,
+                                    desc: 'Wait for a signal before continuing (useful in scripts)',
                                 },
                                 {
-                                    desc: 'Publish from Python (no SDK)',
                                     code: `import requests
 requests.post("https://api.emitsignal.com/publish/deploy/prod",
     json={"message": "v2.0.1 shipped", "priority": 4},
     headers={"Authorization": "Bearer es_live_xxx"})`,
+                                    desc: 'Publish from Python (no SDK)',
                                 },
                                 {
-                                    desc: 'GitHub Actions — notify on deploy',
                                     code: `- run: emitsignal publish deploy/\${{ github.ref_name }} "shipped" -p4
   env:
     EMITSIGNAL_TOKEN: \${{ secrets.EMITSIGNAL_TOKEN }}`,
+                                    desc: 'GitHub Actions — notify on deploy',
                                 },
                             ].map(({ code, desc }) => (
                                 <div key={desc}>
-                                    <p className="mb-1.5 font-mono text-[12px] text-muted"># {desc}</p>
+                                    <p className="mb-1.5 font-mono text-[12px] text-muted">
+                                        # {desc}
+                                    </p>
                                     <Block>{code}</Block>
                                 </div>
                             ))}
@@ -741,7 +688,9 @@ $ npm update -g emitsignal
 $ emitsignal version
 emitsignal 0.7.2 (latest)`}</Block>
                         <div className="mt-4 rounded-xl border border-dashed border-line px-4 py-3.5 font-mono text-[12px] text-muted">
-                            <span className="text-accent">→</span> The CLI checks for updates once per day and prints a notice when one is available. Disable with <span className="text-fg">EMITSIGNAL_NO_UPDATE_CHECK=1</span>.
+                            <span className="text-accent">→</span> The CLI checks for updates once
+                            per day and prints a notice when one is available. Disable with{' '}
+                            <span className="text-fg">EMITSIGNAL_NO_UPDATE_CHECK=1</span>.
                         </div>
                     </Section>
 
@@ -761,5 +710,71 @@ emitsignal 0.7.2 (latest)`}</Block>
 
             <Footer />
         </div>
+    );
+}
+
+function Block({ children }: { children: React.ReactNode }) {
+    return (
+        <pre className="overflow-x-auto rounded-xl border border-line bg-deep px-4 py-3.5 font-mono text-[12.5px] leading-[1.7] text-fg">
+            {children}
+        </pre>
+    );
+}
+
+function CommandRow({ args, desc, name }: { args?: string; desc: string; name: string }) {
+    return (
+        <div className="flex flex-col gap-1 border-b border-line py-3.5 sm:flex-row sm:items-start sm:gap-6">
+            <div className="min-w-0 shrink-0 sm:w-[280px]">
+                <span className="font-mono text-[12.5px] text-accent">{name}</span>
+                {args && <span className="ml-1.5 font-mono text-[11.5px] text-dim">{args}</span>}
+            </div>
+            <p className="m-0 text-[13px] leading-[1.55] text-muted">{desc}</p>
+        </div>
+    );
+}
+
+function FlagRow({ default: def, desc, flag }: { default?: string; desc: string; flag: string }) {
+    return (
+        <div className="flex flex-col gap-1 border-b border-line py-3 sm:flex-row sm:items-start sm:gap-6">
+            <div className="shrink-0 sm:w-[240px]">
+                <span className="font-mono text-[12px] text-warn">{flag}</span>
+                {def && (
+                    <span className="ml-2 font-mono text-[10.5px] text-faint">default: {def}</span>
+                )}
+            </div>
+            <p className="m-0 text-[13px] leading-[1.55] text-muted">{desc}</p>
+        </div>
+    );
+}
+
+function H2({ children }: { children: React.ReactNode }) {
+    return (
+        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
+            {children}
+        </h2>
+    );
+}
+
+function H3({ children }: { children: React.ReactNode }) {
+    return <h3 className="mb-2 mt-0 font-mono text-[15px] font-semibold text-fg">{children}</h3>;
+}
+
+function Kicker({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
+            {children}
+        </p>
+    );
+}
+
+function P({ children }: { children: React.ReactNode }) {
+    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
+}
+
+function Section({ children, id }: { children: React.ReactNode; id?: string }) {
+    return (
+        <section className="border-t border-line py-14" id={id}>
+            {children}
+        </section>
     );
 }

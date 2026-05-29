@@ -19,3 +19,5 @@ out
 
 .agents/skills/tanstack-start
 .agents/skills/vercel-*
+
+.docs

@@ -1,58 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { Dot } from '#/components/ui/dot';
 import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
+import { Dot } from '#/components/ui/dot';
 
 export const Route = createFileRoute('/dashboard')({ component: DashboardPage });
-
-function Kicker({ children }: { children: React.ReactNode }) {
-    return (
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
-            {children}
-        </p>
-    );
-}
-
-function H2({ children }: { children: React.ReactNode }) {
-    return (
-        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
-            {children}
-        </h2>
-    );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
-}
-
-function Section({ children, id }: { children: React.ReactNode; id?: string }) {
-    return (
-        <section className="border-t border-line py-14" id={id}>
-            {children}
-        </section>
-    );
-}
-
-function FeatureCard({
-    desc,
-    label,
-    title,
-}: {
-    desc: string;
-    label: string;
-    title: string;
-}) {
-    return (
-        <div className="rounded-xl border border-line bg-elev p-5">
-            <p className="mb-2 font-mono text-[10.5px] uppercase tracking-[1.4px] text-accent">
-                {label}
-            </p>
-            <p className="mb-2 text-[16px] font-semibold tracking-[-0.3px] text-fg">{title}</p>
-            <p className="m-0 text-[13px] leading-[1.55] text-muted">{desc}</p>
-        </div>
-    );
-}
 
 export default function DashboardPage() {
     return (
@@ -106,8 +58,17 @@ export default function DashboardPage() {
                                 <div className="mt-4 px-2 text-[9px] uppercase tracking-widest text-faint">
                                     Channels
                                 </div>
-                                {['alerts/prod', 'deploy/prod', 'cron/backup', 'ci/web', 'errors/web'].map((ch) => (
-                                    <div className="mt-0.5 px-2.5 py-1 text-[11px] text-muted" key={ch}>
+                                {[
+                                    'alerts/prod',
+                                    'deploy/prod',
+                                    'cron/backup',
+                                    'ci/web',
+                                    'errors/web',
+                                ].map((ch) => (
+                                    <div
+                                        className="mt-0.5 px-2.5 py-1 text-[11px] text-muted"
+                                        key={ch}
+                                    >
                                         {ch}
                                     </div>
                                 ))}
@@ -116,14 +77,41 @@ export default function DashboardPage() {
                             <div className="min-w-0 flex-1 overflow-hidden">
                                 <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
                                     <span className="font-mono text-[11px] text-fg">Inbox</span>
-                                    <span className="font-mono text-[10px] text-dim">7 unread · all time</span>
+                                    <span className="font-mono text-[10px] text-dim">
+                                        7 unread · all time
+                                    </span>
                                 </div>
                                 {[
-                                    { ch: 'alerts/prod', msg: 'High memory on api-02 — mem.used > 92%', p: 5, t: '2m' },
-                                    { ch: 'alerts/prod', msg: 'TLS cert expiring · cdn.acme.io · 7d', p: 5, t: '14m' },
-                                    { ch: 'deploy/prod', msg: 'v2.14.3 shipped · api-gateway · 1m 42s', p: 4, t: '18m' },
-                                    { ch: 'ci/web', msg: 'Build passed · feat/oauth-pkce · 247 tests', p: 3, t: '32m' },
-                                    { ch: 'cron/backup', msg: 'nightly-backup.sh ✓ 14.2 GB → s3', p: 3, t: '3h' },
+                                    {
+                                        ch: 'alerts/prod',
+                                        msg: 'High memory on api-02 — mem.used > 92%',
+                                        p: 5,
+                                        t: '2m',
+                                    },
+                                    {
+                                        ch: 'alerts/prod',
+                                        msg: 'TLS cert expiring · cdn.acme.io · 7d',
+                                        p: 5,
+                                        t: '14m',
+                                    },
+                                    {
+                                        ch: 'deploy/prod',
+                                        msg: 'v2.14.3 shipped · api-gateway · 1m 42s',
+                                        p: 4,
+                                        t: '18m',
+                                    },
+                                    {
+                                        ch: 'ci/web',
+                                        msg: 'Build passed · feat/oauth-pkce · 247 tests',
+                                        p: 3,
+                                        t: '32m',
+                                    },
+                                    {
+                                        ch: 'cron/backup',
+                                        msg: 'nightly-backup.sh ✓ 14.2 GB → s3',
+                                        p: 3,
+                                        t: '3h',
+                                    },
                                 ].map((item, i) => (
                                     <div
                                         className={`flex items-start gap-3 border-b border-line px-4 py-3 ${i === 0 ? 'bg-elev' : ''}`}
@@ -132,10 +120,16 @@ export default function DashboardPage() {
                                         <Dot level={item.p} />
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-mono text-[10.5px] text-dim">{item.ch}</span>
-                                                <span className="ml-auto font-mono text-[10px] text-faint">{item.t}</span>
+                                                <span className="font-mono text-[10.5px] text-dim">
+                                                    {item.ch}
+                                                </span>
+                                                <span className="ml-auto font-mono text-[10px] text-faint">
+                                                    {item.t}
+                                                </span>
                                             </div>
-                                            <div className="mt-0.5 truncate text-[12.5px] text-fg">{item.msg}</div>
+                                            <div className="mt-0.5 truncate text-[12.5px] text-fg">
+                                                {item.msg}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -147,7 +141,6 @@ export default function DashboardPage() {
 
             <div className="px-5 sm:px-8 md:px-16">
                 <div className="mx-auto max-w-[1100px]">
-
                     {/* Overview */}
                     <Section id="overview">
                         <Kicker>Overview</Kicker>
@@ -197,24 +190,51 @@ export default function DashboardPage() {
                         <Kicker>Inbox</Kicker>
                         <H2>Your signal feed.</H2>
                         <P>
-                            The inbox streams signals in real time as they arrive. Signals are sorted
-                            by time with priority indicators. Click any signal to expand the full
-                            message, metadata, and delivery timeline.
+                            The inbox streams signals in real time as they arrive. Signals are
+                            sorted by time with priority indicators. Click any signal to expand the
+                            full message, metadata, and delivery timeline.
                         </P>
                         <div className="grid gap-4 md:grid-cols-2">
                             {[
-                                { title: 'Priority color coding', desc: 'p5 = red, p4 = amber, p3 = violet, p2/p1 = blue. Glanceable at 3am.' },
-                                { title: 'Real-time streaming', desc: 'New signals appear instantly via SSE. No polling, no reload.' },
-                                { title: 'Filter & search', desc: 'Filter by channel glob (alerts/*), priority expression (>=3), tag, or full text.' },
-                                { title: 'Bulk dismiss', desc: 'Mark all as read, or dismiss all signals in a filtered view.' },
-                                { title: 'Signal detail', desc: 'Expand any signal to see the full message, tags, metadata, and delivery log.' },
-                                { title: 'Replay', desc: 'Re-deliver any signal to all current subscribers. Useful for testing routing changes.' },
+                                {
+                                    desc: 'p5 = red, p4 = amber, p3 = violet, p2/p1 = blue. Glanceable at 3am.',
+                                    title: 'Priority color coding',
+                                },
+                                {
+                                    desc: 'New signals appear instantly via SSE. No polling, no reload.',
+                                    title: 'Real-time streaming',
+                                },
+                                {
+                                    desc: 'Filter by channel glob (alerts/*), priority expression (>=3), tag, or full text.',
+                                    title: 'Filter & search',
+                                },
+                                {
+                                    desc: 'Mark all as read, or dismiss all signals in a filtered view.',
+                                    title: 'Bulk dismiss',
+                                },
+                                {
+                                    desc: 'Expand any signal to see the full message, tags, metadata, and delivery log.',
+                                    title: 'Signal detail',
+                                },
+                                {
+                                    desc: 'Re-deliver any signal to all current subscribers. Useful for testing routing changes.',
+                                    title: 'Replay',
+                                },
                             ].map(({ desc, title }) => (
-                                <div className="flex gap-3 rounded-xl border border-line bg-elev p-4" key={title}>
-                                    <span className="mt-0.5 font-mono text-[13px] text-accent">→</span>
+                                <div
+                                    className="flex gap-3 rounded-xl border border-line bg-elev p-4"
+                                    key={title}
+                                >
+                                    <span className="mt-0.5 font-mono text-[13px] text-accent">
+                                        →
+                                    </span>
                                     <div>
-                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">{title}</p>
-                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">{desc}</p>
+                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">
+                                            {title}
+                                        </p>
+                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">
+                                            {desc}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -227,9 +247,11 @@ export default function DashboardPage() {
                         <H2>Organize topics into channels.</H2>
                         <P>
                             A channel is a named namespace with a topic prefix and a set of routing
-                            rules. Everything published to <code className="font-mono text-[13px] text-accent">deploy/prod</code>{' '}
-                            belongs to the <code className="font-mono text-[13px] text-accent">deploy</code> channel — which has
-                            its own routing configuration.
+                            rules. Everything published to{' '}
+                            <code className="font-mono text-[13px] text-accent">deploy/prod</code>{' '}
+                            belongs to the{' '}
+                            <code className="font-mono text-[13px] text-accent">deploy</code>{' '}
+                            channel — which has its own routing configuration.
                         </P>
 
                         <div className="overflow-hidden rounded-xl border border-line bg-deep font-mono text-[12px]">
@@ -241,10 +263,17 @@ export default function DashboardPage() {
                                     Routing Rules
                                 </div>
                                 {[
-                                    { match: 'priority:>=4', deliver: 'push + slack #deployments' },
-                                    { match: 'priority:<=3', deliver: 'inbox only' },
-                                    { match: 'tag:rollback', deliver: 'push + sms + slack', note: 'priority override: 5' },
-                                    { match: 'hour:between(0,7)', deliver: 'inbox · batch digest at 08:00' },
+                                    { deliver: 'push + slack #deployments', match: 'priority:>=4' },
+                                    { deliver: 'inbox only', match: 'priority:<=3' },
+                                    {
+                                        deliver: 'push + sms + slack',
+                                        match: 'tag:rollback',
+                                        note: 'priority override: 5',
+                                    },
+                                    {
+                                        deliver: 'inbox · batch digest at 08:00',
+                                        match: 'hour:between(0,7)',
+                                    },
                                 ].map((rule) => (
                                     <div
                                         className="mt-2 flex flex-wrap gap-2 rounded-lg border border-line px-3 py-2"
@@ -263,16 +292,37 @@ export default function DashboardPage() {
 
                         <div className="mt-6 grid gap-4 md:grid-cols-2">
                             {[
-                                { title: 'Topic prefix matching', desc: 'Channels match any topic that starts with their prefix. One channel can cover hundreds of topics.' },
-                                { title: 'Per-rule delivery targets', desc: 'Push, SMS, Slack, email, webhook — mix and match per rule. Each rule can target different destinations.' },
-                                { title: 'Delivery windows', desc: 'Suppress delivery between 00:00–07:00 and batch into a morning digest. Works per-rule.' },
-                                { title: 'Priority overrides', desc: 'A rollback tag can bump a p3 signal to p5 automatically. Rules can escalate or de-escalate priority.' },
+                                {
+                                    desc: 'Channels match any topic that starts with their prefix. One channel can cover hundreds of topics.',
+                                    title: 'Topic prefix matching',
+                                },
+                                {
+                                    desc: 'Push, SMS, Slack, email, webhook — mix and match per rule. Each rule can target different destinations.',
+                                    title: 'Per-rule delivery targets',
+                                },
+                                {
+                                    desc: 'Suppress delivery between 00:00–07:00 and batch into a morning digest. Works per-rule.',
+                                    title: 'Delivery windows',
+                                },
+                                {
+                                    desc: 'A rollback tag can bump a p3 signal to p5 automatically. Rules can escalate or de-escalate priority.',
+                                    title: 'Priority overrides',
+                                },
                             ].map(({ desc, title }) => (
-                                <div className="flex gap-3 rounded-xl border border-line bg-elev p-4" key={title}>
-                                    <span className="mt-0.5 font-mono text-[13px] text-accent">→</span>
+                                <div
+                                    className="flex gap-3 rounded-xl border border-line bg-elev p-4"
+                                    key={title}
+                                >
+                                    <span className="mt-0.5 font-mono text-[13px] text-accent">
+                                        →
+                                    </span>
                                     <div>
-                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">{title}</p>
-                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">{desc}</p>
+                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">
+                                            {title}
+                                        </p>
+                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">
+                                            {desc}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -289,28 +339,48 @@ export default function DashboardPage() {
                             announcements to your team.
                         </P>
                         <div className="overflow-hidden rounded-xl border border-line bg-deep font-mono text-[12px]">
-                            <div className="border-b border-line px-4 py-2.5 text-dim">Publish a signal</div>
+                            <div className="border-b border-line px-4 py-2.5 text-dim">
+                                Publish a signal
+                            </div>
                             <div className="p-4 space-y-3">
                                 <div>
-                                    <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">Topic</div>
-                                    <div className="rounded-lg border border-accent bg-elev px-3 py-2 text-fg">deploy/prod</div>
+                                    <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">
+                                        Topic
+                                    </div>
+                                    <div className="rounded-lg border border-accent bg-elev px-3 py-2 text-fg">
+                                        deploy/prod
+                                    </div>
                                 </div>
                                 <div>
-                                    <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">Message</div>
-                                    <div className="rounded-lg border border-line bg-elev px-3 py-2 text-muted">v2.14.3 shipped successfully · 1m 42s</div>
+                                    <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">
+                                        Message
+                                    </div>
+                                    <div className="rounded-lg border border-line bg-elev px-3 py-2 text-muted">
+                                        v2.14.3 shipped successfully · 1m 42s
+                                    </div>
                                 </div>
                                 <div className="flex gap-3">
                                     <div className="flex-1">
-                                        <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">Priority</div>
-                                        <div className="rounded-lg border border-line bg-elev px-3 py-2 text-accent">4 — high</div>
+                                        <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">
+                                            Priority
+                                        </div>
+                                        <div className="rounded-lg border border-line bg-elev px-3 py-2 text-accent">
+                                            4 — high
+                                        </div>
                                     </div>
                                     <div className="flex-1">
-                                        <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">Tags</div>
-                                        <div className="rounded-lg border border-line bg-elev px-3 py-2 text-muted">deploy, production</div>
+                                        <div className="mb-1 text-[10px] uppercase tracking-widest text-faint">
+                                            Tags
+                                        </div>
+                                        <div className="rounded-lg border border-line bg-elev px-3 py-2 text-muted">
+                                            deploy, production
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-end pt-1">
-                                    <div className="rounded-lg bg-accent px-5 py-2 text-bg">Publish →</div>
+                                    <div className="rounded-lg bg-accent px-5 py-2 text-bg">
+                                        Publish →
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -323,8 +393,8 @@ export default function DashboardPage() {
                         <P>
                             Create a key per service — CI gets a publish-only key scoped to{' '}
                             <code className="font-mono text-[13px] text-accent">deploy/*</code> and{' '}
-                            <code className="font-mono text-[13px] text-accent">ci/*</code>. The on-call rotation
-                            gets a subscribe-only key. Admin keys stay with humans.
+                            <code className="font-mono text-[13px] text-accent">ci/*</code>. The
+                            on-call rotation gets a subscribe-only key. Admin keys stay with humans.
                         </P>
 
                         <div className="overflow-hidden rounded-xl border border-line">
@@ -332,17 +402,43 @@ export default function DashboardPage() {
                                 API Keys
                             </div>
                             {[
-                                { label: 'ci-prod', scope: 'publish', topics: 'deploy/*, ci/*', created: '2026-01-15', last: '2m ago' },
-                                { label: 'monitoring', scope: 'publish', topics: 'alerts/*, errors/*', created: '2026-02-01', last: '14m ago' },
-                                { label: 'oncall-reader', scope: 'subscribe', topics: '*', created: '2026-03-10', last: '1h ago' },
-                                { label: 'admin', scope: 'admin', topics: '*', created: '2025-12-01', last: '2d ago' },
+                                {
+                                    created: '2026-01-15',
+                                    label: 'ci-prod',
+                                    last: '2m ago',
+                                    scope: 'publish',
+                                    topics: 'deploy/*, ci/*',
+                                },
+                                {
+                                    created: '2026-02-01',
+                                    label: 'monitoring',
+                                    last: '14m ago',
+                                    scope: 'publish',
+                                    topics: 'alerts/*, errors/*',
+                                },
+                                {
+                                    created: '2026-03-10',
+                                    label: 'oncall-reader',
+                                    last: '1h ago',
+                                    scope: 'subscribe',
+                                    topics: '*',
+                                },
+                                {
+                                    created: '2025-12-01',
+                                    label: 'admin',
+                                    last: '2d ago',
+                                    scope: 'admin',
+                                    topics: '*',
+                                },
                             ].map((key) => (
                                 <div
                                     className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 last:border-0 font-mono text-[12px]"
                                     key={key.label}
                                 >
                                     <span className="w-32 text-fg">{key.label}</span>
-                                    <span className={`rounded px-1.5 py-0.5 text-[10px] ${key.scope === 'admin' ? 'bg-danger/15 text-danger' : key.scope === 'publish' ? 'bg-accent/15 text-accent' : 'bg-success/15 text-success'}`}>
+                                    <span
+                                        className={`rounded px-1.5 py-0.5 text-[10px] ${key.scope === 'admin' ? 'bg-danger/15 text-danger' : key.scope === 'publish' ? 'bg-accent/15 text-accent' : 'bg-success/15 text-success'}`}
+                                    >
                                         {key.scope}
                                     </span>
                                     <span className="flex-1 text-dim">{key.topics}</span>
@@ -364,16 +460,37 @@ export default function DashboardPage() {
                         </P>
                         <div className="grid gap-4 md:grid-cols-2">
                             {[
-                                { title: 'Full-text search', desc: 'Search message content, titles, and metadata. Results sorted by relevance or time.' },
-                                { title: 'Advanced filters', desc: 'Combine topic glob, priority range, tag, date range, publisher, and read status.' },
-                                { title: 'Export', desc: 'Download filtered results as JSON (with metadata) or CSV (for spreadsheets).' },
-                                { title: 'Retention', desc: 'Free: 7 days · Team: 90 days · Enterprise: configurable (up to 3 years).' },
+                                {
+                                    desc: 'Search message content, titles, and metadata. Results sorted by relevance or time.',
+                                    title: 'Full-text search',
+                                },
+                                {
+                                    desc: 'Combine topic glob, priority range, tag, date range, publisher, and read status.',
+                                    title: 'Advanced filters',
+                                },
+                                {
+                                    desc: 'Download filtered results as JSON (with metadata) or CSV (for spreadsheets).',
+                                    title: 'Export',
+                                },
+                                {
+                                    desc: 'Free: 7 days · Team: 90 days · Enterprise: configurable (up to 3 years).',
+                                    title: 'Retention',
+                                },
                             ].map(({ desc, title }) => (
-                                <div className="flex gap-3 rounded-xl border border-line bg-elev p-4" key={title}>
-                                    <span className="mt-0.5 font-mono text-[13px] text-accent">→</span>
+                                <div
+                                    className="flex gap-3 rounded-xl border border-line bg-elev p-4"
+                                    key={title}
+                                >
+                                    <span className="mt-0.5 font-mono text-[13px] text-accent">
+                                        →
+                                    </span>
                                     <div>
-                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">{title}</p>
-                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">{desc}</p>
+                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">
+                                            {title}
+                                        </p>
+                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">
+                                            {desc}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -396,5 +513,45 @@ export default function DashboardPage() {
 
             <Footer />
         </div>
+    );
+}
+
+function FeatureCard({ desc, label, title }: { desc: string; label: string; title: string }) {
+    return (
+        <div className="rounded-xl border border-line bg-elev p-5">
+            <p className="mb-2 font-mono text-[10.5px] uppercase tracking-[1.4px] text-accent">
+                {label}
+            </p>
+            <p className="mb-2 text-[16px] font-semibold tracking-[-0.3px] text-fg">{title}</p>
+            <p className="m-0 text-[13px] leading-[1.55] text-muted">{desc}</p>
+        </div>
+    );
+}
+
+function H2({ children }: { children: React.ReactNode }) {
+    return (
+        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
+            {children}
+        </h2>
+    );
+}
+
+function Kicker({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
+            {children}
+        </p>
+    );
+}
+
+function P({ children }: { children: React.ReactNode }) {
+    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
+}
+
+function Section({ children, id }: { children: React.ReactNode; id?: string }) {
+    return (
+        <section className="border-t border-line py-14" id={id}>
+            {children}
+        </section>
     );
 }

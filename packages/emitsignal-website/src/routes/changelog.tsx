@@ -172,21 +172,6 @@ const RELEASES: ChangeEntry[] = [
     },
 ];
 
-function Tag({ type }: { type: 'added' | 'fixed' | 'improved' }) {
-    const styles = {
-        added: 'bg-success/15 text-success',
-        fixed: 'bg-danger/15 text-danger',
-        improved: 'bg-accent/15 text-accent',
-    };
-    return (
-        <span
-            className={`rounded px-1.5 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[1.2px] ${styles[type]}`}
-        >
-            {type}
-        </span>
-    );
-}
-
 export default function ChangelogPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
@@ -319,5 +304,20 @@ export default function ChangelogPage() {
 
             <Footer />
         </div>
+    );
+}
+
+function Tag({ type }: { type: 'added' | 'fixed' | 'improved' }) {
+    const styles = {
+        added: 'bg-success/15 text-success',
+        fixed: 'bg-danger/15 text-danger',
+        improved: 'bg-accent/15 text-accent',
+    };
+    return (
+        <span
+            className={`rounded px-1.5 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[1.2px] ${styles[type]}`}
+        >
+            {type}
+        </span>
     );
 }

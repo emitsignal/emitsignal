@@ -17,14 +17,18 @@ export class Email {
     private static instance: EmailProvider | null = null;
 
     static init(env: Environment): EmailProvider {
-        if (Email.instance) return Email.instance;
+        if (Email.instance) {
+            return Email.instance;
+        }
 
         switch (env.EMAIL_PROVIDER) {
             case 'resend': {
                 if (!env.RESEND_API_KEY) {
                     throw new Error('RESEND_API_KEY is required when EMAIL_PROVIDER=resend');
                 }
+
                 Email.instance = new ResendProvider(env.RESEND_API_KEY);
+
                 break;
             }
             case 'smtp':

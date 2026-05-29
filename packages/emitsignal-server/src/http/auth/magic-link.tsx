@@ -23,10 +23,9 @@ function generateCode() {
 export const magicLink = new Elysia({ prefix: '/auth' }).post(
     '/magic-link',
     async ({ body }) => {
-        const email = body.email.toLowerCase().trim();
         const code = generateCode();
+        const email = body.email.toLowerCase().trim();
         const expiresAt = new Date(Date.now() + CODE_TTL_MS);
-        const magicLinkUrl = `${environment.APP_URL}/auth/verify?email=${encodeURIComponent(email)}&code=${code}`;
 
         await prisma.verificationCode.create({
             data: { code, email, expiresAt },
@@ -39,14 +38,14 @@ export const magicLink = new Elysia({ prefix: '/auth' }).post(
                 code={code}
                 email={email}
                 expiresAt={expiresAt}
-                magicLinkUrl={magicLinkUrl}
+                magicLinkUrl={`${environment.APP_URL}/auth/verify?code=${code}&email=${encodeURIComponent(email)}`}
             />,
         );
 
         EmailService.send({
             from: environment.EMAIL_FROM,
             html,
-            subject: `Sign in to EmitSignal — code: ${code}`,
+            subject: `Sign in to EmitSignal`,
             to: email,
         });
 

@@ -1,52 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-import { Dot } from '#/components/ui/dot';
 import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
+import { Dot } from '#/components/ui/dot';
 
 export const Route = createFileRoute('/mobile')({ component: MobilePage });
-
-function Kicker({ children }: { children: React.ReactNode }) {
-    return (
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
-            {children}
-        </p>
-    );
-}
-
-function H2({ children }: { children: React.ReactNode }) {
-    return (
-        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
-            {children}
-        </h2>
-    );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
-}
-
-function Section({ children, id }: { children: React.ReactNode; id?: string }) {
-    return (
-        <section className="border-t border-line py-14" id={id}>
-            {children}
-        </section>
-    );
-}
-
-function PhoneFrame({ children, title }: { children: React.ReactNode; title: string }) {
-    return (
-        <div className="overflow-hidden rounded-[28px] border-[3px] border-line bg-deep shadow-[0_20px_60px_rgba(91,33,182,0.12)]">
-            <div className="flex items-center justify-center border-b border-line bg-elev py-3">
-                <div className="h-[18px] w-[60px] rounded-full bg-bg" />
-            </div>
-            <div className="border-b border-line px-3 py-2.5 font-mono text-[10px] text-dim">
-                {title}
-            </div>
-            {children}
-        </div>
-    );
-}
 
 export default function MobilePage() {
     return (
@@ -112,11 +70,36 @@ export default function MobilePage() {
                                 <PhoneFrame title="EmitSignal · Feed">
                                     <div className="px-3 py-3">
                                         {[
-                                            { ch: 'alerts/prod', msg: 'High memory on api-02', p: 5, t: '2m' },
-                                            { ch: 'deploy/prod', msg: 'v2.14.3 shipped successfully', p: 4, t: '18m' },
-                                            { ch: 'cron/backup', msg: 'nightly-backup.sh ✓ 14.2 GB', p: 3, t: '3h' },
-                                            { ch: 'ci/web', msg: 'Build passed · 247 tests green', p: 3, t: '3h' },
-                                            { ch: 'github/acme', msg: 'PR #482 reviewed · approved', p: 2, t: '5h' },
+                                            {
+                                                ch: 'alerts/prod',
+                                                msg: 'High memory on api-02',
+                                                p: 5,
+                                                t: '2m',
+                                            },
+                                            {
+                                                ch: 'deploy/prod',
+                                                msg: 'v2.14.3 shipped successfully',
+                                                p: 4,
+                                                t: '18m',
+                                            },
+                                            {
+                                                ch: 'cron/backup',
+                                                msg: 'nightly-backup.sh ✓ 14.2 GB',
+                                                p: 3,
+                                                t: '3h',
+                                            },
+                                            {
+                                                ch: 'ci/web',
+                                                msg: 'Build passed · 247 tests green',
+                                                p: 3,
+                                                t: '3h',
+                                            },
+                                            {
+                                                ch: 'github/acme',
+                                                msg: 'PR #482 reviewed · approved',
+                                                p: 2,
+                                                t: '5h',
+                                            },
                                         ].map((item, i) => (
                                             <div
                                                 className="flex items-start gap-2.5 border-b border-line py-2.5 last:border-0"
@@ -125,8 +108,12 @@ export default function MobilePage() {
                                                 <Dot level={item.p} />
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="font-mono text-[9.5px] text-dim">{item.ch}</span>
-                                                        <span className="font-mono text-[9px] text-faint">{item.t}</span>
+                                                        <span className="font-mono text-[9.5px] text-dim">
+                                                            {item.ch}
+                                                        </span>
+                                                        <span className="font-mono text-[9px] text-faint">
+                                                            {item.t}
+                                                        </span>
                                                     </div>
                                                     <div className="mt-0.5 truncate text-[11.5px] font-semibold text-fg">
                                                         {item.msg}
@@ -150,7 +137,6 @@ export default function MobilePage() {
 
             <div className="px-5 sm:px-8 md:px-16">
                 <div className="mx-auto max-w-[1100px]">
-
                     {/* Features */}
                     <Section id="features">
                         <Kicker>Features</Kicker>
@@ -166,7 +152,9 @@ export default function MobilePage() {
                                     Real-time signal inbox
                                 </p>
                                 <p className="mb-4 text-[13px] leading-[1.6] text-muted">
-                                    Signals arrive in your feed the moment they're published — no pull-to-refresh, no delay. Priority color coding makes it immediately obvious what needs your attention.
+                                    Signals arrive in your feed the moment they're published — no
+                                    pull-to-refresh, no delay. Priority color coding makes it
+                                    immediately obvious what needs your attention.
                                 </p>
                                 <ul className="m-0 list-none p-0 space-y-2">
                                     {[
@@ -176,7 +164,10 @@ export default function MobilePage() {
                                         'Offline queue — catches up when reconnected',
                                         'Filter by channel, priority, or tag',
                                     ].map((item) => (
-                                        <li className="flex items-start gap-2 text-[12.5px] text-muted" key={item}>
+                                        <li
+                                            className="flex items-start gap-2 text-[12.5px] text-muted"
+                                            key={item}
+                                        >
                                             <span className="mt-0.5 text-accent font-mono">→</span>
                                             {item}
                                         </li>
@@ -193,7 +184,9 @@ export default function MobilePage() {
                                     Wake up for what matters
                                 </p>
                                 <p className="mb-4 text-[13px] leading-[1.6] text-muted">
-                                    Push notifications are routed through your channel rules. A priority-5 signal can wake you up at 3am. A priority-1 debug signal silently lands in the inbox.
+                                    Push notifications are routed through your channel rules. A
+                                    priority-5 signal can wake you up at 3am. A priority-1 debug
+                                    signal silently lands in the inbox.
                                 </p>
                                 <ul className="m-0 list-none p-0 space-y-2">
                                     {[
@@ -203,7 +196,10 @@ export default function MobilePage() {
                                         'Tap to deep-link directly to the signal',
                                         'Delivery receipt — see when it landed',
                                     ].map((item) => (
-                                        <li className="flex items-start gap-2 text-[12.5px] text-muted" key={item}>
+                                        <li
+                                            className="flex items-start gap-2 text-[12.5px] text-muted"
+                                            key={item}
+                                        >
                                             <span className="mt-0.5 text-accent font-mono">→</span>
                                             {item}
                                         </li>
@@ -220,7 +216,8 @@ export default function MobilePage() {
                                     Subscribe, mute, and manage
                                 </p>
                                 <p className="mb-4 text-[13px] leading-[1.6] text-muted">
-                                    Browse your channels, adjust per-channel notification preferences, and subscribe to new topics directly from the app.
+                                    Browse your channels, adjust per-channel notification
+                                    preferences, and subscribe to new topics directly from the app.
                                 </p>
                                 <ul className="m-0 list-none p-0 space-y-2">
                                     {[
@@ -230,7 +227,10 @@ export default function MobilePage() {
                                         'Archive channels you no longer need',
                                         'Shared channels visible to your whole team',
                                     ].map((item) => (
-                                        <li className="flex items-start gap-2 text-[12.5px] text-muted" key={item}>
+                                        <li
+                                            className="flex items-start gap-2 text-[12.5px] text-muted"
+                                            key={item}
+                                        >
                                             <span className="mt-0.5 text-accent font-mono">→</span>
                                             {item}
                                         </li>
@@ -247,7 +247,9 @@ export default function MobilePage() {
                                     Send signals from your phone
                                 </p>
                                 <p className="mb-4 text-[13px] leading-[1.6] text-muted">
-                                    Publish signals directly from the app. Useful for manual alerts, status updates, and quick one-off messages to your team or your own devices.
+                                    Publish signals directly from the app. Useful for manual alerts,
+                                    status updates, and quick one-off messages to your team or your
+                                    own devices.
                                 </p>
                                 <ul className="m-0 list-none p-0 space-y-2">
                                     {[
@@ -257,7 +259,10 @@ export default function MobilePage() {
                                         'Drafts — save signals for later',
                                         'Confirmation on delivery',
                                     ].map((item) => (
-                                        <li className="flex items-start gap-2 text-[12.5px] text-muted" key={item}>
+                                        <li
+                                            className="flex items-start gap-2 text-[12.5px] text-muted"
+                                            key={item}
+                                        >
                                             <span className="mt-0.5 text-accent font-mono">→</span>
                                             {item}
                                         </li>
@@ -274,16 +279,41 @@ export default function MobilePage() {
 
                         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                             {[
-                                { title: 'Quiet hours', desc: 'Suppress push notifications between custom hours. Signals still land in inbox.' },
-                                { title: 'Critical bypass', desc: 'p5 signals can be configured to bypass quiet hours and Do Not Disturb.' },
-                                { title: 'Badge count', desc: 'App icon badge shows unread count. Configurable: total, or only high-priority.' },
-                                { title: 'Notification sound', desc: 'Set a custom sound per priority level. p5 gets an aggressive tone.' },
-                                { title: 'Theme', desc: 'Dark (default), light, or system. The design is dark-native.' },
-                                { title: 'Anonymous mode', desc: 'Use the app without an account. Subscribe to public topics and receive via device ID.' },
+                                {
+                                    desc: 'Suppress push notifications between custom hours. Signals still land in inbox.',
+                                    title: 'Quiet hours',
+                                },
+                                {
+                                    desc: 'p5 signals can be configured to bypass quiet hours and Do Not Disturb.',
+                                    title: 'Critical bypass',
+                                },
+                                {
+                                    desc: 'App icon badge shows unread count. Configurable: total, or only high-priority.',
+                                    title: 'Badge count',
+                                },
+                                {
+                                    desc: 'Set a custom sound per priority level. p5 gets an aggressive tone.',
+                                    title: 'Notification sound',
+                                },
+                                {
+                                    desc: 'Dark (default), light, or system. The design is dark-native.',
+                                    title: 'Theme',
+                                },
+                                {
+                                    desc: 'Use the app without an account. Subscribe to public topics and receive via device ID.',
+                                    title: 'Anonymous mode',
+                                },
                             ].map(({ desc, title }) => (
-                                <div className="rounded-xl border border-line bg-elev p-4" key={title}>
-                                    <p className="m-0 mb-1.5 text-[14px] font-semibold text-fg">{title}</p>
-                                    <p className="m-0 text-[12.5px] leading-[1.5] text-muted">{desc}</p>
+                                <div
+                                    className="rounded-xl border border-line bg-elev p-4"
+                                    key={title}
+                                >
+                                    <p className="m-0 mb-1.5 text-[14px] font-semibold text-fg">
+                                        {title}
+                                    </p>
+                                    <p className="m-0 text-[12.5px] leading-[1.5] text-muted">
+                                        {desc}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -302,18 +332,45 @@ export default function MobilePage() {
 
                         <div className="grid gap-4 sm:grid-cols-2">
                             {[
-                                { title: 'React Native + Expo', desc: 'Single codebase for iOS and Android. Expo EAS handles CI builds and OTA updates.' },
-                                { title: 'Expo Push Notifications', desc: 'Server-side delivery via APNs (iOS) and FCM (Android). Delivery receipts tracked.' },
-                                { title: 'SSE for live feed', desc: 'Persistent Server-Sent Events connection. Reconnects automatically on network changes.' },
-                                { title: 'Offline support', desc: 'AsyncStorage-backed cache. Signals load from cache instantly while the fresh list fetches.' },
-                                { title: 'Open source', desc: 'The mobile app is open source on GitHub. Bug reports and PRs welcome.' },
-                                { title: 'Expo Router deep links', desc: 'Every signal and channel has a deep link. Tap a push notification to open the exact signal.' },
+                                {
+                                    desc: 'Single codebase for iOS and Android. Expo EAS handles CI builds and OTA updates.',
+                                    title: 'React Native + Expo',
+                                },
+                                {
+                                    desc: 'Server-side delivery via APNs (iOS) and FCM (Android). Delivery receipts tracked.',
+                                    title: 'Expo Push Notifications',
+                                },
+                                {
+                                    desc: 'Persistent Server-Sent Events connection. Reconnects automatically on network changes.',
+                                    title: 'SSE for live feed',
+                                },
+                                {
+                                    desc: 'AsyncStorage-backed cache. Signals load from cache instantly while the fresh list fetches.',
+                                    title: 'Offline support',
+                                },
+                                {
+                                    desc: 'The mobile app is open source on GitHub. Bug reports and PRs welcome.',
+                                    title: 'Open source',
+                                },
+                                {
+                                    desc: 'Every signal and channel has a deep link. Tap a push notification to open the exact signal.',
+                                    title: 'Expo Router deep links',
+                                },
                             ].map(({ desc, title }) => (
-                                <div className="flex gap-3 rounded-xl border border-line bg-elev p-4" key={title}>
-                                    <span className="mt-0.5 font-mono text-[13px] text-accent">→</span>
+                                <div
+                                    className="flex gap-3 rounded-xl border border-line bg-elev p-4"
+                                    key={title}
+                                >
+                                    <span className="mt-0.5 font-mono text-[13px] text-accent">
+                                        →
+                                    </span>
                                     <div>
-                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">{title}</p>
-                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">{desc}</p>
+                                        <p className="m-0 mb-1 text-[14px] font-semibold text-fg">
+                                            {title}
+                                        </p>
+                                        <p className="m-0 text-[13px] leading-[1.5] text-muted">
+                                            {desc}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -327,10 +384,26 @@ export default function MobilePage() {
 
                         <div className="overflow-hidden rounded-xl border border-line">
                             {[
-                                { platform: 'iOS', req: 'iOS 16.0+', note: 'iPhone and iPad. Widget coming in v0.8.' },
-                                { platform: 'Android', req: 'Android 10+', note: 'Phone and tablet. Wear OS companion coming later.' },
-                                { platform: 'macOS', req: 'macOS 13+', note: 'Via Mac Catalyst (iPhone app on Mac). Native macOS app on roadmap.' },
-                                { platform: 'watchOS', req: 'Coming in v0.9', note: 'Glance view for high-priority signals.' },
+                                {
+                                    note: 'iPhone and iPad. Widget coming in v0.8.',
+                                    platform: 'iOS',
+                                    req: 'iOS 16.0+',
+                                },
+                                {
+                                    note: 'Phone and tablet. Wear OS companion coming later.',
+                                    platform: 'Android',
+                                    req: 'Android 10+',
+                                },
+                                {
+                                    note: 'Via Mac Catalyst (iPhone app on Mac). Native macOS app on roadmap.',
+                                    platform: 'macOS',
+                                    req: 'macOS 13+',
+                                },
+                                {
+                                    note: 'Glance view for high-priority signals.',
+                                    platform: 'watchOS',
+                                    req: 'Coming in v0.9',
+                                },
                             ].map((row) => (
                                 <div
                                     className="flex flex-wrap items-center gap-4 border-b border-line px-4 py-3 last:border-0 font-mono text-[12.5px]"
@@ -346,7 +419,8 @@ export default function MobilePage() {
 
                     <div className="border-t border-line py-12 text-center">
                         <p className="mb-4 text-[14px] text-muted">
-                            Free to download. Sign in with your EmitSignal account to sync everything.
+                            Free to download. Sign in with your EmitSignal account to sync
+                            everything.
                         </p>
                         <div className="flex flex-wrap justify-center gap-3">
                             <a
@@ -374,5 +448,47 @@ export default function MobilePage() {
 
             <Footer />
         </div>
+    );
+}
+
+function H2({ children }: { children: React.ReactNode }) {
+    return (
+        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
+            {children}
+        </h2>
+    );
+}
+
+function Kicker({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
+            {children}
+        </p>
+    );
+}
+
+function P({ children }: { children: React.ReactNode }) {
+    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
+}
+
+function PhoneFrame({ children, title }: { children: React.ReactNode; title: string }) {
+    return (
+        <div className="overflow-hidden rounded-[28px] border-[3px] border-line bg-deep shadow-[0_20px_60px_rgba(91,33,182,0.12)]">
+            <div className="flex items-center justify-center border-b border-line bg-elev py-3">
+                <div className="h-[18px] w-[60px] rounded-full bg-bg" />
+            </div>
+            <div className="border-b border-line px-3 py-2.5 font-mono text-[10px] text-dim">
+                {title}
+            </div>
+            {children}
+        </div>
+    );
+}
+
+function Section({ children, id }: { children: React.ReactNode; id?: string }) {
+    return (
+        <section className="border-t border-line py-14" id={id}>
+            {children}
+        </section>
     );
 }

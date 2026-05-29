@@ -3,7 +3,6 @@ import { ArrowRight, Terminal } from 'lucide-react';
 import { Button } from './button';
 import { HeroTerminal } from './hero-terminal';
 
-
 export function Hero() {
     return (
         <section className="relative overflow-hidden px-5 pb-10 pt-14 sm:px-8 md:px-16 md:pb-16 md:pt-22">
@@ -13,7 +12,6 @@ export function Hero() {
                 <HeroCopy />
                 <HeroTerminal />
             </div>
-
         </section>
     );
 }

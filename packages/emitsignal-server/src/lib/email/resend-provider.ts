@@ -22,6 +22,7 @@ export class ResendProvider implements EmailProvider {
 
         if (error) {
             logger.error({ error }, 'resend email failed');
+
             throw new Error(`Resend email failed: ${error.message}`);
         }
 
