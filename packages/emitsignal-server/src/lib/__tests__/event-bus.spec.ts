@@ -22,6 +22,7 @@ describe('EmitSignalBus', () => {
         };
 
         bus.publish('test-topic', event);
+
         expect(handler).toHaveBeenCalledTimes(1);
         expect(handler).toHaveBeenCalledWith(event);
 
@@ -137,6 +138,7 @@ describe('EmitSignalBus', () => {
             topicId: 't1',
             topicName: 'topic',
         });
+
         expect(handler).toHaveBeenCalledTimes(1);
 
         unsubscribe();
@@ -154,6 +156,7 @@ describe('EmitSignalBus', () => {
             topicId: 't1',
             topicName: 'topic',
         });
+
         expect(handler).toHaveBeenCalledTimes(1);
 
         bus.removeAllListeners();
