@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
-import { consumeLimit, getClientIP } from '../../http/plugins/rate-limit-plugin';
+import { consumeLimit } from '../../http/plugins/rate-limit-plugin';
+import { getClientIP } from '../ip';
 
 describe('getClientIP', () => {
     it('returns the first IP from X-Forwarded-For', () => {
@@ -44,7 +45,7 @@ describe('getClientIP', () => {
 describe('consumeLimit', () => {
     it('returns undefined when under limit', async () => {
         const limiter = new RateLimiterMemory({ duration: 60, points: 5 });
-        const set = { headers: {} };
+        const set: { headers: Record<string, string | undefined> } = { headers: {} };
         const result = await consumeLimit(limiter as never, 'key', set);
 
         expect(result).toBeUndefined();
@@ -78,7 +79,7 @@ describe('consumeLimit', () => {
 
     it('sets retry-after header when over limit', async () => {
         const limiter = new RateLimiterMemory({ duration: 60, points: 1 });
-        const set = { headers: {} };
+        const set: { headers: Record<string, string | undefined> } = { headers: {} };
 
         await consumeLimit(limiter as never, 'key', set);
         await consumeLimit(limiter as never, 'key', set);
@@ -94,7 +95,7 @@ describe('consumeLimit', () => {
             },
         };
 
-        const set = { headers: {} };
+        const set: { headers: Record<string, string | undefined> } = { headers: {} };
 
         const result = await consumeLimit(broken as never, 'key', set);
 

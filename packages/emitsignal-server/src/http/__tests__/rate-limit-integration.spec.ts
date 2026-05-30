@@ -12,10 +12,8 @@ import { beforeEach, describe, expect, it } from 'bun:test';
 import { Elysia } from 'elysia';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
-import { consumeLimit, getClientIP } from '../../http/plugins/rate-limit-plugin';
-
-type ServerLike = Parameters<typeof getClientIP>[1];
-type SetLike = Parameters<typeof consumeLimit>[2];
+import { consumeLimit, SetLike } from '../../http/plugins/rate-limit-plugin';
+import { getClientIP, ServerLike } from '../../lib/ip';
 
 /** Build a minimal Elysia app with a GET /test route guarded by a fresh limiter. */
 function makeApp(points: number) {
@@ -101,14 +99,14 @@ describe('key isolation', () => {
 
     it('X-Forwarded-For is used as the rate limit key', async () => {
         const app = makeApp(1);
-        await app.handle(req('10.0.0.1'));
+        await app.handle(req('203.0.113.1'));
 
         // Same IP should be blocked
-        const blocked = await app.handle(req('10.0.0.1'));
+        const blocked = await app.handle(req('203.0.113.1'));
         expect(blocked.status).toBe(429);
 
         // Different IP is fine
-        const allowed = await app.handle(req('10.0.0.2'));
+        const allowed = await app.handle(req('203.0.113.2'));
         expect(allowed.status).toBe(200);
     });
 });
