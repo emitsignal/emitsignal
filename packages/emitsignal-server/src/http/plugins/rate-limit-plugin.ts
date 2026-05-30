@@ -24,9 +24,12 @@ export function authAwareBeforeHandle(
         server: ServerLike;
         set: SetLike;
     }) => {
-        const ip = getClientIP(request, server);
         const userId = await resolveUserId({ headers });
-        const [limiter, key] = userId ? [authLimiter, userId] : [anonLimiter, ip];
+
+        const [limiter, key] = userId
+            ? [authLimiter, userId]
+            : [anonLimiter, getClientIP(request, server)];
+
         return consumeLimit(limiter, key, set);
     };
 }
@@ -38,14 +41,14 @@ export async function consumeLimit(
 ): Promise<{ error: string; retryAfter: number } | undefined> {
     try {
         await limiter.consume(key);
-    } catch (error: unknown) {
+    } catch (error) {
         const rl = error as { msBeforeNext?: number };
 
         if (rl?.msBeforeNext !== undefined) {
             const retryAfter = Math.ceil(rl.msBeforeNext / 1000);
 
-            set.status = 429;
             set.headers['retry-after'] = String(retryAfter);
+            set.status = 429;
 
             return { error: 'rate_limit_exceeded', retryAfter };
         }
@@ -85,12 +88,5 @@ export function getClientIP(request: Request, server: ServerLike): string {
 }
 
 export const rateLimitPlugin = new Elysia({ name: 'rate-limit' })
-    .onBeforeHandle(async ({ headers, request, server, set }) => {
-        const ip = getClientIP(request, server as ServerLike);
-        const userId = await resolveUserId({ headers });
-        const key = userId ?? ip;
-        const limiter = userId ? globalAuthLimiter : globalAnonLimiter;
-
-        return consumeLimit(limiter, key, set as SetLike);
-    })
+    .onBeforeHandle(authAwareBeforeHandle(globalAnonLimiter, globalAuthLimiter))
     .as('global');

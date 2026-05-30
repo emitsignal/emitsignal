@@ -5,7 +5,9 @@ import { logger } from '../../lib/logger';
 function contentLength(set: { headers: Record<string, string | undefined> }, body: unknown) {
     const header = set.headers['content-length'];
 
-    if (header) return header;
+    if (header) {
+        return header;
+    }
 
     if (body == null) {
         return '-';
