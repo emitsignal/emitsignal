@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 
-import { fixedKeyBeforeHandle, getClientIP } from '../../http/plugins/rate-limit-plugin';
+import { fixedKeyBeforeHandle } from '../../http/plugins/rate-limit-plugin';
+import { getClientIP } from '../../lib/ip';
 import { signToken } from '../../lib/jwt';
 import { prisma } from '../../lib/prisma';
 import { verifyLimiter } from '../../lib/rate-limit';

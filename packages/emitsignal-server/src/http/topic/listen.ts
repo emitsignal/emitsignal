@@ -1,8 +1,8 @@
 import Elysia, { t } from 'elysia';
 
-import { getClientIP } from '../../http/plugins/rate-limit-plugin';
 import { duration } from '../../lib/duration';
 import { bus, type MessageEvent } from '../../lib/event-bus';
+import { getClientIP } from '../../lib/ip';
 import { prisma } from '../../lib/prisma';
 import { rateLimitRedis } from '../../lib/rate-limit';
 import { serializeMessage } from '../../lib/topic';

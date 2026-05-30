@@ -2,12 +2,15 @@ import type { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible'
 
 import Elysia from 'elysia';
 
+import { getClientIP, ServerLike } from '../../lib/ip';
 import { logger } from '../../lib/logger';
 import { globalAnonLimiter, globalAuthLimiter } from '../../lib/rate-limit';
 import { resolveUserId } from '../auth/plugin';
 
-type ServerLike = { requestIP?: (req: Request) => { address: string } | null } | null;
-type SetLike = { headers: Record<string, number | string | undefined>; status?: number | string };
+export type SetLike = {
+    headers: Record<string, number | string | undefined>;
+    status?: number | string;
+};
 
 export function authAwareBeforeHandle(
     anonLimiter: RateLimiterMemory | RateLimiterRedis,
@@ -75,16 +78,6 @@ export function fixedKeyBeforeHandle<TBody = unknown>(
     }) => {
         return consumeLimit(limiter, getKey({ body, request, server }), set);
     };
-}
-
-export function getClientIP(request: Request, server: ServerLike): string {
-    const forwarded = request.headers.get('x-forwarded-for');
-
-    if (forwarded) {
-        return forwarded.split(',')[0].trim();
-    }
-
-    return server?.requestIP?.(request)?.address ?? 'unknown';
 }
 
 export const rateLimitPlugin = new Elysia({ name: 'rate-limit' })

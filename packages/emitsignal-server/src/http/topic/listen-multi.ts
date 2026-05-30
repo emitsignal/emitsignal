@@ -1,8 +1,8 @@
 import Elysia from 'elysia';
 
-import { getClientIP } from '../../http/plugins/rate-limit-plugin';
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
+import { getClientIP } from '../../lib/ip';
 import { rateLimitRedis } from '../../lib/rate-limit';
 import { resolveUserId } from '../auth/plugin';
 

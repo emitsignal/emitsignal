@@ -1,9 +1,10 @@
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 import Elysia, { t } from 'elysia';
 
-import { fixedKeyBeforeHandle, getClientIP } from '../../http/plugins/rate-limit-plugin';
+import { fixedKeyBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { duration } from '../../lib/duration';
 import { EmailService } from '../../lib/email-service';
+import { getClientIP } from '../../lib/ip';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { magicLinkLimiter } from '../../lib/rate-limit';
