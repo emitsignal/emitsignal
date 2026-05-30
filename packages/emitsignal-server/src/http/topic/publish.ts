@@ -2,13 +2,14 @@ import Elysia, { t } from 'elysia';
 
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { validateActions } from '../../lib/actions';
+import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
 import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
 
-const MAX_SCHEDULE_SECONDS = 365 * 24 * 60 * 60; // 1 year
+const MAX_SCHEDULE_SECONDS = duration.years(1).as('seconds');
 
 export const publish = new Elysia().post(
     '/topic/:name',

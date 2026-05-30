@@ -1,6 +1,7 @@
 import Elysia from 'elysia';
 
 import { getClientIP } from '../../http/plugins/rate-limit-plugin';
+import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
 import { rateLimitRedis } from '../../lib/rate-limit';
 import { resolveUserId } from '../auth/plugin';
@@ -34,7 +35,7 @@ export const listenMulti = new Elysia().get(
         if (Bun.env.NODE_ENV !== 'test') {
             try {
                 const current = await rateLimitRedis.incr(sseKey);
-                await rateLimitRedis.expire(sseKey, 86400);
+                await rateLimitRedis.expire(sseKey, duration.hours(24).as('seconds'));
 
                 trackedInRedis = true;
 
@@ -42,8 +43,8 @@ export const listenMulti = new Elysia().get(
                     await rateLimitRedis.decr(sseKey);
 
                     trackedInRedis = false;
-                    set.status = 429;
                     set.headers['retry-after'] = '60';
+                    set.status = 429;
 
                     return { error: 'too_many_sse_connections', max, retryAfter: 60 };
                 }
@@ -75,7 +76,7 @@ export const listenMulti = new Elysia().get(
                     } catch {
                         clearInterval(heartbeat);
                     }
-                }, 25_000);
+                }, duration.seconds(25).as('ms'));
 
                 request.signal.addEventListener('abort', () => {
                     if (trackedInRedis && Bun.env.NODE_ENV !== 'test') {

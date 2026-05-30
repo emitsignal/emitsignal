@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import { ConnectionOptions, Worker } from 'bullmq';
 
 import type { PushJob } from '../../push-notification';
 
@@ -14,11 +14,11 @@ export function createPushWorker(): Worker<PushJob> {
 
             await sendPushNotifications(job.data);
         },
-        {
-            concurrency: 5,
-            connection: redisConnection,
-        },
-    );
+		{
+			concurrency: 5,
+			connection: redisConnection as ConnectionOptions,
+		},
+	);
 
     worker.on('completed', (job) => {
         logger.info({ jobId: job.id }, 'push job completed');

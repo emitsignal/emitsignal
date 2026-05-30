@@ -1,4 +1,4 @@
-import { Worker } from 'bullmq';
+import { ConnectionOptions, Worker } from 'bullmq';
 
 import type { EmailOptions } from '../../email/provider';
 
@@ -14,11 +14,11 @@ export function createEmailWorker(): Worker<EmailOptions> {
 
             await Email.provider.send(job.data);
         },
-        {
-            concurrency: 5,
-            connection: redisConnection,
-        },
-    );
+		{
+			concurrency: 5,
+			connection: redisConnection as ConnectionOptions,
+		},
+	);
 
     worker.on('completed', (job) => {
         logger.info({ jobId: job.id }, 'email job completed');

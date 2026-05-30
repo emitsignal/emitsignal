@@ -2,13 +2,14 @@ import { MagicLinkEmail, render } from '@emitsignal/emails';
 import Elysia, { t } from 'elysia';
 
 import { fixedKeyBeforeHandle, getClientIP } from '../../http/plugins/rate-limit-plugin';
+import { duration } from '../../lib/duration';
 import { EmailService } from '../../lib/email-service';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { magicLinkLimiter } from '../../lib/rate-limit';
 import { environment } from '../../schema/environment';
 
-const CODE_TTL_MS = 10 * 60 * 1000;
+const CODE_TTL_MS = duration.minutes(10).as('ms');
 
 function generateCode() {
     const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';

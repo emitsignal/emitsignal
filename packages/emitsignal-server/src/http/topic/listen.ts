@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 
 import { getClientIP } from '../../http/plugins/rate-limit-plugin';
+import { duration } from '../../lib/duration';
 import { bus, type MessageEvent } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { rateLimitRedis } from '../../lib/rate-limit';
@@ -32,17 +33,21 @@ export const listen = new Elysia().get(
         const max = userId ? SSE_MAX_AUTH : SSE_MAX_ANON;
 
         let trackedInRedis = false;
+
         if (Bun.env.NODE_ENV !== 'test') {
             try {
                 const current = await rateLimitRedis.incr(sseKey);
-                await rateLimitRedis.expire(sseKey, 86400);
+                await rateLimitRedis.expire(sseKey, duration.hours(24).as('seconds'));
+
                 trackedInRedis = true;
 
                 if (current > max) {
                     await rateLimitRedis.decr(sseKey);
+
                     trackedInRedis = false;
-                    set.status = 429;
                     set.headers['retry-after'] = '60';
+                    set.status = 429;
+
                     return { error: 'too_many_sse_connections', max, retryAfter: 60 };
                 }
             } catch {
@@ -55,8 +60,12 @@ export const listen = new Elysia().get(
         });
 
         if (!topic) {
-            if (trackedInRedis) rateLimitRedis.decr(sseKey);
+            if (trackedInRedis) {
+                rateLimitRedis.decr(sseKey);
+            }
+
             set.status = 404;
+
             return { error: 'topic_not_found' };
         }
 
@@ -67,6 +76,7 @@ export const listen = new Elysia().get(
         const stream = new ReadableStream<Uint8Array>({
             async start(controller) {
                 const encoder = new TextEncoder();
+
                 const send = (event: string, data: unknown) =>
                     controller.enqueue(encoder.encode(formatEvent(event, data)));
 
@@ -79,6 +89,7 @@ export const listen = new Elysia().get(
                             topicId: topic.id,
                         },
                     });
+
                     for (const message of backlog) {
                         send('message', {
                             ...(await serializeMessage(message)),
@@ -87,8 +98,8 @@ export const listen = new Elysia().get(
                     }
                 }
 
-                const unsubscribe = bus.subscribe(topic.name, (e: MessageEvent) =>
-                    send('message', e),
+                const unsubscribe = bus.subscribe(topic.name, (messageEvent: MessageEvent) =>
+                    send('message', messageEvent),
                 );
 
                 const heartbeat = setInterval(() => {
@@ -97,12 +108,16 @@ export const listen = new Elysia().get(
                     } catch {
                         clearInterval(heartbeat);
                     }
-                }, 25_000);
+                }, duration.seconds(25).as('ms'));
 
                 request.signal.addEventListener('abort', () => {
-                    if (trackedInRedis && Bun.env.NODE_ENV !== 'test') rateLimitRedis.decr(sseKey);
+                    if (trackedInRedis && Bun.env.NODE_ENV !== 'test') {
+                        rateLimitRedis.decr(sseKey);
+                    }
+
                     unsubscribe();
                     clearInterval(heartbeat);
+
                     try {
                         controller.close();
                     } catch {

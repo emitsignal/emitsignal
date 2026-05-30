@@ -2,6 +2,7 @@ import { describe, expect, it, mock } from 'bun:test';
 import Elysia from 'elysia';
 
 import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
+import { duration } from '../../../lib/duration';
 import { signToken } from '../../../lib/jwt';
 
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
@@ -29,6 +30,7 @@ describe('POST /messages/:id/attachments', () => {
 
         const form = new FormData();
         const file = new File(['test'], 'test.txt', { type: 'text/plain' });
+
         form.append('files', file);
 
         const res = await app.handle(
@@ -39,7 +41,9 @@ describe('POST /messages/:id/attachments', () => {
         );
 
         expect(res.status).toBe(404);
+
         const data = await res.json();
+
         expect(data.error).toBe('message_not_found');
     });
 
@@ -61,7 +65,9 @@ describe('POST /messages/:id/attachments', () => {
         );
 
         expect(res.status).toBe(400);
+
         const data = await res.json();
+
         expect(data.error).toBe('file_too_large');
     });
 
@@ -73,6 +79,7 @@ describe('POST /messages/:id/attachments', () => {
 
         const form = new FormData();
         const file = new File(['test'], 'test.txt', { type: 'text/plain' });
+
         form.append('files', file);
 
         const res = await app.handle(
@@ -83,7 +90,9 @@ describe('POST /messages/:id/attachments', () => {
         );
 
         expect(res.status).toBe(409);
+
         const data = await res.json();
+
         expect(data.error).toBe('attachment_already_exists');
     });
 
@@ -95,6 +104,7 @@ describe('POST /messages/:id/attachments', () => {
         const form = new FormData();
         const file1 = new File(['a'], 'a.txt', { type: 'text/plain' });
         const file2 = new File(['b'], 'b.txt', { type: 'text/plain' });
+
         form.append('files', file1);
         form.append('files', file2);
 
@@ -106,7 +116,9 @@ describe('POST /messages/:id/attachments', () => {
         );
 
         expect(res.status).toBe(400);
+
         const data = await res.json();
+
         expect(data.error).toBe('too_many_files');
     });
 
@@ -118,6 +130,7 @@ describe('POST /messages/:id/attachments', () => {
 
         const form = new FormData();
         const file = new File(['pdf content'], 'doc.pdf', { type: 'application/pdf' });
+
         form.append('files', file);
 
         const res = await app.handle(
@@ -128,7 +141,9 @@ describe('POST /messages/:id/attachments', () => {
         );
 
         expect(res.status).toBe(400);
+
         const data = await res.json();
+
         expect(data.error).toBe('invalid_mime_type');
     });
 
@@ -137,8 +152,6 @@ describe('POST /messages/:id/attachments', () => {
         prismaMock.message.findUnique = mock(() =>
             Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
         );
-
-        const fifteenDaysMs = 15 * 24 * 60 * 60 * 1000;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const createFn = mock((args: any) =>
@@ -152,12 +165,14 @@ describe('POST /messages/:id/attachments', () => {
                 storageKey: args.data.storageKey,
             }),
         );
+
         prismaMock.attachment.create = createFn;
 
         const token = await signToken('user-1');
 
         const form = new FormData();
         const file = new File(['test'], 'test.txt', { type: 'text/plain' });
+
         form.append('files', file);
 
         const res = await app.handle(
@@ -175,6 +190,8 @@ describe('POST /messages/:id/attachments', () => {
         const expireTime = createCall[0].data.expiresAt.getTime();
         const now = Date.now();
 
+        const fifteenDaysMs = duration.days(15).as('ms');
+
         expect(expireTime - now).toBeGreaterThan(fifteenDaysMs - 60000);
         expect(expireTime - now).toBeLessThan(fifteenDaysMs + 60000);
     });
@@ -185,7 +202,7 @@ describe('POST /messages/:id/attachments', () => {
             Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
         );
 
-        const threeHoursMs = 3 * 60 * 60 * 1000;
+        const threeHoursMs = duration.hours(3).as('ms');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const createFn = mock((args: any) =>
@@ -203,6 +220,7 @@ describe('POST /messages/:id/attachments', () => {
 
         const form = new FormData();
         const file = new File(['test'], 'test.txt', { type: 'text/plain' });
+
         form.append('files', file);
 
         const res = await app.handle(
@@ -268,6 +286,7 @@ describe('POST /messages/:id/attachments', () => {
 
         const form = new FormData();
         const file = new File(['hello'], 'hello.txt', { type: 'text/plain' });
+
         form.append('files', file);
 
         const res = await app.handle(
@@ -278,7 +297,9 @@ describe('POST /messages/:id/attachments', () => {
         );
 
         expect(res.status).toBe(200);
+
         const data = await res.json();
+
         expect(data.attachments).toHaveLength(1);
         expect(data.attachments[0].filename).toBe('hello.txt');
     });

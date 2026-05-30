@@ -1,14 +1,15 @@
 import Elysia, { t } from 'elysia';
 
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
+import { duration } from '../../lib/duration';
 import { prisma } from '../../lib/prisma';
 import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
 import { FileStorageService } from '../../lib/storage';
 import { isAllowedMimeType, MAX_FILE_SIZE } from '../../lib/storage/provider';
 import { resolveUserId } from '../auth/plugin';
 
-const AUTH_TTL_MS = 15 * 24 * 60 * 60 * 1000; // 15 days
-const NO_AUTH_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
+const AUTH_TTL_MS = duration.days(15).as('ms');
+const NO_AUTH_TTL_MS = duration.hours(3).as('ms');
 
 export const attachments = new Elysia({ prefix: '/messages' }).post(
     '/:id/attachments',

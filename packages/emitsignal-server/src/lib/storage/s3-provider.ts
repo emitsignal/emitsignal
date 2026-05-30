@@ -1,5 +1,7 @@
 import type { FileMetadata, FileStorage, FileUploadInput } from './provider';
 
+import { duration } from '../duration';
+
 interface S3Client {
     delete(key: string): Promise<void>;
     presign(key: string, options: { expiresIn: number; method: string; type: string }): string;
@@ -43,7 +45,7 @@ export class S3FileStorage implements FileStorage {
         }
 
         return this.s3.presign(storageKey, {
-            expiresIn: 3600,
+            expiresIn: duration.hours(1).as('seconds'),
             method: 'GET',
             type: 'application/octet-stream',
         });
