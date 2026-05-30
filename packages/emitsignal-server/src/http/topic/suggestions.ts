@@ -1,6 +1,8 @@
 import Elysia, { t } from 'elysia';
 
+import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { prisma } from '../../lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
 
 const CURATED = [
     {
@@ -72,6 +74,7 @@ export const suggestions = new Elysia().get(
         return result;
     },
     {
+        beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
         query: t.Object({ deviceId: t.Optional(t.String({ minLength: 1 })) }),
     },
 );

@@ -9,6 +9,8 @@ import { verify } from './http/auth/verify';
 import { acknowledge } from './http/messages/acknowledge';
 import { attachments } from './http/messages/attachments';
 import { getMessage } from './http/messages/get';
+import { loggerPlugin } from './http/plugins/logger-plugin';
+import { rateLimitPlugin } from './http/plugins/rate-limit-plugin';
 import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
 import { updatePushToken } from './http/push-tokens/update';
@@ -25,8 +27,8 @@ import { suggestions } from './http/topic/suggestions';
 import { Email } from './lib/email';
 import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
-import { loggerPlugin } from './lib/logger-plugin';
 import { emailQueue, pushQueue, redisConnection, scheduleQueue } from './lib/queue';
+import { rateLimitRedis } from './lib/rate-limit';
 import { FileStorageService } from './lib/storage';
 import { environment } from './schema/environment';
 
@@ -36,6 +38,7 @@ FileStorageService.init(environment);
 
 const app = new Elysia()
     .use(loggerPlugin)
+    .use(rateLimitPlugin)
     .use(
         openapi({
             references: fromTypes(),
@@ -78,6 +81,7 @@ async function shutdown() {
     await scheduleQueue.close();
 
     await redisConnection.quit();
+    await rateLimitRedis.quit();
 
     server.stop();
 

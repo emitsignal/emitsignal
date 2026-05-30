@@ -1,6 +1,8 @@
 import Elysia, { t } from 'elysia';
 
+import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { prisma } from '../../lib/prisma';
+import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
 import { FileStorageService } from '../../lib/storage';
 import { isAllowedMimeType, MAX_FILE_SIZE } from '../../lib/storage/provider';
 import { resolveUserId } from '../auth/plugin';
@@ -100,6 +102,7 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         return { attachments: results };
     },
     {
+        beforeHandle: authAwareBeforeHandle(uploadAnonLimiter, uploadAuthLimiter),
         body: t.Object({
             files: t.Files(),
         }),

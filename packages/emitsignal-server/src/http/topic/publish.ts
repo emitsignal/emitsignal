@@ -1,9 +1,11 @@
 import Elysia, { t } from 'elysia';
 
+import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { validateActions } from '../../lib/actions';
 import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
+import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
 import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
 
 const MAX_SCHEDULE_SECONDS = 365 * 24 * 60 * 60; // 1 year
@@ -70,6 +72,7 @@ export const publish = new Elysia().post(
         return { message: 'posted', messageId: message.id };
     },
     {
+        beforeHandle: authAwareBeforeHandle(publishAnonLimiter, publishAuthLimiter),
         body: t.Object({
             actions: t.Optional(
                 t.Array(

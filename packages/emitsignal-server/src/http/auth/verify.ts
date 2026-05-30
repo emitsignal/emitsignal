@@ -1,7 +1,9 @@
 import Elysia, { t } from 'elysia';
 
+import { fixedKeyBeforeHandle, getClientIP } from '../../http/plugins/rate-limit-plugin';
 import { signToken } from '../../lib/jwt';
 import { prisma } from '../../lib/prisma';
+import { verifyLimiter } from '../../lib/rate-limit';
 
 export const verify = new Elysia({ prefix: '/auth' }).post(
     '/verify',
@@ -40,6 +42,9 @@ export const verify = new Elysia({ prefix: '/auth' }).post(
         };
     },
     {
+        beforeHandle: fixedKeyBeforeHandle(verifyLimiter, ({ request, server }) =>
+            getClientIP(request, server),
+        ),
         body: t.Object({
             code: t.String({ maxLength: 6, minLength: 6 }),
             email: t.String({ format: 'email' }),

@@ -1,6 +1,8 @@
 import Elysia, { t } from 'elysia';
 
+import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { prisma } from '../../lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
 import { serializeMessage } from '../../lib/topic';
 
 export const messages = new Elysia().get(
@@ -25,6 +27,7 @@ export const messages = new Elysia().get(
         );
     },
     {
+        beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
         query: t.Object({
             limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
         }),

@@ -1,9 +1,11 @@
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 import Elysia, { t } from 'elysia';
 
+import { fixedKeyBeforeHandle, getClientIP } from '../../http/plugins/rate-limit-plugin';
 import { EmailService } from '../../lib/email-service';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { magicLinkLimiter } from '../../lib/rate-limit';
 import { environment } from '../../schema/environment';
 
 const CODE_TTL_MS = 10 * 60 * 1000;
@@ -56,6 +58,10 @@ export const magicLink = new Elysia({ prefix: '/auth' }).post(
         };
     },
     {
+        beforeHandle: fixedKeyBeforeHandle<{ email: string }>(
+            magicLinkLimiter,
+            ({ body, request, server }) => `${getClientIP(request, server)}:${body.email}`,
+        ),
         body: t.Object({
             email: t.String({ format: 'email' }),
         }),
