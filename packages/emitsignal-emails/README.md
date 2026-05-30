@@ -26,8 +26,17 @@ Transactional email templates built with [React Email](https://react.email). Tem
 ```ts
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 
-const html = await render(<MagicLinkEmail code="abc123" email="user@example.com" />);
+const html = await render(
+    <MagicLinkEmail
+        code="abc123"
+        email="user@example.com"
+        expiresAt={new Date()}
+        magicLinkUrl="https://app.example.com/auth/verify?code=abc123&email=…"
+    />,
+);
 ```
+
+All templates are exported from the package root alongside their prop types (e.g. `MagicLinkEmailProps`). `render` is re-exported from `@react-email/render`.
 
 ## Getting Started
 
