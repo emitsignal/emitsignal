@@ -57,11 +57,11 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
 
             logger.info({ messageId }, 'schedule job completed: SSE emitted, push enqueued');
         },
-		{
-			concurrency: 5,
-			connection: redisConnection as ConnectionOptions,
-		},
-	);
+        {
+            concurrency: 5,
+            connection: redisConnection as ConnectionOptions,
+        },
+    );
 
     worker.on('completed', (job) => {
         logger.info({ jobId: job.id }, 'schedule job completed');

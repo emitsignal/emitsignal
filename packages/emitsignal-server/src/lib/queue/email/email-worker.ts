@@ -14,11 +14,11 @@ export function createEmailWorker(): Worker<EmailOptions> {
 
             await Email.provider.send(job.data);
         },
-		{
-			concurrency: 5,
-			connection: redisConnection as ConnectionOptions,
-		},
-	);
+        {
+            concurrency: 5,
+            connection: redisConnection as ConnectionOptions,
+        },
+    );
 
     worker.on('completed', (job) => {
         logger.info({ jobId: job.id }, 'email job completed');
