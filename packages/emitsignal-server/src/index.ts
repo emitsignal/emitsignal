@@ -36,14 +36,12 @@ Email.init(environment);
 EmailService.init(emailQueue);
 FileStorageService.init(environment);
 
+const isProduction = Bun.env.NODE_ENV === 'production';
+
 const app = new Elysia()
     .use(loggerPlugin)
     .use(rateLimitPlugin)
-    .use(
-        openapi({
-            references: fromTypes(),
-        }),
-    )
+    .use(openapi({ enabled: !isProduction, references: fromTypes() }))
     .use(cors({ allowedHeaders: '*' }))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
     .use(acknowledge)
