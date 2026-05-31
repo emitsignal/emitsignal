@@ -1,0 +1,68 @@
+---
+title: 'subscribe · unsubscribe'
+description: 'Manage which topics this account follows. Subscriptions sync across every device.'
+---
+
+import { Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+```
+emitsignal subscribe <topic> [flags]
+emitsignal unsubscribe <topic>
+```
+
+Aliased to `sub` / `unsub` for convenience.
+
+## Flags
+
+<ParamField body="--min-priority, -p" type="1–5" default="1">
+    Only receive events at or above this priority level.
+</ParamField>
+
+<ParamField body="--mute, -m" type="duration">
+    Subscribe but silence delivery for a duration — e.g. `8h`, `1d`. You still receive events; they
+    just don't trigger notifications.
+</ParamField>
+
+<ParamField body="--targets" type="list">
+    Override delivery channels: `push`, `email`, `sms`, `slack`. Comma-separated.
+</ParamField>
+
+<ParamField body="--list, -l" type="flag">
+    Print all current subscriptions and exit.
+</ParamField>
+
+## Examples
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal subscribe alerts/prod -p4</Cmd>
+    <Ok>subscribed → alerts/prod · p≥4 · push</Ok>
+    <Sp />
+    <Cmd>emitsignal sub stripe/payments --mute 8h</Cmd>
+    <Ok>subscribed → stripe/payments · muted 8h</Ok>
+    <Sp />
+    <Cmd>emitsignal subscribe ci/web</Cmd>
+    <Ok>subscribed → ci/web · p≥1 · push</Ok>
+    <Sp />
+    <Cmd>emitsignal sub --list</Cmd>
+    <Out color="#f5f0ff">{'alerts/prod    p≥4   push,sms'}</Out>
+    <Out color="#f5f0ff">{'deploy/prod    p≥1   push'}</Out>
+    <Out color="#b8a9d9">{'stripe/*       p≥1   muted 8h'}</Out>
+    <Sp />
+    <Cmd>emitsignal unsub stripe/payments</Cmd>
+    <Ok>removed → stripe/payments</Ok>
+</Term>
+
+<Note>
+    Subscriptions are account-wide. When you subscribe on the CLI, the same subscription is active
+    in the mobile app and TUI immediately.
+</Note>
+
+## Delivery targets
+
+By default, subscriptions route to all registered delivery targets (push, email, etc.)
+based on your account settings. Use `--targets` to override per subscription:
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal subscribe ci/builds --targets slack</Cmd>
+    <Ok>subscribed → ci/builds · p≥1 · slack</Ok>
+</Term>

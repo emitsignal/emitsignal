@@ -1,0 +1,59 @@
+---
+title: 'Install'
+description: 'One binary, no runtime. Grab it from Homebrew, the install script, or npm.'
+---
+
+import { Cmd, Ok, Term } from '../snippets/terminal.jsx';
+
+<CodeGroup>
+
+```bash Homebrew
+brew install emitsignal
+```
+
+```bash Shell
+curl -fsSL emitsignal.com/install | sh
+```
+
+```bash npm
+npm i -g @emitsignal/cli
+```
+
+</CodeGroup>
+
+Verify the install:
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal --version</Cmd>
+    <Ok>emitsignal 0.7.2 (darwin/arm64)</Ok>
+</Term>
+
+The short alias `es` is symlinked automatically — both names are always available.
+
+## What gets installed
+
+A single static binary with no runtime dependencies. The install script places it at
+`/usr/local/bin/emitsignal` (and `/usr/local/bin/es`). Nothing else touches your system.
+
+## Updating
+
+<CodeGroup>
+
+```bash Homebrew
+brew upgrade emitsignal
+```
+
+```bash Shell
+curl -fsSL emitsignal.com/install | sh
+```
+
+```bash npm
+npm update -g @emitsignal/cli
+```
+
+</CodeGroup>
+
+<Note>
+    If you installed via Homebrew, run `brew upgrade emitsignal`. Installing via the shell script
+    again also works — it's idempotent.
+</Note>

@@ -1,0 +1,12 @@
+{
+    "devDependencies": {
+        "mintlify": "^4.2.587"
+    },
+    "name": "@emitsignal/docs",
+    "private": true,
+    "scripts": {
+        "build": "mintlify build",
+        "dev": "mintlify dev"
+    },
+    "version": "0.0.1"
+}

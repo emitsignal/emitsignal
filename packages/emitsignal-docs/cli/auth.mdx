@@ -1,0 +1,62 @@
+---
+title: 'Authentication'
+description: 'Browser device-flow login. No key to paste — the token lands in ~/.emitsignalrc.'
+---
+
+import { Arrow, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+## Login
+
+Run `emitsignal login` and follow the URL. The CLI handles the OAuth device flow —
+you confirm a short code in the browser, and the token is written to `~/.emitsignalrc`.
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal login</Cmd>
+    <Arrow>
+        open this URL:{' '}
+        <span style={{ color: '#67e8f9', textDecoration: 'underline' }}>
+            https://emitsignal.com/d/H7-K4Q
+        </span>
+    </Arrow>
+
+    <Arrow>
+        confirm code <span style={{ color: '#fbbf24' }}>H7-K4Q</span> in your browser…
+    </Arrow>
+    <Ok>authorized as alex@acme.io · token written to ~/.emitsignalrc</Ok>
+    <Sp />
+    <Cmd>emitsignal whoami</Cmd>
+    <Out color="#f5f0ff">alex@acme.io · 7 subscriptions · scope read:* publish:*</Out>
+</Term>
+
+## CI and scripts
+
+For non-interactive environments, set the `ES_TOKEN` environment variable instead
+of using `login`. Create a scoped key with `emitsignal keys create` (see [Keys](/cli/keys)),
+then pass it via env:
+
+<Term title="emitsignal — zsh">
+    <Cmd>ES_TOKEN=es_live_c8f4_... emitsignal publish deploy/prod -p4</Cmd>
+    <Ok>published → deploy/prod · 3 subscribers · 142ms</Ok>
+</Term>
+
+The resolution order is: **flags → environment variable → `~/.emitsignalrc`**.
+
+## The config file
+
+`~/.emitsignalrc` is plain TOML. You can edit it directly:
+
+```toml ~/.emitsignalrc
+[auth]
+token  = "es_live_••••"
+user   = "alex@acme.io"
+
+[default]
+format    = "pretty"
+priority  = 3
+color     = "auto"
+
+[alias]
+ship = "publish deploy/prod -p4"
+```
+
+<Tip>Use `emitsignal config path` to print the exact location of your config file.</Tip>

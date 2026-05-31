@@ -1,0 +1,87 @@
+{
+    "$schema": "https://mintlify.com/docs.json",
+    "appearance": {
+        "default": "dark"
+    },
+    "background": {
+        "color": {
+            "dark": "#0f0a1a",
+            "light": "#ffffff"
+        }
+    },
+    "colors": {
+        "dark": "#7c3aed",
+        "light": "#c4b5fd",
+        "primary": "#a78bfa"
+    },
+    "favicon": "/favicon.svg",
+    "fonts": {
+        "body": {
+            "family": "Geist"
+        },
+        "heading": {
+            "family": "Geist"
+        }
+    },
+    "footer": {
+        "socials": {
+            "github": "https://github.com/kevenleone/emitsignal"
+        }
+    },
+    "logo": {
+        "dark": "/logo/dark.svg",
+        "href": "/cli/index",
+        "light": "/logo/dark.svg"
+    },
+    "name": "EmitSignal",
+    "navbar": {
+        "links": [
+            {
+                "href": "https://github.com/kevenleone/emitsignal",
+                "label": "GitHub"
+            }
+        ],
+        "primary": {
+            "href": "https://emitsignal.com",
+            "label": "Get started",
+            "type": "button"
+        }
+    },
+    "navigation": {
+        "tabs": [
+            {
+                "groups": [
+                    {
+                        "group": "Overview",
+                        "pages": ["cli/index"]
+                    },
+                    {
+                        "group": "Getting started",
+                        "pages": ["cli/install", "cli/auth", "cli/quickstart"]
+                    },
+                    {
+                        "group": "Commands",
+                        "pages": [
+                            "cli/publish",
+                            "cli/listen",
+                            "cli/subscribe",
+                            "cli/keys",
+                            "cli/config",
+                            "cli/tui"
+                        ]
+                    },
+                    {
+                        "group": "Concepts",
+                        "pages": ["cli/filters", "cli/formats", "cli/exits"]
+                    },
+                    {
+                        "group": "Beyond the CLI",
+                        "pages": ["cli/sdk"]
+                    }
+                ],
+                "tab": "CLI Reference"
+            }
+        ]
+    },
+    "theme": "mint"
+}

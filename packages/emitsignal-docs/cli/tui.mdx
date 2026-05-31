@@ -1,0 +1,28 @@
+---
+title: 'tui'
+description: 'Full-screen keyboard-driven inbox built with React-Ink. Three panes: channels, stream, detail.'
+---
+
+import { CliTuiDemo, TuiKeybindings, TuiCode } from '../snippets/tui.jsx';
+
+```
+emitsignal tui [flags]
+```
+
+## Flags
+
+<ParamField body="--filter, -f" type="expression">
+    Pre-apply a filter expression. Same grammar as `listen`. Default: show all subscribed channels.
+</ParamField>
+
+<ParamField body="--channel, -c" type="glob">
+    Focus a specific channel on launch.
+</ParamField>
+
+## Layout
+
+<CliTuiDemo />
+
+## Keybindings
+
+<TuiKeybindings />

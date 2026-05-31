@@ -1,0 +1,75 @@
+---
+title: 'config'
+description: 'Read and write CLI defaults stored in ~/.emitsignalrc.'
+---
+
+import { Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+```
+emitsignal config <get | set | list | path> [key] [value]
+```
+
+Settings resolve in this order: **flags → `ES_*` env vars → `~/.emitsignalrc`**.
+
+## Subcommands
+
+| Subcommand          | Example                                       |
+| ------------------- | --------------------------------------------- |
+| `get <key>`         | `emitsignal config get default.format`        |
+| `set <key> <value>` | `emitsignal config set default.format pretty` |
+| `list`              | Print all current settings                    |
+| `path`              | Print the config file path                    |
+
+## Examples
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal config set default.format pretty</Cmd>
+    <Ok>default.format = pretty</Ok>
+    <Cmd>emitsignal config set default.priority 3</Cmd>
+    <Ok>default.priority = 3</Ok>
+    <Sp />
+    <Cmd>emitsignal config path</Cmd>
+    <Out color="#f5f0ff">~/.emitsignalrc</Out>
+    <Sp />
+    <Cmd>emitsignal config list</Cmd>
+    <Out color="#f5f0ff">
+        auth.user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; alex@acme.io
+    </Out>
+    <Out color="#f5f0ff">default.format&nbsp;&nbsp;&nbsp; pretty</Out>
+    <Out color="#f5f0ff">default.priority&nbsp; 3</Out>
+    <Out color="#f5f0ff">default.color&nbsp;&nbsp;&nbsp;&nbsp; auto</Out>
+</Term>
+
+## Config file reference
+
+`~/.emitsignalrc` is plain TOML. You can edit it directly.
+
+```toml ~/.emitsignalrc
+[auth]
+token  = "es_live_••••"
+user   = "alex@acme.io"
+
+[default]
+format    = "pretty"   # pretty | json | compact | tsv
+priority  = 3          # 1–5
+color     = "auto"     # auto | always | never
+
+[alias]
+ship    = "publish deploy/prod -p4"
+alert   = "publish alerts/prod -p5 -t oncall"
+```
+
+## Environment variables
+
+Any `default.*` config key can be overridden with an environment variable:
+
+| Env var     | Overrides        | Description                                  |
+| ----------- | ---------------- | -------------------------------------------- |
+| `ES_TOKEN`  | `auth.token`     | API key. Overrides `~/.emitsignalrc`.        |
+| `ES_FORMAT` | `default.format` | Default output format.                       |
+| `NO_COLOR`  | `default.color`  | Disable all ANSI color when set (any value). |
+
+<Tip>
+    In CI, set `ES_TOKEN` as a secret and leave everything else as defaults. You don't need a
+    `~/.emitsignalrc` on your build machines.
+</Tip>

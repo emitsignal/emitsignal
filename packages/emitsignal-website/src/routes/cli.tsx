@@ -65,11 +65,11 @@ $ npm install -g emitsignal`}</Block>
                             <div>
                                 <H3>Direct binary (GitHub Releases)</H3>
                                 <Block>{`# macOS (arm64)
-$ curl -Lo emitsignal https://github.com/emitsignal/cli/releases/latest/download/emitsignal-darwin-arm64
+$ curl -Lo emitsignal https://github.com/kevenleone/emitsignal/cli/releases/latest/download/emitsignal-darwin-arm64
 $ chmod +x emitsignal && sudo mv emitsignal /usr/local/bin
 
 # Linux (amd64)
-$ curl -Lo emitsignal https://github.com/emitsignal/cli/releases/latest/download/emitsignal-linux-amd64
+$ curl -Lo emitsignal https://github.com/kevenleone/emitsignal/cli/releases/latest/download/emitsignal-linux-amd64
 $ chmod +x emitsignal && sudo mv emitsignal /usr/local/bin`}</Block>
                             </div>
                             <div>

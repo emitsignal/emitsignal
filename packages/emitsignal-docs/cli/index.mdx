@@ -1,0 +1,64 @@
+---
+title: 'CLI Reference'
+description: 'A single static binary for publishing and streaming signals. Pipe-friendly, scriptable, and scoped.'
+---
+
+import { Arrow, Caret, Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+<CardGroup cols={2}>
+    <Card title="Install" icon="arrow-down-to-bracket" href="/cli/install">
+        One binary, no runtime. Homebrew, shell script, or npm.
+    </Card>
+    <Card title="Quickstart" icon="bolt" href="/cli/quickstart">
+        From zero to a push notification in four commands.
+    </Card>
+    <Card title="publish" icon="paper-plane" href="/cli/publish">
+        Send a signal to a topic from the terminal or a script.
+    </Card>
+    <Card title="listen" icon="radio" href="/cli/listen">
+        Stream incoming signals live with filters and output formats.
+    </Card>
+</CardGroup>
+
+## Why a CLI?
+
+Every service you run can publish signals. Every machine you own can listen to them.
+`emitsignal` is the glue between your shell scripts, CI pipelines, cron jobs, and your
+phone — no SDK required.
+
+<Term title="emitsignal — zsh">
+    <Cmt># deploy finished? tell your phone.</Cmt>
+    <Cmd>emitsignal publish deploy/prod -p4 -m "api-gateway → v2.14.3"</Cmd>
+    <Ok>published → deploy/prod · 3 subscribers · 142ms</Ok>
+    <Sp />
+    <Cmt># something's on fire? watch it live.</Cmt>
+    <Cmd>emitsignal listen --priority &gt;=4 --format pretty</Cmd>
+    <Arrow>
+        connected · streaming priority&gt;=4
+        <Caret />
+    </Arrow>
+</Term>
+
+## The short alias
+
+Every invocation can use the `es` alias — symlinked automatically at install time.
+
+<Term title="emitsignal — zsh">
+    <Cmd>es publish alerts/prod -p5 -m "High memory on api-02"</Cmd>
+    <Ok>published → alerts/prod · push+sms+slack · 4 subscribers · 96ms</Ok>
+    <Sp />
+    <Cmd>es listen -p ">=2" -f pretty</Cmd>
+    <Arrow>connected · streaming priority&gt;=2<Caret /></Arrow>
+</Term>
+
+## Quick reference
+
+| Command                     | What it does                          |
+| --------------------------- | ------------------------------------- |
+| `publish`                   | Send a signal to a topic              |
+| `listen`                    | Stream signals live                   |
+| `subscribe` / `unsubscribe` | Manage topic subscriptions            |
+| `keys`                      | Create and revoke API keys            |
+| `config`                    | Read and write defaults               |
+| `tui`                       | Open the full-screen terminal inbox   |
+| `login` / `whoami`          | Authenticate and inspect your session |

@@ -1,0 +1,91 @@
+---
+title: 'keys'
+description: 'Create, list, and revoke scoped API keys for CI, servers, and scripts.'
+---
+
+import { Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+```
+emitsignal keys <list | create | revoke> [flags]
+```
+
+Keys are scoped — a CI key that can only write to `ci/*` can never read your inbox,
+subscribe to topics, or touch anything outside its scope.
+
+## Subcommands
+
+| Subcommand          | What it does                                         |
+| ------------------- | ---------------------------------------------------- |
+| `list`              | Show all active keys (secrets masked after creation) |
+| `create`            | Mint a new key                                       |
+| `revoke <name\|id>` | Immediately invalidate a key                         |
+
+## Flags
+
+<ParamField body="--name, -n" type="string">
+    Human label for a new key. Used in audit logs and `keys list`.
+</ParamField>
+
+<ParamField body="--scope, -s" type="expression" default="publish:*">
+    Permission grant. Format: `action:topic-glob`. Examples: `publish:*`, `publish:ci/*,deploy/*`,
+    `read:*`.
+</ParamField>
+
+<ParamField body="--expires, -e" type="duration">
+    Auto-revoke after a duration, e.g. `90d`, `1y`. Optional.
+</ParamField>
+
+<ParamField body="--json" type="flag">
+    Machine-readable output. Useful for piping to a secrets store.
+</ParamField>
+
+## Examples
+
+<Term title="emitsignal — zsh">
+    <Cmt># mint a scoped key for CI — the full secret is shown exactly once</Cmt>
+    <Cmd wrap>emitsignal keys create -n ci-runner -s "publish:ci/*,deploy/*" -e 90d</Cmd>
+    <Out color="#f5f0ff">&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp; ci-runner</Out>
+    <Out color="#f5f0ff">&nbsp;&nbsp;scope&nbsp;&nbsp;&nbsp; publish:ci/*, deploy/*</Out>
+    <Out color="#f5f0ff">&nbsp;&nbsp;expires&nbsp; in 90 days</Out>
+    <Out>
+        &nbsp;&nbsp;secret&nbsp;&nbsp;{' '}
+        <span style={{ color: '#fbbf24' }}>es_live_c8f4_9Qk2Lr7vN3pXa1Ze6Bd0Yw</span>
+    </Out>
+    <Ok>store this now — it will not be shown again</Ok>
+    <Sp />
+    <Cmd>emitsignal keys list</Cmd>
+    <Out color="#f5f0ff">{'prod-write    es_live_p9k2_••••   publish:*            4m ago'}</Out>
+    <Out color="#f5f0ff">{'ci-runner     es_live_c8f4_••••   publish:ci/*,…       just now'}</Out>
+    <Out color="#b8a9d9">{'old-staging   es_live_o12k_••••   publish:staging/*    revoked'}</Out>
+    <Sp />
+    <Cmd>emitsignal keys revoke old-staging</Cmd>
+    <Ok>revoked → old-staging</Ok>
+</Term>
+
+**Pipe to a secrets manager:**
+
+<Term title="emitsignal — zsh">
+    <Cmd wrap>
+        emitsignal keys create -n ci-runner -s "publish:ci/*" --json | jq -r '.secret' | gh secret
+        set ES_TOKEN
+    </Cmd>
+    <Ok>secret ES_TOKEN set for repo</Ok>
+</Term>
+
+<Warning>
+    The secret is shown **once**, immediately after creation. Store it in a secrets manager before
+    closing your terminal. If you lose it, revoke the key and create a new one — there is no way to
+    retrieve a secret after the first display.
+</Warning>
+
+## Using keys in CI
+
+Set `ES_TOKEN` in your CI environment:
+
+```yaml .github/workflows/deploy.yml
+- name: Notify on deploy
+  env:
+      ES_TOKEN: ${{ secrets.ES_TOKEN }}
+  run: |
+      emitsignal publish deploy/prod -p4 -m "Deployed ${{ github.sha }}"
+```

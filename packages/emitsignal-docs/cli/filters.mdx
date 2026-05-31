@@ -1,0 +1,103 @@
+---
+title: 'Filter expression language'
+description: 'Anywhere a filter is accepted you can use short flags, long flags, or a full boolean expression.'
+---
+
+import { Arrow, Caret, Cmd, Term } from '../snippets/terminal.jsx';
+
+All three forms compile to the same internal filter. Use whichever fits the context:
+
+<Term title="emitsignal — zsh" dense>
+    <div style={{ marginBottom: 16 }}>
+        <div
+            style={{
+                color: '#7a6d99',
+                fontSize: 10,
+                letterSpacing: 1.5,
+                marginBottom: 6,
+                textTransform: 'uppercase',
+            }}
+        >
+            shorthand flags
+        </div>
+        <Cmd>emitsignal listen -p4</Cmd>
+        <Cmd>emitsignal listen -p4+</Cmd>
+        <Cmd>emitsignal listen -t sev2</Cmd>
+        <Cmd>emitsignal listen -c alerts/*</Cmd>
+    </div>
+    <div style={{ marginBottom: 16 }}>
+        <div
+            style={{
+                color: '#7a6d99',
+                fontSize: 10,
+                letterSpacing: 1.5,
+                marginBottom: 6,
+                textTransform: 'uppercase',
+            }}
+        >
+            long flags — AND-ed automatically
+        </div>
+        <Cmd>emitsignal listen --priority "&gt;=2"</Cmd>
+        <Cmd>emitsignal listen --tag prod</Cmd>
+        <Cmd>emitsignal listen --channel ci/*</Cmd>
+        <Cmd>emitsignal listen --priority "&gt;=2" --tag prod</Cmd>
+    </div>
+    <div>
+        <div
+            style={{
+                color: '#7a6d99',
+                fontSize: 10,
+                letterSpacing: 1.5,
+                marginBottom: 6,
+                textTransform: 'uppercase',
+            }}
+        >
+            full boolean expression
+        </div>
+        <Cmd>emitsignal listen 'priority&gt;=4 AND tag:prod AND NOT tag:resolved'</Cmd>
+        <Arrow>
+            connected · filter active
+            <Caret />
+        </Arrow>
+    </div>
+</Term>
+
+## Fields
+
+| Field      | Example            | Description                                     |
+| ---------- | ------------------ | ----------------------------------------------- |
+| `priority` | `priority>=4`      | Integer 1–5. Operators: `>` `<` `>=` `<=` `=`   |
+| `tag`      | `tag:sev2`         | Membership test against the event tag set       |
+| `channel`  | `channel:alerts/*` | Glob match on the topic path                    |
+| `title`    | `title~"memory"`   | Substring (`~`) or regex (`=~`) on the headline |
+| `age`      | `age<5m`           | Relative time window — `30s`, `5m`, `1h`, `2d`  |
+
+## Boolean operators
+
+Combine any fields with `AND`, `OR`, `NOT`, and parentheses:
+
+<Term title="emitsignal — zsh">
+    <Cmd wrap>
+        emitsignal listen 'priority&gt;=4 AND (tag:prod OR tag:staging) AND NOT tag:resolved'
+    </Cmd>
+    <Arrow>
+        connected · filter active
+        <Caret />
+    </Arrow>
+</Term>
+
+<Warning>
+    Quote the whole expression when passing from a shell so it isn't split at spaces:
+
+    ```bash
+    emitsignal listen 'priority>=4 AND tag:prod'
+    ```
+
+</Warning>
+
+## Using expressions in `subscribe`
+
+<Term title="emitsignal — zsh">
+    <Cmd wrap>emitsignal subscribe alerts/* --filter 'priority&gt;=4 AND NOT tag:maintenance'</Cmd>
+    <Arrow>subscribed → alerts/* · filter active · push</Arrow>
+</Term>

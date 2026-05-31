@@ -1,0 +1,73 @@
+---
+title: 'Exit codes & environment'
+description: 'Predictable exit codes and environment variable overrides for scripting and CI.'
+---
+
+import { Arrow, Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+## Exit codes
+
+`emitsignal` is safe to use in `set -e` scripts and CI gates.
+All exit codes are stable across versions.
+
+| Code  | Meaning                                         |
+| ----- | ----------------------------------------------- |
+| `0`   | Success — published, or stream closed cleanly   |
+| `1`   | Generic error (network, server 5xx)             |
+| `2`   | Usage error — bad flags or expression           |
+| `3`   | Auth error — no token, expired, or out of scope |
+| `4`   | Not found — topic or channel does not exist     |
+| `130` | Interrupted (`ctrl-c`)                          |
+
+### CI gate example
+
+<Term title="emitsignal — zsh">
+    <Cmt># notify on success or failure</Cmt>
+    <Cmd wrap>emitsignal publish ci/web -p2 -m "tests passed" &amp;&amp; exit 0</Cmd>
+    <Ok>published → ci/web · 1 subscriber · 88ms</Ok>
+    <Sp />
+    <Cmt># using in a set -e script</Cmt>
+    <Out color="#f5f0ff">set -e</Out>
+    <Out color="#f5f0ff">run_tests</Out>
+    <Cmd>emitsignal publish ci/web -p2 -m "all green"</Cmd>
+    <Ok>published → ci/web · 1 subscriber · 91ms</Ok>
+</Term>
+
+## Environment variables
+
+Environment variables override config file defaults for the current invocation.
+They are always overridden in turn by explicit flags.
+
+| Variable    | Overrides        | Description                                  |
+| ----------- | ---------------- | -------------------------------------------- |
+| `ES_TOKEN`  | `auth.token`     | API key. Overrides `~/.emitsignalrc`.        |
+| `ES_FORMAT` | `default.format` | Default output format.                       |
+| `NO_COLOR`  | `default.color`  | Disable all ANSI color when set (any value). |
+
+### Variables injected into `--exec` processes
+
+When `listen --exec` runs a subprocess per event, these variables are injected:
+
+| Variable      | Content                  |
+| ------------- | ------------------------ |
+| `ES_TITLE`    | Event headline           |
+| `ES_BODY`     | Event body text          |
+| `ES_PRIORITY` | Integer 1–5              |
+| `ES_TAGS`     | Comma-separated tag list |
+| `ES_TOPIC`    | Topic path               |
+| `ES_ID`       | Event ID                 |
+
+<Term title="emitsignal — zsh">
+    <Cmd wrap>
+        {'emitsignal listen --priority >=5 --exec \'notify-send "$ES_TITLE" "$ES_BODY"\''}
+    </Cmd>
+    <Arrow>connected · exec mode · priority&gt;=5</Arrow>
+</Term>
+
+## Configuration resolution order
+
+For every setting, the resolution order is:
+
+```
+explicit flag  →  ES_* env var  →  ~/.emitsignalrc  →  built-in default
+```

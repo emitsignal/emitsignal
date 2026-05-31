@@ -1,0 +1,77 @@
+---
+title: 'Quickstart'
+description: 'From zero to a notification on your phone in four commands.'
+---
+
+import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+import { Terminal } from '../snippets/hi.jsx';
+
+<Steps>
+    <Step title="Install and log in">
+    <Terminal>Oi</Terminal>
+        <Term title="emitsignal — zsh">
+            <Cmd>brew install emitsignal</Cmd>
+            <Ok>emitsignal 0.7.2 installed</Ok>
+            <Sp />
+            <Cmd>emitsignal login</Cmd>
+            <Ok>authorized as alex@acme.io · token written to ~/.emitsignalrc</Ok>
+        </Term>
+    </Step>
+
+    <Step title="Subscribe to a topic">
+        <Term title="emitsignal — zsh">
+            <Cmd>emitsignal subscribe deploy/prod</Cmd>
+            <Ok>subscribed → deploy/prod · p≥1 · push</Ok>
+        </Term>
+
+        You'll now receive a push notification on every device registered to your account
+        whenever something publishes to `deploy/prod`.
+    </Step>
+
+    <Step title="Publish from anywhere">
+        <Term title="emitsignal — zsh">
+            <Cmd>emitsignal publish deploy/prod -p4 -m "shipped v2.14.3"</Cmd>
+            <Ok>published → deploy/prod · 1 subscriber · 96ms</Ok>
+        </Term>
+
+        The push lands on your phone within a second. Try priority `4` (high) or `5` (critical)
+        to see how delivery routes change.
+    </Step>
+
+    <Step title="Watch it live in the terminal">
+        <Term title="emitsignal — zsh">
+            <Cmd>emitsignal listen --priority &gt;=2</Cmd>
+            <Arrow>connected · 1 subscription · filter priority&gt;=2 · ctrl-c to quit</Arrow>
+            <Out color="#f5f0ff">
+                21:52 <span style={{ color: '#a78bfa' }}>●</span> deploy/prod p4&nbsp; shipped
+                v2.14.3
+            </Out>
+            <Out color="#4ade80">$</Out>
+        </Term>
+
+        Or open the full-screen inbox:
+
+        <Term title="emitsignal — zsh">
+            <Cmd>emitsignal tui</Cmd>
+            <Arrow>launching full-screen inbox…<Caret /></Arrow>
+        </Term>
+    </Step>
+
+</Steps>
+
+## What's next
+
+<CardGroup cols={2}>
+    <Card title="publish flags" icon="flag" href="/cli/publish">
+        Attach tags, links, and titles. Pipe stdout directly.
+    </Card>
+    <Card title="Filter expressions" icon="filter" href="/cli/filters">
+        `priority>=4 AND tag:prod AND NOT tag:resolved`
+    </Card>
+    <Card title="Scoped API keys" icon="key" href="/cli/keys">
+        Mint a CI key that can only write to `ci/*`.
+    </Card>
+    <Card title="TUI inbox" icon="terminal" href="/cli/tui">
+        Full-screen keyboard-driven inbox built with React-Ink.
+    </Card>
+</CardGroup>

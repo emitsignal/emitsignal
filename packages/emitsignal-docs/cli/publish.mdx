@@ -1,0 +1,85 @@
+---
+title: 'publish'
+description: 'Send a signal to a topic. Body comes from --message, a positional argument, or stdin.'
+---
+
+import { Arrow, Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+```
+emitsignal publish <topic> [body] [flags]
+```
+
+## Flags
+
+<ParamField body="--priority, -p" type="1–5" default="3">
+    Severity level. Drives routing and delivery targets.
+
+    | Level | Color  | Meaning  |
+    | ----- | ------ | -------- |
+    | `1`   | indigo | lowest   |
+    | `2`   | violet | low      |
+    | `3`   | violet | normal   |
+    | `4`   | amber  | high     |
+    | `5`   | red    | critical |
+
+</ParamField>
+
+<ParamField body="--message, -m" type="string">
+    Body text. Markdown is allowed. Omit to read from stdin.
+</ParamField>
+
+<ParamField body="--title, -T" type="string">
+    Headline. Defaults to the first line of the body.
+</ParamField>
+
+<ParamField body="--tag, -t" type="list">
+    Comma-separated tags (e.g. `ci,release`). Repeatable.
+</ParamField>
+
+<ParamField body="--link, -l" type="url">
+    Tap-through URL attached to the push notification.
+</ParamField>
+
+<ParamField body="--from-stdin" type="flag">
+    Force read body from stdin even if a positional body is present.
+</ParamField>
+
+<ParamField body="--quiet, -q" type="flag">
+    Suppress the confirmation line. Use exit code only.
+</ParamField>
+
+## Examples
+
+<Term title="emitsignal — zsh">
+    <Cmt># the one-liner from the brief</Cmt>
+    <Cmd>emitsignal publish deploy/prod -p4 -m "api-gateway → v2.14.3"</Cmd>
+    <Ok>published → deploy/prod · 3 subscribers · 142ms</Ok>
+    <Sp />
+    <Cmt># pipe stdin — output of the previous job becomes the body</Cmt>
+    <Cmd>pytest -q | emitsignal publish ci/web -p2 -t tests</Cmd>
+    <Ok>published → ci/web · "247 passed in 12.84s" · 88ms</Ok>
+    <Sp />
+    <Cmt># attach tags and a tap-through link</Cmt>
+    <Cmd wrap>
+        emitsignal publish alerts/prod -p5 -t sev2,oncall -l https://console.acme.io/i-0a3f2b -m
+        "High memory on api-02"
+    </Cmd>
+    <Ok>published → alerts/prod · push+sms+slack · 4 subscribers · 96ms</Ok>
+</Term>
+
+## Using aliases
+
+Define aliases in `~/.emitsignalrc` to turn long invocations into short ones:
+
+```toml ~/.emitsignalrc
+[alias]
+ship    = "publish deploy/prod -p4"
+alert   = "publish alerts/prod -p5 -t oncall"
+```
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal ship -m "v2.14.3 deployed"</Cmd>
+    <Ok>published → deploy/prod · 3 subscribers · 112ms</Ok>
+</Term>
+
+<Note>Topics are created automatically on first publish. No pre-registration needed.</Note>
