@@ -1,8 +1,14 @@
 {
     "dependencies": {
         "@elysia/openapi": "^1.4.15",
+        "@elysia/opentelemetry": "^1.4.12",
         "@elysiajs/cors": "^1.4.1",
         "@emitsignal/emails": "workspace:*",
+        "@opentelemetry/api": "^1.9.1",
+        "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
+        "@opentelemetry/resources": "^2.7.1",
+        "@opentelemetry/sdk-trace-node": "^2.7.1",
+        "@opentelemetry/semantic-conventions": "^1.41.1",
         "@prisma/adapter-pg": "^7.8.0",
         "@prisma/client": "^7.8.0",
         "@sinclair/typebox": "^0.34.49",

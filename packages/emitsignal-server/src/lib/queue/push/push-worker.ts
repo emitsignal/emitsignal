@@ -1,3 +1,4 @@
+import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ConnectionOptions, Worker } from 'bullmq';
 
 import type { PushJob } from '../../push-notification';
@@ -6,13 +7,40 @@ import { logger } from '../../logger';
 import { sendPushNotifications } from '../../push-notification';
 import { redisConnection } from '../connection';
 
+const tracer = trace.getTracer('emitsignal.worker');
+
 export function createPushWorker(): Worker<PushJob> {
     const worker = new Worker<PushJob>(
         'push',
         async (job) => {
-            logger.info({ jobId: job.id, topicName: job.data.topicName }, 'processing push job');
+            const span = tracer.startSpan('worker.push.process', {
+                attributes: {
+                    'job.id': job.id ?? 'unknown',
+                    'job.name': job.name,
+                    'messaging.destination': 'push',
+                    'messaging.system': 'bullmq',
+                    'topic.name': job.data.topicName,
+                },
+                kind: SpanKind.CONSUMER,
+            });
 
-            await sendPushNotifications(job.data);
+            try {
+                logger.info(
+                    { jobId: job.id, topicName: job.data.topicName },
+                    'processing push job',
+                );
+
+                await sendPushNotifications(job.data);
+
+                span.setStatus({ code: SpanStatusCode.OK });
+            } catch (error) {
+                span.recordException(error instanceof Error ? error : new Error(String(error)));
+                span.setStatus({ code: SpanStatusCode.ERROR });
+
+                throw error;
+            } finally {
+                span.end();
+            }
         },
         {
             concurrency: 5,

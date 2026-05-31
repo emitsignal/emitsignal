@@ -1,4 +1,5 @@
 import { fromTypes, openapi } from '@elysia/openapi';
+import { opentelemetry } from '@elysia/opentelemetry';
 import { cors } from '@elysiajs/cors';
 import { Elysia } from 'elysia';
 
@@ -39,6 +40,7 @@ FileStorageService.init(environment);
 const isProduction = Bun.env.NODE_ENV === 'production';
 
 const app = new Elysia()
+    .use(opentelemetry())
     .use(loggerPlugin)
     .use(rateLimitPlugin)
     .use(openapi({ enabled: !isProduction, references: fromTypes() }))
@@ -69,7 +71,7 @@ const app = new Elysia()
 
 export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
-logger.info('🟣 Server started');
+logger.info(`🟣 Server started at ${environment.EMIT_SIGNAL_HTTP_PORT}`);
 
 async function shutdown() {
     logger.info('shutting down server');

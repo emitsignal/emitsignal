@@ -11,14 +11,21 @@ const environmentSchema = Type.Object({
             default: 'log',
         },
     ),
-
     EMIT_SIGNAL_HTTP_PORT: Type.Number({ default: 3333 }),
 
     FILE_STORAGE_PROVIDER: Type.Union([Type.Literal('local'), Type.Literal('s3')], {
         default: 'local',
     }),
     JWT_SECRET: Type.String({ default: 'emitsignal-dev-jwt-secret' }),
+
+    OTEL_ENABLED: Type.Boolean({ default: false }),
+    OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
+    OTEL_SERVICE_NAME: Type.String({ default: 'emitsignal-server' }),
+    OTEL_VERBOSE_LOG: Type.Boolean({ default: false }),
+    OTEL_WORKER_SERVICE_NAME: Type.String({ default: 'emitsignal-worker' }),
+
     REDIS_URL: Type.String({ default: 'redis://localhost:6379' }),
+
     RESEND_API_KEY: Type.Optional(Type.String()),
 
     S3_ACCESS_KEY_ID: Type.Optional(Type.String()),

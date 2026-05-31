@@ -52,6 +52,17 @@ services:
             - '1025:1025' # SMTP
             - '3134:3134' # Web UI → http://localhost:3134
 
+    jaeger:
+        image: jaegertracing/all-in-one:1.57
+        restart: unless-stopped
+        environment:
+            COLLECTOR_OTLP_ENABLED: 'true'
+        ports:
+            - '16686:16686' # Web UI → http://localhost:16686
+            - '4318:4318' # OTLP HTTP
+        volumes:
+            - jaeger_dev_data:/tmp/jaeger
+
     server:
         command: >
             sh -c "cd /app && bun install &&
@@ -60,6 +71,9 @@ services:
                    bun run --watch src/index.ts"
         environment:
             APP_URL: 'http://localhost:5100'
+            OTEL_ENABLED: 'true'
+            OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger:4318'
+            OTEL_SERVICE_NAME: 'emitsignal-server'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             EMAIL_FROM: 'EmitSignal Dev <dev@emitsignal.local>'
             EMAIL_PROVIDER: 'smtp'
@@ -80,6 +94,8 @@ services:
         ports:
             - '5100:5100'
         depends_on:
+            jaeger:
+                condition: service_started
             kafrainbox:
                 condition: service_started
             postgres:
@@ -95,6 +111,9 @@ services:
         environment:
             APP_URL: 'http://localhost:5100'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
+            OTEL_ENABLED: 'true'
+            OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger:4318'
+            OTEL_SERVICE_NAME: 'emitsignal-worker'
             EMAIL_FROM: 'EmitSignal Dev <dev@emitsignal.com>'
             EMAIL_PROVIDER: 'smtp'
             FILE_STORAGE_PROVIDER: 'local'
@@ -111,6 +130,8 @@ services:
         volumes:
             - ../../:/app
         depends_on:
+            jaeger:
+                condition: service_started
             postgres:
                 condition: service_healthy
             redis:
@@ -134,5 +155,6 @@ services:
         working_dir: /app/packages/emitsignal-website
 
 volumes:
+    jaeger_dev_data:
     postgres_dev_data:
     redis_dev_data:
