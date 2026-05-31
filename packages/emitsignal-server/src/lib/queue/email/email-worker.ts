@@ -13,29 +13,35 @@ export function createEmailWorker(): Worker<EmailOptions> {
     const worker = new Worker<EmailOptions>(
         'email',
         async (job) => {
-            const span = tracer.startSpan('worker.email.process', {
-                attributes: {
-                    'job.id': job.id ?? 'unknown',
-                    'job.name': job.name,
-                    'messaging.destination': 'email',
-                    'messaging.system': 'bullmq',
+            await tracer.startActiveSpan(
+                'worker.email.process',
+                {
+                    attributes: {
+                        'job.id': job.id ?? 'unknown',
+                        'job.name': job.name,
+                        'messaging.destination': 'email',
+                        'messaging.system': 'bullmq',
+                    },
+                    kind: SpanKind.CONSUMER,
                 },
-                kind: SpanKind.CONSUMER,
-            });
+                async (span) => {
+                    try {
+                        logger.info({ jobId: job.id, to: job.data.to }, 'processing email job');
+                        await Email.provider.send(job.data);
 
-            try {
-                logger.info({ jobId: job.id, to: job.data.to }, 'processing email job');
-                await Email.provider.send(job.data);
+                        span.setStatus({ code: SpanStatusCode.OK });
+                    } catch (error) {
+                        span.recordException(
+                            error instanceof Error ? error : new Error(String(error)),
+                        );
+                        span.setStatus({ code: SpanStatusCode.ERROR });
 
-                span.setStatus({ code: SpanStatusCode.OK });
-            } catch (error) {
-                span.recordException(error instanceof Error ? error : new Error(String(error)));
-                span.setStatus({ code: SpanStatusCode.ERROR });
-
-                throw error;
-            } finally {
-                span.end();
-            }
+                        throw error;
+                    } finally {
+                        span.end();
+                    }
+                },
+            );
         },
         {
             concurrency: 5,

@@ -13,34 +13,40 @@ export function createPushWorker(): Worker<PushJob> {
     const worker = new Worker<PushJob>(
         'push',
         async (job) => {
-            const span = tracer.startSpan('worker.push.process', {
-                attributes: {
-                    'job.id': job.id ?? 'unknown',
-                    'job.name': job.name,
-                    'messaging.destination': 'push',
-                    'messaging.system': 'bullmq',
-                    'topic.name': job.data.topicName,
+            await tracer.startActiveSpan(
+                'worker.push.process',
+                {
+                    attributes: {
+                        'job.id': job.id ?? 'unknown',
+                        'job.name': job.name,
+                        'messaging.destination': 'push',
+                        'messaging.system': 'bullmq',
+                        'topic.name': job.data.topicName,
+                    },
+                    kind: SpanKind.CONSUMER,
                 },
-                kind: SpanKind.CONSUMER,
-            });
+                async (span) => {
+                    try {
+                        logger.info(
+                            { jobId: job.id, topicName: job.data.topicName },
+                            'processing push job',
+                        );
 
-            try {
-                logger.info(
-                    { jobId: job.id, topicName: job.data.topicName },
-                    'processing push job',
-                );
+                        await sendPushNotifications(job.data);
 
-                await sendPushNotifications(job.data);
+                        span.setStatus({ code: SpanStatusCode.OK });
+                    } catch (error) {
+                        span.recordException(
+                            error instanceof Error ? error : new Error(String(error)),
+                        );
+                        span.setStatus({ code: SpanStatusCode.ERROR });
 
-                span.setStatus({ code: SpanStatusCode.OK });
-            } catch (error) {
-                span.recordException(error instanceof Error ? error : new Error(String(error)));
-                span.setStatus({ code: SpanStatusCode.ERROR });
-
-                throw error;
-            } finally {
-                span.end();
-            }
+                        throw error;
+                    } finally {
+                        span.end();
+                    }
+                },
+            );
         },
         {
             concurrency: 5,
