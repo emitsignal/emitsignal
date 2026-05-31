@@ -25,7 +25,7 @@ export const logger = pino({
         ? {}
         : {
               msgPrefix: '[EmitSignal] ',
-              redact: { paths: isProduction ? ['devCode'] : [] },
+              redact: { paths: isProduction ? ['code'] : [] },
               transport: {
                   options: {
                       colorize: true,

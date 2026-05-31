@@ -1,0 +1,14 @@
+{
+    "exports": {
+        ".": "./src/index.ts",
+        "./api": "./src/api.ts",
+        "./format": "./src/format.ts",
+        "./priority": "./src/priority.ts"
+    },
+    "main": "src/index.ts",
+    "name": "@emitsignal/shared",
+    "private": true,
+    "type": "module",
+    "types": "src/index.ts",
+    "version": "1.0.0"
+}

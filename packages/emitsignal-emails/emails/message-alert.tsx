@@ -1,3 +1,4 @@
+import { priorityHex, priorityLabel, relativeTime } from '@emitsignal/shared';
 import {
     Body,
     Button,
@@ -26,22 +27,6 @@ export interface MessageAlertEmailProps {
     topicName: string;
 }
 
-const priorityColors: Record<number, string> = {
-    1: '#818cf8',
-    2: '#a78bfa',
-    3: '#c4b5fd',
-    4: '#fbbf24',
-    5: '#f87171',
-};
-
-const priorityLabels: Record<number, string> = {
-    1: 'Low',
-    2: 'Normal',
-    3: 'Elevated',
-    4: 'High',
-    5: 'Critical',
-};
-
 export default function MessageAlertEmail({
     body,
     createdAt,
@@ -51,8 +36,8 @@ export default function MessageAlertEmail({
     title,
     topicName,
 }: MessageAlertEmailProps) {
-    const pColor = priorityColors[priority] ?? priorityColors[3];
-    const pLabel = priorityLabels[priority] ?? 'Normal';
+    const pColor = priorityHex(priority);
+    const pLabel = priorityLabel(priority);
 
     return (
         <Html lang="en">
@@ -149,17 +134,6 @@ export default function MessageAlertEmail({
             </Tailwind>
         </Html>
     );
-}
-
-function relativeTime(ts: number): string {
-    const diff = Date.now() - ts;
-    const min = Math.floor(diff / 60000);
-    if (min < 1) return 'now';
-    if (min < 60) return `${min}m`;
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return `${hr}h`;
-    const day = Math.floor(hr / 24);
-    return `${day}d`;
 }
 
 MessageAlertEmail.PreviewProps = {

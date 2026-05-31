@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "allowImportingTsExtensions": true,
+        "lib": ["ESNext"],
+        "module": "Preserve",
+        "moduleDetection": "force",
+        "moduleResolution": "bundler",
+        "noEmit": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ESNext",
+        "verbatimModuleSyntax": true
+    },
+    "include": ["src/**/*.ts"]
+}

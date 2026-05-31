@@ -1,5 +1,7 @@
 import { Platform } from 'react-native';
 
+export { PRIORITY_HEX as PriorityColors } from '@emitsignal/shared/priority';
+
 // Dark is the canonical surface; light mode falls back to a softer palette.
 
 export const W = {
@@ -70,15 +72,6 @@ export const Colors = {
         warning: W.amber,
     },
 };
-
-// Priority dot colors — match the design's 5-level scale.
-export const PriorityColors = {
-    1: W.p1,
-    2: W.p2,
-    3: W.p3,
-    4: W.p4,
-    5: W.p5,
-} as const;
 
 export const UI = {
     borderRadius: {

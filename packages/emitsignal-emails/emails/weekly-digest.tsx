@@ -1,3 +1,4 @@
+import { priorityHex, relativeTime } from '@emitsignal/shared';
 import {
     Body,
     Button,
@@ -29,14 +30,6 @@ export interface WeeklyDigestProps {
     messages: DigestMessage[];
     weekStart: Date;
 }
-
-const priorityColors: Record<number, string> = {
-    1: '#818cf8',
-    2: '#a78bfa',
-    3: '#c4b5fd',
-    4: '#fbbf24',
-    5: '#f87171',
-};
 
 export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: WeeklyDigestProps) {
     const grouped = messages.reduce<Record<string, DigestMessage[]>>((acc, msg) => {
@@ -97,9 +90,7 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
                                         <Column style={{ width: '12px' }}>
                                             <div
                                                 style={{
-                                                    backgroundColor:
-                                                        priorityColors[msg.priority] ??
-                                                        priorityColors[3],
+                                                    backgroundColor: priorityHex(msg.priority),
                                                     borderRadius: '9999px',
                                                     height: '6px',
                                                     marginRight: '8px',
@@ -146,17 +137,6 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
             </Tailwind>
         </Html>
     );
-}
-
-function relativeTime(ts: number): string {
-    const diff = Date.now() - ts;
-    const min = Math.floor(diff / 60000);
-    if (min < 1) return 'now';
-    if (min < 60) return `${min}m`;
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return `${hr}h`;
-    const day = Math.floor(hr / 24);
-    return `${day}d`;
 }
 
 WeeklyDigestEmail.PreviewProps = {
