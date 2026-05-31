@@ -186,18 +186,6 @@ describe('GET /suggestions', () => {
     });
 });
 
-function makeDeviceSub(
-    id: string,
-    name: string,
-): { description: string; displayName: string; id: string; name: string } {
-    return {
-        description: `Description for ${name}`,
-        displayName: `Display ${name}`,
-        id,
-        name,
-    };
-}
-
 function makeTrendingTopic(
     id: string,
     name: string,
