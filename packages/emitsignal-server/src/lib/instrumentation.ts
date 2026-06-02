@@ -14,6 +14,7 @@ if (environment.SENTRY_ENABLED) {
     Sentry.init({
         dsn: environment.SENTRY_DSN,
         environment: Bun.env.NODE_ENV ?? 'development',
+        skipOpenTelemetrySetup: true,
         tracesSampleRate: 1.0,
     });
 }

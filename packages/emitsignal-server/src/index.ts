@@ -74,7 +74,21 @@ export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
 logger.info(`🟣 Server started at ${environment.EMIT_SIGNAL_HTTP_PORT}`);
 
+let isShuttingDown = false;
+
 async function shutdown() {
+    /**
+     * The isShuttingDown flag ensures that no matter how many times Sentry's internal handlers
+     * re-trigger your signal callbacks, the shutdown logic only executes once — queues,
+     * Redis connections, and Sentry all close cleanly without the "Connection is closed" error.
+     */
+
+    if (isShuttingDown) {
+        return;
+    }
+
+    isShuttingDown = true;
+
     logger.info('shutting down server');
 
     await emailQueue.close();

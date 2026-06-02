@@ -52,6 +52,21 @@ services:
             - '1025:1025' # SMTP
             - '3134:3134' # Web UI → http://localhost:3134
 
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib:latest
+        restart: unless-stopped
+        volumes:
+            - ./otel/otel-collector-config.dev.yaml:/etc/otelcol-contrib/config.yaml
+        environment:
+            OTEL_EXPORTER_ENDPOINT: '${OTEL_EXPORTER_ENDPOINT:-}'
+            OTEL_EXPORTER_AUTH_TOKEN: '${OTEL_EXPORTER_AUTH_TOKEN:-}'
+        depends_on:
+            jaeger:
+                condition: service_started
+        ports:
+            - '4317:4317'
+            - '4318:4318'
+
     jaeger:
         image: jaegertracing/all-in-one:1.57
         restart: unless-stopped
@@ -59,7 +74,6 @@ services:
             COLLECTOR_OTLP_ENABLED: 'true'
         ports:
             - '16686:16686' # Web UI → http://localhost:16686
-            - '4318:4318' # OTLP HTTP
         volumes:
             - jaeger_dev_data:/tmp/jaeger
 
@@ -72,7 +86,7 @@ services:
         environment:
             APP_URL: 'http://localhost:5100'
             OTEL_ENABLED: 'true'
-            OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger:4318'
+            OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
             OTEL_SERVICE_NAME: 'emitsignal-server'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             EMAIL_FROM: 'EmitSignal Dev <dev@emitsignal.local>'
@@ -94,6 +108,8 @@ services:
         ports:
             - '5100:5100'
         depends_on:
+            otel-collector:
+                condition: service_started
             jaeger:
                 condition: service_started
             kafrainbox:
@@ -112,7 +128,7 @@ services:
             APP_URL: 'http://localhost:5100'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             OTEL_ENABLED: 'true'
-            OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger:4318'
+            OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
             OTEL_SERVICE_NAME: 'emitsignal-worker'
             EMAIL_FROM: 'EmitSignal Dev <dev@emitsignal.com>'
             EMAIL_PROVIDER: 'smtp'
@@ -130,6 +146,8 @@ services:
         volumes:
             - ../../:/app
         depends_on:
+            otel-collector:
+                condition: service_started
             jaeger:
                 condition: service_started
             postgres:
