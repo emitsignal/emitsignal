@@ -7,6 +7,11 @@ receivers:
                 endpoint: 0.0.0.0:4318
 
 processors:
+    memory_limiter:
+        check_interval: 1s
+        limit_mib: 512
+        spike_limit_mib: 128
+
     batch:
 
 exporters:
@@ -18,18 +23,22 @@ exporters:
         headers:
             Authorization: 'Bearer ${OTEL_EXPORTER_AUTH_TOKEN}'
         compression: gzip
+        sending_queue:
+            enabled: true
+            queue_size: 500
+            num_consumers: 3
 
 service:
     pipelines:
         traces:
             receivers: [otlp]
-            processors: [batch]
+            processors: [memory_limiter, batch]
             exporters: [otlphttp/jaeger, otlphttp/exporter]
         metrics:
             receivers: [otlp]
-            processors: [batch]
+            processors: [memory_limiter, batch]
             exporters: [otlphttp/exporter]
         logs:
             receivers: [otlp]
-            processors: [batch]
+            processors: [memory_limiter, batch]
             exporters: [otlphttp/exporter]
