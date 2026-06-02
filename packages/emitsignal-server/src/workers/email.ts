@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/bun';
+
 import { Email } from '../lib/email';
 import { logger } from '../lib/logger';
 import { redisConnection } from '../lib/queue/connection';
@@ -13,6 +15,8 @@ async function shutdown() {
 
     await worker.close();
     await redisConnection.quit();
+
+    await Sentry.close(2000);
 
     process.exit(0);
 }

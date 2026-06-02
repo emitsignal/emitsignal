@@ -1,6 +1,7 @@
 import { fromTypes, openapi } from '@elysia/openapi';
 import { opentelemetry } from '@elysia/opentelemetry';
 import { cors } from '@elysiajs/cors';
+import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
 
 import pkg from '../package.json';
@@ -84,6 +85,8 @@ async function shutdown() {
     await rateLimitRedis.quit();
 
     server.stop();
+
+    await Sentry.close(2000);
 
     process.exit(0);
 }

@@ -30,11 +30,15 @@ const environmentSchema = Type.Object({
 
     S3_ACCESS_KEY_ID: Type.Optional(Type.String()),
     S3_BUCKET_NAME: Type.Optional(Type.String()),
+
     S3_ENDPOINT: Type.Optional(Type.String()),
     S3_FORCE_PATH_STYLE: Type.Optional(Type.Boolean()),
     S3_PUBLIC_URL_BASE: Type.Optional(Type.String()),
     S3_REGION: Type.Optional(Type.String()),
     S3_SECRET_ACCESS_KEY: Type.Optional(Type.String()),
+
+    SENTRY_DSN: Type.String(),
+    SENTRY_ENABLED: Type.Boolean({ default: true }),
 
     SMTP_HOST: Type.String({ default: 'localhost' }),
     SMTP_PASS: Type.Optional(Type.String()),

@@ -2,12 +2,21 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { BatchSpanProcessor, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
+import * as Sentry from '@sentry/bun';
 import { argv } from 'bun';
 
 import pkg from '../../package.json';
 import { environment } from '../schema/environment';
 
 const [, scriptName] = argv;
+
+if (environment.SENTRY_ENABLED) {
+    Sentry.init({
+        dsn: environment.SENTRY_DSN,
+        environment: Bun.env.NODE_ENV ?? 'development',
+        tracesSampleRate: 1.0,
+    });
+}
 
 if (environment.OTEL_ENABLED) {
     const provider = new NodeTracerProvider({
