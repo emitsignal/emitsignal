@@ -32,6 +32,10 @@ export function useSSE({ headers, onError, onEvent, onOpen, url }: SSEOptions) {
                 throw error;
             },
             onmessage(event) {
+                if (!event.data) {
+                    return;
+                }
+
                 try {
                     onEventRef.current(event.event || 'message', JSON.parse(event.data));
                 } catch {
