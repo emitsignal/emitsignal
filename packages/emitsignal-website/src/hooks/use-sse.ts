@@ -1,13 +1,15 @@
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useEffect, useRef } from 'react';
 
 interface SSEOptions {
+    headers?: Record<string, string>;
     onError?: (error: unknown) => void;
     onEvent: (event: string, data: unknown) => void;
     onOpen?: () => void;
     url: null | string;
 }
 
-export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
+export function useSSE({ headers, onError, onEvent, onOpen, url }: SSEOptions) {
     const onErrorRef = useRef(onError);
     const onEventRef = useRef(onEvent);
     const onOpenRef = useRef(onOpen);
@@ -21,29 +23,31 @@ export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
             return;
         }
 
-        const eventSource = new EventSource(url);
+        const controller = new AbortController();
 
-        eventSource.addEventListener('open', () => {
-            onOpenRef.current?.();
+        fetchEventSource(url, {
+            headers,
+            onerror(error) {
+                onErrorRef.current?.(error);
+                throw error;
+            },
+            onmessage(event) {
+                try {
+                    onEventRef.current(event.event || 'message', JSON.parse(event.data));
+                } catch {
+                    onEventRef.current(event.event || 'message', event.data);
+                }
+            },
+            async onopen(response) {
+                if (!response.ok) {
+                    throw new Error(`SSE open failed: ${response.status}`);
+                }
+                onOpenRef.current?.();
+            },
+            openWhenHidden: true,
+            signal: controller.signal,
         });
 
-        eventSource.addEventListener('error', () => {
-            onErrorRef.current?.(new Error('SSE connection error'));
-        });
-
-        const handleEvent = (event: MessageEvent) => {
-            try {
-                onEventRef.current(event.type, JSON.parse(event.data));
-            } catch {
-                onEventRef.current(event.type, event.data);
-            }
-        };
-
-        eventSource.addEventListener('message', handleEvent);
-
-        return () => {
-            eventSource.removeEventListener('message', handleEvent);
-            eventSource.close();
-        };
-    }, [url]);
+        return () => controller.abort();
+    }, [url, headers]);
 }

@@ -1,6 +1,7 @@
 {
     "dependencies": {
         "@emitsignal/shared": "workspace:*",
+        "@microsoft/fetch-event-source": "^2.0.1",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/react-devtools": "latest",
         "@tanstack/react-router": "latest",
