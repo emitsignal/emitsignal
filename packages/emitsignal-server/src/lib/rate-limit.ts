@@ -73,3 +73,33 @@ export const uploadAuthLimiter = makeLimiter('rl:upload:auth', 20, duration.hour
 
 // POST /auth/verify — keyed by IP to prevent code brute-force
 export const verifyLimiter = makeLimiter('rl:verify', 5, duration.minutes(15).as('seconds'));
+
+// SSE concurrent-connection slot — returns null if denied, or { release } to call on disconnect.
+// Uses incr/decr rather than a windowed limiter because we're counting live connections, not req/s.
+export async function acquireSseSlot(
+    key: string,
+    max: number,
+): Promise<{ release: () => void } | null> {
+    if (Bun.env.NODE_ENV === 'test') {
+        return { release: () => {} };
+    }
+
+    try {
+        const current = await rateLimitRedis.incr(key);
+        await rateLimitRedis.expire(key, duration.hours(24).as('seconds'));
+
+        if (current > max) {
+            await rateLimitRedis.decr(key);
+            return null;
+        }
+
+        return {
+            release: () => {
+                rateLimitRedis.decr(key);
+            },
+        };
+    } catch {
+        // Redis unavailable — fail open, connection not tracked
+        return { release: () => {} };
+    }
+}

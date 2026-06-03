@@ -4,7 +4,7 @@ import { duration } from '../../lib/duration';
 import { bus, type MessageEvent } from '../../lib/event-bus';
 import { getClientIP } from '../../lib/ip';
 import { prisma } from '../../lib/prisma';
-import { rateLimitRedis } from '../../lib/rate-limit';
+import { acquireSseSlot } from '../../lib/rate-limit';
 import { serializeMessage } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
@@ -32,27 +32,13 @@ export const listen = new Elysia().get(
         const sseKey = `rl:sse:${userId ?? ip}`;
         const max = userId ? SSE_MAX_AUTH : SSE_MAX_ANON;
 
-        let trackedInRedis = false;
+        const slot = await acquireSseSlot(sseKey, max);
 
-        if (Bun.env.NODE_ENV !== 'test') {
-            try {
-                const current = await rateLimitRedis.incr(sseKey);
-                await rateLimitRedis.expire(sseKey, duration.hours(24).as('seconds'));
+        if (!slot) {
+            set.headers['retry-after'] = '60';
+            set.status = 429;
 
-                trackedInRedis = true;
-
-                if (current > max) {
-                    await rateLimitRedis.decr(sseKey);
-
-                    trackedInRedis = false;
-                    set.headers['retry-after'] = '60';
-                    set.status = 429;
-
-                    return { error: 'too_many_sse_connections', max, retryAfter: 60 };
-                }
-            } catch {
-                // Redis unavailable — fail open, connection not tracked
-            }
+            return { error: 'too_many_sse_connections', max, retryAfter: 60 };
         }
 
         const topic = await prisma.topic.findUnique({
@@ -60,10 +46,7 @@ export const listen = new Elysia().get(
         });
 
         if (!topic) {
-            if (trackedInRedis) {
-                rateLimitRedis.decr(sseKey);
-            }
-
+            slot.release();
             set.status = 404;
 
             return { error: 'topic_not_found' };
@@ -111,10 +94,7 @@ export const listen = new Elysia().get(
                 }, duration.seconds(25).as('ms'));
 
                 request.signal.addEventListener('abort', () => {
-                    if (trackedInRedis && Bun.env.NODE_ENV !== 'test') {
-                        rateLimitRedis.decr(sseKey);
-                    }
-
+                    slot.release();
                     unsubscribe();
                     clearInterval(heartbeat);
 

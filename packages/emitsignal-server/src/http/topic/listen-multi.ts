@@ -3,7 +3,7 @@ import Elysia from 'elysia';
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
 import { getClientIP } from '../../lib/ip';
-import { rateLimitRedis } from '../../lib/rate-limit';
+import { acquireSseSlot } from '../../lib/rate-limit';
 import { resolveUserId } from '../auth/plugin';
 
 const SSE_MAX_ANON = 3;
@@ -30,27 +30,13 @@ export const listenMulti = new Elysia().get(
         const sseKey = `rl:sse:${userId ?? ip}`;
         const max = userId ? SSE_MAX_AUTH : SSE_MAX_ANON;
 
-        let trackedInRedis = false;
+        const slot = await acquireSseSlot(sseKey, max);
 
-        if (Bun.env.NODE_ENV !== 'test') {
-            try {
-                const current = await rateLimitRedis.incr(sseKey);
-                await rateLimitRedis.expire(sseKey, duration.hours(24).as('seconds'));
+        if (!slot) {
+            set.headers['retry-after'] = '60';
+            set.status = 429;
 
-                trackedInRedis = true;
-
-                if (current > max) {
-                    await rateLimitRedis.decr(sseKey);
-
-                    trackedInRedis = false;
-                    set.headers['retry-after'] = '60';
-                    set.status = 429;
-
-                    return { error: 'too_many_sse_connections', max, retryAfter: 60 };
-                }
-            } catch {
-                // Redis unavailable — fail open, connection not tracked
-            }
+            return { error: 'too_many_sse_connections', max, retryAfter: 60 };
         }
 
         const topics = (query.topics ?? '')
@@ -79,10 +65,7 @@ export const listenMulti = new Elysia().get(
                 }, duration.seconds(25).as('ms'));
 
                 request.signal.addEventListener('abort', () => {
-                    if (trackedInRedis && Bun.env.NODE_ENV !== 'test') {
-                        rateLimitRedis.decr(sseKey);
-                    }
-
+                    slot.release();
                     unsubscribers.forEach((off) => off());
 
                     clearInterval(heartbeat);
