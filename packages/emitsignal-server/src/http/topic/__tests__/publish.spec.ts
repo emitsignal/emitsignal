@@ -124,4 +124,96 @@ describe('POST /topic/:name', () => {
 
         expect(res.status).toBe(422);
     });
+
+    describe('header-based publishing (ntfy-compatible)', () => {
+        function headerRequest(
+            topicName: string,
+            body: string,
+            headers: Record<string, string> = {},
+        ) {
+            return new Request(`http://localhost/topic/${topicName}`, {
+                body,
+                headers: { 'Content-Type': 'text/plain', ...headers },
+                method: 'POST',
+            });
+        }
+
+        it('publishes with plain-text body and X-Title header', async () => {
+            const res = await app.handle(
+                headerRequest('test-topic', 'Hello from header mode', { 'X-Title': 'Alert' }),
+            );
+
+            expect(res.status).toBe(200);
+
+            const data = await res.json();
+
+            expect(data).toEqual({ message: 'posted', messageId: 'msg-1' });
+        });
+
+        it('uses default priority 3 when X-Priority is absent', async () => {
+            const res = await app.handle(headerRequest('test-topic', 'No priority header'));
+
+            expect(res.status).toBe(200);
+        });
+
+        it('maps priority names to integers', async () => {
+            const priorities = ['urgent', 'high', 'default', 'low', 'min'];
+
+            for (const priority of priorities) {
+                const res = await app.handle(
+                    headerRequest('test-topic', 'body', { 'X-Priority': priority }),
+                );
+
+                expect(res.status).toBe(200);
+            }
+        });
+
+        it('parses comma-separated tags from X-Tags header', async () => {
+            const res = await app.handle(
+                headerRequest('test-topic', 'tagged', { 'X-Tags': 'deploy, prod, v2' }),
+            );
+
+            expect(res.status).toBe(200);
+        });
+
+        it('schedules message when X-Delay duration is provided', async () => {
+            const res = await app.handle(
+                headerRequest('test-topic', 'delayed', { 'X-Delay': '1h', 'X-Title': 'Later' }),
+            );
+
+            expect(res.status).toBe(200);
+
+            const data = await res.json();
+
+            expect(data.message).toBe('scheduled');
+        });
+
+        it('accepts short header aliases (t, p, ta)', async () => {
+            const res = await app.handle(
+                headerRequest('test-topic', 'Short alias test', { p: '4', t: 'Short', ta: 'a,b' }),
+            );
+
+            expect(res.status).toBe(200);
+        });
+
+        it('uses X-Message header as body override', async () => {
+            const res = await app.handle(
+                headerRequest('test-topic', 'raw body ignored', {
+                    'X-Message': 'overridden body',
+                    'X-Title': 'Override',
+                }),
+            );
+
+            expect(res.status).toBe(200);
+        });
+
+        it('accepts JSON actions via X-Actions header', async () => {
+            const actions = JSON.stringify([{ type: 'acknowledge' }]);
+            const res = await app.handle(
+                headerRequest('test-topic', 'with action', { 'X-Actions': actions }),
+            );
+
+            expect(res.status).toBe(200);
+        });
+    });
 });

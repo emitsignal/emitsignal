@@ -4,6 +4,7 @@ import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { validateActions } from '../../lib/actions';
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
+import { parsePublishHeaders } from '../../lib/header-publish';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
@@ -91,5 +92,14 @@ export const publish = new Elysia().post(
             tags: t.Array(t.String()),
             title: t.String(),
         }),
+        parse: [
+            async ({ contentType, request }) => {
+                if (!contentType?.includes('application/json')) {
+                    const rawBody = await request.text();
+
+                    return parsePublishHeaders(Object.fromEntries(request.headers), rawBody);
+                }
+            },
+        ],
     },
 );
