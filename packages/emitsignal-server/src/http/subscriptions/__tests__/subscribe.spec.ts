@@ -19,28 +19,30 @@ describe('POST /subscriptions', () => {
     }
 
     it('creates a subscription', async () => {
-        prismaMock.topic.findUnique.mockResolvedValueOnce({
+        prismaMock.topic.upsert.mockResolvedValueOnce({
             createdAt: new Date(),
             description: '',
             displayName: 'Test',
-            id: 'topic-1',
+            id: 'id-topic',
             isPublic: true,
-            name: 'test-topic',
+            name: 'test-topic-99',
         });
 
         const res = await app.handle(
-            request({ deviceId: 'dev-1', pushEnabled: true, topicName: 'test-topic' }),
+            request({ deviceId: 'dev-1', pushEnabled: true, topicName: 'test-topic-99' }),
         );
+
         expect(res.status).toBe(200);
 
         const data = await res.json();
+
         expect(data).toEqual({
             id: 'sub-1',
             topic: {
                 description: '',
                 displayName: 'Test',
-                id: 'topic-1',
-                name: 'test-topic',
+                id: 'id-topic',
+                name: 'test-topic-99',
             },
         });
     });

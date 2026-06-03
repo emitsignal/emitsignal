@@ -1,26 +1,35 @@
 import type { Action } from './actions';
 
+import { topicNameCache } from './cache';
 import { prisma } from './prisma';
 import { FileStorageService } from './storage';
 
 export const TOPIC_NAME_REGEX = /^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/i;
 
-export async function getOrCreateTopic(name: string, ownerId?: string) {
-    const existing = await prisma.topic.findUnique({ where: { name } });
+export async function getOrCreateTopic(topicName: string, ownerId?: string) {
+    const name = topicName.toLowerCase();
 
-    if (existing) {
-        return existing;
+    const cached = topicNameCache.get(name);
+
+    if (cached) {
+        return cached;
     }
 
-    return prisma.topic.create({
-        data: {
+    const topic = await prisma.topic.upsert({
+        create: {
             description: '',
             displayName: name,
             isPublic: true,
             name,
             ownerId,
         },
+        update: {},
+        where: { name },
     });
+
+    topicNameCache.set(name, topic);
+
+    return topic;
 }
 
 export function parseActions(raw: string): Action[] {
