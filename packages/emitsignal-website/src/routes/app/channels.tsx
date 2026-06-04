@@ -6,7 +6,7 @@ import { StatsStrip } from '#/components/app/channels/stats-strip';
 import { Toolbar } from '#/components/app/toolbar';
 import { Dot } from '#/components/ui/dot';
 import { useSubscriptions } from '#/ctx/subscriptions';
-import { useTopicMessages } from '#/hooks/use-emit-signal';
+import { useTopicMessages, useTopicMetrics } from '#/hooks/use-emit-signal';
 
 export const Route = createFileRoute('/app/channels')({
     component: ChannelView,
@@ -18,7 +18,8 @@ export const Route = createFileRoute('/app/channels')({
 function ChannelView() {
     const { topic } = Route.useSearch();
 
-    const { loading, messages } = useTopicMessages(topic || null);
+    const { addMessage, metrics } = useTopicMetrics(topic || null);
+    const { loading, messages } = useTopicMessages(topic || null, addMessage);
     const { subscriptions, unsubscribe } = useSubscriptions();
     const navigate = useNavigate();
 
@@ -75,7 +76,7 @@ function ChannelView() {
                 ))}
             </div>
 
-            <StatsStrip messages={messages} subscription={subscription ?? null} />
+            <StatsStrip metrics={metrics ?? null} subscription={subscription ?? null} />
 
             <div className="flex min-h-0 flex-1">
                 <EventList loading={loading} messages={messages} />

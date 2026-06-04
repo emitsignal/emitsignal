@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { Message, Subscription } from '#/lib/api';
+import type { Message, Subscription, TopicMetrics } from '#/lib/api';
 
 import { useSession } from '#/ctx/session';
 import { api, sseMultiUrl, sseUrl } from '#/lib/api';
@@ -23,7 +23,7 @@ export function useFeed() {
         subscriptions: [],
     });
 
-    const { token } = useSession();
+    const { loading: authLoading, token } = useSession();
     const authHeaders = useMemo(
         () => (token ? { Authorization: `Bearer ${token}` } : undefined),
         [token],
@@ -79,17 +79,18 @@ export function useFeed() {
                 };
             });
         },
-        url: sseTarget,
+        url: !authLoading && sseTarget ? sseTarget : null,
     });
 
     return { ...state, refresh };
 }
 
-export function useTopicMessages(topicName: null | string) {
+export function useTopicMessages(topicName: null | string, onNewMessage?: (msg: Message) => void) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
+    const seenIdsRef = useRef(new Set<string>());
 
-    const { token } = useSession();
+    const { loading: authLoading, token } = useSession();
     const authHeaders = useMemo(
         () => (token ? { Authorization: `Bearer ${token}` } : undefined),
         [token],
@@ -104,6 +105,7 @@ export function useTopicMessages(topicName: null | string) {
         api.listMessages(topicName)
             .then((fetchedMessages) => {
                 if (!cancelled) {
+                    seenIdsRef.current = new Set(fetchedMessages.map((m) => m.id));
                     setMessages(fetchedMessages);
                     setLoading(false);
                 }
@@ -117,18 +119,68 @@ export function useTopicMessages(topicName: null | string) {
         };
     }, [topicName]);
 
+    const onNewMessageRef = useRef(onNewMessage);
+    onNewMessageRef.current = onNewMessage;
+
     useSSE({
         headers: authHeaders,
         onEvent: (event, data) => {
             if (event !== 'message') return;
             const incoming = data as Message;
-            setMessages((prev) => {
-                if (prev.some((message) => message.id === incoming.id)) return prev;
-                return [incoming, ...prev];
-            });
+            if (seenIdsRef.current.has(incoming.id)) return;
+            seenIdsRef.current.add(incoming.id);
+            setMessages((prev) => [incoming, ...prev]);
+            onNewMessageRef.current?.(incoming);
         },
-        url: topicName ? sseUrl(topicName) : null,
+        url: !authLoading && topicName ? sseUrl(topicName) : null,
     });
 
     return { loading, messages };
+}
+
+export function useTopicMetrics(topicName: null | string) {
+    const [metrics, setMetrics] = useState<null | TopicMetrics>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!topicName) {
+            setMetrics(null);
+            setLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        setLoading(true);
+        api.getTopicMetrics(topicName)
+            .then((data) => {
+                if (!cancelled) {
+                    setMetrics(data);
+                    setLoading(false);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [topicName]);
+
+    const addMessage = useCallback((msg: Message) => {
+        setMetrics((prev) => {
+            if (!prev) return prev;
+            const volume = [...prev.volume];
+            volume[23]++;
+            return {
+                ...prev,
+                messageCount24h: prev.messageCount24h + 1,
+                p5Count24h: prev.p5Count24h + (msg.priority === 5 ? 1 : 0),
+                volume,
+            };
+        });
+    }, []);
+
+    return { addMessage, loading, metrics };
 }
