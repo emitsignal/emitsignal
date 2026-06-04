@@ -24,6 +24,7 @@ import { listTopics } from './http/topic/list';
 import { listen } from './http/topic/listen';
 import { listenMulti } from './http/topic/listen-multi';
 import { messages } from './http/topic/messages';
+import { topicMetrics } from './http/topic/metrics';
 import { publish } from './http/topic/publish';
 import { suggestions } from './http/topic/suggestions';
 import { Email } from './lib/email';
@@ -62,6 +63,7 @@ const app = new Elysia()
     .use(magicLink)
     .use(me)
     .use(messages)
+    .use(topicMetrics)
     .use(publish)
     .use(registerPushToken)
     .use(subscribe)

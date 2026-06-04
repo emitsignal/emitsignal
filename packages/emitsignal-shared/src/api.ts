@@ -49,6 +49,13 @@ export interface Topic {
     name: string;
 }
 
+export interface TopicMetrics {
+    messageCount24h: number;
+    p5Count24h: number;
+    subscriberCount: number;
+    volume: number[];
+}
+
 export interface TopicSuggestion {
     description: null | string;
     displayName: string;
@@ -111,6 +118,10 @@ export function createApiClient(baseUrl: string) {
 
         getTopic(name: string) {
             return request<TopicWithCounts>(`/topics/${encodeURIComponent(name)}`);
+        },
+
+        getTopicMetrics(topicName: string) {
+            return request<TopicMetrics>(`/topics/${encodeURIComponent(topicName)}/metrics`);
         },
 
         listMessages(topicName: string, limit = 50) {
