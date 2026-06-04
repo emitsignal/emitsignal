@@ -79,27 +79,33 @@ export const verifyLimiter = makeLimiter('rl:verify', 5, duration.minutes(15).as
 export async function acquireSseSlot(
     key: string,
     max: number,
-): Promise<{ release: () => void } | null> {
+): Promise<{ release: () => Promise<void> } | null> {
     if (Bun.env.NODE_ENV === 'test') {
-        return { release: () => {} };
+        return { release: async () => {} };
     }
 
     try {
         const current = await rateLimitRedis.incr(key);
-        await rateLimitRedis.expire(key, duration.hours(24).as('seconds'));
+        // 2-minute TTL so stale slots from crashed/reloaded clients recover quickly.
+        await rateLimitRedis.expire(key, duration.minutes(2).as('seconds'));
 
         if (current > max) {
             await rateLimitRedis.decr(key);
+
             return null;
         }
 
         return {
-            release: () => {
-                rateLimitRedis.decr(key);
+            release: async () => {
+                try {
+                    await rateLimitRedis.decr(key);
+                } catch {
+                    // non-fatal — key will expire via TTL
+                }
             },
         };
     } catch {
         // Redis unavailable — fail open, connection not tracked
-        return { release: () => {} };
+        return { release: async () => {} };
     }
 }

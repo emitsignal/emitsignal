@@ -27,7 +27,7 @@ export const listenMulti = new Elysia().get(
     async ({ headers, query, request, server, set }) => {
         const ip = getClientIP(request, server);
         const userId = await resolveUserId({ headers });
-        const sseKey = `rl:sse:${userId ?? ip}`;
+        const sseKey = `rl:sse:multi:${userId ?? ip}`;
         const max = userId ? SSE_MAX_AUTH : SSE_MAX_ANON;
 
         const slot = await acquireSseSlot(sseKey, max);
@@ -56,26 +56,26 @@ export const listenMulti = new Elysia().get(
                     ? topics.map((name) => bus.subscribe(name, (e) => send('message', e)))
                     : [bus.subscribe('*', (e) => send('message', e))];
 
-                const heartbeat = setInterval(() => {
-                    try {
-                        controller.enqueue(encoder.encode(': ping\n\n'));
-                    } catch {
-                        clearInterval(heartbeat);
-                    }
-                }, duration.seconds(25).as('ms'));
-
-                request.signal.addEventListener('abort', () => {
-                    slot.release();
-                    unsubscribers.forEach((off) => off());
-
+                const cleanup = async () => {
                     clearInterval(heartbeat);
-
+                    await slot.release();
+                    unsubscribers.forEach((off) => off());
                     try {
                         controller.close();
                     } catch {
                         // already closed
                     }
-                });
+                };
+
+                const heartbeat = setInterval(async () => {
+                    try {
+                        controller.enqueue(encoder.encode(': ping\n\n'));
+                    } catch {
+                        await cleanup();
+                    }
+                }, duration.seconds(25).as('ms'));
+
+                request.signal.addEventListener('abort', cleanup);
             },
         });
 

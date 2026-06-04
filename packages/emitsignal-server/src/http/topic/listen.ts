@@ -85,25 +85,26 @@ export const listen = new Elysia().get(
                     send('message', messageEvent),
                 );
 
-                const heartbeat = setInterval(() => {
-                    try {
-                        controller.enqueue(encoder.encode(': ping\n\n'));
-                    } catch {
-                        clearInterval(heartbeat);
-                    }
-                }, duration.seconds(25).as('ms'));
-
-                request.signal.addEventListener('abort', () => {
-                    slot.release();
-                    unsubscribe();
+                const cleanup = async () => {
                     clearInterval(heartbeat);
-
+                    await slot.release();
+                    unsubscribe();
                     try {
                         controller.close();
                     } catch {
                         // already closed
                     }
-                });
+                };
+
+                const heartbeat = setInterval(async () => {
+                    try {
+                        controller.enqueue(encoder.encode(': ping\n\n'));
+                    } catch {
+                        await cleanup();
+                    }
+                }, duration.seconds(25).as('ms'));
+
+                request.signal.addEventListener('abort', cleanup);
             },
         });
 
