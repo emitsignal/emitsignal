@@ -13,6 +13,7 @@ export function EventList({ loading, messages }: Props) {
     return (
         <div className="min-w-0 flex-1 overflow-auto border-r border-line">
             <FilterRow count={messages.length} />
+
             {loading ? (
                 <div className="p-5.5 font-mono text-[12px] text-dim">loading…</div>
             ) : messages.length === 0 ? (
@@ -34,10 +35,11 @@ function EventRow({ event }: { event: Message }) {
                 'border-l-transparent',
             )}
         >
-            <Dot level={event.priority} size={7} />
+            <Dot className="mt-[7px]" level={event.priority} size={7} />
+
             <div className="min-w-0 flex-1">
                 <div className="mb-0.5 flex items-baseline gap-2.5">
-                    <span className="text-[13.5px] font-semibold">{event.title}</span>
+                    <span className="text-[13.5px] font-semibold">{event.title || event.id}</span>
                     <span className="ml-auto font-mono text-[10.5px] text-dim">
                         {relativeTime(event.createdAt)}
                     </span>
@@ -45,7 +47,7 @@ function EventRow({ event }: { event: Message }) {
 
                 <p className="m-0 mb-1.5 text-[12.5px] text-muted">{event.body}</p>
                 <div className="flex gap-1.5">
-                    {event.tags.map((tag) => (
+                    {event.tags?.map((tag) => (
                         <span
                             className="rounded border border-line bg-chip px-1.5 py-0.5 font-mono text-[10px] text-muted"
                             key={tag}
