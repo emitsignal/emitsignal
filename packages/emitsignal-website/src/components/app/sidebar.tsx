@@ -17,6 +17,7 @@ import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { useSession } from '#/ctx/session';
 import { useSubscriptions } from '#/ctx/subscriptions';
+import { hashTopicLevel } from '#/lib/priority';
 
 interface NavItem {
     badge?: number;
@@ -133,7 +134,8 @@ export function Sidebar() {
                     search={{ topic: subscription.topic.name }}
                     to="/app/channels"
                 >
-                    <Dot level={1} size={5} />
+                    <Dot level={hashTopicLevel(subscription.topic.name)} size={5} />
+
                     <span className="flex-1 truncate">{subscription.topic.name}</span>
                 </Link>
             ))}
