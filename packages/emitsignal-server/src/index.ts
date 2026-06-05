@@ -27,6 +27,13 @@ import { messages } from './http/topic/messages';
 import { topicMetrics } from './http/topic/metrics';
 import { publish } from './http/topic/publish';
 import { suggestions } from './http/topic/suggestions';
+import { createWebhook } from './http/webhooks/create';
+import { deleteWebhook } from './http/webhooks/delete';
+import { listDeliveries } from './http/webhooks/deliveries';
+import { getWebhook } from './http/webhooks/get';
+import { listWebhooks } from './http/webhooks/list';
+import { receiveWebhook } from './http/webhooks/receive';
+import { updateWebhook } from './http/webhooks/update';
 import { Email } from './lib/email';
 import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
@@ -70,7 +77,14 @@ const app = new Elysia()
     .use(suggestions)
     .use(unsubscribe)
     .use(updatePushToken)
-    .use(verify);
+    .use(verify)
+    .use(listWebhooks)
+    .use(getWebhook)
+    .use(createWebhook)
+    .use(updateWebhook)
+    .use(deleteWebhook)
+    .use(listDeliveries)
+    .use(receiveWebhook);
 
 export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
 

@@ -74,6 +74,13 @@ export const uploadAuthLimiter = makeLimiter('rl:upload:auth', 20, duration.hour
 // POST /auth/verify — keyed by IP to prevent code brute-force
 export const verifyLimiter = makeLimiter('rl:verify', 5, duration.minutes(15).as('seconds'));
 
+// POST /h/:slug — inbound webhook receiver (per slug key)
+export const webhookReceiveLimiter = makeLimiter(
+    'rl:webhook:recv',
+    120,
+    duration.minutes(1).as('seconds'),
+);
+
 // SSE concurrent-connection slot — returns null if denied, or { release } to call on disconnect.
 // Uses incr/decr rather than a windowed limiter because we're counting live connections, not req/s.
 export async function acquireSseSlot(
