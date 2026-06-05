@@ -25,12 +25,12 @@ export function AdvancedPage() {
                 </p>
             </div>
 
-            <div className="max-w-[760px]">
+            <div>
                 <SettingsCard
                     description="Low-level controls for how the API and webhooks behave for this workspace."
                     title="Developer"
                 >
-                    <div className="mb-2 grid grid-cols-2 gap-3.5">
+                    <div className="mb-2 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                         <SettingsField hint="Override for self-hosted / proxy" label="API base URL">
                             <SettingsInput monospace value="https://api.emitsignal.sh" />
                         </SettingsField>
@@ -90,7 +90,7 @@ export function AdvancedPage() {
                     description="Where signals, payloads, and logs are stored at rest. Changing region triggers a full migration."
                     title="Data residency"
                 >
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                         {DATA_REGIONS.map((region) => (
                             <div
                                 className={`rounded-lg border p-3.5 ${

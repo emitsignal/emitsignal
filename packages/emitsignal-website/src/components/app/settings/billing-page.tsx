@@ -67,7 +67,7 @@ export function BillingPage() {
                 </p>
             </div>
 
-            <div className="max-w-[760px]">
+            <div>
                 <SettingsCard
                     className="border-accent/30"
                     style={{
@@ -75,21 +75,21 @@ export function BillingPage() {
                             'linear-gradient(180deg, rgba(124,58,237,0.10) 0%, rgba(124,58,237,0.02) 100%)',
                     }}
                 >
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                         <div className="min-w-0 flex-1">
-                            <div className="mb-2 flex items-center gap-2.5">
+                            <div className="mb-2 flex flex-wrap items-center gap-2.5">
                                 <span className="text-[19px] font-bold tracking-[-0.4px]">
                                     Team
                                 </span>
                                 <SettingsPill tone="accent-solid">CURRENT</SettingsPill>
                                 <SettingsPill tone="success">YEARLY</SettingsPill>
                             </div>
-                            <p className="max-w-[440px] text-[13px] leading-[1.55] text-muted">
+                            <p className="text-[13px] leading-[1.55] text-muted">
                                 Unlimited channels · 5M signals / mo · 25 seats · 90-day retention ·
                                 SSO · priority routing & on-call escalation.
                             </p>
                         </div>
-                        <div className="shrink-0 text-right">
+                        <div className="shrink-0 sm:text-right">
                             <div className="font-mono text-[30px] font-semibold tracking-[-1px]">
                                 $290
                             </div>
@@ -99,12 +99,12 @@ export function BillingPage() {
                         </div>
                     </div>
 
-                    <div className="mt-[18px] flex items-center gap-3 border-t border-line pt-4">
+                    <div className="mt-[18px] flex flex-wrap items-center gap-3 border-t border-line pt-4">
                         <Clock className="shrink-0 text-dim" size={13} />
                         <span className="font-mono text-[11.5px] text-muted">
                             Renews Mar 1, 2027 · $3,480 / yr
                         </span>
-                        <div className="ml-auto flex gap-2.5">
+                        <div className="flex flex-wrap gap-2.5 sm:ml-auto">
                             <SettingsButton variant="ghost">Switch to monthly</SettingsButton>
                             <SettingsButton icon={Zap} variant="primary">
                                 Upgrade plan
@@ -117,7 +117,7 @@ export function BillingPage() {
                     description="Feb 1 – Feb 28 · resets in 4 days"
                     title="Usage this period"
                 >
-                    <div className="grid grid-cols-2 gap-[22px]">
+                    <div className="grid grid-cols-1 gap-[22px] sm:grid-cols-2">
                         {USAGE_METRICS.map((metric) => (
                             <div key={metric.label}>
                                 <div className="mb-3 text-[12.5px] font-medium">{metric.label}</div>
@@ -140,7 +140,7 @@ export function BillingPage() {
                     description="Upgrades apply immediately and are prorated. Downgrades take effect next cycle."
                     title="Change plan"
                 >
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {PLAN_TIERS.map((tier) => (
                             <div
                                 className={`rounded-[9px] border p-4 ${
@@ -200,7 +200,7 @@ export function BillingPage() {
                         ))}
                     </div>
 
-                    <div className="mt-3.5 flex items-center gap-2.5 rounded-lg border border-line bg-bg px-3.5 py-3">
+                    <div className="mt-3.5 flex flex-wrap items-center gap-2.5 rounded-lg border border-line bg-bg px-3.5 py-3">
                         <Globe className="shrink-0 text-accent" size={14} />
                         <span className="flex-1 text-[12.5px] text-muted">
                             Need SAML provisioning, audit exports, or a custom SLA?
@@ -249,7 +249,7 @@ export function BillingPage() {
                         </SettingsRow>
                     </SettingsGroup>
 
-                    <div className="mt-[18px] grid grid-cols-2 gap-3.5">
+                    <div className="mt-[18px] grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                         <SettingsField hint="Invoices and receipts go here" label="Billing email">
                             <SettingsInput monospace value="billing@acme.io" />
                         </SettingsField>
@@ -267,37 +267,39 @@ export function BillingPage() {
                     }
                     title="Billing history"
                 >
-                    <SettingsGroup>
-                        <div className="grid grid-cols-[1.4fr_1fr_1fr_90px_70px] gap-3 border-b border-line bg-bg px-4 py-[9px] font-mono text-[9.5px] tracking-[1.2px] text-dim">
-                            <span>INVOICE</span>
-                            <span>DATE</span>
-                            <span>AMOUNT</span>
-                            <span>STATUS</span>
-                            <span className="text-right">PDF</span>
-                        </div>
-                        {INVOICES.map((invoice, index) => (
-                            <div
-                                className={`grid grid-cols-[1.4fr_1fr_1fr_90px_70px] items-center gap-3 px-4 py-3 font-mono text-[12px] ${
-                                    index < INVOICES.length - 1 ? 'border-b border-line' : ''
-                                }`}
-                                key={invoice.id}
-                            >
-                                <span>{invoice.id}</span>
-                                <span className="text-muted">{invoice.date}</span>
-                                <span>{invoice.amount}</span>
-                                <span>
-                                    {invoice.status === 'paid' ? (
-                                        <SettingsPill tone="success">PAID</SettingsPill>
-                                    ) : (
-                                        <SettingsPill tone="dim">REFUNDED</SettingsPill>
-                                    )}
-                                </span>
-                                <span className="flex justify-end">
-                                    <ArrowRight className="text-accent" size={13} />
-                                </span>
+                    <div className="overflow-x-auto">
+                        <SettingsGroup className="min-w-[480px]">
+                            <div className="grid grid-cols-[1.4fr_1fr_1fr_90px_70px] gap-3 border-b border-line bg-bg px-4 py-[9px] font-mono text-[9.5px] tracking-[1.2px] text-dim">
+                                <span>INVOICE</span>
+                                <span>DATE</span>
+                                <span>AMOUNT</span>
+                                <span>STATUS</span>
+                                <span className="text-right">PDF</span>
                             </div>
-                        ))}
-                    </SettingsGroup>
+                            {INVOICES.map((invoice, index) => (
+                                <div
+                                    className={`grid grid-cols-[1.4fr_1fr_1fr_90px_70px] items-center gap-3 px-4 py-3 font-mono text-[12px] ${
+                                        index < INVOICES.length - 1 ? 'border-b border-line' : ''
+                                    }`}
+                                    key={invoice.id}
+                                >
+                                    <span>{invoice.id}</span>
+                                    <span className="text-muted">{invoice.date}</span>
+                                    <span>{invoice.amount}</span>
+                                    <span>
+                                        {invoice.status === 'paid' ? (
+                                            <SettingsPill tone="success">PAID</SettingsPill>
+                                        ) : (
+                                            <SettingsPill tone="dim">REFUNDED</SettingsPill>
+                                        )}
+                                    </span>
+                                    <span className="flex justify-end">
+                                        <ArrowRight className="text-accent" size={13} />
+                                    </span>
+                                </div>
+                            ))}
+                        </SettingsGroup>
+                    </div>
                 </SettingsCard>
             </div>
         </>

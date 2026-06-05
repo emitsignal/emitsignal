@@ -89,7 +89,7 @@ export function AccountPage() {
                 </p>
             </div>
 
-            <div className="max-w-[760px]">
+            <div>
                 <SettingsCard
                     action={
                         <SettingsButton icon={Plus} variant="ghost">
@@ -247,7 +247,7 @@ export function AccountPage() {
                 </SettingsCard>
 
                 <SettingsCard title="Language & region">
-                    <div className="grid grid-cols-2 gap-3.5">
+                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                         <SettingsField label="Language">
                             <SettingsInput value="English (US)" />
                         </SettingsField>

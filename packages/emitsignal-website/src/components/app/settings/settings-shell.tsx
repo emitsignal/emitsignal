@@ -31,10 +31,10 @@ interface SettingsShellProps {
 export function SettingsShell({ children }: SettingsShellProps) {
     return (
         <div className="flex min-h-0 flex-1 overflow-hidden">
-            <nav className="w-[220px] shrink-0 overflow-auto border-r border-line px-3.5 py-5">
+            <nav className="w-[150px] shrink-0 overflow-auto border-r border-line px-2 py-4 lg:w-[220px] lg:px-3.5 lg:py-5">
                 {GROUPS.map((group) => (
-                    <div className="mb-3.5" key={group}>
-                        <div className="mb-1.5 px-2.5 font-mono text-[9.5px] tracking-[1.6px] text-dim">
+                    <div className="mb-3" key={group}>
+                        <div className="mb-1.5 px-2 font-mono text-[8.5px] tracking-[1.4px] text-dim lg:px-2.5 lg:text-[9.5px] lg:tracking-[1.6px]">
                             {group}
                         </div>
                         {NAV_ITEMS.filter((item) => item.group === group).map((item) =>
@@ -42,9 +42,9 @@ export function SettingsShell({ children }: SettingsShellProps) {
                                 <Link
                                     activeProps={{
                                         className:
-                                            'mb-0.5 block rounded-md border-l-2 border-accent bg-accent/10 px-2.5 py-1.5 text-[13px] font-medium text-accent no-underline',
+                                            'mb-0.5 block rounded-md border-l-2 border-accent bg-accent/10 px-2 py-1.5 text-[12px] font-medium text-accent no-underline lg:px-2.5 lg:text-[13px]',
                                     }}
-                                    className="mb-0.5 block rounded-md border-l-2 border-transparent px-2.5 py-1.5 text-[13px] text-muted no-underline hover:text-fg"
+                                    className="mb-0.5 block rounded-md border-l-2 border-transparent px-2 py-1.5 text-[12px] text-muted no-underline hover:text-fg lg:px-2.5 lg:text-[13px]"
                                     key={item.key}
                                     to={item.path as never}
                                 >
@@ -52,7 +52,7 @@ export function SettingsShell({ children }: SettingsShellProps) {
                                 </Link>
                             ) : (
                                 <div
-                                    className="mb-0.5 cursor-default rounded-md border-l-2 border-transparent px-2.5 py-1.5 text-[13px] text-faint"
+                                    className="mb-0.5 cursor-default rounded-md border-l-2 border-transparent px-2 py-1.5 text-[12px] text-faint lg:px-2.5 lg:text-[13px]"
                                     key={item.key}
                                 >
                                     {item.label}
@@ -63,7 +63,9 @@ export function SettingsShell({ children }: SettingsShellProps) {
                 ))}
             </nav>
 
-            <div className="min-w-0 flex-1 overflow-auto px-8 pb-16 pt-6">{children}</div>
+            <div className="min-w-0 flex-1 overflow-auto px-4 pb-10 pt-4 md:px-6 md:pb-12 md:pt-5 lg:px-8 lg:pb-16 lg:pt-6">
+                {children}
+            </div>
         </div>
     );
 }

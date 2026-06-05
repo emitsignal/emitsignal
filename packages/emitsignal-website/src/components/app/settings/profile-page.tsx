@@ -38,9 +38,9 @@ export function ProfilePage() {
                 </p>
             </div>
 
-            <div className="max-w-[760px]">
+            <div>
                 <SettingsCard title="Identity">
-                    <div className="mb-[22px] flex items-center gap-4.5">
+                    <div className="mb-[22px] flex flex-wrap items-center gap-4">
                         <div className="relative">
                             <Avatar name={displayEmail} rounded={16} size={72} />
                             <div className="absolute -bottom-0.5 -right-0.5 h-[18px] w-[18px] rounded-full border-[3px] border-elev bg-success" />
@@ -51,7 +51,7 @@ export function ProfilePage() {
                                 @alex · she/her · online
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <SettingsButton icon={Upload} variant="ghost">
                                 Upload
                             </SettingsButton>
@@ -61,7 +61,7 @@ export function ProfilePage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3.5">
+                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                         <SettingsField label="Display name">
                             <SettingsInput value="Alex Carter" />
                         </SettingsField>
@@ -74,7 +74,7 @@ export function ProfilePage() {
                         <SettingsField label="Role / title">
                             <SettingsInput value="Staff Platform Engineer" />
                         </SettingsField>
-                        <div className="col-span-2">
+                        <div className="sm:col-span-2">
                             <SettingsField
                                 hint="Plain text · max 160 chars · shown on your public profile card"
                                 label="Bio"
@@ -120,7 +120,7 @@ export function ProfilePage() {
                     description="Lets teammates know whether you're reachable before they route a signal your way."
                     title="Status & availability"
                 >
-                    <div className="mb-4 grid grid-cols-2 gap-3">
+                    <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {STATUS_OPTIONS.map((status) => (
                             <div
                                 className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-[11px] ${
