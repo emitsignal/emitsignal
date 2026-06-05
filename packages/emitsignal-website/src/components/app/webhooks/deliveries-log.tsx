@@ -26,7 +26,8 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
     const { deliveries, loading, refresh } = useWebhookDeliveries(webhookId, webhook?.topicName);
 
     const active: undefined | WebhookDelivery =
-        (selectedId ? deliveries.find((d) => d.id === selectedId) : undefined) ?? deliveries[0];
+        (selectedId ? deliveries.find((delivery) => delivery.id === selectedId) : undefined) ??
+        deliveries[0];
 
     async function handleReplay(delivery: WebhookDelivery) {
         if (!webhook) {
@@ -110,28 +111,28 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
         <div className="flex min-h-0 flex-1">
             {/* list pane */}
             <div className="w-[440px] shrink-0 overflow-auto border-r border-line">
-                {deliveries.map((d) => {
-                    const isActive = active?.id === d.id;
-                    const summary = getSummary(d);
+                {deliveries.map((delivery) => {
+                    const isActive = active?.id === delivery.id;
+                    const summary = getSummary(delivery);
 
                     return (
                         <button
                             className="flex w-full cursor-pointer items-center gap-3 border-b border-line px-4.5 py-3 text-left"
-                            key={d.id}
-                            onClick={() => setSelectedId(d.id)}
+                            key={delivery.id}
+                            onClick={() => setSelectedId(delivery.id)}
                             style={{
                                 background: isActive ? 'var(--color-elev)' : 'transparent',
                                 borderLeft: `3px solid ${isActive ? 'var(--color-accent)' : 'transparent'}`,
                             }}
                         >
-                            <SourceGlyph size={32} source={d.source as WebhookSource} />
+                            <SourceGlyph size={32} source={delivery.source as WebhookSource} />
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-baseline gap-2">
                                     <span className="font-mono text-[10.5px] text-dim">
-                                        {d.channel}
+                                        {delivery.channel}
                                     </span>
                                     <span className="ml-auto font-mono text-[10px] text-dim">
-                                        {d.t}
+                                        {delivery.time}
                                     </span>
                                 </div>
                                 <div className="mt-0.5 truncate text-[13px] font-semibold">
@@ -139,12 +140,12 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                                 </div>
                                 <div className="mt-1.5 flex items-center gap-2">
                                     <span className="font-mono text-[10px] text-success">
-                                        {d.status}
+                                        {delivery.status}
                                     </span>
                                     <span className="font-mono text-[10px] text-faint">
-                                        {d.ms}ms
+                                        {delivery.durationMs}ms
                                     </span>
-                                    {d.templated ? (
+                                    {delivery.templated ? (
                                         <span
                                             className="rounded px-1.5 py-0.5 font-mono text-[9.5px] text-accent"
                                             style={{
@@ -174,12 +175,12 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                         <div>
                             <div className="text-[14.5px] font-semibold">{active.channel}</div>
                             <div className="mt-0.5 font-mono text-[10.5px] text-dim">
-                                delivery {active.id.slice(0, 8)} · {active.t}
+                                delivery {active.id.slice(0, 8)} · {active.time}
                             </div>
                         </div>
                         <div className="ml-auto flex items-center gap-3.5 font-mono text-[11px]">
                             <span className="text-success">● {active.status} OK</span>
-                            <span className="text-dim">{active.ms}ms</span>
+                            <span className="text-dim">{active.durationMs}ms</span>
                         </div>
                     </div>
 
@@ -300,14 +301,15 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
     );
 }
 
-function getSummary(d: WebhookDelivery): string {
-    if (typeof d.payload === 'object' && d.payload !== null) {
-        const p = d.payload as Record<string, unknown>;
-        if (typeof p['type'] === 'string') return p['type'];
-        if (typeof p['event'] === 'string') return p['event'];
-        if (typeof p['action'] === 'string') return `${d.source} · ${p['action']}`;
+function getSummary(delivery: WebhookDelivery): string {
+    if (typeof delivery.payload === 'object' && delivery.payload !== null) {
+        const payload = delivery.payload as Record<string, unknown>;
+        if (typeof payload['type'] === 'string') return payload['type'];
+        if (typeof payload['event'] === 'string') return payload['event'];
+        if (typeof payload['action'] === 'string')
+            return `${delivery.source} · ${payload['action']}`;
     }
-    return `${d.source} delivery`;
+    return `${delivery.source} delivery`;
 }
 
 function SectionLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {

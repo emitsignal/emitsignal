@@ -4,18 +4,18 @@ interface JsonViewProps {
 }
 
 interface Token {
-    s: string;
-    t: TokenType;
+    text: string;
+    type: TokenType;
 }
 
-type TokenType = 'key' | 'kw' | 'num' | 'p' | 'str';
+type TokenType = 'key' | 'keyword' | 'number' | 'punctuation' | 'string';
 
 const COLOR: Record<TokenType, string> = {
     key: '#67e8f9',
-    kw: '#fbbf24',
-    num: '#fbbf24',
-    p: '#7a6d99',
-    str: '#4ade80',
+    keyword: '#fbbf24',
+    number: '#fbbf24',
+    punctuation: '#7a6d99',
+    string: '#4ade80',
 };
 
 export function JsonView({ data, size = 12 }: JsonViewProps) {
@@ -27,9 +27,9 @@ export function JsonView({ data, size = 12 }: JsonViewProps) {
             className="m-0 whitespace-pre-wrap break-words leading-relaxed"
             style={{ fontFamily: 'var(--font-mono)', fontSize: size }}
         >
-            {tokens.map((tk, i) => (
-                <span key={i} style={{ color: COLOR[tk.t] }}>
-                    {tk.s}
+            {tokens.map((token, index) => (
+                <span key={index} style={{ color: COLOR[token.type] }}>
+                    {token.text}
                 </span>
             ))}
         </pre>
@@ -44,22 +44,22 @@ function tokenize(raw: string): Token[] {
     let m: null | RegExpExecArray;
 
     while ((m = re.exec(raw)) !== null) {
-        if (m.index > last) tokens.push({ s: raw.slice(last, m.index), t: 'p' });
+        if (m.index > last) tokens.push({ text: raw.slice(last, m.index), type: 'punctuation' });
         if (m[1] !== undefined) {
             if (m[2] !== undefined) {
-                tokens.push({ s: m[1], t: 'key' });
-                tokens.push({ s: m[2], t: 'p' });
+                tokens.push({ text: m[1], type: 'key' });
+                tokens.push({ text: m[2], type: 'punctuation' });
             } else {
-                tokens.push({ s: m[1], t: 'str' });
+                tokens.push({ text: m[1], type: 'string' });
             }
         } else if (m[3] !== undefined) {
-            tokens.push({ s: m[3], t: 'kw' });
+            tokens.push({ text: m[3], type: 'keyword' });
         } else if (m[4] !== undefined) {
-            tokens.push({ s: m[4], t: 'num' });
+            tokens.push({ text: m[4], type: 'number' });
         }
         last = re.lastIndex;
     }
 
-    if (last < raw.length) tokens.push({ s: raw.slice(last), t: 'p' });
+    if (last < raw.length) tokens.push({ text: raw.slice(last), type: 'punctuation' });
     return tokens;
 }

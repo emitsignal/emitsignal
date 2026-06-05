@@ -85,14 +85,14 @@ export interface Webhook {
 export interface WebhookDelivery {
     channel: string;
     createdAt: number;
+    durationMs: number;
     id: string;
     messageId: null | string;
-    ms: number;
     payload: Record<string, unknown>;
     source: string;
     status: number;
-    t: string;
     templated: boolean;
+    time: string;
     webhookId: string;
 }
 

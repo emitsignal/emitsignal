@@ -37,7 +37,7 @@ export function renderTemplate(
     const tags = rawTags
         ? rawTags
               .split(',')
-              .map((t) => t.trim())
+              .map((tag) => tag.trim())
               .filter(Boolean)
         : [];
     const priority = Math.min(5, Math.max(1, parseInt(template.priority ?? '3', 10))) || 3;
@@ -49,8 +49,10 @@ function resolvePath(obj: unknown, path: string): string {
         .trim()
         .split('.')
         .reduce<unknown>(
-            (o, k) =>
-                o != null && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined,
+            (accumulator, key) =>
+                accumulator != null && typeof accumulator === 'object'
+                    ? (accumulator as Record<string, unknown>)[key]
+                    : undefined,
             obj,
         );
     return val == null ? '' : String(val);

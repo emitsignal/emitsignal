@@ -46,14 +46,14 @@ export const listDeliveries = new Elysia().get(
         return deliveries.map((delivery) => ({
             channel: webhook.topicName,
             createdAt: Math.floor(delivery.createdAt.getTime() / 1000),
+            durationMs: delivery.ms,
             id: delivery.id,
             messageId: delivery.messageId,
-            ms: delivery.ms,
             payload: JSON.parse(delivery.payload) as unknown,
             source: webhook.source,
             status: delivery.status,
-            t: delivery.createdAt.toTimeString().slice(0, 8),
             templated: delivery.templated,
+            time: delivery.createdAt.toTimeString().slice(0, 8),
             webhookId: delivery.webhookId,
         }));
     },

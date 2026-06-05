@@ -22,11 +22,11 @@ export function NotifPreview({
         ? tags
         : String(tags)
               .split(',')
-              .map((t) => t.trim())
+              .map((tag) => tag.trim())
               .filter(Boolean);
 
-    const p = Number(priority);
-    const priColor = priorityHex(p);
+    const priorityValue = Number(priority);
+    const priColor = priorityHex(priorityValue);
 
     return (
         <div
@@ -35,7 +35,7 @@ export function NotifPreview({
         >
             <div
                 className="absolute bottom-0 left-0 top-0 w-[3px]"
-                style={{ background: priColor, opacity: p >= 4 ? 1 : 0.5 }}
+                style={{ background: priColor, opacity: priorityValue >= 4 ? 1 : 0.5 }}
             />
             <div className="flex gap-3">
                 <Avatar name={channel} rounded={9} size={compact ? 30 : 36} />
@@ -55,12 +55,12 @@ export function NotifPreview({
                     <div className="mb-2 text-[12.5px] leading-snug text-muted">{body}</div>
                     {tagList.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                            {tagList.map((t, i) => (
+                            {tagList.map((tag, index) => (
                                 <span
                                     className="rounded border border-line bg-chip px-1.5 py-0.5 font-mono text-[10px] text-muted"
-                                    key={i}
+                                    key={index}
                                 >
-                                    {t}
+                                    {tag}
                                 </span>
                             ))}
                         </div>

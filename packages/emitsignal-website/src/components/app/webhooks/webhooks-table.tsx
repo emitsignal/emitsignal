@@ -57,11 +57,11 @@ export function WebhooksTable({ loading, remove, update, webhooks }: TableProps)
 }
 
 function formatRelativeTime(unix: number): string {
-    const d = Math.floor(Date.now() / 1000) - unix;
-    if (d < 60) return `${d}s ago`;
-    if (d < 3600) return `${Math.floor(d / 60)}m ago`;
-    if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
-    return `${Math.floor(d / 86400)}d ago`;
+    const secondsDiff = Math.floor(Date.now() / 1000) - unix;
+    if (secondsDiff < 60) return `${secondsDiff}s ago`;
+    if (secondsDiff < 3600) return `${Math.floor(secondsDiff / 60)}m ago`;
+    if (secondsDiff < 86400) return `${Math.floor(secondsDiff / 3600)}h ago`;
+    return `${Math.floor(secondsDiff / 86400)}d ago`;
 }
 
 function KebabItem({
@@ -124,7 +124,7 @@ function WebhookRow({
     last,
     remove,
     update,
-    webhook: w,
+    webhook,
 }: {
     last: boolean;
     remove: (id: string) => Promise<void>;
@@ -135,7 +135,7 @@ function WebhookRow({
     const [copied, setCopied] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
-    const lastLabel = w.lastDeliveryAt ? formatRelativeTime(w.lastDeliveryAt) : '—';
+    const lastLabel = webhook.lastDeliveryAt ? formatRelativeTime(webhook.lastDeliveryAt) : '—';
 
     // Close menu on outside click
     useEffect(() => {
@@ -148,12 +148,12 @@ function WebhookRow({
     }, [menuOpen]);
 
     function handleRowClick() {
-        void navigate({ params: { webhookId: w.id }, to: '/app/webhooks/$webhookId' });
+        void navigate({ params: { webhookId: webhook.id }, to: '/app/webhooks/$webhookId' });
     }
 
     function handleCopy(e: React.MouseEvent) {
         e.stopPropagation();
-        void navigator.clipboard.writeText(`${API_URL}/h/${w.slug}`).then(() => {
+        void navigator.clipboard.writeText(`${API_URL}/h/${webhook.slug}`).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
         });
@@ -162,20 +162,20 @@ function WebhookRow({
     function handleEdit(e: React.MouseEvent) {
         e.stopPropagation();
         setMenuOpen(false);
-        void navigate({ params: { webhookId: w.id }, to: '/app/webhooks/$webhookId/edit' });
+        void navigate({ params: { webhookId: webhook.id }, to: '/app/webhooks/$webhookId/edit' });
     }
 
     async function handleToggleStatus(e: React.MouseEvent) {
         e.stopPropagation();
         setMenuOpen(false);
-        await update(w.id, { status: w.status === 'active' ? 'paused' : 'active' });
+        await update(webhook.id, { status: webhook.status === 'active' ? 'paused' : 'active' });
     }
 
     async function handleDelete(e: React.MouseEvent) {
         e.stopPropagation();
         setMenuOpen(false);
-        if (!window.confirm(`Delete "${w.name}"? This cannot be undone.`)) return;
-        await remove(w.id);
+        if (!window.confirm(`Delete "${webhook.name}"? This cannot be undone.`)) return;
+        await remove(webhook.id);
     }
 
     return (
@@ -185,10 +185,12 @@ function WebhookRow({
         >
             {/* Name + source */}
             <div className="flex min-w-0 items-center gap-3">
-                <SourceGlyph size={34} source={w.source as WebhookSource} />
+                <SourceGlyph size={34} source={webhook.source as WebhookSource} />
                 <div className="min-w-0">
-                    <div className="text-[13.5px] font-semibold">{w.name}</div>
-                    <div className="mt-0.5 font-mono text-[10.5px] text-dim">→ {w.topicName}</div>
+                    <div className="text-[13.5px] font-semibold">{webhook.name}</div>
+                    <div className="mt-0.5 font-mono text-[10.5px] text-dim">
+                        → {webhook.topicName}
+                    </div>
                 </div>
             </div>
 
@@ -197,7 +199,7 @@ function WebhookRow({
                 className="flex min-w-0 items-center gap-1.5 font-mono text-[11px] text-muted"
                 onClick={(e) => e.stopPropagation()}
             >
-                <span className="truncate">/h/{w.slug}</span>
+                <span className="truncate">/h/{webhook.slug}</span>
                 <button
                     className="shrink-0 cursor-pointer text-faint hover:text-fg"
                     onClick={handleCopy}
@@ -225,7 +227,7 @@ function WebhookRow({
 
             {/* Output badge */}
             <div>
-                {w.templated ? (
+                {webhook.templated ? (
                     <span
                         className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10.5px] font-medium text-accent"
                         style={{
@@ -243,12 +245,12 @@ function WebhookRow({
             </div>
 
             {/* 24h / last */}
-            <div className="font-mono text-[12px]">{w.count24h.toLocaleString()}</div>
+            <div className="font-mono text-[12px]">{webhook.count24h.toLocaleString()}</div>
             <div className="font-mono text-[11.5px] text-dim">{lastLabel}</div>
 
             {/* Status + kebab */}
             <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <StatusDot status={w.status} />
+                <StatusDot status={webhook.status} />
                 <div className="relative ml-auto" ref={menuRef}>
                     <button
                         className="flex cursor-pointer items-center rounded p-0.5 text-faint hover:bg-elev-2 hover:text-fg"
@@ -263,7 +265,7 @@ function WebhookRow({
                         <div className="absolute right-0 top-6 z-20 min-w-[140px] overflow-hidden rounded-lg border border-line bg-elev shadow-lg">
                             <KebabItem label="Edit" onClick={handleEdit} />
                             <KebabItem
-                                label={w.status === 'active' ? 'Disable' : 'Enable'}
+                                label={webhook.status === 'active' ? 'Disable' : 'Enable'}
                                 onClick={(e) => void handleToggleStatus(e)}
                             />
                             <KebabItem

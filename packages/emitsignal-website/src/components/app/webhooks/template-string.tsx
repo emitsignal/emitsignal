@@ -9,9 +9,9 @@ export function applyTemplate(str: string, data: Record<string, unknown>): strin
             .trim()
             .split('.')
             .reduce<unknown>(
-                (o, k) =>
-                    o != null && typeof o === 'object'
-                        ? (o as Record<string, unknown>)[k]
+                (accumulator, key) =>
+                    accumulator != null && typeof accumulator === 'object'
+                        ? (accumulator as Record<string, unknown>)[key]
                         : undefined,
                 data,
             );
@@ -23,20 +23,20 @@ export function TemplateString({ size = 12.5, str }: TemplateStringProps) {
     const parts = String(str).split(/(\{\{[^}]+\}\})/g);
     return (
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: size }}>
-            {parts.map((p, i) =>
-                p.startsWith('{{') ? (
+            {parts.map((part, index) =>
+                part.startsWith('{{') ? (
                     <span
                         className="rounded px-0.5 text-accent"
-                        key={i}
+                        key={index}
                         style={{
                             background: 'color-mix(in srgb, var(--color-accent) 12%, transparent)',
                         }}
                     >
-                        {p}
+                        {part}
                     </span>
                 ) : (
-                    <span className="text-fg" key={i}>
-                        {p}
+                    <span className="text-fg" key={index}>
+                        {part}
                     </span>
                 ),
             )}
