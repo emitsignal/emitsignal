@@ -67,6 +67,43 @@ export interface TopicWithCounts extends Topic {
     subscriberCount: number;
 }
 
+export interface Webhook {
+    count24h: number;
+    createdAt: number;
+    id: string;
+    lastDeliveryAt: null | number;
+    name: string;
+    slug: string;
+    source: string;
+    status: 'active' | 'error' | 'paused';
+    template?: null | string;
+    templated: boolean;
+    topicName: string;
+    updatedAt: number;
+}
+
+export interface WebhookDelivery {
+    channel: string;
+    createdAt: number;
+    id: string;
+    messageId: null | string;
+    ms: number;
+    payload: Record<string, unknown>;
+    source: string;
+    status: number;
+    t: string;
+    templated: boolean;
+    webhookId: string;
+}
+
+export interface WebhookTemplate {
+    body?: string;
+    link?: string;
+    priority?: string;
+    tags?: string;
+    title?: string;
+}
+
 export function createApiClient(baseUrl: string) {
     let authToken: null | string = null;
 
@@ -107,6 +144,22 @@ export function createApiClient(baseUrl: string) {
 
         baseUrl,
 
+        createWebhook(input: {
+            name?: string;
+            source?: string;
+            template?: null | string;
+            topicName: string;
+        }) {
+            return request<{ endpointUrl: string } & Webhook>('/webhooks', {
+                body: JSON.stringify(input),
+                method: 'POST',
+            });
+        },
+
+        deleteWebhook(id: string) {
+            return request<void>(`/webhooks/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        },
+
         getMessage(id: string) {
             return request<Message>(`/messages/${encodeURIComponent(id)}`);
         },
@@ -122,6 +175,10 @@ export function createApiClient(baseUrl: string) {
 
         getTopicMetrics(topicName: string) {
             return request<TopicMetrics>(`/topics/${encodeURIComponent(topicName)}/metrics`);
+        },
+
+        getWebhook(id: string) {
+            return request<Webhook>(`/webhooks/${encodeURIComponent(id)}`);
         },
 
         listMessages(topicName: string, limit = 50) {
@@ -143,6 +200,16 @@ export function createApiClient(baseUrl: string) {
         listTopics(query?: string) {
             const queryString = query ? `?q=${encodeURIComponent(query)}` : '';
             return request<Topic[]>(`/topics${queryString}`);
+        },
+
+        listWebhookDeliveries(webhookId: string, limit = 50) {
+            return request<WebhookDelivery[]>(
+                `/webhooks/${encodeURIComponent(webhookId)}/deliveries?limit=${limit}`,
+            );
+        },
+
+        listWebhooks() {
+            return request<Webhook[]>('/webhooks');
         },
 
         me() {
@@ -208,6 +275,16 @@ export function createApiClient(baseUrl: string) {
         updatePushToken(id: string, pushEnabled: boolean) {
             return request<PushToken>(`/push-tokens/${id}`, {
                 body: JSON.stringify({ pushEnabled }),
+                method: 'PATCH',
+            });
+        },
+
+        updateWebhook(
+            id: string,
+            input: { name?: string; status?: string; template?: null | string; topicName?: string },
+        ) {
+            return request<Webhook>(`/webhooks/${encodeURIComponent(id)}`, {
+                body: JSON.stringify(input),
                 method: 'PATCH',
             });
         },
