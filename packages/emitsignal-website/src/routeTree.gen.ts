@@ -22,8 +22,12 @@ import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppKeysRouteImport } from './routes/app/keys'
 import { Route as AppChannelsRouteImport } from './routes/app/channels'
+import { Route as AppWebhooksIndexRouteImport } from './routes/app/webhooks/index'
 import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index'
+import { Route as AppWebhooksNewRouteImport } from './routes/app/webhooks/new'
+import { Route as AppWebhooksWebhookIdRouteImport } from './routes/app/webhooks/$webhookId'
 import { Route as AppInboxMessageIdRouteImport } from './routes/app/inbox/$messageId'
+import { Route as AppWebhooksWebhookIdEditRouteImport } from './routes/app/webhooks/$webhookId.edit'
 
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
@@ -90,9 +94,24 @@ const AppChannelsRoute = AppChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWebhooksIndexRoute = AppWebhooksIndexRouteImport.update({
+  id: '/webhooks/',
+  path: '/webhooks/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
   id: '/inbox/',
   path: '/inbox/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWebhooksNewRoute = AppWebhooksNewRouteImport.update({
+  id: '/webhooks/new',
+  path: '/webhooks/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWebhooksWebhookIdRoute = AppWebhooksWebhookIdRouteImport.update({
+  id: '/webhooks/$webhookId',
+  path: '/webhooks/$webhookId',
   getParentRoute: () => AppRoute,
 } as any)
 const AppInboxMessageIdRoute = AppInboxMessageIdRouteImport.update({
@@ -100,6 +119,12 @@ const AppInboxMessageIdRoute = AppInboxMessageIdRouteImport.update({
   path: '/inbox/$messageId',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWebhooksWebhookIdEditRoute =
+  AppWebhooksWebhookIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AppWebhooksWebhookIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,7 +141,11 @@ export interface FileRoutesByFullPath {
   '/app/publish': typeof AppPublishRoute
   '/app/': typeof AppIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
+  '/app/webhooks/new': typeof AppWebhooksNewRoute
   '/app/inbox/': typeof AppInboxIndexRoute
+  '/app/webhooks/': typeof AppWebhooksIndexRoute
+  '/app/webhooks/$webhookId/edit': typeof AppWebhooksWebhookIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,7 +161,11 @@ export interface FileRoutesByTo {
   '/app/publish': typeof AppPublishRoute
   '/app': typeof AppIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
+  '/app/webhooks/new': typeof AppWebhooksNewRoute
   '/app/inbox': typeof AppInboxIndexRoute
+  '/app/webhooks': typeof AppWebhooksIndexRoute
+  '/app/webhooks/$webhookId/edit': typeof AppWebhooksWebhookIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -150,7 +183,11 @@ export interface FileRoutesById {
   '/app/publish': typeof AppPublishRoute
   '/app/': typeof AppIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
+  '/app/webhooks/new': typeof AppWebhooksNewRoute
   '/app/inbox/': typeof AppInboxIndexRoute
+  '/app/webhooks/': typeof AppWebhooksIndexRoute
+  '/app/webhooks/$webhookId/edit': typeof AppWebhooksWebhookIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -169,7 +206,11 @@ export interface FileRouteTypes {
     | '/app/publish'
     | '/app/'
     | '/app/inbox/$messageId'
+    | '/app/webhooks/$webhookId'
+    | '/app/webhooks/new'
     | '/app/inbox/'
+    | '/app/webhooks/'
+    | '/app/webhooks/$webhookId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -185,7 +226,11 @@ export interface FileRouteTypes {
     | '/app/publish'
     | '/app'
     | '/app/inbox/$messageId'
+    | '/app/webhooks/$webhookId'
+    | '/app/webhooks/new'
     | '/app/inbox'
+    | '/app/webhooks'
+    | '/app/webhooks/$webhookId/edit'
   id:
     | '__root__'
     | '/'
@@ -202,7 +247,11 @@ export interface FileRouteTypes {
     | '/app/publish'
     | '/app/'
     | '/app/inbox/$messageId'
+    | '/app/webhooks/$webhookId'
+    | '/app/webhooks/new'
     | '/app/inbox/'
+    | '/app/webhooks/'
+    | '/app/webhooks/$webhookId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -310,11 +359,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChannelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/webhooks/': {
+      id: '/app/webhooks/'
+      path: '/webhooks'
+      fullPath: '/app/webhooks/'
+      preLoaderRoute: typeof AppWebhooksIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/inbox/': {
       id: '/app/inbox/'
       path: '/inbox'
       fullPath: '/app/inbox/'
       preLoaderRoute: typeof AppInboxIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/webhooks/new': {
+      id: '/app/webhooks/new'
+      path: '/webhooks/new'
+      fullPath: '/app/webhooks/new'
+      preLoaderRoute: typeof AppWebhooksNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/webhooks/$webhookId': {
+      id: '/app/webhooks/$webhookId'
+      path: '/webhooks/$webhookId'
+      fullPath: '/app/webhooks/$webhookId'
+      preLoaderRoute: typeof AppWebhooksWebhookIdRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/inbox/$messageId': {
@@ -324,8 +394,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInboxMessageIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/webhooks/$webhookId/edit': {
+      id: '/app/webhooks/$webhookId/edit'
+      path: '/edit'
+      fullPath: '/app/webhooks/$webhookId/edit'
+      preLoaderRoute: typeof AppWebhooksWebhookIdEditRouteImport
+      parentRoute: typeof AppWebhooksWebhookIdRoute
+    }
   }
 }
+
+interface AppWebhooksWebhookIdRouteChildren {
+  AppWebhooksWebhookIdEditRoute: typeof AppWebhooksWebhookIdEditRoute
+}
+
+const AppWebhooksWebhookIdRouteChildren: AppWebhooksWebhookIdRouteChildren = {
+  AppWebhooksWebhookIdEditRoute: AppWebhooksWebhookIdEditRoute,
+}
+
+const AppWebhooksWebhookIdRouteWithChildren =
+  AppWebhooksWebhookIdRoute._addFileChildren(AppWebhooksWebhookIdRouteChildren)
 
 interface AppRouteChildren {
   AppChannelsRoute: typeof AppChannelsRoute
@@ -333,7 +421,10 @@ interface AppRouteChildren {
   AppPublishRoute: typeof AppPublishRoute
   AppIndexRoute: typeof AppIndexRoute
   AppInboxMessageIdRoute: typeof AppInboxMessageIdRoute
+  AppWebhooksWebhookIdRoute: typeof AppWebhooksWebhookIdRouteWithChildren
+  AppWebhooksNewRoute: typeof AppWebhooksNewRoute
   AppInboxIndexRoute: typeof AppInboxIndexRoute
+  AppWebhooksIndexRoute: typeof AppWebhooksIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -342,7 +433,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppPublishRoute: AppPublishRoute,
   AppIndexRoute: AppIndexRoute,
   AppInboxMessageIdRoute: AppInboxMessageIdRoute,
+  AppWebhooksWebhookIdRoute: AppWebhooksWebhookIdRouteWithChildren,
+  AppWebhooksNewRoute: AppWebhooksNewRoute,
   AppInboxIndexRoute: AppInboxIndexRoute,
+  AppWebhooksIndexRoute: AppWebhooksIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

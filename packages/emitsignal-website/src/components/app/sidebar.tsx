@@ -8,6 +8,7 @@ import {
     Plus,
     Settings,
     Terminal,
+    Webhook,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -45,6 +46,7 @@ export function Sidebar() {
         { exact: true, icon: Bell, label: 'Inbox', to: '/app/inbox' },
         { badge: channelCount, icon: LayoutGrid, label: 'Channels', to: '/app/channels' },
         { icon: Terminal, label: 'Publish', to: '/app/publish' },
+        { icon: Webhook, label: 'Webhooks', to: '/app/webhooks' },
         { icon: Key, label: 'API Keys', to: '/app/keys' },
     ];
 
@@ -55,10 +57,16 @@ export function Sidebar() {
 
     const handleSubscribe = async () => {
         const trimmed = newTopic.trim();
-        if (!trimmed) return;
+
+        if (!trimmed) {
+            return;
+        }
+
         setSubscribing(true);
+
         try {
             await subscribe(trimmed);
+
             setNewTopic('');
             setAdding(false);
             navigate({ search: { topic: trimmed }, to: '/app/channels' });
@@ -113,9 +121,11 @@ export function Sidebar() {
                     </button>
                 )}
             </div>
+
             {subscriptions.length === 0 && (
                 <p className="px-2.5 py-1 font-mono text-[10px] text-dim">no subscriptions yet</p>
             )}
+
             {subscriptions.slice(0, 6).map((subscription) => (
                 <Link
                     className="flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60"
@@ -132,7 +142,9 @@ export function Sidebar() {
                 {user && (
                     <div className="flex items-center gap-2 border-t border-line p-2.5">
                         <Avatar name={user.email} rounded={100} size={22} />
+
                         <span className="flex-1 truncate text-[12px]">{user.email}</span>
+
                         <button
                             className="cursor-pointer rounded p-1 text-dim hover:bg-elev hover:text-fg"
                             onClick={handleSignOut}
@@ -149,6 +161,7 @@ export function Sidebar() {
 
 function SidebarLink({ item }: { item: NavItem }) {
     const Icon = item.icon;
+
     return (
         <Link
             activeOptions={item.exact ? { exact: true } : undefined}
@@ -159,7 +172,9 @@ function SidebarLink({ item }: { item: NavItem }) {
             {({ isActive }) => (
                 <>
                     <Icon size={14} />
+
                     <span className="flex-1">{item.label}</span>
+
                     {item.badge !== undefined && item.badge > 0 && (
                         <span
                             className={`font-mono text-[10px] ${isActive ? 'text-accent' : 'text-dim'}`}
