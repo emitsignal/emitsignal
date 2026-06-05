@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Webhook, WebhookTemplate } from '#/lib/api';
 
 import { Dot } from '#/components/ui/dot';
+import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, API_URL } from '#/lib/api';
 
 import { JsonView } from './json-view';
@@ -115,8 +116,9 @@ interface WebhookCreateProps {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
-    const navigate = useNavigate();
+    const { subscriptions } = useSubscriptions();
     const isEdit = !!initialData;
+    const navigate = useNavigate();
 
     const initialSource = (initialData?.source ?? 'github') as Source;
     const initialTemplate: null | WebhookTemplate = (() => {
@@ -237,9 +239,13 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
     // Sync initialData changes (edit mode hydration)
     useEffect(() => {
-        if (!initialData) return;
+        if (!initialData) {
+            return;
+        }
+
         setTopicName(initialData.topicName);
         setSource((initialData.source as Source) || 'github');
+
         const tpl = (() => {
             try {
                 return initialData.template
@@ -251,7 +257,6 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         })();
         setTemplateFields(tpl ?? EMPTY_TEMPLATE);
         setUseTemplate(tpl !== null);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialData?.id]);
 
     return (
@@ -335,14 +340,23 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         }}
                     >
                         <Dot level={2} size={6} />
-                        <input
-                            className="flex-1 bg-transparent font-mono text-[12px] outline-none placeholder:text-faint"
+
+                        <select
+                            className="flex-1 bg-transparent font-mono text-[12px] text-fg outline-none"
                             onChange={(e) => setTopicName(e.target.value)}
-                            placeholder="e.g. github/core"
-                            type="text"
                             value={topicName}
-                        />
-                        <ChevronDown className="text-dim" size={13} />
+                        >
+                            <option disabled value="">
+                                Select a channel…
+                            </option>
+
+                            {subscriptions.map((subscription) => (
+                                <option key={subscription.id} value={subscription.topic.name}>
+                                    {subscription.topic.displayName}
+                                </option>
+                            ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none text-dim" size={13} />
                     </div>
                     {saveError && (
                         <div className="mt-1 font-mono text-[10.5px] text-danger">{saveError}</div>
@@ -447,15 +461,18 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                             <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
                                 Priority
                             </div>
+
                             <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((p) => (
+                                {[1, 2, 3, 4, 5].map((priority) => (
                                     <PriorityChip
-                                        active={String(p) === (templateFields.priority ?? '3')}
-                                        key={p}
-                                        onClick={() =>
-                                            handleTemplateFieldChange('priority', String(p))
+                                        active={
+                                            String(priority) === (templateFields.priority ?? '3')
                                         }
-                                        value={p}
+                                        key={priority}
+                                        onClick={() =>
+                                            handleTemplateFieldChange('priority', String(priority))
+                                        }
+                                        value={priority}
                                     />
                                 ))}
                             </div>
@@ -475,13 +492,13 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                     pointerEvents: useTemplate ? 'auto' : 'none',
                                 }}
                             >
-                                {(['pretty', 'raw'] as const).map((m) => (
+                                {(['pretty', 'raw'] as const).map((option) => (
                                     <button
                                         className="cursor-pointer rounded-md px-3 py-1 font-mono text-[11px] font-semibold transition-colors"
-                                        key={m}
-                                        onClick={() => setPreviewMode(m)}
+                                        key={option}
+                                        onClick={() => setPreviewMode(option)}
                                         style={
-                                            previewMode === m
+                                            previewMode === option
                                                 ? {
                                                       background: 'var(--color-accent)',
                                                       color: 'var(--color-bg)',
@@ -489,7 +506,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                                 : { color: 'var(--color-muted)' }
                                         }
                                     >
-                                        {m.charAt(0).toUpperCase() + m.slice(1)}
+                                        {option.charAt(0).toUpperCase() + option.slice(1)}
                                     </button>
                                 ))}
                             </div>
@@ -543,6 +560,7 @@ function PriorityChip({
     value: number;
 }) {
     const hex = ['#818cf8', '#a78bfa', '#c4b5fd', '#fbbf24', '#f87171'][value - 1]!;
+
     return (
         <button
             className="flex flex-1 cursor-pointer items-center justify-center rounded-md border py-1.5 font-mono text-[11.5px] font-semibold"
