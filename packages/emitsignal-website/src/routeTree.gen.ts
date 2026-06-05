@@ -19,13 +19,19 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppKeysRouteImport } from './routes/app/keys'
 import { Route as AppChannelsRouteImport } from './routes/app/channels'
 import { Route as AppWebhooksIndexRouteImport } from './routes/app/webhooks/index'
+import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index'
 import { Route as AppWebhooksNewRouteImport } from './routes/app/webhooks/new'
 import { Route as AppWebhooksWebhookIdRouteImport } from './routes/app/webhooks/$webhookId'
+import { Route as AppSettingsProfileRouteImport } from './routes/app/settings/profile'
+import { Route as AppSettingsBillingRouteImport } from './routes/app/settings/billing'
+import { Route as AppSettingsAdvancedRouteImport } from './routes/app/settings/advanced'
+import { Route as AppSettingsAccountRouteImport } from './routes/app/settings/account'
 import { Route as AppInboxMessageIdRouteImport } from './routes/app/inbox/$messageId'
 import { Route as AppWebhooksWebhookIdEditRouteImport } from './routes/app/webhooks/$webhookId.edit'
 
@@ -79,6 +85,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPublishRoute = AppPublishRouteImport.update({
   id: '/publish',
   path: '/publish',
@@ -99,6 +110,11 @@ const AppWebhooksIndexRoute = AppWebhooksIndexRouteImport.update({
   path: '/webhooks/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
 const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
   id: '/inbox/',
   path: '/inbox/',
@@ -113,6 +129,26 @@ const AppWebhooksWebhookIdRoute = AppWebhooksWebhookIdRouteImport.update({
   id: '/webhooks/$webhookId',
   path: '/webhooks/$webhookId',
   getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsAdvancedRoute = AppSettingsAdvancedRouteImport.update({
+  id: '/advanced',
+  path: '/advanced',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsAccountRoute = AppSettingsAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AppSettingsRoute,
 } as any)
 const AppInboxMessageIdRoute = AppInboxMessageIdRouteImport.update({
   id: '/inbox/$messageId',
@@ -139,11 +175,17 @@ export interface FileRoutesByFullPath {
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
+  '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/settings/account': typeof AppSettingsAccountRoute
+  '/app/settings/advanced': typeof AppSettingsAdvancedRoute
+  '/app/settings/billing': typeof AppSettingsBillingRoute
+  '/app/settings/profile': typeof AppSettingsProfileRoute
   '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
   '/app/webhooks/new': typeof AppWebhooksNewRoute
   '/app/inbox/': typeof AppInboxIndexRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
   '/app/webhooks/': typeof AppWebhooksIndexRoute
   '/app/webhooks/$webhookId/edit': typeof AppWebhooksWebhookIdEditRoute
 }
@@ -161,9 +203,14 @@ export interface FileRoutesByTo {
   '/app/publish': typeof AppPublishRoute
   '/app': typeof AppIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/settings/account': typeof AppSettingsAccountRoute
+  '/app/settings/advanced': typeof AppSettingsAdvancedRoute
+  '/app/settings/billing': typeof AppSettingsBillingRoute
+  '/app/settings/profile': typeof AppSettingsProfileRoute
   '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
   '/app/webhooks/new': typeof AppWebhooksNewRoute
   '/app/inbox': typeof AppInboxIndexRoute
+  '/app/settings': typeof AppSettingsIndexRoute
   '/app/webhooks': typeof AppWebhooksIndexRoute
   '/app/webhooks/$webhookId/edit': typeof AppWebhooksWebhookIdEditRoute
 }
@@ -181,11 +228,17 @@ export interface FileRoutesById {
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
+  '/app/settings': typeof AppSettingsRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
+  '/app/settings/account': typeof AppSettingsAccountRoute
+  '/app/settings/advanced': typeof AppSettingsAdvancedRoute
+  '/app/settings/billing': typeof AppSettingsBillingRoute
+  '/app/settings/profile': typeof AppSettingsProfileRoute
   '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
   '/app/webhooks/new': typeof AppWebhooksNewRoute
   '/app/inbox/': typeof AppInboxIndexRoute
+  '/app/settings/': typeof AppSettingsIndexRoute
   '/app/webhooks/': typeof AppWebhooksIndexRoute
   '/app/webhooks/$webhookId/edit': typeof AppWebhooksWebhookIdEditRoute
 }
@@ -204,11 +257,17 @@ export interface FileRouteTypes {
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
+    | '/app/settings'
     | '/app/'
     | '/app/inbox/$messageId'
+    | '/app/settings/account'
+    | '/app/settings/advanced'
+    | '/app/settings/billing'
+    | '/app/settings/profile'
     | '/app/webhooks/$webhookId'
     | '/app/webhooks/new'
     | '/app/inbox/'
+    | '/app/settings/'
     | '/app/webhooks/'
     | '/app/webhooks/$webhookId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -226,9 +285,14 @@ export interface FileRouteTypes {
     | '/app/publish'
     | '/app'
     | '/app/inbox/$messageId'
+    | '/app/settings/account'
+    | '/app/settings/advanced'
+    | '/app/settings/billing'
+    | '/app/settings/profile'
     | '/app/webhooks/$webhookId'
     | '/app/webhooks/new'
     | '/app/inbox'
+    | '/app/settings'
     | '/app/webhooks'
     | '/app/webhooks/$webhookId/edit'
   id:
@@ -245,11 +309,17 @@ export interface FileRouteTypes {
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
+    | '/app/settings'
     | '/app/'
     | '/app/inbox/$messageId'
+    | '/app/settings/account'
+    | '/app/settings/advanced'
+    | '/app/settings/billing'
+    | '/app/settings/profile'
     | '/app/webhooks/$webhookId'
     | '/app/webhooks/new'
     | '/app/inbox/'
+    | '/app/settings/'
     | '/app/webhooks/'
     | '/app/webhooks/$webhookId/edit'
   fileRoutesById: FileRoutesById
@@ -338,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/publish': {
       id: '/app/publish'
       path: '/publish'
@@ -366,6 +443,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebhooksIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/settings/': {
+      id: '/app/settings/'
+      path: '/'
+      fullPath: '/app/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
     '/app/inbox/': {
       id: '/app/inbox/'
       path: '/inbox'
@@ -387,6 +471,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWebhooksWebhookIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/settings/profile': {
+      id: '/app/settings/profile'
+      path: '/profile'
+      fullPath: '/app/settings/profile'
+      preLoaderRoute: typeof AppSettingsProfileRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/billing': {
+      id: '/app/settings/billing'
+      path: '/billing'
+      fullPath: '/app/settings/billing'
+      preLoaderRoute: typeof AppSettingsBillingRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/advanced': {
+      id: '/app/settings/advanced'
+      path: '/advanced'
+      fullPath: '/app/settings/advanced'
+      preLoaderRoute: typeof AppSettingsAdvancedRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/app/settings/account': {
+      id: '/app/settings/account'
+      path: '/account'
+      fullPath: '/app/settings/account'
+      preLoaderRoute: typeof AppSettingsAccountRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
     '/app/inbox/$messageId': {
       id: '/app/inbox/$messageId'
       path: '/inbox/$messageId'
@@ -404,6 +516,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AppSettingsRouteChildren {
+  AppSettingsAccountRoute: typeof AppSettingsAccountRoute
+  AppSettingsAdvancedRoute: typeof AppSettingsAdvancedRoute
+  AppSettingsBillingRoute: typeof AppSettingsBillingRoute
+  AppSettingsProfileRoute: typeof AppSettingsProfileRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+}
+
+const AppSettingsRouteChildren: AppSettingsRouteChildren = {
+  AppSettingsAccountRoute: AppSettingsAccountRoute,
+  AppSettingsAdvancedRoute: AppSettingsAdvancedRoute,
+  AppSettingsBillingRoute: AppSettingsBillingRoute,
+  AppSettingsProfileRoute: AppSettingsProfileRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+}
+
+const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
+  AppSettingsRouteChildren,
+)
+
 interface AppWebhooksWebhookIdRouteChildren {
   AppWebhooksWebhookIdEditRoute: typeof AppWebhooksWebhookIdEditRoute
 }
@@ -419,6 +551,7 @@ interface AppRouteChildren {
   AppChannelsRoute: typeof AppChannelsRoute
   AppKeysRoute: typeof AppKeysRoute
   AppPublishRoute: typeof AppPublishRoute
+  AppSettingsRoute: typeof AppSettingsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppInboxMessageIdRoute: typeof AppInboxMessageIdRoute
   AppWebhooksWebhookIdRoute: typeof AppWebhooksWebhookIdRouteWithChildren
@@ -431,6 +564,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppChannelsRoute: AppChannelsRoute,
   AppKeysRoute: AppKeysRoute,
   AppPublishRoute: AppPublishRoute,
+  AppSettingsRoute: AppSettingsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppInboxMessageIdRoute: AppInboxMessageIdRoute,
   AppWebhooksWebhookIdRoute: AppWebhooksWebhookIdRouteWithChildren,

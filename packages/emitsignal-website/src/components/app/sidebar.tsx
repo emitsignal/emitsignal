@@ -49,6 +49,7 @@ export function Sidebar() {
         { icon: Terminal, label: 'Publish', to: '/app/publish' },
         { icon: Webhook, label: 'Webhooks', to: '/app/webhooks' },
         { icon: Key, label: 'API Keys', to: '/app/keys' },
+        { icon: Settings, label: 'Settings', to: '/app/settings' },
     ];
 
     const handleSignOut = async () => {
@@ -87,8 +88,6 @@ export function Sidebar() {
             {NAV.map((item) => (
                 <SidebarLink item={item} key={item.to} />
             ))}
-
-            <SidebarStatic icon={Settings} label="Settings" />
 
             <div className="mt-4.5 flex items-center px-2.5 pb-1.5">
                 <p className="font-mono text-[9.5px] tracking-[1.5px] text-dim">CHANNELS</p>
@@ -187,14 +186,5 @@ function SidebarLink({ item }: { item: NavItem }) {
                 </>
             )}
         </Link>
-    );
-}
-
-function SidebarStatic({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
-    return (
-        <div className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-muted">
-            <Icon size={14} />
-            <span className="flex-1">{label}</span>
-        </div>
     );
 }
