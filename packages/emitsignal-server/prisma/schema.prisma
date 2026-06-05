@@ -181,6 +181,7 @@ model User {
     subscriptions     Subscription[]
     topicAccess       TopicAccess[]
     verificationCodes VerificationCode[]
+    webhooks          Webhook[]
 }
 
 model VerificationCode {
@@ -197,4 +198,40 @@ model VerificationCode {
 
     @@index([code])
     @@index([email])
+}
+
+model Webhook {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name      String
+    slug      String   @unique
+    source    String   @default("custom")
+    status    String   @default("active")
+    template  String?
+    topicName String
+    userId    String
+
+    deliveries WebhookDelivery[]
+    user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([slug])
+    @@index([userId])
+}
+
+model WebhookDelivery {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    messageId   String?
+    ms          Int
+    payload     String
+    status      Int
+    templated   Boolean
+    webhookId   String
+
+    webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+    @@index([webhookId, createdAt])
 }
