@@ -2,24 +2,22 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
 import { prismaMock } from '../../../__tests__/mocks';
-import { signToken } from '../../../lib/jwt';
 
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+
+const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
+mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { updatePushToken } from '../../push-tokens/update';
 
 describe('PATCH /push-tokens/:id', () => {
     const app = new Elysia().use(updatePushToken);
 
-    async function request(id: string, body: unknown, token?: string) {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) {
-            headers.authorization = token;
-        }
+    function request(id: string, body: unknown) {
         return app.handle(
             new Request(`http://localhost/push-tokens/${id}`, {
                 body: JSON.stringify(body),
-                headers,
+                headers: { 'Content-Type': 'application/json' },
                 method: 'PATCH',
             }),
         );
@@ -30,8 +28,7 @@ describe('PATCH /push-tokens/:id', () => {
     });
 
     it('updates pushEnabled for the owner', async () => {
-        const token = `Bearer ${await signToken('user-1')}`;
-
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
         prismaMock.pushToken.findUnique.mockResolvedValueOnce({ userId: 'user-1' });
         prismaMock.pushToken.update.mockResolvedValueOnce({
             deviceId: 'd1',
@@ -40,7 +37,7 @@ describe('PATCH /push-tokens/:id', () => {
             pushEnabled: false,
         });
 
-        const res = await request('pt-1', { pushEnabled: false }, token);
+        const res = await request('pt-1', { pushEnabled: false });
         expect(res.status).toBe(200);
 
         const data = await res.json();
@@ -61,9 +58,8 @@ describe('PATCH /push-tokens/:id', () => {
     });
 
     it('returns 404 when token not found', async () => {
-        const token = `Bearer ${await signToken('user-1')}`;
-
-        const res = await request('pt-nonexistent', { pushEnabled: true }, token);
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
+        const res = await request('pt-nonexistent', { pushEnabled: true });
         expect(res.status).toBe(404);
 
         const data = await res.json();
@@ -71,11 +67,10 @@ describe('PATCH /push-tokens/:id', () => {
     });
 
     it('returns 403 when user is not the owner', async () => {
-        const token = `Bearer ${await signToken('user-1')}`;
-
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
         prismaMock.pushToken.findUnique.mockResolvedValueOnce({ userId: 'other-user' });
 
-        const res = await request('pt-1', { pushEnabled: true }, token);
+        const res = await request('pt-1', { pushEnabled: true });
         expect(res.status).toBe(403);
 
         const data = await res.json();
@@ -83,9 +78,7 @@ describe('PATCH /push-tokens/:id', () => {
     });
 
     it('returns 422 when pushEnabled is missing', async () => {
-        const token = `Bearer ${await signToken('user-1')}`;
-
-        const res = await request('pt-1', {}, token);
+        const res = await request('pt-1', {});
         expect(res.status).toBe(422);
     });
 });

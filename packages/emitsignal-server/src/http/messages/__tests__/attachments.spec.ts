@@ -3,10 +3,12 @@ import Elysia from 'elysia';
 
 import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
 import { duration } from '../../../lib/duration';
-import { signToken } from '../../../lib/jwt';
 
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
+
+const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
+mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { attachments } from '../attachments';
 
@@ -148,6 +150,9 @@ describe('POST /messages/:id/attachments', () => {
     });
 
     it('sets 15-day expiry for authenticated users', async () => {
+        // authAwareBeforeHandle calls resolveUserId once, then the route handler calls it again
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
         prismaMock.message.findUnique = mock(() =>
             Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
@@ -168,8 +173,6 @@ describe('POST /messages/:id/attachments', () => {
 
         prismaMock.attachment.create = createFn;
 
-        const token = await signToken('user-1');
-
         const form = new FormData();
         const file = new File(['test'], 'test.txt', { type: 'text/plain' });
 
@@ -178,7 +181,6 @@ describe('POST /messages/:id/attachments', () => {
         const res = await app.handle(
             new Request('http://localhost/messages/msg-1/attachments', {
                 body: form,
-                headers: { authorization: `Bearer ${token}` },
                 method: 'POST',
             }),
         );

@@ -2,9 +2,11 @@ import { describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
 import { prismaMock } from '../../../__tests__/mocks';
-import { signToken } from '../../../lib/jwt';
 
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+
+const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
+mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { listPushTokens } from '../../push-tokens/list';
 
@@ -12,15 +14,11 @@ describe('GET /push-tokens', () => {
     const app = new Elysia().use(listPushTokens);
 
     async function request() {
-        const token = await signToken('user-1');
-        return app.handle(
-            new Request('http://localhost/push-tokens', {
-                headers: { authorization: `Bearer ${token}` },
-            }),
-        );
+        return app.handle(new Request('http://localhost/push-tokens', {}));
     }
 
     it('returns push tokens for authenticated user', async () => {
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
         prismaMock.pushToken.findMany.mockResolvedValueOnce([
             { deviceId: 'd1', id: 'pt-1', platform: 'ios', pushEnabled: true },
         ]);
@@ -41,6 +39,7 @@ describe('GET /push-tokens', () => {
     });
 
     it('returns empty array when user has no tokens', async () => {
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
         const res = await request();
         expect(res.status).toBe(200);
 
