@@ -14,13 +14,14 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 
 export function ProfilePage() {
     const { user } = useSession();
-    const [name, setName] = useState(user?.name ?? '');
+
+    const [avatarError, setAvatarError] = useState('');
     const [busy, setBusy] = useState(false);
+    const [name, setName] = useState(user?.name ?? '');
+    const [removing, setRemoving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [saveError, setSaveError] = useState('');
     const [uploading, setUploading] = useState(false);
-    const [removing, setRemoving] = useState(false);
-    const [avatarError, setAvatarError] = useState('');
     const fileRef = useRef<HTMLInputElement>(null);
 
     // Sync input once session data arrives (handles page-refresh case where
@@ -40,8 +41,11 @@ export function ProfilePage() {
         setBusy(true);
         setSaved(false);
         setSaveError('');
+
         const { error } = await authClient.updateUser({ name: name.trim() });
+
         setBusy(false);
+
         if (error) {
             setSaveError(error.message ?? 'Failed to save changes');
         } else {
@@ -86,12 +90,12 @@ export function ProfilePage() {
             >[0]);
         } catch (error) {
             setAvatarError(error instanceof Error ? error.message : 'Failed to upload image');
-        } finally {
-            setUploading(false);
+        }
 
-            if (fileRef.current) {
-                fileRef.current.value = '';
-            }
+        setUploading(false);
+
+        if (fileRef.current) {
+            fileRef.current.value = '';
         }
     };
 
@@ -114,9 +118,9 @@ export function ProfilePage() {
             >[0]);
         } catch {
             setAvatarError('Failed to remove image');
-        } finally {
-            setRemoving(false);
         }
+
+        setRemoving(false);
     };
 
     return (
@@ -136,12 +140,14 @@ export function ProfilePage() {
                         size={72}
                         src={user?.image}
                     />
+
                     <div className="flex-1">
                         <div className="text-[17px] font-semibold">
                             {user?.name || user?.email || '—'}
                         </div>
                         <div className="mt-1 font-mono text-[12px] text-dim">{user?.email}</div>
                     </div>
+
                     <input
                         accept="image/*"
                         className="hidden"
@@ -149,10 +155,12 @@ export function ProfilePage() {
                         ref={fileRef}
                         type="file"
                     />
+
                     <div className="flex items-center gap-2">
                         {avatarError && (
                             <span className="font-mono text-[11px] text-danger">{avatarError}</span>
                         )}
+
                         <SettingsButton
                             disabled={uploading || removing}
                             icon={ImagePlus}
@@ -161,6 +169,7 @@ export function ProfilePage() {
                         >
                             {uploading ? 'Uploading…' : 'Upload'}
                         </SettingsButton>
+
                         {user?.image && (
                             <SettingsButton
                                 disabled={uploading || removing}
@@ -200,11 +209,13 @@ export function ProfilePage() {
                         {saveError && (
                             <span className="font-mono text-[12px] text-danger">{saveError}</span>
                         )}
+
                         {saved && !isDirty && (
                             <span className="font-mono text-[12px] text-success">
                                 Changes saved
                             </span>
                         )}
+
                         {isDirty && (
                             <SettingsButton disabled={busy} onClick={handleSave} variant="primary">
                                 {busy ? 'Saving…' : 'Save changes'}
