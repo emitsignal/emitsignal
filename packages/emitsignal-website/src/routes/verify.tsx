@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
@@ -8,56 +8,65 @@ export const Route = createFileRoute('/verify')({
     component: VerifyPage,
     validateSearch: (search: Record<string, unknown>) => ({
         email: typeof search.email === 'string' ? search.email : undefined,
-        otp: typeof search.otp === 'string' ? search.otp : undefined,
+        otp:
+            typeof search.otp === 'string'
+                ? search.otp
+                : typeof search.otp === 'number'
+                  ? String(search.otp)
+                  : undefined,
     }),
 });
 
 function VerifyPage() {
     const { email: emailParam, otp: otpParam } = Route.useSearch();
-    const navigate = useNavigate();
-    const [otp, setOtp] = useState('');
-    const [email, setEmail] = useState(emailParam ?? '');
+
     const [busy, setBusy] = useState(false);
-    const [error, setError] = useState('');
     const [codeFocused, setCodeFocused] = useState(false);
+    const [email, setEmail] = useState(emailParam ?? '');
+    const [error, setError] = useState('');
+    const [otp, setOtp] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
+    const navigate = useNavigate();
+
+    const signInWithOtp = useCallback(
+        async (emailValue: string, otpValue: string) => {
+            setBusy(true);
+            setError('');
+
+            const { error: err } = await authClient.signIn.emailOtp({
+                email: emailValue,
+                otp: otpValue,
+            });
+
+            setBusy(false);
+
+            if (err) {
+                setError(err.message ?? 'Invalid or expired code');
+            } else {
+                navigate({ to: '/app' });
+            }
+        },
+        [navigate],
+    );
+
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
 
     useEffect(() => {
         if (!emailParam || !otpParam) {
             return;
         }
 
-        setBusy(true);
-
-        authClient.signIn.emailOtp({ email: emailParam, otp: otpParam }).then(({ error: err }) => {
-            setBusy(false);
-            if (err) {
-                setError(err.message ?? 'Invalid or expired code');
-            } else {
-                navigate({ to: '/app' });
-            }
-        });
-    }, [emailParam, otpParam, navigate]);
+        signInWithOtp(emailParam, otpParam);
+    }, [emailParam, otpParam, signInWithOtp]);
 
     const handleVerify = async () => {
         if (!otp.trim() || !email.trim()) {
             return;
         }
 
-        setBusy(true);
-        setError('');
-
-        const { error: err } = await authClient.signIn.emailOtp({
-            email: email.trim(),
-            otp: otp.trim(),
-        });
-
-        setBusy(false);
-
-        if (err) {
-            setError(err.message ?? 'Invalid or expired code');
-        } else {
-            navigate({ to: '/app' });
-        }
+        await signInWithOtp(email.trim(), otp.trim());
     };
 
     const cells = Array.from({ length: 6 }, (_, i) => otp[i] ?? '');
@@ -123,6 +132,7 @@ function VerifyPage() {
                         <label className="mb-2 block font-mono text-[10px] tracking-[1.5px] text-dim">
                             EMAIL
                         </label>
+
                         <input
                             autoCapitalize="off"
                             autoComplete="email"
@@ -143,7 +153,7 @@ function VerifyPage() {
                 <div className="relative mb-3.5 flex gap-2">
                     {cells.map((cell, index) => (
                         <div
-                            className={`flex h-14 w-12 items-center justify-center rounded-lg border-1.5 font-mono text-[20px] font-semibold text-fg ${
+                            className={`flex h-14 w-12 items-center justify-center rounded-lg border-[1.5px] font-mono text-[20px] font-semibold text-fg ${
                                 codeFocused && index === activeIndex
                                     ? 'border-accent bg-elev'
                                     : 'border-line bg-elev'
@@ -153,6 +163,7 @@ function VerifyPage() {
                             {cell}
                         </div>
                     ))}
+
                     <input
                         autoComplete="one-time-code"
                         className="absolute inset-0 cursor-text opacity-0"
@@ -164,8 +175,11 @@ function VerifyPage() {
                         }
                         onFocus={() => setCodeFocused(true)}
                         onKeyDown={(event) => {
-                            if (event.key === 'Enter') handleVerify();
+                            if (event.key === 'Enter') {
+                                handleVerify();
+                            }
                         }}
+                        ref={inputRef}
                         style={{ caretColor: 'transparent' }}
                         value={otp}
                     />

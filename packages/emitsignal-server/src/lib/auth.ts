@@ -32,7 +32,7 @@ export const auth = betterAuth({
                     return;
                 }
 
-                const verifyUrl = `${environment.APP_URL}/verify?email=${encodeURIComponent(email)}&otp=${otp}`;
+                const verifyUrl = `${environment.APP_URL}/verify?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(JSON.stringify(otp))}`;
                 const html = await render(
                     createElement(MagicLinkEmail, {
                         code: otp,
