@@ -1,15 +1,103 @@
 -- CreateTable
-CREATE TABLE "ApiKey" (
+CREATE TABLE "User" (
     "id" TEXT NOT NULL,
+    "name" TEXT,
+    "email" TEXT NOT NULL,
+    "emailVerified" BOOLEAN NOT NULL DEFAULT false,
+    "image" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "hash" TEXT NOT NULL,
-    "label" TEXT NOT NULL,
-    "lastUsed" TIMESTAMP(3),
-    "prefix" TEXT NOT NULL,
-    "sentCount" INTEGER NOT NULL DEFAULT 0,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "token" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
     "userId" TEXT NOT NULL,
 
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Account" (
+    "id" TEXT NOT NULL,
+    "accountId" TEXT NOT NULL,
+    "providerId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "accessToken" TEXT,
+    "refreshToken" TEXT,
+    "idToken" TEXT,
+    "accessTokenExpiresAt" TIMESTAMP(3),
+    "refreshTokenExpiresAt" TIMESTAMP(3),
+    "scope" TEXT,
+    "password" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Verification" (
+    "id" TEXT NOT NULL,
+    "identifier" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Verification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ApiKey" (
+    "id" TEXT NOT NULL,
+    "name" TEXT,
+    "start" TEXT,
+    "prefix" TEXT,
+    "key" TEXT NOT NULL,
+    "userId" TEXT,
+    "refillInterval" INTEGER,
+    "refillAmount" INTEGER,
+    "lastRefillAt" TIMESTAMP(3),
+    "enabled" BOOLEAN NOT NULL DEFAULT true,
+    "rateLimitEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "rateLimitTimeWindow" INTEGER,
+    "rateLimitMax" INTEGER,
+    "requestCount" INTEGER NOT NULL DEFAULT 0,
+    "remaining" INTEGER,
+    "lastRequest" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "permissions" TEXT,
+    "metadata" TEXT,
+
     CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Passkey" (
+    "id" TEXT NOT NULL,
+    "name" TEXT,
+    "publicKey" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "credentialID" TEXT NOT NULL,
+    "counter" INTEGER NOT NULL,
+    "deviceType" TEXT NOT NULL,
+    "backedUp" BOOLEAN NOT NULL,
+    "transports" TEXT,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "aaguid" TEXT,
+
+    CONSTRAINT "Passkey_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -69,17 +157,6 @@ CREATE TABLE "PushToken" (
 );
 
 -- CreateTable
-CREATE TABLE "Session" (
-    "id" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "token" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Subscription" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -117,34 +194,64 @@ CREATE TABLE "TopicAccess" (
 );
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "Webhook" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "email" TEXT NOT NULL,
-    "name" TEXT,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "source" TEXT NOT NULL DEFAULT 'custom',
+    "status" TEXT NOT NULL DEFAULT 'active',
+    "template" TEXT,
+    "topicName" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Webhook_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "VerificationCode" (
+CREATE TABLE "WebhookDelivery" (
     "id" TEXT NOT NULL,
-    "code" TEXT NOT NULL,
-    "consumed" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "email" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT,
+    "messageId" TEXT,
+    "ms" INTEGER NOT NULL,
+    "payload" TEXT NOT NULL,
+    "status" INTEGER NOT NULL,
+    "templated" BOOLEAN NOT NULL,
+    "webhookId" TEXT NOT NULL,
 
-    CONSTRAINT "VerificationCode_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "WebhookDelivery_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE INDEX "ApiKey_prefix_idx" ON "ApiKey"("prefix");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
+
+-- CreateIndex
+CREATE INDEX "Session_userId_idx" ON "Session"("userId");
+
+-- CreateIndex
+CREATE INDEX "Account_userId_idx" ON "Account"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Account_providerId_accountId_key" ON "Account"("providerId", "accountId");
+
+-- CreateIndex
+CREATE INDEX "Verification_identifier_idx" ON "Verification"("identifier");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ApiKey_key_key" ON "ApiKey"("key");
 
 -- CreateIndex
 CREATE INDEX "ApiKey_userId_idx" ON "ApiKey"("userId");
+
+-- CreateIndex
+CREATE INDEX "ApiKey_key_idx" ON "ApiKey"("key");
+
+-- CreateIndex
+CREATE INDEX "Passkey_userId_idx" ON "Passkey"("userId");
 
 -- CreateIndex
 CREATE INDEX "Attachment_messageId_idx" ON "Attachment"("messageId");
@@ -177,12 +284,6 @@ CREATE INDEX "PushToken_userId_idx" ON "PushToken"("userId");
 CREATE UNIQUE INDEX "PushToken_deviceId_token_key" ON "PushToken"("deviceId", "token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Session_token_key" ON "Session"("token");
-
--- CreateIndex
-CREATE INDEX "Session_userId_idx" ON "Session"("userId");
-
--- CreateIndex
 CREATE INDEX "Subscription_topicId_idx" ON "Subscription"("topicId");
 
 -- CreateIndex
@@ -210,16 +311,28 @@ CREATE INDEX "TopicAccess_userId_idx" ON "TopicAccess"("userId");
 CREATE UNIQUE INDEX "TopicAccess_topicId_userId_key" ON "TopicAccess"("topicId", "userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "Webhook_slug_key" ON "Webhook"("slug");
 
 -- CreateIndex
-CREATE INDEX "VerificationCode_code_idx" ON "VerificationCode"("code");
+CREATE INDEX "Webhook_slug_idx" ON "Webhook"("slug");
 
 -- CreateIndex
-CREATE INDEX "VerificationCode_email_idx" ON "VerificationCode"("email");
+CREATE INDEX "Webhook_userId_idx" ON "Webhook"("userId");
+
+-- CreateIndex
+CREATE INDEX "WebhookDelivery_webhookId_createdAt_idx" ON "WebhookDelivery"("webhookId", "createdAt");
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ApiKey" ADD CONSTRAINT "ApiKey_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Passkey" ADD CONSTRAINT "Passkey_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Attachment" ADD CONSTRAINT "Attachment_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -240,9 +353,6 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_topicId_fkey" FOREIGN KEY ("topicI
 ALTER TABLE "PushToken" ADD CONSTRAINT "PushToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_topicId_fkey" FOREIGN KEY ("topicId") REFERENCES "Topic"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -258,4 +368,7 @@ ALTER TABLE "TopicAccess" ADD CONSTRAINT "TopicAccess_topicId_fkey" FOREIGN KEY 
 ALTER TABLE "TopicAccess" ADD CONSTRAINT "TopicAccess_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "VerificationCode" ADD CONSTRAINT "VerificationCode_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Webhook" ADD CONSTRAINT "Webhook_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WebhookDelivery" ADD CONSTRAINT "WebhookDelivery_webhookId_fkey" FOREIGN KEY ("webhookId") REFERENCES "Webhook"("id") ON DELETE CASCADE ON UPDATE CASCADE;

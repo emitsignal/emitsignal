@@ -7,22 +7,129 @@ datasource db {
     provider = "postgresql"
 }
 
-model ApiKey {
-    id        String    @id @default(cuid())
+// ── Better Auth core tables ──────────────────────────────────────────────────
 
-    createdAt DateTime  @default(now())
-    hash      String // sha256 of full key
-    label     String
-    lastUsed  DateTime?
-    prefix    String // shown to user
-    sentCount Int       @default(0)
+model User {
+    id            String   @id @default(cuid())
+    name          String?
+    email         String   @unique
+    emailVerified Boolean  @default(false)
+    image         String?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    accounts      Account[]
+    apiKeys       ApiKey[]
+    passkeys      Passkey[]
+    sessions      Session[]
+
+    // App-specific relations
+    acknowledgments   Acknowledgment[]
+    ownedTopics       Topic[]         @relation("TopicOwner")
+    pushTokens        PushToken[]
+    sentMessages      Message[]       @relation("MessageSender")
+    subscriptions     Subscription[]
+    topicAccess       TopicAccess[]
+    webhooks          Webhook[]
+}
+
+model Session {
+    id        String   @id @default(cuid())
+    expiresAt DateTime
+    token     String   @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    ipAddress String?
+    userAgent String?
     userId    String
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([prefix])
     @@index([userId])
 }
+
+model Account {
+    id                    String    @id @default(cuid())
+    accountId             String
+    providerId            String
+    userId                String
+    accessToken           String?
+    refreshToken          String?
+    idToken               String?
+    accessTokenExpiresAt  DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope                 String?
+    password              String?
+    createdAt             DateTime  @default(now())
+    updatedAt             DateTime  @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@unique([providerId, accountId])
+}
+
+model Verification {
+    id         String   @id @default(cuid())
+    identifier String
+    value      String
+    expiresAt  DateTime
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@index([identifier])
+}
+
+// ── Better Auth plugin tables ─────────────────────────────────────────────────
+
+model ApiKey {
+    id                  String    @id @default(cuid())
+    name                String?
+    start               String?
+    prefix              String?
+    key                 String    @unique
+    userId              String?
+    refillInterval      Int?
+    refillAmount        Int?
+    lastRefillAt        DateTime?
+    enabled             Boolean   @default(true)
+    rateLimitEnabled    Boolean   @default(false)
+    rateLimitTimeWindow Int?
+    rateLimitMax        Int?
+    requestCount        Int       @default(0)
+    remaining           Int?
+    lastRequest         DateTime?
+    expiresAt           DateTime?
+    createdAt           DateTime  @default(now())
+    updatedAt           DateTime  @updatedAt
+    permissions         String?
+    metadata            String?
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([key])
+}
+
+model Passkey {
+    id           String    @id @default(cuid())
+    name         String?
+    publicKey    String
+    userId       String
+    credentialID String
+    counter      Int
+    deviceType   String
+    backedUp     Boolean
+    transports   String?
+    createdAt    DateTime? @default(now())
+    aaguid       String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
+// ── App tables ────────────────────────────────────────────────────────────────
 
 model Attachment {
     id         String   @id @default(cuid())
@@ -56,7 +163,7 @@ model Acknowledgment {
 
 model Message {
     id        String   @id @default(cuid())
-   
+
     actions     String   @default("[]") // JSON array of Action objects
     body        String
     createdAt   DateTime @default(now())
@@ -95,20 +202,6 @@ model PushToken {
     @@index([userId])
     @@unique([deviceId, token])
 }
-
-model Session {
-    id        String   @id @default(cuid())
-
-    createdAt DateTime @default(now())
-    expiresAt DateTime
-    token     String   @unique
-    userId    String
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
-}
-
 
 model Subscription {
     id          String   @id @default(cuid())
@@ -162,42 +255,6 @@ model TopicAccess {
     @@index([topicId])
     @@index([userId])
     @@unique([topicId, userId])
-}
-
-model User {
-    id        String   @id @default(cuid())
-
-    createdAt DateTime @default(now())
-    email     String   @unique
-    name      String?
-    updatedAt DateTime @updatedAt
-
-    acknowledgments   Acknowledgment[]
-    apiKeys           ApiKey[]
-    ownedTopics       Topic[]         @relation("TopicOwner")
-    pushTokens        PushToken[]
-    sentMessages      Message[]       @relation("MessageSender")
-    sessions          Session[]
-    subscriptions     Subscription[]
-    topicAccess       TopicAccess[]
-    verificationCodes VerificationCode[]
-    webhooks          Webhook[]
-}
-
-model VerificationCode {
-    id        String   @id @default(cuid())
-
-    code      String
-    consumed  Boolean  @default(false)
-    createdAt DateTime @default(now())
-    email     String
-    expiresAt DateTime
-
-    user   User?   @relation(fields: [userId], references: [id])
-    userId String?
-
-    @@index([code])
-    @@index([email])
 }
 
 model Webhook {
