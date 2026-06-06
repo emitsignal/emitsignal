@@ -26,6 +26,7 @@ export function useSSE({ headers, onError, onEvent, onOpen, url }: SSEOptions) {
         const controller = new AbortController();
 
         fetchEventSource(url, {
+            credentials: 'include',
             headers,
             onerror(error) {
                 onErrorRef.current?.(error);

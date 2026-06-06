@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { Message, Subscription, TopicMetrics } from '#/lib/api';
 
@@ -23,11 +23,7 @@ export function useFeed() {
         subscriptions: [],
     });
 
-    const { loading: authLoading, token } = useSession();
-    const authHeaders = useMemo(
-        () => (token ? { Authorization: `Bearer ${token}` } : undefined),
-        [token],
-    );
+    const { loading: authLoading } = useSession();
 
     const deviceId = getDeviceId();
 
@@ -66,7 +62,6 @@ export function useFeed() {
     const sseTarget = topicNames.length ? sseMultiUrl(topicNames) : null;
 
     useSSE({
-        headers: authHeaders,
         onEvent: (event, data) => {
             if (event !== 'message') return;
             const incoming = data as { topicName?: string } & Message;
@@ -90,11 +85,7 @@ export function useTopicMessages(topicName: null | string, onNewMessage?: (msg: 
     const [loading, setLoading] = useState(true);
     const seenIdsRef = useRef(new Set<string>());
 
-    const { loading: authLoading, token } = useSession();
-    const authHeaders = useMemo(
-        () => (token ? { Authorization: `Bearer ${token}` } : undefined),
-        [token],
-    );
+    const { loading: authLoading } = useSession();
 
     useEffect(() => {
         if (!topicName) return;
@@ -123,7 +114,6 @@ export function useTopicMessages(topicName: null | string, onNewMessage?: (msg: 
     onNewMessageRef.current = onNewMessage;
 
     useSSE({
-        headers: authHeaders,
         onEvent: (event, data) => {
             if (event !== 'message') return;
             const incoming = data as Message;

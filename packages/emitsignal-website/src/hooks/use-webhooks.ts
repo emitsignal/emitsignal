@@ -12,11 +12,7 @@ export function useWebhooks() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<null | string>(null);
 
-    const { loading: authLoading, token } = useSession();
-    const authHeaders = useMemo(
-        () => (token ? { Authorization: `Bearer ${token}` } : undefined),
-        [token],
-    );
+    const { loading: authLoading } = useSession();
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -52,7 +48,6 @@ export function useWebhooks() {
     const topicNames = useMemo(() => [...new Set(webhooks.map((w) => w.topicName))], [webhooks]);
 
     useSSE({
-        headers: authHeaders,
         onEvent: (event, data) => {
             if (event !== 'message') {
                 return;

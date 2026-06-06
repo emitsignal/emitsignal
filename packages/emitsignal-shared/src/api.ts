@@ -121,7 +121,11 @@ export function createApiClient(baseUrl: string) {
             headers['Authorization'] = `Bearer ${authToken}`;
         }
 
-        const response = await fetch(`${baseUrl}${path}`, { ...init, headers });
+        const response = await fetch(`${baseUrl}${path}`, {
+            credentials: 'include',
+            ...init,
+            headers,
+        });
 
         if (!response.ok) {
             const text = await response.text().catch(() => response.statusText);
@@ -212,12 +216,6 @@ export function createApiClient(baseUrl: string) {
             return request<Webhook[]>('/webhooks');
         },
 
-        me() {
-            return request<{ user: { email: string; id: string; name: null | string } }>(
-                '/auth/me',
-            );
-        },
-
         publish(
             topicName: string,
             payload: {
@@ -248,16 +246,6 @@ export function createApiClient(baseUrl: string) {
             });
         },
 
-        requestMagicLink(email: string) {
-            return request<{ devCode?: string; expiresAt: number; ok: boolean }>(
-                '/auth/magic-link',
-                {
-                    body: JSON.stringify({ email }),
-                    method: 'POST',
-                },
-            );
-        },
-
         subscribe(deviceId: string, topicName: string, pushEnabled = true) {
             return request<{ id: string; topic: Topic }>('/subscriptions', {
                 body: JSON.stringify({ deviceId, pushEnabled, topicName }),
@@ -286,16 +274,6 @@ export function createApiClient(baseUrl: string) {
             return request<Webhook>(`/webhooks/${encodeURIComponent(id)}`, {
                 body: JSON.stringify(input),
                 method: 'PATCH',
-            });
-        },
-
-        verifyMagicLink(email: string, code: string) {
-            return request<{
-                token: string;
-                user: { email: string; id: string; name: null | string };
-            }>('/auth/verify', {
-                body: JSON.stringify({ code, email }),
-                method: 'POST',
             });
         },
     };

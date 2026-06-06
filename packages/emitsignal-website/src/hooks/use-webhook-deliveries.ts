@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { WebhookDelivery } from '#/lib/api';
 
@@ -11,12 +11,7 @@ export function useWebhookDeliveries(webhookId: string, topicName?: string) {
     const [deliveries, setDeliveries] = useState<WebhookDelivery[]>([]);
     const [error, setError] = useState<null | string>(null);
     const [loading, setLoading] = useState(true);
-    const { loading: authLoading, token } = useSession();
-
-    const authHeaders = useMemo(
-        () => (token ? { Authorization: `Bearer ${token}` } : undefined),
-        [token],
-    );
+    const { loading: authLoading } = useSession();
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -42,7 +37,6 @@ export function useWebhookDeliveries(webhookId: string, topicName?: string) {
     }, [load]);
 
     useSSE({
-        headers: authHeaders,
         onEvent: (event) => {
             if (event !== 'message') {
                 return;
