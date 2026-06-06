@@ -63,7 +63,7 @@ export default function AuthFirstChannels() {
                     <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
                 <WLogo pulse size={11} />
-                <Text style={styles.step}>04/04</Text>
+                <Text style={styles.step}>05/05</Text>
             </View>
 
             <View style={styles.body}>

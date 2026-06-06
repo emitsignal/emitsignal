@@ -58,7 +58,7 @@ export default function AuthVerify() {
                         <IconSymbol color={W.fg} name="arrow.left" size={16} />
                     </Pressable>
                     <WLogo pulse size={11} />
-                    <Text style={styles.step}>02/04</Text>
+                    <Text style={styles.step}>02/05</Text>
                 </View>
 
                 <View style={styles.body}>

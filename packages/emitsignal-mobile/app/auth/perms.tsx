@@ -98,7 +98,7 @@ export default function AuthPerms() {
                     <IconSymbol color={W.fg} name="arrow.left" size={16} />
                 </Pressable>
                 <WLogo pulse size={11} />
-                <Text style={styles.step}>03/04</Text>
+                <Text style={styles.step}>03/05</Text>
             </View>
 
             <View style={styles.body}>
@@ -193,10 +193,7 @@ export default function AuthPerms() {
             </View>
 
             <View style={styles.footer}>
-                <Pressable
-                    onPress={() => router.replace('/auth/first-channels')}
-                    style={styles.cta}
-                >
+                <Pressable onPress={() => router.replace('/auth/avatar')} style={styles.cta}>
                     <Text style={styles.ctaText}>continue →</Text>
                 </Pressable>
             </View>
