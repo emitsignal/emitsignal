@@ -37,16 +37,13 @@ export default {
     },
 } satisfies TailwindConfig;
 
-const appStaticAssetsBaseURL =
-    process.env.NODE_ENV === 'production'
-        ? 'https://emitsignal.com'
-        : process.env.APP_STATIC_ASSETS_BASE_URL;
+const appStaticAssetsBaseURL = process.env.APP_STATIC_ASSETS_BASE_URL ?? 'https://emitsignal.com';
 
 export const brandAssets = {
     logo: {
         alt: 'EmitSignal',
         height: 32,
-        src: `${appStaticAssetsBaseURL}/static/logo.png`,
+        src: `${appStaticAssetsBaseURL}/static/logo.svg`,
         width: 32,
     },
 };
