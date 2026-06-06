@@ -1,3 +1,4 @@
+import { ImagePlus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Avatar } from '#/components/ui/avatar';
@@ -9,12 +10,18 @@ import { SettingsCard } from './settings-card';
 import { SettingsField } from './settings-field';
 import { SettingsInput } from './settings-input';
 
+const API_URL = import.meta.env.VITE_API_URL as string;
+
 export function ProfilePage() {
     const { user } = useSession();
     const [name, setName] = useState(user?.name ?? '');
     const [busy, setBusy] = useState(false);
     const [saved, setSaved] = useState(false);
     const [saveError, setSaveError] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [removing, setRemoving] = useState(false);
+    const [avatarError, setAvatarError] = useState('');
+    const fileRef = useRef<HTMLInputElement>(null);
 
     // Sync input once session data arrives (handles page-refresh case where
     // user is null on first render but populated after the session loads).
@@ -43,6 +50,75 @@ export function ProfilePage() {
         }
     };
 
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        setAvatarError('');
+        setUploading(true);
+
+        try {
+            const form = new FormData();
+
+            form.append('file', file);
+
+            const response = await fetch(`${API_URL}/user/avatar`, {
+                body: form,
+                credentials: 'include',
+                method: 'POST',
+            });
+
+            const json = (await response.json()) as { error?: string; imageUrl?: string };
+
+            if (!response.ok) {
+                throw new Error(
+                    json.error === 'payload_too_large'
+                        ? 'Image must be under 2 MB'
+                        : 'Upload failed',
+                );
+            }
+
+            await authClient.updateUser({ image: json.imageUrl } as Parameters<
+                typeof authClient.updateUser
+            >[0]);
+        } catch (error) {
+            setAvatarError(error instanceof Error ? error.message : 'Failed to upload image');
+        } finally {
+            setUploading(false);
+
+            if (fileRef.current) {
+                fileRef.current.value = '';
+            }
+        }
+    };
+
+    const handleAvatarRemove = async () => {
+        setAvatarError('');
+        setRemoving(true);
+
+        try {
+            const response = await fetch(`${API_URL}/user/avatar`, {
+                credentials: 'include',
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to remove image');
+            }
+
+            await authClient.updateUser({ image: null } as Parameters<
+                typeof authClient.updateUser
+            >[0]);
+        } catch {
+            setAvatarError('Failed to remove image');
+        } finally {
+            setRemoving(false);
+        }
+    };
+
     return (
         <>
             <div className="mb-[26px] border-b border-line pb-[18px]">
@@ -54,12 +130,47 @@ export function ProfilePage() {
 
             <SettingsCard title="Identity">
                 <div className="mb-[22px] flex flex-wrap items-center gap-4">
-                    <Avatar name={user?.name || user?.email || ''} rounded={16} size={72} />
+                    <Avatar
+                        name={user?.name || user?.email || ''}
+                        rounded={16}
+                        size={72}
+                        src={user?.image}
+                    />
                     <div className="flex-1">
                         <div className="text-[17px] font-semibold">
                             {user?.name || user?.email || '—'}
                         </div>
                         <div className="mt-1 font-mono text-[12px] text-dim">{user?.email}</div>
+                    </div>
+                    <input
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarUpload}
+                        ref={fileRef}
+                        type="file"
+                    />
+                    <div className="flex items-center gap-2">
+                        {avatarError && (
+                            <span className="font-mono text-[11px] text-danger">{avatarError}</span>
+                        )}
+                        <SettingsButton
+                            disabled={uploading || removing}
+                            icon={ImagePlus}
+                            onClick={() => fileRef.current?.click()}
+                            size="sm"
+                        >
+                            {uploading ? 'Uploading…' : 'Upload'}
+                        </SettingsButton>
+                        {user?.image && (
+                            <SettingsButton
+                                disabled={uploading || removing}
+                                onClick={handleAvatarRemove}
+                                size="sm"
+                                variant="danger"
+                            >
+                                {removing ? 'Removing…' : 'Remove'}
+                            </SettingsButton>
+                        )}
                     </div>
                 </div>
 

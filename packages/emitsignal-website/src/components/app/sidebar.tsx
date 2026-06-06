@@ -142,7 +142,12 @@ export function Sidebar() {
             <div className="mt-auto">
                 {user && (
                     <div className="flex items-center gap-2 border-t border-line p-2.5">
-                        <Avatar name={user.email} rounded={100} size={22} />
+                        <Avatar
+                            name={user.name || user.email}
+                            rounded={100}
+                            size={22}
+                            src={user.image}
+                        />
 
                         <span className="flex-1 truncate text-[12px]">{user.email}</span>
 

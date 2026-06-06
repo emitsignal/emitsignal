@@ -3,9 +3,21 @@ interface AvatarProps {
     name: string;
     rounded?: number;
     size?: number;
+    src?: null | string;
 }
 
-export function Avatar({ monogram, name, rounded = 8, size = 36 }: AvatarProps) {
+export function Avatar({ monogram, name, rounded = 8, size = 36, src }: AvatarProps) {
+    if (src) {
+        return (
+            <img
+                alt={name}
+                className="shrink-0 object-cover"
+                src={src}
+                style={{ borderRadius: rounded, height: size, width: size }}
+            />
+        );
+    }
+
     const hue = hashHue(name);
     const computedMonogram =
         monogram ??
@@ -13,6 +25,7 @@ export function Avatar({ monogram, name, rounded = 8, size = 36 }: AvatarProps) 
             .replace(/[^a-z0-9]/gi, '')
             .slice(0, 2)
             .toUpperCase();
+
     return (
         <div
             className="flex shrink-0 items-center justify-center font-mono font-semibold"

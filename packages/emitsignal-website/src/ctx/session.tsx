@@ -11,6 +11,7 @@ export interface SessionContextValue {
 export interface SessionUser {
     email: string;
     id: string;
+    image: null | string;
     name: null | string;
 }
 
@@ -28,6 +29,7 @@ export function useSession(): SessionContextValue {
             ? {
                   email: data.user.email,
                   id: data.user.id,
+                  image: data.user.image ?? null,
                   name: data.user.name ?? null,
               }
             : null,
