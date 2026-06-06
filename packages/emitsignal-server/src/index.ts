@@ -3,6 +3,7 @@ import { opentelemetry } from '@elysia/opentelemetry';
 import { cors } from '@elysiajs/cors';
 import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
+import path from 'node:path';
 
 import pkg from '../package.json';
 import { acknowledge } from './http/messages/acknowledge';
@@ -24,6 +25,7 @@ import { messages } from './http/topic/messages';
 import { topicMetrics } from './http/topic/metrics';
 import { publish } from './http/topic/publish';
 import { suggestions } from './http/topic/suggestions';
+import { userAvatar } from './http/user/avatar';
 import { createWebhook } from './http/webhooks/create';
 import { deleteWebhook } from './http/webhooks/delete';
 import { listDeliveries } from './http/webhooks/deliveries';
@@ -64,8 +66,19 @@ const app = new Elysia()
     .use(acknowledge)
     .use(attachments)
     .use(getMessage)
-    .get('/uploads/:file', async ({ params }) => {
-        return Bun.file(`${environment.UPLOAD_DIR}/${params.file}`);
+    .get('/uploads/*', async ({ params, status }) => {
+        if (environment.FILE_STORAGE_PROVIDER === 's3') {
+            return status(501);
+        }
+
+        const resolved = path.resolve(environment.UPLOAD_DIR, params['*']);
+        const base = path.resolve(environment.UPLOAD_DIR);
+
+        if (!resolved.startsWith(base + path.sep) && base !== resolved) {
+            return status(403);
+        }
+
+        return Bun.file(resolved);
     })
     .use(getTopic)
     .use(listen)
@@ -81,6 +94,7 @@ const app = new Elysia()
     .use(suggestions)
     .use(unsubscribe)
     .use(updatePushToken)
+    .use(userAvatar)
     .use(listWebhooks)
     .use(getWebhook)
     .use(createWebhook)

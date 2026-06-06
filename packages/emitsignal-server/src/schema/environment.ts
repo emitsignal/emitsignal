@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 
 const environmentSchema = Type.Object({
+    API_URL: Type.String({ default: 'http://localhost:5001' }),
     APP_URL: Type.String({ default: 'http://localhost:5002' }),
 
     BETTER_AUTH_SECRET: Type.String({ default: 'emitsignal-dev-better-auth-secret-32chars!!' }),
