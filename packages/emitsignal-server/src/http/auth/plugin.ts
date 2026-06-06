@@ -1,27 +1,45 @@
-import { verifyToken } from '../../lib/jwt';
+import { auth } from '../../lib/auth';
+
+const SESSION_COOKIE = 'better-auth.session_token';
 
 export async function resolveUserId({
     headers,
 }: {
     headers: Record<string, string | undefined>;
 }): Promise<null | string> {
-    const token = extractBearerToken(headers);
+    const webHeaders = new Headers();
 
-    if (!token) {
-        return null;
+    for (const [key, value] of Object.entries(headers)) {
+        if (value !== undefined) {
+            webHeaders.set(key, value);
+        }
     }
 
-    return verifyToken(token);
-}
+    // Try cookie-based session (web browsers)
+    const session = await auth.api.getSession({ headers: webHeaders });
 
-function extractBearerToken(headers: Record<string, string | undefined>): null | string {
-    const authorization = (headers.authorization || '').trim();
-
-    if (!authorization) {
-        return null;
+    if (session?.user.id) {
+        return session.user.id;
     }
 
-    const [, token] = authorization.split(' ');
+    // Try Bearer token as session token (mobile / non-browser clients)
+    const authorization = webHeaders.get('authorization');
 
-    return token || null;
+    if (authorization?.startsWith('Bearer ')) {
+        const token = authorization.slice(7);
+        const bearerHeaders = new Headers(webHeaders);
+
+        const existing = bearerHeaders.get('cookie') ?? '';
+        const sessionCookie = `${SESSION_COOKIE}=${token}`;
+
+        bearerHeaders.set('cookie', existing ? `${existing}; ${sessionCookie}` : sessionCookie);
+
+        const mobileSession = await auth.api.getSession({ headers: bearerHeaders });
+
+        if (mobileSession?.user.id) {
+            return mobileSession.user.id;
+        }
+    }
+
+    return null;
 }

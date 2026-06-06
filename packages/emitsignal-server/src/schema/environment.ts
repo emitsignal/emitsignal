@@ -2,7 +2,10 @@ import { Type } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 
 const environmentSchema = Type.Object({
-    APP_URL: Type.String({ default: 'http://localhost:5001' }),
+    APP_URL: Type.String({ default: 'http://localhost:5002' }),
+
+    BETTER_AUTH_SECRET: Type.String({ default: 'emitsignal-dev-better-auth-secret-32chars!!' }),
+    BETTER_AUTH_URL: Type.String({ default: 'http://localhost:5001' }),
 
     EMAIL_FROM: Type.String({ default: 'EmitSignal <noreply@emitsignal.com>' }),
     EMAIL_PROVIDER: Type.Union(
@@ -16,7 +19,9 @@ const environmentSchema = Type.Object({
     FILE_STORAGE_PROVIDER: Type.Union([Type.Literal('local'), Type.Literal('s3')], {
         default: 'local',
     }),
-    JWT_SECRET: Type.String({ default: 'emitsignal-dev-jwt-secret' }),
+
+    GITHUB_CLIENT_ID: Type.Optional(Type.String()),
+    GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
 
     OTEL_ENABLED: Type.Boolean({ default: false }),
     OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),

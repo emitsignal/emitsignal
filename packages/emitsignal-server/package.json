@@ -1,5 +1,7 @@
 {
     "dependencies": {
+        "@better-auth/api-key": "^1.6.14",
+        "@better-auth/passkey": "^1.6.14",
         "@elysia/openapi": "^1.4.15",
         "@elysia/opentelemetry": "^1.4.12",
         "@elysiajs/cors": "^1.4.1",
@@ -13,6 +15,7 @@
         "@prisma/client": "^7.8.0",
         "@sentry/bun": "^10.55.0",
         "@sinclair/typebox": "^0.34.49",
+        "better-auth": "^1.6.14",
         "bullmq": "^5.28.0",
         "elysia": "latest",
         "ioredis": "^5.6.0",

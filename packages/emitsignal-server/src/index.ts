@@ -5,9 +5,6 @@ import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
 
 import pkg from '../package.json';
-import { magicLink } from './http/auth/magic-link';
-import { me } from './http/auth/me';
-import { verify } from './http/auth/verify';
 import { acknowledge } from './http/messages/acknowledge';
 import { attachments } from './http/messages/attachments';
 import { getMessage } from './http/messages/get';
@@ -34,6 +31,7 @@ import { getWebhook } from './http/webhooks/get';
 import { listWebhooks } from './http/webhooks/list';
 import { receiveWebhook } from './http/webhooks/receive';
 import { updateWebhook } from './http/webhooks/update';
+import { auth } from './lib/auth';
 import { Email } from './lib/email';
 import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
@@ -53,7 +51,15 @@ const app = new Elysia()
     .use(loggerPlugin)
     .use(rateLimitPlugin)
     .use(openapi({ enabled: !isProduction, references: fromTypes() }))
-    .use(cors({ allowedHeaders: '*' }))
+    .use(
+        cors({
+            allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+            origin: [environment.APP_URL],
+        }),
+    )
+    .all('/api/auth/*', (ctx) => auth.handler(ctx.request))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
     .use(acknowledge)
     .use(attachments)
@@ -67,8 +73,6 @@ const app = new Elysia()
     .use(listPushTokens)
     .use(listSubscriptions)
     .use(listTopics)
-    .use(magicLink)
-    .use(me)
     .use(messages)
     .use(topicMetrics)
     .use(publish)
@@ -77,7 +81,6 @@ const app = new Elysia()
     .use(suggestions)
     .use(unsubscribe)
     .use(updatePushToken)
-    .use(verify)
     .use(listWebhooks)
     .use(getWebhook)
     .use(createWebhook)
