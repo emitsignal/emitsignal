@@ -18,27 +18,33 @@ import { Fonts, W } from '@/constants/theme';
 import { authClient } from '@/lib/auth-client';
 
 export default function AuthVerify() {
-    const params = useLocalSearchParams<{ email?: string }>();
-    const email = params.email ?? '';
-    const [otp, setOtp] = useState('');
     const [busy, setBusy] = useState(false);
+    const [otp, setOtp] = useState('');
     const inputRef = useRef<TextInput>(null);
+    const params = useLocalSearchParams<{ email?: string }>();
+
+    const email = params.email ?? '';
 
     const handleVerify = async () => {
         if (otp.length < 6) {
             return;
         }
+
         setBusy(true);
+
         const { error } = await authClient.signIn.emailOtp({ email, otp });
+
         setBusy(false);
+
         if (error) {
-            Alert.alert('Sign-in failed', error.message ?? 'Invalid or expired code');
-        } else {
-            router.push('/auth/perms');
+            return Alert.alert('Sign-in failed', error.message ?? 'Invalid or expired code');
         }
+
+        router.push('/auth/perms');
     };
 
     const cells = Array.from({ length: 6 }, (_, i) => otp[i] ?? '');
+
     const activeIdx = otp.length;
 
     return (
