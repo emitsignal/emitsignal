@@ -111,6 +111,10 @@ export function createApiClient(baseUrl: string) {
         authToken = token;
     }
 
+    function getAuthToken(): null | string {
+        return authToken;
+    }
+
     async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
@@ -288,5 +292,5 @@ export function createApiClient(baseUrl: string) {
         return `${baseUrl}/topics/${encodeURIComponent(topicName)}/listen${sinceParameter}`;
     }
 
-    return { api, setAuthToken, sseMultiUrl, sseUrl };
+    return { api, getAuthToken, setAuthToken, sseMultiUrl, sseUrl };
 }
