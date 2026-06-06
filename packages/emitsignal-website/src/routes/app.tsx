@@ -11,8 +11,8 @@ const isAuthenticated = createIsomorphicFn()
     .client(async () => {
         const cached = authClient.$store.atoms['session'].get();
 
-        if (!cached.isPending) {
-            return !!cached.data?.user;
+        if (cached.data?.user) {
+            return true;
         }
 
         const { data } = await authClient.getSession();

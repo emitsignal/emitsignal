@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CliRouteImport } from './routes/cli'
@@ -43,6 +44,11 @@ const VerifyRoute = VerifyRouteImport.update({
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MobileRoute = MobileRouteImport.update({
@@ -170,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
+  '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
+  '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
+  '/onboarding': typeof OnboardingRoute
   '/sign-in': typeof SignInRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/cli'
     | '/dashboard'
     | '/mobile'
+    | '/onboarding'
     | '/sign-in'
     | '/verify'
     | '/app/channels'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/cli'
     | '/dashboard'
     | '/mobile'
+    | '/onboarding'
     | '/sign-in'
     | '/verify'
     | '/app/channels'
@@ -304,6 +315,7 @@ export interface FileRouteTypes {
     | '/cli'
     | '/dashboard'
     | '/mobile'
+    | '/onboarding'
     | '/sign-in'
     | '/verify'
     | '/app/channels'
@@ -332,6 +344,7 @@ export interface RootRouteChildren {
   CliRoute: typeof CliRoute
   DashboardRoute: typeof DashboardRoute
   MobileRoute: typeof MobileRoute
+  OnboardingRoute: typeof OnboardingRoute
   SignInRoute: typeof SignInRoute
   VerifyRoute: typeof VerifyRoute
 }
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mobile': {
@@ -583,6 +603,7 @@ const rootRouteChildren: RootRouteChildren = {
   CliRoute: CliRoute,
   DashboardRoute: DashboardRoute,
   MobileRoute: MobileRoute,
+  OnboardingRoute: OnboardingRoute,
   SignInRoute: SignInRoute,
   VerifyRoute: VerifyRoute,
 }

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
+import { isOnboardingComplete } from '#/lib/onboarding';
 
 export const Route = createFileRoute('/verify')({
     component: VerifyPage,
@@ -43,7 +44,7 @@ function VerifyPage() {
             if (err) {
                 setError(err.message ?? 'Invalid or expired code');
             } else {
-                navigate({ to: '/app' });
+                navigate({ to: isOnboardingComplete() ? '/app' : '/onboarding' });
             }
         },
         [navigate],
