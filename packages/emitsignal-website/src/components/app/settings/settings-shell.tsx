@@ -12,13 +12,7 @@ interface SubNavItem {
 const NAV_ITEMS: SubNavItem[] = [
     { group: 'YOU', key: 'profile', label: 'Profile', path: '/app/settings/profile' },
     { group: 'YOU', key: 'account', label: 'Account', path: '/app/settings/account' },
-    { group: 'YOU', key: 'notifications', label: 'Notifications' },
-    { group: 'YOU', key: 'delivery', label: 'Delivery targets' },
-    { group: 'YOU', key: 'security', label: 'Security' },
-    { group: 'TEAM', key: 'workspace', label: 'Workspace' },
-    { group: 'TEAM', key: 'members', label: 'Members' },
     { group: 'TEAM', key: 'billing', label: 'Billing & plan', path: '/app/settings/billing' },
-    { group: 'TEAM', key: 'audit', label: 'Audit log' },
     { group: 'DANGER', key: 'advanced', label: 'Advanced', path: '/app/settings/advanced' },
 ];
 

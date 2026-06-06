@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Copy } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
@@ -7,12 +7,6 @@ import { SettingsGroup, SettingsRow } from './settings-group';
 import { SettingsInput } from './settings-input';
 import { SettingsPill } from './settings-pill';
 import { SettingsToggle } from './settings-toggle';
-
-const DATA_REGIONS = [
-    { id: 'eu', isActive: true, label: 'EU · Frankfurt', meta: 'eu-central-1' },
-    { id: 'us', isActive: false, label: 'US · Virginia', meta: 'us-east-1' },
-    { id: 'ap', isActive: false, label: 'APAC · Singapore', meta: 'ap-southeast-1' },
-] as const;
 
 export function AdvancedPage() {
     return (
@@ -80,84 +74,6 @@ export function AdvancedPage() {
                         description="Write channel rules in plain English instead of expressions"
                         label="Natural-language filters"
                     />
-                    <SettingsToggle
-                        description="Route through the nearest PoP. Adds ~12 new regions."
-                        label="Edge delivery (beta regions)"
-                    />
-                </SettingsCard>
-
-                <SettingsCard
-                    description="Where signals, payloads, and logs are stored at rest. Changing region triggers a full migration."
-                    title="Data residency"
-                >
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        {DATA_REGIONS.map((region) => (
-                            <div
-                                className={`rounded-lg border p-3.5 ${
-                                    region.isActive
-                                        ? 'border-accent bg-accent/10'
-                                        : 'border-line bg-bg'
-                                }`}
-                                key={region.id}
-                            >
-                                <div className="mb-1.5 flex items-center gap-2">
-                                    <div
-                                        className={`flex h-3 w-3 shrink-0 items-center justify-center rounded-full border ${
-                                            region.isActive ? 'border-accent' : 'border-dim'
-                                        }`}
-                                    >
-                                        {region.isActive ? (
-                                            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                                        ) : null}
-                                    </div>
-                                    <span
-                                        className={`text-[13px] font-medium ${
-                                            region.isActive ? 'text-accent' : 'text-fg'
-                                        }`}
-                                    >
-                                        {region.label}
-                                    </span>
-                                </div>
-                                <div className="pl-5 font-mono text-[10.5px] text-dim">
-                                    {region.meta}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </SettingsCard>
-
-                <SettingsCard
-                    description="Take your data with you, any time."
-                    title="Data portability"
-                >
-                    <SettingsGroup>
-                        <SettingsRow>
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-medium">
-                                    Export full workspace archive
-                                </div>
-                                <div className="mt-0.5 text-[12px] text-muted">
-                                    Every channel, signal, key, and rule as a JSON + NDJSON bundle
-                                </div>
-                            </div>
-                            <SettingsButton icon={Copy} variant="ghost">
-                                Request export
-                            </SettingsButton>
-                        </SettingsRow>
-                        <SettingsRow last>
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-medium">
-                                    Import from another provider
-                                </div>
-                                <div className="mt-0.5 text-[12px] text-muted">
-                                    Map channels & subscribers from PagerDuty, ntfy, or a CSV
-                                </div>
-                            </div>
-                            <SettingsButton icon={ArrowRight} variant="ghost">
-                                Start import
-                            </SettingsButton>
-                        </SettingsRow>
-                    </SettingsGroup>
                 </SettingsCard>
 
                 <SettingsCard
@@ -166,20 +82,6 @@ export function AdvancedPage() {
                     title="Danger zone"
                 >
                     <SettingsGroup className="border-danger/20">
-                        <SettingsRow>
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-semibold">
-                                    Transfer ownership
-                                </div>
-                                <div className="mt-0.5 text-[12px] text-muted">
-                                    Hand this workspace to another admin. You&apos;ll keep your
-                                    member seat.
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="ghost">
-                                Transfer
-                            </SettingsButton>
-                        </SettingsRow>
                         <SettingsRow>
                             <div className="flex-1">
                                 <div className="text-[13.5px] font-semibold text-danger">

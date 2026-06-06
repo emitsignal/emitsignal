@@ -1,10 +1,8 @@
-import { ArrowRight, Check, Clock, Globe, Plus, Zap } from 'lucide-react';
+import { ArrowRight, Check, Clock, Globe, Zap } from 'lucide-react';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
-import { SettingsField } from './settings-field';
-import { SettingsGroup, SettingsRow } from './settings-group';
-import { SettingsInput } from './settings-input';
+import { SettingsGroup } from './settings-group';
 import { SettingsPill } from './settings-pill';
 import { UsageBar } from './usage-bar';
 
@@ -206,56 +204,6 @@ export function BillingPage() {
                             Need SAML provisioning, audit exports, or a custom SLA?
                         </span>
                         <SettingsButton variant="ghost">Talk to sales · Enterprise</SettingsButton>
-                    </div>
-                </SettingsCard>
-
-                <SettingsCard
-                    action={
-                        <SettingsButton icon={Plus} variant="ghost">
-                            Add card
-                        </SettingsButton>
-                    }
-                    title="Payment method"
-                >
-                    <SettingsGroup>
-                        <SettingsRow>
-                            <div className="flex h-[26px] w-[38px] shrink-0 items-center justify-center rounded-[5px] border border-line bg-elev-2 font-mono text-[9px] font-bold tracking-[0.5px]">
-                                VISA
-                            </div>
-                            <div className="flex-1">
-                                <div className="font-mono text-[13px]">•••• 4242</div>
-                                <div className="mt-0.5 font-mono text-[10.5px] text-dim">
-                                    Expires 09 / 28 · Alex Carter
-                                </div>
-                            </div>
-                            <SettingsPill tone="accent-solid">DEFAULT</SettingsPill>
-                            <SettingsButton size="sm" variant="ghost">
-                                Edit
-                            </SettingsButton>
-                        </SettingsRow>
-                        <SettingsRow last>
-                            <div className="flex h-[26px] w-[38px] shrink-0 items-center justify-center rounded-[5px] border border-line bg-elev-2 font-mono text-[8px] font-bold text-muted">
-                                ACH
-                            </div>
-                            <div className="flex-1">
-                                <div className="font-mono text-[13px]">Acme Inc · ••••6611</div>
-                                <div className="mt-0.5 font-mono text-[10.5px] text-dim">
-                                    Bank transfer · backup
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="ghost">
-                                Edit
-                            </SettingsButton>
-                        </SettingsRow>
-                    </SettingsGroup>
-
-                    <div className="mt-[18px] grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                        <SettingsField hint="Invoices and receipts go here" label="Billing email">
-                            <SettingsInput monospace value="billing@acme.io" />
-                        </SettingsField>
-                        <SettingsField hint="Shown on every invoice" label="Tax ID / VAT">
-                            <SettingsInput monospace value="NL8123.45.678.B01" />
-                        </SettingsField>
                     </div>
                 </SettingsCard>
 

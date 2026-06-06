@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 
-type SettingsPillTone = 'accent-solid' | 'dim' | 'success' | 'warn';
-
 interface SettingsPillProps {
     children: ReactNode;
     tone: SettingsPillTone;
 }
+
+type SettingsPillTone = 'accent-solid' | 'dim' | 'success' | 'warn';
 
 const TONE_CLASS: Record<SettingsPillTone, string> = {
     'accent-solid': 'bg-accent text-bg',

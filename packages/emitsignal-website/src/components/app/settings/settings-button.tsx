@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 interface SettingsButtonProps {
     children: ReactNode;
+    disabled?: boolean;
     icon?: LucideIcon;
     onClick?: () => void;
     size?: 'md' | 'sm';
@@ -22,6 +23,7 @@ const SIZE_CLASS = {
 
 export function SettingsButton({
     children,
+    disabled = false,
     icon: Icon,
     onClick,
     size = 'md',
@@ -29,7 +31,8 @@ export function SettingsButton({
 }: SettingsButtonProps) {
     return (
         <button
-            className={`inline-flex shrink-0 cursor-pointer items-center rounded-[7px] font-semibold transition-colors ${SIZE_CLASS[size]} ${VARIANT_CLASS[variant]}`}
+            className={`inline-flex shrink-0 cursor-pointer items-center rounded-[7px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${SIZE_CLASS[size]} ${VARIANT_CLASS[variant]}`}
+            disabled={disabled}
             onClick={onClick}
             type="button"
         >

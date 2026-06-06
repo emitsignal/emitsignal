@@ -1,280 +1,463 @@
-import { Eye, GitBranch, Globe, Key, MoreHorizontal, Plus } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
+import { GitBranch, Key, Monitor, Smartphone } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { authClient } from '#/lib/auth-client';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
-import { SettingsField } from './settings-field';
 import { SettingsGroup, SettingsRow } from './settings-group';
-import { SettingsInput } from './settings-input';
 import { SettingsPill } from './settings-pill';
-import { SettingsToggle } from './settings-toggle';
 
-const CONNECTED_ACCOUNTS = [
-    {
-        icon: GitBranch,
-        isConnected: true,
-        isEnforced: false,
-        key: 'github',
-        label: 'GitHub',
-        meta: '@alexc · connected',
-    },
-    {
-        icon: Globe,
-        isConnected: true,
-        isEnforced: false,
-        key: 'google',
-        label: 'Google',
-        meta: 'a.carter@gmail.com',
-    },
-    {
-        icon: Key,
-        isConnected: true,
-        isEnforced: true,
-        key: 'okta',
-        label: 'Okta SSO',
-        meta: 'acme.okta.com · enforced by workspace',
-    },
-    {
-        icon: GitBranch,
-        isConnected: false,
-        isEnforced: false,
-        key: 'gitlab',
-        label: 'GitLab',
-        meta: 'Not connected',
-    },
-] as const;
+// ── helpers ──────────────────────────────────────────────────────────────────
 
-const ACTIVE_SESSIONS = [
-    {
-        device: 'MacBook Pro · Chrome 127',
-        isCurrent: true,
-        isUnrecognized: false,
-        key: 'macbook',
-        location: 'Amsterdam, NL',
-        time: 'active now',
-    },
-    {
-        device: 'iPhone 15 · EmitSignal iOS',
-        isCurrent: false,
-        isUnrecognized: false,
-        key: 'iphone',
-        location: 'Amsterdam, NL',
-        time: '4m ago',
-    },
-    {
-        device: 'wsp cli · 0.7.2 · darwin-arm',
-        isCurrent: false,
-        isUnrecognized: false,
-        key: 'cli',
-        location: 'Amsterdam, NL',
-        time: '2h ago',
-    },
-    {
-        device: 'Chrome · linux',
-        isCurrent: false,
-        isUnrecognized: true,
-        key: 'unknown',
-        location: 'AWS · us-east-1',
-        time: '3d ago',
-    },
-] as const;
+type AccountItem = {
+    accountId: string;
+    providerId: string;
+};
+
+type PasskeyItem = {
+    createdAt?: Date | null;
+    deviceType: string;
+    id: string;
+    name?: null | string;
+};
+
+// ── types ─────────────────────────────────────────────────────────────────────
+
+type SessionItem = {
+    createdAt: Date | string;
+    id: string;
+    ipAddress?: null | string;
+    token: string;
+    updatedAt: Date | string;
+    userAgent?: null | string;
+};
 
 export function AccountPage() {
+    const { data: sessionData } = authClient.useSession();
+    const currentToken = sessionData?.session?.token;
+    const navigate = useNavigate();
+
+    // Sessions
+    const [revokingOthers, setRevokingOthers] = useState(false);
+    const [revokingToken, setRevokingToken] = useState<null | string>(null);
+    const [sessions, setSessions] = useState<SessionItem[]>([]);
+    const [sessionsLoading, setSessionsLoading] = useState(true);
+
+    // Passkeys
+    const [addingPasskey, setAddingPasskey] = useState(false);
+    const [deletingPasskeyId, setDeletingPasskeyId] = useState<null | string>(null);
+    const [passkeyError, setPasskeyError] = useState('');
+    const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
+    const [passkeysLoading, setPasskeysLoading] = useState(true);
+
+    // Connected accounts
+    const [accounts, setAccounts] = useState<AccountItem[]>([]);
+    const [linkingGitHub, setLinkingGitHub] = useState(false);
+    const [unlinkingGitHub, setUnlinkingGitHub] = useState(false);
+
+    // Delete account
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
+    const [deleting, setDeleting] = useState(false);
+
+    useEffect(() => {
+        authClient
+            .listSessions()
+            .then(({ data }) => setSessions((data as null | SessionItem[]) ?? []))
+            .finally(() => setSessionsLoading(false));
+
+        authClient.passkey
+            .listUserPasskeys({})
+            .then(({ data }) => setPasskeys((data as null | PasskeyItem[]) ?? []))
+            .finally(() => setPasskeysLoading(false));
+
+        authClient
+            .listAccounts()
+            .then(({ data }) => setAccounts((data as AccountItem[] | null) ?? []));
+    }, []);
+
+    // ── session handlers ─────────────────────────────────────────────────────
+
+    const handleRevokeSession = async (token: string) => {
+        setRevokingToken(token);
+        const { error } = await authClient.revokeSession({ token });
+        setRevokingToken(null);
+        if (!error) setSessions((prev) => prev.filter((s) => s.token !== token));
+    };
+
+    const handleRevokeOthers = async () => {
+        setRevokingOthers(true);
+        const { error } = await authClient.revokeOtherSessions();
+        setRevokingOthers(false);
+        if (!error) setSessions((prev) => prev.filter((s) => s.token === currentToken));
+    };
+
+    // ── passkey handlers ──────────────────────────────────────────────────────
+
+    const handleAddPasskey = async () => {
+        setAddingPasskey(true);
+        setPasskeyError('');
+        const { error } = await authClient.passkey.addPasskey({});
+        setAddingPasskey(false);
+        if (error) {
+            if (!error.message?.includes('cancel')) {
+                setPasskeyError(error.message ?? 'Registration failed');
+            }
+        } else {
+            const { data } = await authClient.passkey.listUserPasskeys({});
+            setPasskeys((data as null | PasskeyItem[]) ?? []);
+        }
+    };
+
+    const handleDeletePasskey = async (id: string) => {
+        setDeletingPasskeyId(id);
+        const { error } = await authClient.passkey.deletePasskey({ id });
+        setDeletingPasskeyId(null);
+        if (!error) setPasskeys((prev) => prev.filter((p) => p.id !== id));
+    };
+
+    // ── account link handlers ─────────────────────────────────────────────────
+
+    const isGitHubLinked = accounts.some((a) => a.providerId === 'github');
+
+    const handleLinkGitHub = async () => {
+        setLinkingGitHub(true);
+        await authClient.linkSocial({
+            callbackURL: window.location.href,
+            provider: 'github',
+        });
+    };
+
+    const handleUnlinkGitHub = async () => {
+        setUnlinkingGitHub(true);
+
+        const { error } = await authClient.unlinkAccount({ providerId: 'github' });
+
+        setUnlinkingGitHub(false);
+
+        if (!error) {
+            setAccounts((prev) => prev.filter((a) => a.providerId !== 'github'));
+        }
+    };
+
+    // ── delete account handler ────────────────────────────────────────────────
+
+    const handleDeleteAccount = async () => {
+        if (!confirmDelete) {
+            return setConfirmDelete(true);
+        }
+
+        setDeleting(true);
+        setDeleteError('');
+
+        const { error } = await authClient.deleteUser({
+            callbackURL: '/',
+        });
+
+        if (error) {
+            setDeleting(false);
+            setDeleteError(error.message ?? 'Deletion failed');
+
+            return;
+        }
+
+        navigate({ replace: true, to: '/' });
+    };
+
+    // ── render ────────────────────────────────────────────────────────────────
+
     return (
         <>
             <div className="mb-[26px] border-b border-line pb-[18px]">
                 <h1 className="text-[22px] font-semibold tracking-[-0.4px]">Account</h1>
                 <p className="mt-1 max-w-[620px] text-[13px] leading-[1.55] text-muted">
-                    Your private account: sign-in methods, security, connected services, and
-                    language. None of this is visible to teammates.
+                    Your private account: sign-in methods, connected services, and active sessions.
                 </p>
             </div>
 
             <div>
+                {/* ── Email ──────────────────────────────────────────────── */}
+                <SettingsCard
+                    description="Used for sign-in links and security notices."
+                    title="Email address"
+                >
+                    <SettingsGroup>
+                        <SettingsRow last>
+                            <span className="flex-1 font-mono text-[13px]">
+                                {sessionData?.user?.email ?? '—'}
+                            </span>
+                            <SettingsPill tone="accent-solid">PRIMARY</SettingsPill>
+                            {sessionData?.user?.emailVerified && (
+                                <SettingsPill tone="success">VERIFIED</SettingsPill>
+                            )}
+                        </SettingsRow>
+                    </SettingsGroup>
+                </SettingsCard>
+
+                {/* ── Passkeys ───────────────────────────────────────────── */}
                 <SettingsCard
                     action={
-                        <SettingsButton icon={Plus} variant="ghost">
-                            Add email
+                        <SettingsButton
+                            disabled={addingPasskey}
+                            icon={Key}
+                            onClick={handleAddPasskey}
+                            variant="ghost"
+                        >
+                            {addingPasskey ? 'Registering…' : 'Add passkey'}
                         </SettingsButton>
                     }
-                    description="The primary address receives security and billing notices."
-                    title="Email addresses"
+                    description="Sign in with Touch ID, Face ID, or a hardware key."
+                    title="Passkeys"
                 >
-                    <SettingsGroup>
-                        <SettingsRow>
-                            <span className="flex-1 font-mono text-[13px]">alex@acme.io</span>
-                            <SettingsPill tone="accent-solid">PRIMARY</SettingsPill>
-                            <SettingsPill tone="success">VERIFIED</SettingsPill>
-                        </SettingsRow>
-                        <SettingsRow last>
-                            <span className="flex-1 font-mono text-[13px]">a.carter@gmail.com</span>
-                            <SettingsPill tone="dim">BACKUP</SettingsPill>
-                            <SettingsPill tone="success">VERIFIED</SettingsPill>
-                            <MoreHorizontal className="shrink-0 text-dim" size={15} />
-                        </SettingsRow>
-                    </SettingsGroup>
-                </SettingsCard>
-
-                <SettingsCard title="Sign-in & security">
-                    <SettingsGroup>
-                        <SettingsRow>
-                            <Key className="shrink-0 text-muted" size={16} />
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-medium">Password</div>
-                                <div className="mt-0.5 font-mono text-[11px] text-dim">
-                                    Last changed 4 months ago
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="ghost">
-                                Change
-                            </SettingsButton>
-                        </SettingsRow>
-                        <SettingsRow>
-                            <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-success/20">
-                                <div className="h-2 w-2 rounded-full bg-success" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[13.5px] font-medium">
-                                        Two-factor authentication
-                                    </span>
-                                    <SettingsPill tone="success">ON</SettingsPill>
-                                </div>
-                                <div className="mt-0.5 font-mono text-[11px] text-dim">
-                                    Authenticator app · 8 backup codes left
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="ghost">
-                                Manage
-                            </SettingsButton>
-                        </SettingsRow>
-                        <SettingsRow last>
-                            <Eye className="shrink-0 text-muted" size={16} />
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-medium">Passkeys</div>
-                                <div className="mt-0.5 font-mono text-[11px] text-dim">
-                                    2 registered · MacBook Touch ID, iPhone Face ID
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="ghost">
-                                Add passkey
-                            </SettingsButton>
-                        </SettingsRow>
-                    </SettingsGroup>
-                </SettingsCard>
-
-                <SettingsCard
-                    description="Used for single sign-on and to link activity."
-                    title="Connected accounts"
-                >
-                    <SettingsGroup>
-                        {CONNECTED_ACCOUNTS.map((account, index) => {
-                            const Icon = account.icon;
-                            return (
-                                <SettingsRow
-                                    key={account.key}
-                                    last={index === CONNECTED_ACCOUNTS.length - 1}
-                                >
-                                    <div
-                                        className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[7px] border border-line bg-elev ${
-                                            account.isConnected ? 'text-accent' : 'text-dim'
-                                        }`}
-                                    >
-                                        <Icon size={15} />
+                    {passkeyError && (
+                        <p className="mb-3 font-mono text-[12px] text-danger">{passkeyError}</p>
+                    )}
+                    {passkeysLoading ? (
+                        <p className="font-mono text-[12px] text-dim">Loading…</p>
+                    ) : passkeys.length === 0 ? (
+                        <p className="font-mono text-[12px] text-dim">
+                            No passkeys registered yet.
+                        </p>
+                    ) : (
+                        <SettingsGroup>
+                            {passkeys.map((pk, index) => (
+                                <SettingsRow key={pk.id} last={index === passkeys.length - 1}>
+                                    <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[7px] border border-line bg-elev">
+                                        {pk.deviceType === 'singleDevice' ? (
+                                            <Smartphone className="text-accent" size={15} />
+                                        ) : (
+                                            <Monitor className="text-accent" size={15} />
+                                        )}
                                     </div>
                                     <div className="flex-1">
                                         <div className="text-[13.5px] font-medium">
-                                            {account.label}
+                                            {pk.name ?? 'Passkey'}
                                         </div>
-                                        <div className="mt-0.5 font-mono text-[11px] text-dim">
-                                            {account.meta}
-                                        </div>
+                                        {pk.createdAt && (
+                                            <div className="mt-0.5 font-mono text-[11px] text-dim">
+                                                Added {relativeTime(pk.createdAt)}
+                                            </div>
+                                        )}
                                     </div>
-                                    {account.isEnforced ? (
-                                        <SettingsPill tone="dim">ENFORCED</SettingsPill>
-                                    ) : (
-                                        <SettingsButton
-                                            size="sm"
-                                            variant={account.isConnected ? 'ghost' : 'primary'}
-                                        >
-                                            {account.isConnected ? 'Disconnect' : 'Connect'}
-                                        </SettingsButton>
-                                    )}
+                                    <SettingsButton
+                                        disabled={deletingPasskeyId === pk.id}
+                                        onClick={() => handleDeletePasskey(pk.id)}
+                                        size="sm"
+                                        variant="danger"
+                                    >
+                                        {deletingPasskeyId === pk.id ? 'Removing…' : 'Remove'}
+                                    </SettingsButton>
                                 </SettingsRow>
-                            );
-                        })}
+                            ))}
+                        </SettingsGroup>
+                    )}
+                </SettingsCard>
+
+                {/* ── Connected accounts ─────────────────────────────────── */}
+                <SettingsCard
+                    description="Link social providers to sign in without an email link."
+                    title="Connected accounts"
+                >
+                    <SettingsGroup>
+                        <SettingsRow last>
+                            <div
+                                className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[7px] border border-line bg-elev ${
+                                    isGitHubLinked ? 'text-accent' : 'text-dim'
+                                }`}
+                            >
+                                <GitBranch size={15} />
+                            </div>
+                            <div className="flex-1">
+                                <div className="text-[13.5px] font-medium">GitHub</div>
+                                <div className="mt-0.5 font-mono text-[11px] text-dim">
+                                    {isGitHubLinked ? 'Connected' : 'Not connected'}
+                                </div>
+                            </div>
+                            {isGitHubLinked ? (
+                                <SettingsButton
+                                    disabled={unlinkingGitHub}
+                                    onClick={handleUnlinkGitHub}
+                                    size="sm"
+                                    variant="ghost"
+                                >
+                                    {unlinkingGitHub ? 'Disconnecting…' : 'Disconnect'}
+                                </SettingsButton>
+                            ) : (
+                                <SettingsButton
+                                    disabled={linkingGitHub}
+                                    onClick={handleLinkGitHub}
+                                    size="sm"
+                                    variant="primary"
+                                >
+                                    {linkingGitHub ? 'Connecting…' : 'Connect'}
+                                </SettingsButton>
+                            )}
+                        </SettingsRow>
                     </SettingsGroup>
                 </SettingsCard>
 
+                {/* ── Active sessions ────────────────────────────────────── */}
                 <SettingsCard
                     action={
-                        <SettingsButton size="sm" variant="danger">
-                            Sign out all
-                        </SettingsButton>
+                        sessions.filter((s) => s.token !== currentToken).length > 0 ? (
+                            <SettingsButton
+                                disabled={revokingOthers}
+                                onClick={handleRevokeOthers}
+                                size="sm"
+                                variant="danger"
+                            >
+                                {revokingOthers ? 'Signing out…' : 'Sign out other devices'}
+                            </SettingsButton>
+                        ) : undefined
                     }
                     description="Sign out of devices that don't look familiar."
                     title="Active sessions"
                 >
-                    <SettingsGroup>
-                        {ACTIVE_SESSIONS.map((session, index) => (
-                            <SettingsRow
-                                key={session.key}
-                                last={index === ACTIVE_SESSIONS.length - 1}
-                            >
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[13.5px] font-medium">
-                                            {session.device}
-                                        </span>
-                                        {session.isCurrent ? (
-                                            <SettingsPill tone="success">THIS DEVICE</SettingsPill>
-                                        ) : null}
-                                        {session.isUnrecognized ? (
-                                            <SettingsPill tone="warn">UNRECOGNIZED</SettingsPill>
-                                        ) : null}
-                                    </div>
-                                    <div className="mt-1 font-mono text-[11px] text-dim">
-                                        {session.location} · {session.time}
-                                    </div>
-                                </div>
-                                {session.isCurrent ? null : (
-                                    <SettingsButton size="sm" variant="danger">
-                                        Sign out
-                                    </SettingsButton>
-                                )}
-                            </SettingsRow>
-                        ))}
-                    </SettingsGroup>
+                    {sessionsLoading ? (
+                        <p className="font-mono text-[12px] text-dim">Loading…</p>
+                    ) : (
+                        <SettingsGroup>
+                            {sessions.map((s, index) => {
+                                const isCurrent = s.token === currentToken;
+                                return (
+                                    <SettingsRow key={s.id} last={index === sessions.length - 1}>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[13.5px] font-medium">
+                                                    {parseUA(s.userAgent)}
+                                                </span>
+                                                {isCurrent && (
+                                                    <SettingsPill tone="success">
+                                                        THIS DEVICE
+                                                    </SettingsPill>
+                                                )}
+                                            </div>
+                                            <div className="mt-1 font-mono text-[11px] text-dim">
+                                                {s.ipAddress ? `${s.ipAddress} · ` : ''}
+                                                {relativeTime(s.updatedAt)}
+                                            </div>
+                                        </div>
+                                        {!isCurrent && (
+                                            <SettingsButton
+                                                disabled={revokingToken === s.token}
+                                                onClick={() => handleRevokeSession(s.token)}
+                                                size="sm"
+                                                variant="danger"
+                                            >
+                                                {revokingToken === s.token
+                                                    ? 'Signing out…'
+                                                    : 'Sign out'}
+                                            </SettingsButton>
+                                        )}
+                                    </SettingsRow>
+                                );
+                            })}
+                        </SettingsGroup>
+                    )}
                 </SettingsCard>
 
-                <SettingsCard title="Language & region">
-                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                        <SettingsField label="Language">
-                            <SettingsInput value="English (US)" />
-                        </SettingsField>
-                        <SettingsField label="Time zone">
-                            <SettingsInput value="Europe/Amsterdam" />
-                        </SettingsField>
-                        <SettingsField label="Date format">
-                            <SettingsInput monospace value="DD MMM YYYY · 24h" />
-                        </SettingsField>
-                        <SettingsField label="First day of week">
-                            <SettingsInput value="Monday" />
-                        </SettingsField>
-                    </div>
-                </SettingsCard>
-
+                {/* ── Close account ──────────────────────────────────────── */}
                 <SettingsCard
                     className="border-danger/30"
-                    description="Leaves every workspace and permanently deletes your personal account."
+                    description="Permanently deletes your account and all associated data. This cannot be undone."
                     title="Close account"
                 >
-                    <SettingsToggle
-                        danger
-                        description="Your inbox, keys, and personal data are erased. Channels you own must be transferred first. This cannot be undone."
-                        label="Delete my account"
-                    />
+                    <SettingsGroup className="border-danger/20">
+                        <SettingsRow last>
+                            {confirmDelete ? (
+                                <div className="flex w-full items-center justify-between gap-4">
+                                    <div>
+                                        <div className="text-[13.5px] font-semibold text-danger">
+                                            Are you sure?
+                                        </div>
+                                        <div className="mt-0.5 font-mono text-[11px] text-dim">
+                                            This will permanently delete your account.
+                                        </div>
+                                        {deleteError && (
+                                            <div className="mt-1 font-mono text-[11px] text-danger">
+                                                {deleteError}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex shrink-0 gap-2">
+                                        <SettingsButton
+                                            disabled={deleting}
+                                            onClick={() => setConfirmDelete(false)}
+                                            size="sm"
+                                            variant="ghost"
+                                        >
+                                            Cancel
+                                        </SettingsButton>
+                                        <SettingsButton
+                                            disabled={deleting}
+                                            onClick={handleDeleteAccount}
+                                            size="sm"
+                                            variant="danger"
+                                        >
+                                            {deleting ? 'Deleting…' : 'Yes, delete'}
+                                        </SettingsButton>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex-1">
+                                        <div className="text-[13.5px] font-semibold text-danger">
+                                            Delete my account
+                                        </div>
+                                        <div className="mt-0.5 text-[12px] text-muted">
+                                            Your inbox, keys, and personal data are erased. This
+                                            cannot be undone.
+                                        </div>
+                                    </div>
+                                    <SettingsButton
+                                        onClick={() => setConfirmDelete(true)}
+                                        size="sm"
+                                        variant="danger"
+                                    >
+                                        Delete account
+                                    </SettingsButton>
+                                </>
+                            )}
+                        </SettingsRow>
+                    </SettingsGroup>
                 </SettingsCard>
             </div>
         </>
     );
+}
+
+function parseUA(ua?: null | string): string {
+    if (!ua) return 'Unknown device';
+    let browser = 'Browser';
+    if (ua.includes('Edg/')) browser = 'Edge';
+    else if (ua.includes('Chrome/')) browser = 'Chrome';
+    else if (ua.includes('Firefox/')) browser = 'Firefox';
+    else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
+
+    let os = '';
+    if (ua.includes('iPhone')) os = 'iPhone';
+    else if (ua.includes('iPad')) os = 'iPad';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('Macintosh')) os = 'macOS';
+    else if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Linux')) os = 'Linux';
+
+    return os ? `${os} · ${browser}` : browser;
+}
+
+// ── component ─────────────────────────────────────────────────────────────────
+
+function relativeTime(date: Date | string): string {
+    const d = new Date(date);
+    const diff = Date.now() - d.getTime();
+    const m = Math.floor(diff / 60_000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const days = Math.floor(h / 24);
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString();
 }
