@@ -3,12 +3,22 @@ import { createIsomorphicFn } from '@tanstack/react-start';
 
 import { Sidebar } from '#/components/app/sidebar';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
+import { authClient } from '#/lib/auth-client';
 import { hasAuthCookie } from '#/lib/auth.server';
-import { getSession } from '#/lib/storage';
 
 const isAuthenticated = createIsomorphicFn()
     .server(() => hasAuthCookie())
-    .client(() => !!getSession());
+    .client(async () => {
+        const cached = authClient.$store.atoms['session'].get();
+
+        if (!cached.isPending) {
+            return !!cached.data?.user;
+        }
+
+        const { data } = await authClient.getSession();
+
+        return !!data?.user;
+    });
 
 export const Route = createFileRoute('/app')({
     beforeLoad: async () => {

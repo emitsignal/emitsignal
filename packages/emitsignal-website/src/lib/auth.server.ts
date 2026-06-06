@@ -1,5 +1,5 @@
 import { getCookie } from '@tanstack/react-start/server';
 
 export function hasAuthCookie(): boolean {
-    return !!getCookie('emitsignal_auth');
+    return !!getCookie('better-auth.session_token');
 }

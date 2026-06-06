@@ -1,5 +1,7 @@
 {
     "dependencies": {
+        "@better-auth/api-key": "^1.6.14",
+        "@better-auth/passkey": "^1.6.14",
         "@emitsignal/shared": "workspace:*",
         "@microsoft/fetch-event-source": "^2.0.1",
         "@tailwindcss/vite": "^4.1.18",
@@ -9,6 +11,7 @@
         "@tanstack/react-router-ssr-query": "latest",
         "@tanstack/react-start": "latest",
         "@tanstack/router-plugin": "^1.132.0",
+        "better-auth": "^1.6.14",
         "lucide-react": "^0.545.0",
         "nitro": "^3.0.260522-beta",
         "react": "^19.2.0",
@@ -43,7 +46,7 @@
     "private": true,
     "scripts": {
         "build": "vite build",
-        "dev": "vite dev --port 5000",
+        "dev": "vite dev --port 5002",
         "preview": "vite preview",
         "test": "vitest run"
     },

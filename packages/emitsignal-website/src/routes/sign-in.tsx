@@ -1,16 +1,29 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
-import { api } from '#/lib/api';
+import { authClient } from '#/lib/auth-client';
 
 export const Route = createFileRoute('/sign-in')({ component: SignInPage });
 
 function SignInPage() {
-    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [busy, setBusy] = useState(false);
+    const [passkeyBusy, setPasskeyBusy] = useState(false);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const callbackURL = `${typeof window !== 'undefined' ? window.location.origin : ''}/app`;
+
+    useEffect(() => {
+        if (
+            !PublicKeyCredential.isConditionalMediationAvailable ||
+            !PublicKeyCredential.isConditionalMediationAvailable()
+        ) {
+            return;
+        }
+        void authClient.signIn.passkey({ autoFill: true });
+    }, []);
 
     const handleSend = async () => {
         if (!email.trim()) {
@@ -20,18 +33,37 @@ function SignInPage() {
         setBusy(true);
         setError('');
 
-        try {
-            const result = await api.requestMagicLink(email.trim());
-
-            navigate({
-                search: { devCode: result.devCode ?? '', email: email.trim() },
-                to: '/verify',
-            });
-        } catch (error) {
-            setError(error instanceof Error ? error.message : String(error));
-        }
+        const { error: err } = await authClient.emailOtp.sendVerificationOtp({
+            email: email.trim(),
+            type: 'sign-in',
+        });
 
         setBusy(false);
+
+        if (err) {
+            setError(err.message ?? 'Failed to send sign-in code');
+        } else {
+            navigate({ search: { email: email.trim(), otp: undefined }, to: '/verify' });
+        }
+    };
+
+    const handleGitHub = async () => {
+        await authClient.signIn.social({ callbackURL, provider: 'github' });
+    };
+
+    const handlePasskey = async () => {
+        setPasskeyBusy(true);
+        setError('');
+
+        const { data, error: err } = await authClient.signIn.passkey();
+
+        setPasskeyBusy(false);
+
+        if (err) {
+            setError(err.message ?? 'Passkey sign-in failed');
+        } else if (data) {
+            navigate({ to: '/app' });
+        }
     };
 
     return (
@@ -48,7 +80,7 @@ function SignInPage() {
                 </h2>
 
                 <p className="m-0 mb-6 text-[13px] text-muted">
-                    We'll email you a magic link. No passwords.
+                    We'll email you a sign-in code. No passwords.
                 </p>
 
                 <label className="mb-2 block font-mono text-[10px] tracking-[1.5px] text-dim">
@@ -57,6 +89,7 @@ function SignInPage() {
 
                 <input
                     autoCapitalize="off"
+                    autoComplete="email webauthn"
                     autoCorrect="off"
                     className="mb-4 w-full rounded-lg border border-accent bg-elev px-4 py-3.5 font-mono text-[14px] text-fg outline-none placeholder:text-faint focus:border-accent"
                     onChange={(event) => setEmail(event.target.value)}
@@ -75,7 +108,7 @@ function SignInPage() {
                     disabled={busy}
                     onClick={handleSend}
                 >
-                    {busy ? 'sending…' : 'send magic link →'}
+                    {busy ? 'sending…' : 'send code →'}
                 </button>
 
                 <div className="mb-6 flex items-center gap-3">
@@ -86,14 +119,22 @@ function SignInPage() {
 
                 <button
                     className="mb-3 flex w-full items-center gap-2.5 rounded-lg border border-line bg-elev px-4 py-3 text-[13px] text-fg hover:bg-elev-2"
-                    onClick={handleSend}
+                    onClick={handleGitHub}
                 >
                     <span className="font-mono">continue with GitHub</span>
-                    <span className="ml-auto font-mono text-[11px] text-dim">soon</span>
+                </button>
+                <button
+                    className="mb-3 flex w-full items-center gap-2.5 rounded-lg border border-line bg-elev px-4 py-3 text-[13px] text-fg hover:bg-elev-2 disabled:opacity-60"
+                    disabled={passkeyBusy}
+                    onClick={handlePasskey}
+                >
+                    <span className="font-mono">
+                        {passkeyBusy ? 'authenticating…' : 'continue with passkey'}
+                    </span>
                 </button>
                 <button
                     className="flex w-full items-center gap-2.5 rounded-lg border border-line bg-elev px-4 py-3 text-[13px] text-fg hover:bg-elev-2"
-                    onClick={handleSend}
+                    disabled
                 >
                     <span className="font-mono">continue with Apple</span>
                     <span className="ml-auto font-mono text-[11px] text-dim">soon</span>
