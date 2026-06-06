@@ -1,19 +1,15 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, type ReactNode, useContext, useEffect } from 'react';
 
-import { api, setAuthToken } from '@/lib/api';
+import { setAuthToken } from '@/lib/api';
+import { authClient } from '@/lib/auth-client';
 
-const SESSION_KEY = '@emitsignal/session';
-
-interface SessionContextValue {
+export interface SessionContextValue {
     loading: boolean;
-    signIn: (token: string, user: SessionUser) => Promise<void>;
     signOut: () => Promise<void>;
-    token: null | string;
     user: null | SessionUser;
 }
 
-interface SessionUser {
+export interface SessionUser {
     email: string;
     id: string;
     name: null | string;
@@ -22,75 +18,32 @@ interface SessionUser {
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-    const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState<null | string>(null);
-    const [user, setUser] = useState<null | SessionUser>(null);
+    const { data, isPending } = authClient.useSession();
 
     useEffect(() => {
-        let cancelled = false;
+        if (data?.session?.token) {
+            setAuthToken(data.session.token);
+        } else if (!isPending) {
+            setAuthToken(null);
+        }
+    }, [data?.session?.token, isPending]);
 
-        AsyncStorage.getItem(SESSION_KEY)
-            .then(async (raw) => {
-                if (cancelled || !raw) {
-                    setLoading(false);
-
-                    return;
-                }
-
-                try {
-                    const parsed = JSON.parse(raw) as {
-                        token: string;
-                        user: SessionUser;
-                    };
-
-                    setAuthToken(parsed.token);
-
-                    await api.me();
-
-                    if (cancelled) {
-                        return;
-                    }
-
-                    setToken(parsed.token);
-                    setUser(parsed.user);
-                } catch {
-                    await AsyncStorage.removeItem(SESSION_KEY);
-                    setAuthToken(null);
-                } finally {
-                    if (!cancelled) {
-                        setLoading(false);
-                    }
-                }
-            })
-            .catch(() => {
-                setLoading(false);
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    const signIn = async (newToken: string, newUser: SessionUser) => {
-        await AsyncStorage.setItem(SESSION_KEY, JSON.stringify({ token: newToken, user: newUser }));
-
-        setToken(newToken);
-        setUser(newUser);
-        setAuthToken(newToken);
+    const value: SessionContextValue = {
+        loading: isPending,
+        signOut: async () => {
+            await authClient.signOut();
+            setAuthToken(null);
+        },
+        user: data?.user
+            ? {
+                  email: data.user.email,
+                  id: data.user.id,
+                  name: data.user.name ?? null,
+              }
+            : null,
     };
 
-    const signOut = async () => {
-        await AsyncStorage.removeItem(SESSION_KEY);
-
-        setToken(null);
-        setUser(null);
-        setAuthToken(null);
-    };
-
-    return (
-        <SessionContext.Provider value={{ loading, signIn, signOut, token, user }}>
-            {children}
-        </SessionContext.Provider>
-    );
+    return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 
 export function useSession() {

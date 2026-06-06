@@ -27,14 +27,14 @@ const PLATFORM_LABEL: Record<string, string> = {
 
 export default function AuthPerms() {
     const { deviceId, refreshPushToken } = useDevice();
-    const { token, user } = useSession();
+    const { user } = useSession();
     const [granted, setGranted] = useState(false);
     const [chosen, setChosen] = useState(false);
     const [tokens, setTokens] = useState<PushToken[]>([]);
     const [loadingTokens, setLoadingTokens] = useState(false);
 
     useEffect(() => {
-        if (!granted || !token) {
+        if (!granted || !user) {
             return;
         }
 
@@ -44,7 +44,7 @@ export default function AuthPerms() {
             .then(setTokens)
             .catch(() => setTokens([]))
             .finally(() => setLoadingTokens(false));
-    }, [granted, token]);
+    }, [granted, user]);
 
     const handleAllow = async () => {
         setChosen(true);
@@ -76,7 +76,7 @@ export default function AuthPerms() {
     };
 
     const handleToggle = async (id: string, pushEnabled: boolean) => {
-        if (!token) {
+        if (!user) {
             return;
         }
 

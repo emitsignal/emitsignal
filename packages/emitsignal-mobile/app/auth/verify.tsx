@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
@@ -15,48 +15,31 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
-import { useSession } from '@/ctx/session';
-import { api } from '@/lib/api';
+import { authClient } from '@/lib/auth-client';
 
 export default function AuthVerify() {
-    const params = useLocalSearchParams<{ devCode?: string; email?: string }>();
-    const { signIn } = useSession();
-    const [code, setCode] = useState('');
+    const params = useLocalSearchParams<{ email?: string }>();
+    const email = params.email ?? '';
+    const [otp, setOtp] = useState('');
     const [busy, setBusy] = useState(false);
     const inputRef = useRef<TextInput>(null);
 
-    useEffect(() => {
-        // Dev convenience — auto-fill the code if the backend returned one
-        if (params.devCode && code === '') {
-            const seq = params.devCode;
-            let i = 0;
-            const id = setInterval(() => {
-                i++;
-                setCode(seq.slice(0, i));
-                if (i >= seq.length) clearInterval(id);
-            }, 380);
-            return () => clearInterval(id);
-        }
-    }, [params.devCode]);
-
     const handleVerify = async () => {
-        if (!params.email || code.length !== 6) {
+        if (otp.length < 6) {
             return;
         }
         setBusy(true);
-        try {
-            const res = await api.verifyMagicLink(params.email, code);
-            await signIn(res.token, res.user);
-            router.replace('/auth/perms');
-        } catch (error) {
-            Alert.alert('Invalid code', error instanceof Error ? error.message : String(error));
-        } finally {
-            setBusy(false);
+        const { error } = await authClient.signIn.emailOtp({ email, otp });
+        setBusy(false);
+        if (error) {
+            Alert.alert('Sign-in failed', error.message ?? 'Invalid or expired code');
+        } else {
+            router.push('/auth/perms');
         }
     };
 
-    const cells = Array.from({ length: 6 }, (_, i) => code[i] ?? '');
-    const activeIdx = code.length;
+    const cells = Array.from({ length: 6 }, (_, i) => otp[i] ?? '');
+    const activeIdx = otp.length;
 
     return (
         <SafeAreaView style={styles.root}>
@@ -75,8 +58,9 @@ export default function AuthVerify() {
                 <View style={styles.body}>
                     <Text style={styles.title}>Check your email</Text>
                     <Text style={styles.lede}>
-                        We sent a 6-char code to <Text style={styles.mono}>{params.email}</Text>.
-                        Tap the link or paste the code here.
+                        We sent a 6-digit code to{' '}
+                        <Text style={styles.mono}>{email || 'your email'}</Text>. Tap the link or
+                        paste the code here.
                     </Text>
 
                     <Text style={styles.fieldLabel}>CODE</Text>
@@ -90,39 +74,36 @@ export default function AuthVerify() {
                             </View>
                         ))}
                         <TextInput
-                            autoCapitalize="none"
-                            autoCorrect={false}
+                            keyboardType="number-pad"
                             maxLength={6}
-                            onChangeText={(t) =>
-                                setCode(
-                                    t
-                                        .replace(/[^a-z0-9]/gi, '')
-                                        .toLowerCase()
-                                        .slice(0, 6),
-                                )
-                            }
+                            onChangeText={(text) => setOtp(text.replace(/\D/g, '').slice(0, 6))}
                             ref={inputRef}
                             style={styles.hiddenInput}
-                            value={code}
+                            value={otp}
                         />
                     </Pressable>
 
                     <Text style={styles.expires}>
-                        expires in <Text style={{ color: W.amber }}>09:42</Text>
+                        expires in <Text style={{ color: W.amber }}>10 min</Text>
                     </Text>
 
                     <Pressable
-                        disabled={busy || code.length !== 6}
+                        disabled={busy || otp.length < 6}
                         onPress={handleVerify}
-                        style={[styles.cta, (busy || code.length !== 6) && styles.ctaDisabled]}
+                        style={[styles.cta, (busy || otp.length < 6) && styles.ctaDisabled]}
                     >
-                        <Text style={[styles.ctaText, code.length !== 6 && { color: W.fgDim }]}>
-                            {busy ? 'verifying…' : 'verify →'}
+                        <Text style={[styles.ctaText, otp.length < 6 && { color: W.fgDim }]}>
+                            {busy ? 'verifying…' : 'sign in →'}
                         </Text>
                     </Pressable>
+                </View>
 
+                <View style={styles.footer}>
                     <Text style={styles.resend}>
-                        didn't arrive? <Text style={{ color: W.violet }}>resend</Text>
+                        {"didn't arrive? "}
+                        <Text onPress={() => router.back()} style={{ color: W.violet }}>
+                            resend
+                        </Text>
                     </Text>
                 </View>
             </KeyboardAvoidingView>
@@ -183,6 +164,7 @@ const styles = StyleSheet.create({
         letterSpacing: 1.5,
         marginBottom: 10,
     },
+    footer: { padding: 28 },
     hiddenInput: {
         height: 1,
         opacity: 0,
@@ -195,7 +177,6 @@ const styles = StyleSheet.create({
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 12,
-        marginTop: 18,
         textAlign: 'center',
     },
     root: { backgroundColor: W.bg, flex: 1 },

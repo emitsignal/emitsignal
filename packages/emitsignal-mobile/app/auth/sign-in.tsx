@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
-import { api } from '@/lib/api';
+import { authClient } from '@/lib/auth-client';
 
 export default function AuthSignIn() {
     const [email, setEmail] = useState('');
@@ -26,19 +26,15 @@ export default function AuthSignIn() {
             return;
         }
         setBusy(true);
-        try {
-            const result = await api.requestMagicLink(email.trim());
-            router.push({
-                params: {
-                    devCode: result.devCode ?? '',
-                    email: email.trim(),
-                },
-                pathname: '/auth/verify',
-            });
-        } catch (error) {
-            Alert.alert('Sign-in failed', error instanceof Error ? error.message : String(error));
-        } finally {
-            setBusy(false);
+        const { error } = await authClient.emailOtp.sendVerificationOtp({
+            email: email.trim(),
+            type: 'sign-in',
+        });
+        setBusy(false);
+        if (error) {
+            Alert.alert('Sign-in failed', error.message ?? 'Failed to send sign-in code');
+        } else {
+            router.push({ params: { email: email.trim() }, pathname: '/auth/verify' });
         }
     };
 
@@ -58,7 +54,9 @@ export default function AuthSignIn() {
 
                 <View style={styles.body}>
                     <Text style={styles.title}>Sign in</Text>
-                    <Text style={styles.lede}>We'll email you a magic link. No passwords.</Text>
+                    <Text style={styles.lede}>
+                        {"We'll email you a sign-in code. No passwords."}
+                    </Text>
 
                     <Text style={styles.fieldLabel}>EMAIL</Text>
                     <View style={styles.inputBox}>
@@ -79,9 +77,7 @@ export default function AuthSignIn() {
                         onPress={handleSend}
                         style={[styles.cta, busy && { opacity: 0.6 }]}
                     >
-                        <Text style={styles.ctaText}>
-                            {busy ? 'sending…' : 'send magic link →'}
-                        </Text>
+                        <Text style={styles.ctaText}>{busy ? 'sending…' : 'send code →'}</Text>
                     </Pressable>
 
                     <View style={styles.divider}>
