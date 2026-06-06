@@ -79,7 +79,7 @@ bun run reset-project    # Reset project to starter state
 - No 'any' type allowed — strict TypeScript enforced
 - Composition over inheritance
 - No abbreviations in variable names (subscription not s, priority not prio)
--
+- No inline IFs
 
 ### Naming Conventions
 
