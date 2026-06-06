@@ -15,11 +15,12 @@ export interface FileUploadInput {
     buffer: Buffer;
     filename: string;
     mimeType: string;
+    storageKey?: string;
 }
 
-export const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
-
 export const ALLOWED_MIME_TYPES = ['image/', 'text/plain'] as const;
+export const ATTACHMENT_MAX_SIZE = 25 * 1024 * 1024; // 25 MB
+export const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
 export function isAllowedMimeType(mimeType: string): boolean {
     return ALLOWED_MIME_TYPES.some((prefix) => mimeType.startsWith(prefix));

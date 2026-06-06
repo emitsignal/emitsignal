@@ -22,11 +22,11 @@ export class LocalFileStorage implements FileStorage {
     }
 
     async upload(input: FileUploadInput): Promise<FileMetadata> {
-        await mkdir(this.uploadDir, { recursive: true });
-
         const ext = path.extname(input.filename) || '';
-        const storageKey = `${crypto.randomUUID()}${ext}`;
+        const storageKey = input.storageKey ?? `${crypto.randomUUID()}${ext}`;
         const filePath = path.join(this.uploadDir, storageKey);
+
+        await mkdir(path.dirname(filePath), { recursive: true });
 
         await writeFile(filePath, input.buffer);
 

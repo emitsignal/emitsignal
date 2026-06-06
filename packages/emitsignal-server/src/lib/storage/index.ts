@@ -1,6 +1,6 @@
-import type { Environment } from '../../schema/environment';
 import type { FileStorage } from './provider';
 
+import { type Environment } from '../../schema/environment';
 import { LocalFileStorage } from './local-provider';
 import { S3FileStorage } from './s3-provider';
 
@@ -42,12 +42,12 @@ export class FileStorageService {
                 break;
             }
             default:
-                FileStorageService.instance = new LocalFileStorage(env.APP_URL, env.UPLOAD_DIR);
+                FileStorageService.instance = new LocalFileStorage(env.API_URL, env.UPLOAD_DIR);
         }
 
         return FileStorageService.instance;
     }
 }
 
-export { isAllowedMimeType, MAX_FILE_SIZE } from './provider';
+export { ATTACHMENT_MAX_SIZE, AVATAR_MAX_SIZE, isAllowedMimeType } from './provider';
 export type { FileMetadata, FileUploadInput } from './provider';

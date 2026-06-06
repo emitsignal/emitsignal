@@ -5,7 +5,7 @@ import { duration } from '../../lib/duration';
 import { prisma } from '../../lib/prisma';
 import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
 import { FileStorageService } from '../../lib/storage';
-import { isAllowedMimeType, MAX_FILE_SIZE } from '../../lib/storage/provider';
+import { ATTACHMENT_MAX_SIZE, isAllowedMimeType } from '../../lib/storage/provider';
 import { resolveUserId } from '../auth/plugin';
 
 const AUTH_TTL_MS = duration.days(15).as('ms');
@@ -59,11 +59,11 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
                 });
             }
 
-            if (file.size > MAX_FILE_SIZE) {
+            if (file.size > ATTACHMENT_MAX_SIZE) {
                 return status(400, {
                     error: 'file_too_large',
                     filename: file.name,
-                    maxSizeBytes: MAX_FILE_SIZE,
+                    maxSizeBytes: ATTACHMENT_MAX_SIZE,
                     message: `File "${file.name}" exceeds the 25 MB limit.`,
                 });
             }

@@ -53,7 +53,7 @@ export class S3FileStorage implements FileStorage {
 
     async upload(input: FileUploadInput): Promise<FileMetadata> {
         const ext = input.filename.split('.').pop() ?? '';
-        const storageKey = `${crypto.randomUUID()}${ext ? `.${ext}` : ''}`;
+        const storageKey = input.storageKey ?? `${crypto.randomUUID()}${ext ? `.${ext}` : ''}`;
 
         await this.s3.write(storageKey, input.buffer, { type: input.mimeType });
 
