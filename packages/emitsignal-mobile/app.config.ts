@@ -9,7 +9,7 @@ const config: ExpoConfig = {
             monochromeImage: './assets/images/android-icon-monochrome.png',
         },
         edgeToEdgeEnabled: true,
-        googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
+        googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
         package: 'com.emitsignal',
         predictiveBackGestureEnabled: false,
     },
@@ -27,6 +27,9 @@ const config: ExpoConfig = {
     icon: './assets/images/icon.png',
     ios: {
         bundleIdentifier: 'com.emitsignal',
+        infoPlist: {
+            ITSAppUsesNonExemptEncryption: false,
+        },
         supportsTablet: true,
     },
     name: 'EmitSignal',
