@@ -1,7 +1,18 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { PushToken } from '@/lib/api';
 import type { FeedStyle } from '@/storage/feed-style';
 import type { ThemePreference } from '@/storage/theme';
 
@@ -9,9 +20,11 @@ import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
+import { useDevice } from '@/ctx/device';
 import { useFeedStyle } from '@/ctx/feed-style';
 import { useSession } from '@/ctx/session';
 import { useTheme } from '@/ctx/theme';
+import { api } from '@/lib/api';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
     { label: 'System', value: 'system' },
@@ -71,6 +84,7 @@ export default function SettingsScreen() {
                 </View>
 
                 <SectionLabel>FEED</SectionLabel>
+
                 <View style={styles.group}>
                     {FEED_STYLE_OPTIONS.map((opt) => (
                         <Pressable
@@ -94,16 +108,7 @@ export default function SettingsScreen() {
                 </View>
 
                 <SectionLabel>NOTIFICATIONS</SectionLabel>
-                <View style={styles.group}>
-                    <View style={styles.row}>
-                        <Text style={styles.rowLabel}>Push</Text>
-                        <Text style={styles.rowValue}>enabled</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.rowLabel}>In-app banners</Text>
-                        <Text style={styles.rowValue}>enabled</Text>
-                    </View>
-                </View>
+                <NotificationsSection />
 
                 <SectionLabel>ACCOUNT</SectionLabel>
                 <View style={styles.group}>
@@ -150,6 +155,7 @@ export default function SettingsScreen() {
                 </View>
 
                 <SectionLabel>ABOUT</SectionLabel>
+
                 <View style={styles.group}>
                     <View style={styles.row}>
                         <Text style={styles.rowLabel}>Version</Text>
@@ -158,6 +164,127 @@ export default function SettingsScreen() {
                 </View>
             </ScrollView>
         </SafeAreaView>
+    );
+}
+
+function NotificationsSection() {
+    const { deviceId, isLoading, pushToken, refreshPushToken } = useDevice();
+    const { user } = useSession();
+    const [tokenRecord, setTokenRecord] = useState<null | PushToken>(null);
+    const [loadingRecord, setLoadingRecord] = useState(false);
+    const [enabling, setEnabling] = useState(false);
+
+    useEffect(() => {
+        if (!pushToken || !user) {
+            return;
+        }
+
+        setLoadingRecord(true);
+
+        api.listMyPushTokens()
+            .then((tokens) =>
+                setTokenRecord(tokens.find((token) => token.deviceId === deviceId) ?? null),
+            )
+            .catch(() => setTokenRecord(null))
+            .finally(() => setLoadingRecord(false));
+    }, [pushToken, user, deviceId]);
+
+    const handleEnable = async () => {
+        if (!deviceId) {
+            return;
+        }
+        setEnabling(true);
+
+        try {
+            const token = await refreshPushToken();
+
+            if (token) {
+                const platform = (
+                    Platform.OS === 'ios' || Platform.OS === 'android' ? Platform.OS : 'web'
+                ) as 'android' | 'ios' | 'web';
+
+                await api.registerPushToken({
+                    deviceId,
+                    platform,
+                    token,
+                    userId: user?.id ?? null,
+                });
+            }
+        } finally {
+            setEnabling(false);
+        }
+    };
+
+    const handleToggle = async (pushEnabled: boolean) => {
+        if (!tokenRecord) {
+            return;
+        }
+
+        const previous = tokenRecord;
+
+        setTokenRecord((prev) => (prev ? { ...prev, pushEnabled } : null));
+
+        try {
+            await api.updatePushToken(tokenRecord.id, pushEnabled);
+        } catch {
+            setTokenRecord(previous);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <View style={styles.group}>
+                <View style={styles.row}>
+                    <ActivityIndicator color={W.violet} size="small" />
+                </View>
+            </View>
+        );
+    }
+
+    if (!pushToken) {
+        return (
+            <View style={styles.group}>
+                <Pressable onPress={handleEnable} style={styles.row}>
+                    <Text style={styles.rowLabel}>Enable notifications</Text>
+                    {enabling ? (
+                        <ActivityIndicator color={W.violet} size="small" />
+                    ) : (
+                        <IconSymbol color={W.violet} name="arrow.right" size={14} />
+                    )}
+                </Pressable>
+            </View>
+        );
+    }
+
+    if (!user) {
+        return (
+            <View style={styles.group}>
+                <View style={styles.row}>
+                    <Text style={styles.rowLabel}>Push</Text>
+                    <Text style={styles.rowValue}>on</Text>
+                </View>
+            </View>
+        );
+    }
+
+    return (
+        <View style={styles.group}>
+            {loadingRecord ? (
+                <View style={styles.row}>
+                    <ActivityIndicator color={W.violet} size="small" />
+                </View>
+            ) : (
+                <View style={styles.row}>
+                    <Text style={styles.rowLabel}>Push</Text>
+                    <Switch
+                        onValueChange={handleToggle}
+                        thumbColor={W.fg}
+                        trackColor={{ false: W.bgLine, true: W.violet }}
+                        value={tokenRecord?.pushEnabled ?? true}
+                    />
+                </View>
+            )}
+        </View>
     );
 }
 

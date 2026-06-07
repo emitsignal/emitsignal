@@ -110,7 +110,15 @@ export function useDeviceInfo() {
         const init = async () => {
             try {
                 const deviceId = await initializeDeviceId();
-                const pushToken = await AsyncStorage.getItem(PUSH_TOKEN_KEY);
+                let pushToken = await AsyncStorage.getItem(PUSH_TOKEN_KEY);
+
+                if (!pushToken) {
+                    const { status } = await Notifications.getPermissionsAsync();
+
+                    if (status === 'granted') {
+                        pushToken = await registerPushNotifications();
+                    }
+                }
 
                 setDeviceInfo({
                     deviceId,
@@ -142,6 +150,7 @@ export function useDeviceInfo() {
             return pushToken;
         } catch (error) {
             console.error('Error refreshing push token:', error);
+
             return null;
         }
     }, [registerPushNotifications]);

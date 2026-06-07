@@ -1,7 +1,12 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, type ReactNode, useContext, useEffect } from 'react';
+import { Platform } from 'react-native';
 
-import { setAuthToken } from '@/lib/api';
+import { api, setAuthToken } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
+
+const DEVICE_ID_KEY = '@emitsignal/device_id';
+const PUSH_TOKEN_KEY = '@emitsignal/push_token';
 
 export interface SessionContextValue {
     loading: boolean;
@@ -28,6 +33,31 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             setAuthToken(null);
         }
     }, [data?.session?.token, isPending]);
+
+    useEffect(() => {
+        if (!data?.user?.id) {
+            return;
+        }
+
+        const linkToken = async () => {
+            const [token, deviceId] = await Promise.all([
+                AsyncStorage.getItem(PUSH_TOKEN_KEY),
+                AsyncStorage.getItem(DEVICE_ID_KEY),
+            ]);
+
+            if (!token || !deviceId) {
+                return;
+            }
+
+            const platform =
+                Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';
+
+            api.registerPushToken({ deviceId, platform, token, userId: data.user.id }).catch(
+                () => {},
+            );
+        };
+        linkToken();
+    }, [data?.user?.id]);
 
     const value: SessionContextValue = {
         loading: isPending,
