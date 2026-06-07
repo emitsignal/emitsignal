@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { Subscription } from '#/lib/api';
 
+import { useSession } from '#/ctx/session';
 import { api } from '#/lib/api';
 import { getDeviceId } from '#/lib/storage';
 
@@ -18,11 +19,13 @@ export function useSubscriptions() {
         subscriptions: [],
     });
 
+    const { user } = useSession();
+    const userId = user?.id;
     const deviceId = getDeviceId();
 
     const refresh = useCallback(async () => {
         try {
-            const subscriptions = await api.listSubscriptions(deviceId);
+            const subscriptions = await api.listSubscriptions(userId ? undefined : deviceId);
             setState({ error: null, loading: false, subscriptions });
         } catch (error) {
             setState((previous) => ({
@@ -31,7 +34,7 @@ export function useSubscriptions() {
                 loading: false,
             }));
         }
-    }, [deviceId]);
+    }, [userId, deviceId]);
 
     useEffect(() => {
         refresh();

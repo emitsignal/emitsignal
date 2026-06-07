@@ -2,6 +2,7 @@ import { createContext, type ReactNode, useCallback, useContext, useEffect, useS
 
 import type { Subscription } from '#/lib/api';
 
+import { useSession } from '#/ctx/session';
 import { api } from '#/lib/api';
 import { getDeviceId } from '#/lib/storage';
 
@@ -20,11 +21,14 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
+    const { user } = useSession();
+    const userId = user?.id;
     const deviceId = getDeviceId();
 
     const refresh = useCallback(async () => {
         try {
-            const fetchedSubscriptions = await api.listSubscriptions(deviceId);
+            const fetchedSubscriptions = await api.listSubscriptions(userId ? undefined : deviceId);
+
             setSubscriptions(fetchedSubscriptions);
             setError(null);
         } catch (error) {
@@ -32,7 +36,7 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
         } finally {
             setLoading(false);
         }
-    }, [deviceId]);
+    }, [userId, deviceId]);
 
     useEffect(() => {
         refresh();

@@ -16,6 +16,9 @@ interface FeedState {
 }
 
 export function useFeed() {
+    const deviceId = getDeviceId();
+    const { loading: authLoading, user } = useSession();
+
     const [state, setState] = useState<FeedState>({
         error: null,
         loading: true,
@@ -23,17 +26,16 @@ export function useFeed() {
         subscriptions: [],
     });
 
-    const { loading: authLoading } = useSession();
-
-    const deviceId = getDeviceId();
+    const userId = user?.id;
 
     const refresh = useCallback(async () => {
         try {
-            const subscriptions = await api.listSubscriptions(deviceId);
+            const subscriptions = await api.listSubscriptions(userId ? undefined : deviceId);
             const allMessages: Message[] = [];
 
             for (const subscription of subscriptions) {
                 const messages = await api.listMessages(subscription.topic.name, 25);
+
                 allMessages.push(...messages);
             }
 
@@ -52,7 +54,7 @@ export function useFeed() {
                 loading: false,
             }));
         }
-    }, [deviceId]);
+    }, [userId, deviceId]);
 
     useEffect(() => {
         refresh();
@@ -63,11 +65,17 @@ export function useFeed() {
 
     useSSE({
         onEvent: (event, data) => {
-            if (event !== 'message') return;
+            if (event !== 'message') {
+                return;
+            }
+
             const incoming = data as { topicName?: string } & Message;
 
             setState((prev) => {
-                if (prev.messages.some((message) => message.id === incoming.id)) return prev;
+                if (prev.messages.some((message) => message.id === incoming.id)) {
+                    return prev;
+                }
+
                 return {
                     ...prev,
                     messages: [incoming, ...prev.messages].slice(0, 200),
@@ -80,15 +88,20 @@ export function useFeed() {
     return { ...state, refresh };
 }
 
-export function useTopicMessages(topicName: null | string, onNewMessage?: (msg: Message) => void) {
-    const [messages, setMessages] = useState<Message[]>([]);
+export function useTopicMessages(
+    topicName: null | string,
+    onNewMessage?: (message: Message) => void,
+) {
     const [loading, setLoading] = useState(true);
+    const [messages, setMessages] = useState<Message[]>([]);
     const seenIdsRef = useRef(new Set<string>());
 
     const { loading: authLoading } = useSession();
 
     useEffect(() => {
-        if (!topicName) return;
+        if (!topicName) {
+            return;
+        }
 
         let cancelled = false;
 
@@ -96,13 +109,16 @@ export function useTopicMessages(topicName: null | string, onNewMessage?: (msg: 
         api.listMessages(topicName)
             .then((fetchedMessages) => {
                 if (!cancelled) {
-                    seenIdsRef.current = new Set(fetchedMessages.map((m) => m.id));
+                    seenIdsRef.current = new Set(fetchedMessages.map((message) => message.id));
+
                     setMessages(fetchedMessages);
                     setLoading(false);
                 }
             })
             .catch(() => {
-                if (!cancelled) setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             });
 
         return () => {
@@ -115,9 +131,16 @@ export function useTopicMessages(topicName: null | string, onNewMessage?: (msg: 
 
     useSSE({
         onEvent: (event, data) => {
-            if (event !== 'message') return;
+            if (event !== 'message') {
+                return;
+            }
+
             const incoming = data as Message;
-            if (seenIdsRef.current.has(incoming.id)) return;
+
+            if (seenIdsRef.current.has(incoming.id)) {
+                return;
+            }
+
             seenIdsRef.current.add(incoming.id);
             setMessages((prev) => [incoming, ...prev]);
             onNewMessageRef.current?.(incoming);
@@ -135,13 +158,14 @@ export function useTopicMetrics(topicName: null | string) {
     useEffect(() => {
         if (!topicName) {
             setMetrics(null);
-            setLoading(false);
-            return;
+
+            return setLoading(false);
         }
 
         let cancelled = false;
 
         setLoading(true);
+
         api.getTopicMetrics(topicName)
             .then((data) => {
                 if (!cancelled) {
@@ -160,9 +184,14 @@ export function useTopicMetrics(topicName: null | string) {
 
     const addMessage = useCallback((msg: Message) => {
         setMetrics((prev) => {
-            if (!prev) return prev;
+            if (!prev) {
+                return prev;
+            }
+
             const volume = [...prev.volume];
+
             volume[23]++;
+
             return {
                 ...prev,
                 messageCount24h: prev.messageCount24h + 1,
