@@ -2,10 +2,12 @@ import Elysia, { t } from 'elysia';
 
 import { prisma } from '../../lib/prisma';
 import { getOrCreateTopic } from '../../lib/topic';
+import { resolveUserId } from '../auth/plugin';
 
 export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
     '/',
-    async ({ body }) => {
+    async ({ body, headers }) => {
+        const userId = await resolveUserId({ headers });
         const topic = await getOrCreateTopic(body.topicName);
 
         const subscription = await prisma.subscription.upsert({
@@ -13,9 +15,11 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
                 deviceId: body.deviceId,
                 pushEnabled: body.pushEnabled ?? true,
                 topicId: topic.id,
+                userId,
             },
             update: {
                 pushEnabled: body.pushEnabled ?? true,
+                userId,
             },
             where: {
                 deviceId_topicId: {

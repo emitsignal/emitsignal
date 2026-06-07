@@ -3,7 +3,7 @@ import { passkey } from '@better-auth/passkey';
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { emailOTP } from 'better-auth/plugins';
+import { bearer, emailOTP } from 'better-auth/plugins';
 import { createElement } from 'react';
 
 import { environment } from '../schema/environment';
@@ -25,6 +25,7 @@ export const auth = betterAuth({
         provider: 'postgresql',
     }),
     plugins: [
+        bearer(),
         emailOTP({
             expiresIn: duration.minutes(10).as('seconds'),
             sendVerificationOTP: async ({ email, otp, type }) => {

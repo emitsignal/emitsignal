@@ -1,10 +1,13 @@
 import Elysia, { t } from 'elysia';
 
 import { prisma } from '../../lib/prisma';
+import { resolveUserId } from '../auth/plugin';
 
 export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
     '/',
-    async ({ body }) => {
+    async ({ body, headers }) => {
+        const userId = await resolveUserId({ headers });
+
         const topic = await prisma.topic.findUnique({
             where: { name: body.topicName },
         });
@@ -13,16 +16,25 @@ export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
             return { ok: true };
         }
 
-        await prisma.subscription
-            .delete({
-                where: {
-                    deviceId_topicId: {
-                        deviceId: body.deviceId,
-                        topicId: topic.id,
+        if (userId) {
+            // Remove across all devices for this user
+            await prisma.subscription
+                .deleteMany({
+                    where: { topicId: topic.id, userId },
+                })
+                .catch(() => null);
+        } else {
+            await prisma.subscription
+                .delete({
+                    where: {
+                        deviceId_topicId: {
+                            deviceId: body.deviceId,
+                            topicId: topic.id,
+                        },
                     },
-                },
-            })
-            .catch(() => null);
+                })
+                .catch(() => null);
+        }
 
         return { ok: true };
     },
