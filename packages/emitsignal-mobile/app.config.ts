@@ -37,6 +37,7 @@ const config: ExpoConfig = {
     orientation: 'portrait',
     owner: 'kevenleone',
     plugins: [
+        'expo-font',
         'expo-router',
         'expo-secure-store',
         [
