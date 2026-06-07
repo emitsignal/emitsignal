@@ -16,6 +16,7 @@ import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
+import { useSession } from '@/ctx/session';
 import { api, type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
@@ -23,11 +24,17 @@ export default function ChannelsScreen() {
     const [query, setQuery] = useState('');
     const [refreshing, setRefreshing] = useState(false);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const { loading: sessionLoading, user } = useSession();
+    const userId = user?.id;
     const { deviceId } = useDevice();
 
     const refresh = useCallback(
         async ({ silent = false }: { silent?: boolean } = {}) => {
-            if (!deviceId) {
+            if (sessionLoading) {
+                return;
+            }
+
+            if (!userId && !deviceId) {
                 return;
             }
 
@@ -36,7 +43,9 @@ export default function ChannelsScreen() {
             }
 
             try {
-                setSubscriptions(await api.listSubscriptions(deviceId));
+                setSubscriptions(
+                    await api.listSubscriptions(userId ? undefined : (deviceId ?? undefined)),
+                );
             } catch (error) {
                 console.error(error);
             }
@@ -45,7 +54,7 @@ export default function ChannelsScreen() {
                 setLoading(false);
             }
         },
-        [deviceId],
+        [sessionLoading, userId, deviceId],
     );
 
     const onPullToRefresh = useCallback(async () => {
@@ -57,17 +66,17 @@ export default function ChannelsScreen() {
     }, [refresh]);
 
     useEffect(() => {
-        if (deviceId) {
+        if (!sessionLoading && (userId || deviceId)) {
             refresh();
         }
-    }, [deviceId]);
+    }, [sessionLoading, userId, deviceId]);
 
     useFocusEffect(
         useCallback(() => {
-            if (deviceId) {
+            if (!sessionLoading && (userId || deviceId)) {
                 refresh({ silent: true });
             }
-        }, [deviceId, refresh]),
+        }, [sessionLoading, userId, deviceId, refresh]),
     );
 
     const filtered = useMemo(() => {

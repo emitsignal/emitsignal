@@ -5,18 +5,24 @@ import { StyleSheet } from 'react-native';
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { W } from '@/constants/theme';
+import { useSession } from '@/ctx/session';
 import { useOnboarding } from '@/hooks/use-onboarding';
 
 export default function TabLayout() {
-    const { isLoading, isOnboardingComplete } = useOnboarding();
+    const { isLoading: onboardingLoading, isOnboardingComplete } = useOnboarding();
+    const { loading: sessionLoading, user } = useSession();
+    const isSignedIn = !!user?.id;
+
+    const isLoading = onboardingLoading || sessionLoading;
+    const isAllowed = isOnboardingComplete || isSignedIn;
 
     useEffect(() => {
-        if (!isLoading && !isOnboardingComplete) {
+        if (!isLoading && !isAllowed) {
             router.replace('/auth');
         }
-    }, [isLoading, isOnboardingComplete]);
+    }, [isLoading, isAllowed]);
 
-    if (isLoading || !isOnboardingComplete) {
+    if (isLoading || !isAllowed) {
         return null;
     }
 

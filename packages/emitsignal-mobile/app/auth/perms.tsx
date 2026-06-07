@@ -26,15 +26,17 @@ const PLATFORM_LABEL: Record<string, string> = {
 };
 
 export default function AuthPerms() {
-    const { deviceId, refreshPushToken } = useDevice();
-    const { user } = useSession();
-    const [granted, setGranted] = useState(false);
     const [chosen, setChosen] = useState(false);
-    const [tokens, setTokens] = useState<PushToken[]>([]);
+    const [granted, setGranted] = useState(false);
     const [loadingTokens, setLoadingTokens] = useState(false);
+    const [tokens, setTokens] = useState<PushToken[]>([]);
+    const { deviceId, refreshPushToken } = useDevice();
+    const { loading: sessionLoading, user } = useSession();
+
+    const userId = user?.id;
 
     useEffect(() => {
-        if (!granted || !user) {
+        if (!granted || !userId || sessionLoading) {
             return;
         }
 
@@ -44,20 +46,23 @@ export default function AuthPerms() {
             .then(setTokens)
             .catch(() => setTokens([]))
             .finally(() => setLoadingTokens(false));
-    }, [granted, user]);
+    }, [granted, userId, sessionLoading]);
 
     const handleAllow = async () => {
         setChosen(true);
         let pushToken: null | string = null;
+
         try {
             const { status } = await Notifications.requestPermissionsAsync();
 
             setGranted(status === 'granted');
+
             if (status === 'granted') {
                 pushToken = await refreshPushToken();
             }
         } catch {
             setGranted(true); // simulator fallback
+
             pushToken = await refreshPushToken();
         }
 
@@ -70,7 +75,7 @@ export default function AuthPerms() {
                 deviceId,
                 platform,
                 token: pushToken,
-                userId: user?.id ?? null,
+                userId: userId ?? null,
             }).catch((error) => console.warn('push-token register failed', error));
         }
     };

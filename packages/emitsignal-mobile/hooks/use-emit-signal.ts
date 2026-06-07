@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { useDevice } from '@/ctx/device';
+import { useSession } from '@/ctx/session';
 import { api, type Message, sseMultiUrl, type Subscription } from '@/lib/api';
 
 import { useSSE } from './use-sse';
@@ -14,6 +15,8 @@ interface FeedState {
 
 export function useFeed() {
     const { deviceId } = useDevice();
+    const { loading: sessionLoading, user } = useSession();
+
     const [state, setState] = useState<FeedState>({
         error: null,
         loading: true,
@@ -21,17 +24,27 @@ export function useFeed() {
         subscriptions: [],
     });
 
+    const userId = user?.id;
+
     const refresh = useCallback(async () => {
-        if (!deviceId) {
+        if (sessionLoading) {
+            return;
+        }
+
+        if (!userId && !deviceId) {
             return;
         }
 
         try {
-            const subscriptions = await api.listSubscriptions(deviceId);
+            const subscriptions = await api.listSubscriptions(
+                userId ? undefined : (deviceId ?? undefined),
+            );
+
             const allMessages: Message[] = [];
 
             for (const subscription of subscriptions) {
                 const messages = await api.listMessages(subscription.topic.name, 25);
+
                 allMessages.push(...messages);
             }
 
@@ -50,13 +63,13 @@ export function useFeed() {
                 loading: false,
             }));
         }
-    }, [deviceId]);
+    }, [sessionLoading, userId, deviceId]);
 
     useEffect(() => {
-        if (deviceId) {
+        if (!sessionLoading && (userId || deviceId)) {
             refresh();
         }
-    }, [deviceId, refresh]);
+    }, [sessionLoading, userId, deviceId, refresh]);
 
     const topicNames = state.subscriptions.map((subscription) => subscription.topic.name);
     const sseTarget = topicNames.length ? sseMultiUrl(topicNames) : null;

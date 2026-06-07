@@ -15,9 +15,9 @@ export default function MessageDetailScreen() {
     const [ackCount, setAckCount] = useState(0);
     const [acknowledged, setAcknowledged] = useState(false);
     const [message, setMessage] = useState<Message | null>(null);
-    const { sections } = useDebugSections();
     const { deviceId } = useDevice();
     const { id } = useLocalSearchParams<{ id: string }>();
+    const { sections } = useDebugSections();
 
     useEffect(() => {
         let cancelled = false;

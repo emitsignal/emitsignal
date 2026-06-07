@@ -115,6 +115,16 @@ export default function AuthFirstChannels() {
                     </Text>
                     <IconSymbol color={W.bg} name="arrow.right" size={14} />
                 </Pressable>
+
+                <Pressable
+                    onPress={async () => {
+                        await markOnboardingComplete();
+                        router.replace('/(tabs)');
+                    }}
+                    style={{ marginTop: 14 }}
+                >
+                    <Text style={styles.skip}>skip for now</Text>
+                </Pressable>
             </View>
         </SafeAreaView>
     );
@@ -180,6 +190,12 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.mono,
         fontSize: 13,
         fontWeight: '500',
+    },
+    skip: {
+        color: W.fgDim,
+        fontFamily: Fonts.mono,
+        fontSize: 12,
+        textAlign: 'center',
     },
     step: {
         color: W.fgDim,
