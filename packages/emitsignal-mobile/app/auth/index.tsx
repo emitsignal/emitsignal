@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -39,7 +40,7 @@ export default function AuthWelcome() {
                     style={[styles.dot, { opacity: pulse, transform: [{ scale: pulse }] }]}
                 />
 
-                <Text style={styles.kicker}>EmitSignal · v0.1</Text>
+                <Text style={styles.kicker}>EmitSignal · v{Constants.expoConfig?.version}</Text>
                 <Text style={styles.title}>
                     Push notifications{'\n'}with <Text style={{ color: W.violet }}>one curl</Text>.
                 </Text>

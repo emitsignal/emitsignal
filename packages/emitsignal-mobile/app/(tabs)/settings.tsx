@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -159,7 +160,7 @@ export default function SettingsScreen() {
                 <View style={styles.group}>
                     <View style={styles.row}>
                         <Text style={styles.rowLabel}>Version</Text>
-                        <Text style={styles.rowValue}>0.1.0</Text>
+                        <Text style={styles.rowValue}>{Constants.expoConfig?.version ?? '—'}</Text>
                     </View>
                 </View>
             </ScrollView>

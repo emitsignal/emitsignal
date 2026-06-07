@@ -1,5 +1,7 @@
 import { ExpoConfig } from 'expo/config';
 
+import { version } from './package.json';
+
 const config: ExpoConfig = {
     android: {
         adaptiveIcon: {
@@ -57,7 +59,7 @@ const config: ExpoConfig = {
     scheme: 'mobile',
     slug: 'emit-signal',
     userInterfaceStyle: 'automatic',
-    version: '1.0.0',
+    version,
     web: {
         favicon: './assets/images/favicon.png',
         output: 'static',
