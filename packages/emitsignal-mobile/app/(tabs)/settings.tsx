@@ -2,12 +2,14 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { FeedStyle } from '@/storage/feed-style';
 import type { ThemePreference } from '@/storage/theme';
 
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
+import { useFeedStyle } from '@/ctx/feed-style';
 import { useSession } from '@/ctx/session';
 import { useTheme } from '@/ctx/theme';
 
@@ -17,9 +19,24 @@ const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
     { label: 'Dark', value: 'dark' },
 ];
 
+const FEED_STYLE_OPTIONS: { description: string; label: string; value: FeedStyle }[] = [
+    { description: 'Card rows with avatar, body preview and tags', label: 'Comfy', value: 'comfy' },
+    {
+        description: 'Chronological thread with priority dots on a vertical line',
+        label: 'Timeline',
+        value: 'timeline',
+    },
+    {
+        description: 'Messages grouped by priority, highest first',
+        label: 'Priority-first',
+        value: 'priority',
+    },
+];
+
 export default function SettingsScreen() {
     const { sections, setSection } = useDebugSections();
     const { setTheme, theme } = useTheme();
+    const { feedStyle, setFeedStyle } = useFeedStyle();
     const { signOut, user } = useSession();
 
     return (
@@ -43,6 +60,29 @@ export default function SettingsScreen() {
                         >
                             <Text style={styles.rowLabel}>{opt.label}</Text>
                             {opt.value === theme ? (
+                                <IconSymbol
+                                    color={W.violet}
+                                    name="checkmark.circle.fill"
+                                    size={18}
+                                />
+                            ) : null}
+                        </Pressable>
+                    ))}
+                </View>
+
+                <SectionLabel>FEED</SectionLabel>
+                <View style={styles.group}>
+                    {FEED_STYLE_OPTIONS.map((opt) => (
+                        <Pressable
+                            key={opt.value}
+                            onPress={() => setFeedStyle(opt.value)}
+                            style={[styles.row, opt.value === feedStyle && styles.rowActive]}
+                        >
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.rowLabel}>{opt.label}</Text>
+                                <Text style={styles.rowHint}>{opt.description}</Text>
+                            </View>
+                            {opt.value === feedStyle ? (
                                 <IconSymbol
                                     color={W.violet}
                                     name="checkmark.circle.fill"
@@ -150,6 +190,7 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
     },
     rowActive: { backgroundColor: W.violetBg, paddingVertical: 13 },
+    rowHint: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 10.5, marginTop: 2 },
     rowLabel: { color: W.fg, flex: 1, fontSize: 14 },
     rowValue: { color: W.fgMuted, fontFamily: Fonts.mono, fontSize: 12 },
     sectionLabelLine: {

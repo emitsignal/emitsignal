@@ -12,6 +12,7 @@ import 'react-native-reanimated';
 import { W } from '@/constants/theme';
 import { DebugSectionsProvider } from '@/ctx/debug-sections';
 import { DeviceProvider } from '@/ctx/device';
+import { FeedStyleProvider } from '@/ctx/feed-style';
 import { SessionProvider } from '@/ctx/session';
 import { ThemeProvider } from '@/ctx/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -20,13 +21,15 @@ import { useForegroundNotifications } from '@/hooks/use-foreground-notifications
 export default function RootLayout() {
     return (
         <ThemeProvider>
-            <DebugSectionsProvider>
-                <SessionProvider>
-                    <DeviceProvider>
-                        <RootLayoutContent />
-                    </DeviceProvider>
-                </SessionProvider>
-            </DebugSectionsProvider>
+            <FeedStyleProvider>
+                <DebugSectionsProvider>
+                    <SessionProvider>
+                        <DeviceProvider>
+                            <RootLayoutContent />
+                        </DeviceProvider>
+                    </SessionProvider>
+                </DebugSectionsProvider>
+            </FeedStyleProvider>
         </ThemeProvider>
     );
 }
