@@ -199,10 +199,9 @@ export function createApiClient(baseUrl: string) {
             return request<PushToken[]>('/push-tokens');
         },
 
-        listSubscriptions(deviceId: string) {
-            return request<Subscription[]>(
-                `/subscriptions?deviceId=${encodeURIComponent(deviceId)}`,
-            );
+        listSubscriptions(deviceId?: string) {
+            const query = deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : '';
+            return request<Subscription[]>(`/subscriptions${query}`);
         },
 
         listTopics(query?: string) {
