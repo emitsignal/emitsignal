@@ -78,20 +78,11 @@ export function useDeviceInfo() {
 
             const projectId =
                 ExpoConstants.expoConfig?.extra?.eas?.projectId ??
-                ExpoConstants.easConfig.projectId ??
+                ExpoConstants.easConfig?.projectId ??
                 process.env.EXPO_PUBLIC_PROJECT_ID;
 
             const tokenData = await Notifications.getExpoPushTokenAsync({
                 projectId,
-            });
-
-            console.log({
-                envProjectId: process.env.EXPO_PUBLIC_PROJECT_ID,
-                projectId,
-                projectIdConstant:
-                    ExpoConstants.expoConfig?.extra?.eas?.projectId ??
-                    ExpoConstants.easConfig.projectId,
-                tokenData,
             });
 
             const token = tokenData.data;
@@ -109,6 +100,7 @@ export function useDeviceInfo() {
             return token;
         } catch (error) {
             console.error('Error registering push notifications:', error);
+
             return null;
         }
     }, []);

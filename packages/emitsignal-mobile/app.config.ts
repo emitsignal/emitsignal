@@ -38,6 +38,7 @@ const config: ExpoConfig = {
     owner: 'kevenleone',
     plugins: [
         'expo-font',
+        'expo-notifications',
         'expo-router',
         'expo-secure-store',
         [
