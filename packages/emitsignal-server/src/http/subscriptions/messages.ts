@@ -1,0 +1,49 @@
+import Elysia, { t } from 'elysia';
+
+import { prisma } from '../../lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
+import { serializeMessage } from '../../lib/topic';
+import { authAwareBeforeHandle } from '../plugins/rate-limit-plugin';
+import { resolveSubscriptions } from './resolve';
+
+export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' }).get(
+    '/messages',
+    async ({ headers, query }) => {
+        const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
+
+        const topicIds = rows.map((row) => row.topicId);
+
+        if (topicIds.length === 0) {
+            return [];
+        }
+
+        const messages = await prisma.message.findMany({
+            include: {
+                _count: { select: { acknowledgments: true } },
+                topic: { select: { name: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: query.limit,
+            where: { topicId: { in: topicIds } },
+        });
+
+        return Promise.all(
+            messages.map(async (message) => {
+                const serialized = await serializeMessage(
+                    message,
+                    message._count.acknowledgments,
+                    false,
+                );
+
+                return { ...serialized, topicName: message.topic.name };
+            }),
+        );
+    },
+    {
+        beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
+        query: t.Object({
+            deviceId: t.Optional(t.String({ minLength: 1 })),
+            limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
+        }),
+    },
+);

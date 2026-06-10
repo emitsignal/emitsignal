@@ -199,6 +199,22 @@ export function createApiClient(baseUrl: string) {
             return request<PushToken[]>('/push-tokens');
         },
 
+        listSubscriptionMessages(deviceId?: string, limit?: number) {
+            const params = new URLSearchParams();
+
+            if (deviceId) {
+                params.set('deviceId', deviceId);
+            }
+
+            if (limit !== undefined) {
+                params.set('limit', String(limit));
+            }
+
+            const query = params.toString();
+
+            return request<Message[]>(`/subscriptions/messages${query ? `?${query}` : ''}`);
+        },
+
         listSubscriptions(deviceId?: string) {
             const query = deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : '';
             return request<Subscription[]>(`/subscriptions${query}`);

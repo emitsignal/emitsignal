@@ -15,6 +15,7 @@ import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
 import { updatePushToken } from './http/push-tokens/update';
 import { listSubscriptions } from './http/subscriptions/list';
+import { listSubscriptionMessages } from './http/subscriptions/messages';
 import { subscribe } from './http/subscriptions/subscribe';
 import { unsubscribe } from './http/subscriptions/unsubscribe';
 import { getTopic } from './http/topic/get';
@@ -84,6 +85,7 @@ const app = new Elysia()
     .use(listen)
     .use(listenMulti)
     .use(listPushTokens)
+    .use(listSubscriptionMessages)
     .use(listSubscriptions)
     .use(listTopics)
     .use(messages)
