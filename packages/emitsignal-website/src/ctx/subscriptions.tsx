@@ -17,11 +17,11 @@ interface SubscriptionsContextValue {
 const SubscriptionsContext = createContext<SubscriptionsContextValue | undefined>(undefined);
 
 export function SubscriptionsProvider({ children }: { children: ReactNode }) {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
-    const { user } = useSession();
+    const { loading: authLoading, user } = useSession();
     const userId = user?.id;
     const deviceId = getDeviceId();
 
@@ -39,8 +39,12 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
     }, [userId, deviceId]);
 
     useEffect(() => {
+        if (authLoading) {
+            return;
+        }
+
         refresh();
-    }, [refresh]);
+    }, [authLoading, refresh]);
 
     const subscribe = useCallback(
         async (topicName: string) => {

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { Message, Subscription, TopicMetrics } from '#/lib/api';
+import type { Message, TopicMetrics } from '#/lib/api';
 
 import { useSession } from '#/ctx/session';
+import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, sseMultiUrl, sseUrl } from '#/lib/api';
 import { getDeviceId } from '#/lib/storage';
 
@@ -12,41 +13,28 @@ interface FeedState {
     error: Error | null;
     loading: boolean;
     messages: Message[];
-    subscriptions: Subscription[];
 }
 
 export function useFeed() {
     const deviceId = getDeviceId();
     const { loading: authLoading, user } = useSession();
+    const { subscriptions } = useSubscriptions();
 
     const [state, setState] = useState<FeedState>({
         error: null,
         loading: true,
         messages: [],
-        subscriptions: [],
     });
 
     const userId = user?.id;
 
     const refresh = useCallback(async () => {
         try {
-            const subscriptions = await api.listSubscriptions(userId ? undefined : deviceId);
-            const allMessages: Message[] = [];
-
-            for (const subscription of subscriptions) {
-                const messages = await api.listMessages(subscription.topic.name, 25);
-
-                allMessages.push(...messages);
-            }
-
-            allMessages.sort((a, b) => b.createdAt - a.createdAt);
-
-            setState({
-                error: null,
-                loading: false,
-                messages: allMessages,
-                subscriptions,
-            });
+            const allMessages = await api.listSubscriptionMessages(
+                userId ? undefined : deviceId,
+                50,
+            );
+            setState({ error: null, loading: false, messages: allMessages });
         } catch (error) {
             setState((prev) => ({
                 ...prev,
@@ -57,10 +45,14 @@ export function useFeed() {
     }, [userId, deviceId]);
 
     useEffect(() => {
-        refresh();
-    }, [refresh]);
+        if (authLoading) {
+            return;
+        }
 
-    const topicNames = state.subscriptions.map((subscription) => subscription.topic.name);
+        refresh();
+    }, [authLoading, refresh]);
+
+    const topicNames = subscriptions.map((subscription) => subscription.topic.name);
     const sseTarget = topicNames.length ? sseMultiUrl(topicNames) : null;
 
     useSSE({
@@ -85,7 +77,7 @@ export function useFeed() {
         url: !authLoading && sseTarget ? sseTarget : null,
     });
 
-    return { ...state, refresh };
+    return { ...state, refresh, subscriptions };
 }
 
 export function useTopicMessages(
@@ -106,6 +98,7 @@ export function useTopicMessages(
         let cancelled = false;
 
         setLoading(true);
+
         api.listMessages(topicName)
             .then((fetchedMessages) => {
                 if (!cancelled) {
