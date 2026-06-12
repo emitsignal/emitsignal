@@ -2,6 +2,9 @@ import Elysia, { t } from 'elysia';
 
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { validateActions } from '../../lib/actions';
+import { getUserLimits } from '../../lib/billing/get-user-plan';
+import { PlanLimitError } from '../../lib/billing/plans';
+import { consumeDailyQuota, quotaExceededHeaders } from '../../lib/billing/usage';
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
 import { parsePublishHeaders } from '../../lib/header-publish';
@@ -9,12 +12,13 @@ import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
 import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
+import { resolveUserId } from '../auth/plugin';
 
 const MAX_SCHEDULE_SECONDS = duration.years(1).as('seconds');
 
 export const publish = new Elysia().post(
     '/topic/:name',
-    async ({ body, params }) => {
+    async ({ body, headers, params, set, status }) => {
         const now = Math.floor(Date.now() / 1000);
 
         const scheduledAtUnix = body.scheduledAt;
@@ -24,7 +28,42 @@ export const publish = new Elysia().post(
             return { error: 'scheduledAt cannot be more than 1 year in the future', status: 400 };
         }
 
-        const topic = await getOrCreateTopic(params.name);
+        // Anonymous publishers are only throttled by the per-IP rate limiter;
+        // daily plan quotas apply to authenticated users.
+        const userId = await resolveUserId({ headers });
+
+        if (userId) {
+            const limits = await getUserLimits(userId);
+            const quota = await consumeDailyQuota(userId, 'messages', limits.messagesPerDay);
+
+            if (!quota.allowed) {
+                Object.assign(set.headers, quotaExceededHeaders(quota));
+
+                return status(429, {
+                    error: 'daily_quota_exceeded',
+                    limit: quota.limit,
+                    metric: 'messages',
+                    resetAt: quota.resetAt,
+                });
+            }
+        }
+
+        let topic;
+
+        try {
+            topic = await getOrCreateTopic(params.name, userId ?? undefined);
+        } catch (error) {
+            if (error instanceof PlanLimitError) {
+                return status(403, {
+                    error: 'plan_limit_reached',
+                    limit: error.limit,
+                    metric: error.metric,
+                    plan: error.plan,
+                });
+            }
+
+            throw error;
+        }
 
         const validation = validateActions(body.actions);
 

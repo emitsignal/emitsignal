@@ -1,11 +1,13 @@
 import Elysia, { t } from 'elysia';
 
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
+import { getUserLimits } from '../../lib/billing/get-user-plan';
+import { PLANS } from '../../lib/billing/plans';
 import { duration } from '../../lib/duration';
 import { prisma } from '../../lib/prisma';
 import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
 import { FileStorageService } from '../../lib/storage';
-import { ATTACHMENT_MAX_SIZE, isAllowedMimeType } from '../../lib/storage/provider';
+import { isAllowedMimeType } from '../../lib/storage/provider';
 import { resolveUserId } from '../auth/plugin';
 
 const AUTH_TTL_MS = duration.days(15).as('ms');
@@ -45,6 +47,9 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         const ttlMs = userId ? AUTH_TTL_MS : NO_AUTH_TTL_MS;
         const expiresAt = new Date(Date.now() + ttlMs);
 
+        // Anonymous uploaders get free-tier attachment limits
+        const limits = userId ? await getUserLimits(userId) : PLANS.free.limits;
+
         const storage = FileStorageService.provider;
         const results = [];
 
@@ -59,12 +64,14 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
                 });
             }
 
-            if (file.size > ATTACHMENT_MAX_SIZE) {
+            if (file.size > limits.attachmentMaxBytes) {
+                const maxMegabytes = Math.floor(limits.attachmentMaxBytes / (1024 * 1024));
+
                 return status(400, {
                     error: 'file_too_large',
                     filename: file.name,
-                    maxSizeBytes: ATTACHMENT_MAX_SIZE,
-                    message: `File "${file.name}" exceeds the 25 MB limit.`,
+                    maxSizeBytes: limits.attachmentMaxBytes,
+                    message: `File "${file.name}" exceeds the ${maxMegabytes} MB limit for your plan.`,
                 });
             }
 

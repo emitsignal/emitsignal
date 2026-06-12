@@ -19,7 +19,7 @@ export interface FileUploadInput {
 }
 
 export const ALLOWED_MIME_TYPES = ['image/', 'text/plain'] as const;
-export const ATTACHMENT_MAX_SIZE = 25 * 1024 * 1024; // 25 MB
+// Attachment size limits are plan-based — see src/lib/billing/plans.ts
 export const AVATAR_MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
 export function isAllowedMimeType(mimeType: string): boolean {
