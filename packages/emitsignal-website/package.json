@@ -2,6 +2,7 @@
     "dependencies": {
         "@better-auth/api-key": "^1.6.14",
         "@better-auth/passkey": "^1.6.14",
+        "@better-auth/stripe": "^1.6.18",
         "@emitsignal/shared": "workspace:*",
         "@microsoft/fetch-event-source": "^2.0.1",
         "@tailwindcss/vite": "^4.1.18",

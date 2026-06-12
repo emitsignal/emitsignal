@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "allowImportingTsExtensions": true /* Allow imports to include TypeScript file extensions (workspace packages export .ts sources). */,
         // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
         // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
         // "resolveJsonModule": true,                        /* Enable importing .json files. */
@@ -57,9 +58,10 @@
         // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
 
         /* Modules */
-        "module": "ES2022" /* Specify what module code is generated. */,
+        "module": "ESNext" /* Specify what module code is generated. */,
         // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-        "moduleResolution": "node" /* Specify how TypeScript looks up a file from a given module specifier. */,
+        "moduleResolution": "bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
+        "noEmit": true /* Bun runs TypeScript directly; tsc is type-check only. */,
         "resolveJsonModule": true,
         // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
         // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
