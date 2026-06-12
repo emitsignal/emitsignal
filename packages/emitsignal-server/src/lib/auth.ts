@@ -1,15 +1,48 @@
 import { apiKey } from '@better-auth/api-key';
 import { passkey } from '@better-auth/passkey';
+import { stripe } from '@better-auth/stripe';
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { bearer, emailOTP } from 'better-auth/plugins';
 import { createElement } from 'react';
+import Stripe from 'stripe';
 
 import { environment } from '../schema/environment';
+import { invalidateUserPlanCache } from './billing/get-user-plan';
+import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
 import { duration } from './duration';
 import { EmailService } from './email-service';
 import { prisma } from './prisma';
+
+// Paid plans only exist when Stripe is fully configured; without the env vars
+// the server boots with every user on the free plan.
+const stripePlugins = isStripeBillingEnabled()
+    ? [
+          stripe({
+              createCustomerOnSignUp: true,
+              schema: { subscription: { modelName: 'planSubscription' } },
+              stripeClient: new Stripe(environment.STRIPE_SECRET_KEY as string),
+              stripeWebhookSecret: environment.STRIPE_WEBHOOK_SECRET as string,
+              subscription: {
+                  enabled: true,
+                  onSubscriptionCancel: async ({ subscription }) => {
+                      await invalidateUserPlanCache(subscription.referenceId);
+                  },
+                  onSubscriptionComplete: async ({ subscription }) => {
+                      await invalidateUserPlanCache(subscription.referenceId);
+                  },
+                  onSubscriptionDeleted: async ({ subscription }) => {
+                      await invalidateUserPlanCache(subscription.referenceId);
+                  },
+                  onSubscriptionUpdate: async ({ subscription }) => {
+                      await invalidateUserPlanCache(subscription.referenceId);
+                  },
+                  plans: stripePlanConfig(),
+              },
+          }),
+      ]
+    : [];
 
 const rpHostname = (() => {
     try {
@@ -57,6 +90,7 @@ export const auth = betterAuth({
             rpID: rpHostname,
             rpName: 'EmitSignal',
         }),
+        ...stripePlugins,
     ],
     secret: environment.BETTER_AUTH_SECRET,
     socialProviders: {
