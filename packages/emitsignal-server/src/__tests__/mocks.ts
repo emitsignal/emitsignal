@@ -34,6 +34,11 @@ export const prismaMock = {
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
     },
+    planSubscription: {
+        findFirst: mock<(args?: Record<string, unknown>) => Promise<null | object>>(() =>
+            Promise.resolve(null),
+        ),
+    },
     pushToken: {
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
@@ -61,6 +66,7 @@ export const prismaMock = {
         ),
     },
     topic: {
+        count: mock<(args?: Record<string, unknown>) => Promise<number>>(() => Promise.resolve(0)),
         create: mock<() => Promise<object>>(() =>
             Promise.resolve({
                 createdAt: new Date(),
@@ -104,6 +110,21 @@ export const prismaMock = {
         ),
         findFirst: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
         update: mock<() => Promise<object>>(() => Promise.resolve({ id: 'vc-1' })),
+    },
+    webhook: {
+        count: mock<(args?: Record<string, unknown>) => Promise<number>>(() => Promise.resolve(0)),
+        create: mock<(args: { data: Record<string, unknown> }) => Promise<object>>(() =>
+            Promise.resolve({
+                createdAt: new Date(),
+                id: 'wh-1',
+                name: 'custom webhook',
+                slug: 'cu_abc123',
+                source: 'custom',
+                status: 'active',
+                template: null,
+                topicName: 'deploys',
+            }),
+        ),
     },
 };
 

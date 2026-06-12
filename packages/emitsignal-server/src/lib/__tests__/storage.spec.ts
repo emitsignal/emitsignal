@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, rmSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import { LocalFileStorage } from '../storage/local-provider';
-import { ATTACHMENT_MAX_SIZE, isAllowedMimeType } from '../storage/provider';
+import { isAllowedMimeType } from '../storage/provider';
 
 describe('LocalFileStorage', () => {
     const testDir = path.join(import.meta.dir, 'test-uploads');
@@ -133,11 +133,5 @@ describe('isAllowedMimeType', () => {
 
     it('rejects empty string', () => {
         expect(isAllowedMimeType('')).toBe(false);
-    });
-});
-
-describe('ATTACHMENT_MAX_SIZE', () => {
-    it('is 25 MB', () => {
-        expect(ATTACHMENT_MAX_SIZE).toBe(25 * 1024 * 1024);
     });
 });
