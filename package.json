@@ -13,6 +13,9 @@
     },
     "module": "index.ts",
     "name": "@emitsignal",
+    "overrides": {
+        "@tanstack/query-core": "5.101.0"
+    },
     "peerDependencies": {
         "typescript": "^5"
     },

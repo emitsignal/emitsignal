@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { authClient } from '#/lib/auth-client';
+import { queryKeys } from '#/lib/query-client';
 
 export interface ApiKey {
     createdAt: Date;
@@ -15,52 +16,64 @@ export interface ApiKey {
 }
 
 export function useApiKeys() {
-    const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-    const [error, setError] = useState<null | string>(null);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    const load = useCallback(async () => {
-        setError(null);
-        setLoading(true);
+    const { data, error, isPending } = useQuery({
+        queryFn: fetchApiKeys,
+        queryKey: queryKeys.apiKeys,
+    });
 
-        try {
-            const { data, error: apiError } = await authClient.apiKey.list();
+    const disableMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error: apiError } = await authClient.apiKey.update({
+                enabled: false,
+                keyId: id,
+            });
 
             if (apiError) {
                 throw new Error(apiError.message);
             }
 
-            setApiKeys((data as unknown as { apiKeys: ApiKey[] })?.apiKeys ?? []);
-        } catch (error) {
-            setError(error instanceof Error ? error.message : 'Failed to load API keys');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+            return id;
+        },
+        onSuccess: (id) => {
+            queryClient.setQueryData<ApiKey[]>(queryKeys.apiKeys, (previous) =>
+                (previous ?? []).map((apiKey) =>
+                    apiKey.id === id ? { ...apiKey, enabled: false } : apiKey,
+                ),
+            );
+        },
+    });
 
-    useEffect(() => {
-        void load();
-    }, [load]);
+    const removeMutation = useMutation({
+        mutationFn: async (id: string) => {
+            await authClient.apiKey.delete({ keyId: id });
 
-    const disable = useCallback(async (id: string) => {
-        const { error: apiError } = await authClient.apiKey.update({ enabled: false, keyId: id });
+            return id;
+        },
+        onSuccess: (id) => {
+            queryClient.setQueryData<ApiKey[]>(queryKeys.apiKeys, (previous) =>
+                (previous ?? []).filter((apiKey) => apiKey.id !== id),
+            );
+        },
+    });
 
-        if (apiError) {
-            throw new Error(apiError.message);
-        }
+    return {
+        apiKeys: data ?? [],
+        disable: (id: string) => disableMutation.mutateAsync(id),
+        error: error instanceof Error ? error.message : null,
+        loading: isPending,
+        refresh: () => queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys }),
+        remove: (id: string) => removeMutation.mutateAsync(id),
+    };
+}
 
-        setApiKeys((prevApiKeys) =>
-            prevApiKeys.map((apiKey) =>
-                apiKey.id === id ? { ...apiKey, enabled: false } : apiKey,
-            ),
-        );
-    }, []);
+async function fetchApiKeys(): Promise<ApiKey[]> {
+    const { data, error: apiError } = await authClient.apiKey.list();
 
-    const remove = useCallback(async (id: string) => {
-        await authClient.apiKey.delete({ keyId: id });
+    if (apiError) {
+        throw new Error(apiError.message);
+    }
 
-        setApiKeys((prevApiKeys) => prevApiKeys.filter((apiKey) => apiKey.id !== id));
-    }, []);
-
-    return { apiKeys, disable, error, loading, refresh: load, remove };
+    return (data as unknown as { apiKeys: ApiKey[] })?.apiKeys ?? [];
 }

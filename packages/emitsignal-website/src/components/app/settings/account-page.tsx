@@ -1,8 +1,10 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { GitBranch, Key, Monitor, Smartphone } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { authClient } from '#/lib/auth-client';
+import { queryKeys } from '#/lib/query-client';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
@@ -38,89 +40,113 @@ export function AccountPage() {
     const { data: sessionData } = authClient.useSession();
     const currentToken = sessionData?.session?.token;
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     // Sessions
-    const [revokingOthers, setRevokingOthers] = useState(false);
-    const [revokingToken, setRevokingToken] = useState<null | string>(null);
-    const [sessions, setSessions] = useState<SessionItem[]>([]);
-    const [sessionsLoading, setSessionsLoading] = useState(true);
+    const { data: sessions = [], isPending: sessionsLoading } = useQuery({
+        queryFn: async () => {
+            const { data } = await authClient.listSessions();
+            return (data as null | SessionItem[]) ?? [];
+        },
+        queryKey: queryKeys.authSessions,
+    });
 
     // Passkeys
-    const [addingPasskey, setAddingPasskey] = useState(false);
-    const [deletingPasskeyId, setDeletingPasskeyId] = useState<null | string>(null);
     const [passkeyError, setPasskeyError] = useState('');
-    const [passkeys, setPasskeys] = useState<PasskeyItem[]>([]);
-    const [passkeysLoading, setPasskeysLoading] = useState(true);
+    const { data: passkeys = [], isPending: passkeysLoading } = useQuery({
+        queryFn: async () => {
+            const { data } = await authClient.passkey.listUserPasskeys({});
+            return (data as null | PasskeyItem[]) ?? [];
+        },
+        queryKey: queryKeys.authPasskeys,
+    });
 
     // Connected accounts
-    const [accounts, setAccounts] = useState<AccountItem[]>([]);
-    const [linkingGitHub, setLinkingGitHub] = useState(false);
-    const [unlinkingGitHub, setUnlinkingGitHub] = useState(false);
+    const { data: accounts = [] } = useQuery({
+        queryFn: async () => {
+            const { data } = await authClient.listAccounts();
+            return (data as AccountItem[] | null) ?? [];
+        },
+        queryKey: queryKeys.authAccounts,
+    });
 
     // Delete account
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState('');
     const [deleting, setDeleting] = useState(false);
 
-    useEffect(() => {
-        authClient
-            .listSessions()
-            .then(({ data }) => setSessions((data as null | SessionItem[]) ?? []))
-            .finally(() => setSessionsLoading(false));
-
-        authClient.passkey
-            .listUserPasskeys({})
-            .then(({ data }) => setPasskeys((data as null | PasskeyItem[]) ?? []))
-            .finally(() => setPasskeysLoading(false));
-
-        authClient
-            .listAccounts()
-            .then(({ data }) => setAccounts((data as AccountItem[] | null) ?? []));
-    }, []);
-
     // ── session handlers ─────────────────────────────────────────────────────
 
-    const handleRevokeSession = async (token: string) => {
-        setRevokingToken(token);
-        const { error } = await authClient.revokeSession({ token });
-        setRevokingToken(null);
-        if (!error) setSessions((prev) => prev.filter((s) => s.token !== token));
-    };
+    const revokeSessionMutation = useMutation({
+        mutationFn: async (token: string) => {
+            const { error } = await authClient.revokeSession({ token });
+            if (error) throw new Error(error.message ?? 'Failed to revoke session');
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.authSessions }),
+    });
 
-    const handleRevokeOthers = async () => {
-        setRevokingOthers(true);
-        const { error } = await authClient.revokeOtherSessions();
-        setRevokingOthers(false);
-        if (!error) setSessions((prev) => prev.filter((s) => s.token === currentToken));
-    };
+    const revokeOthersMutation = useMutation({
+        mutationFn: async () => {
+            const { error } = await authClient.revokeOtherSessions();
+            if (error) throw new Error(error.message ?? 'Failed to revoke sessions');
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.authSessions }),
+    });
+
+    const handleRevokeSession = (token: string) => revokeSessionMutation.mutate(token);
+    const handleRevokeOthers = () => revokeOthersMutation.mutate();
+
+    const revokingOthers = revokeOthersMutation.isPending;
+    const revokingToken = revokeSessionMutation.isPending ? revokeSessionMutation.variables : null;
 
     // ── passkey handlers ──────────────────────────────────────────────────────
 
-    const handleAddPasskey = async () => {
-        setAddingPasskey(true);
-        setPasskeyError('');
-        const { error } = await authClient.passkey.addPasskey({});
-        setAddingPasskey(false);
-        if (error) {
-            if (!error.message?.includes('cancel')) {
-                setPasskeyError(error.message ?? 'Registration failed');
+    const addPasskeyMutation = useMutation({
+        mutationFn: async () => {
+            const { error } = await authClient.passkey.addPasskey({});
+            if (error) throw new Error(error.message ?? 'Registration failed');
+        },
+        onError: (error: Error) => {
+            if (!error.message.includes('cancel')) {
+                setPasskeyError(error.message);
             }
-        } else {
-            const { data } = await authClient.passkey.listUserPasskeys({});
-            setPasskeys((data as null | PasskeyItem[]) ?? []);
-        }
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.authPasskeys }),
+    });
+
+    const deletePasskeyMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await authClient.passkey.deletePasskey({ id });
+            if (error) throw new Error(error.message ?? 'Failed to remove passkey');
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.authPasskeys }),
+    });
+
+    const handleAddPasskey = () => {
+        setPasskeyError('');
+        addPasskeyMutation.mutate();
     };
 
-    const handleDeletePasskey = async (id: string) => {
-        setDeletingPasskeyId(id);
-        const { error } = await authClient.passkey.deletePasskey({ id });
-        setDeletingPasskeyId(null);
-        if (!error) setPasskeys((prev) => prev.filter((p) => p.id !== id));
-    };
+    const handleDeletePasskey = (id: string) => deletePasskeyMutation.mutate(id);
+
+    const addingPasskey = addPasskeyMutation.isPending;
+    const deletingPasskeyId = deletePasskeyMutation.isPending
+        ? deletePasskeyMutation.variables
+        : null;
 
     // ── account link handlers ─────────────────────────────────────────────────
 
     const isGitHubLinked = accounts.some((a) => a.providerId === 'github');
+
+    const [linkingGitHub, setLinkingGitHub] = useState(false);
+
+    const unlinkGitHubMutation = useMutation({
+        mutationFn: async () => {
+            const { error } = await authClient.unlinkAccount({ providerId: 'github' });
+            if (error) throw new Error(error.message ?? 'Failed to disconnect GitHub');
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.authAccounts }),
+    });
 
     const handleLinkGitHub = async () => {
         setLinkingGitHub(true);
@@ -130,17 +156,9 @@ export function AccountPage() {
         });
     };
 
-    const handleUnlinkGitHub = async () => {
-        setUnlinkingGitHub(true);
+    const handleUnlinkGitHub = () => unlinkGitHubMutation.mutate();
 
-        const { error } = await authClient.unlinkAccount({ providerId: 'github' });
-
-        setUnlinkingGitHub(false);
-
-        if (!error) {
-            setAccounts((prev) => prev.filter((a) => a.providerId !== 'github'));
-        }
-    };
+    const unlinkingGitHub = unlinkGitHubMutation.isPending;
 
     // ── delete account handler ────────────────────────────────────────────────
 
