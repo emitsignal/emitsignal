@@ -103,12 +103,13 @@ model Session {
 model User {
     id            String   @id @default(cuid())
 
-    createdAt     DateTime @default(now())
-    email         String   @unique
-    emailVerified Boolean  @default(false)
-    image         String?
-    name          String?
-    updatedAt     DateTime @updatedAt
+    createdAt        DateTime @default(now())
+    email            String   @unique
+    emailVerified    Boolean  @default(false)
+    image            String?
+    name             String?
+    stripeCustomerId String?
+    updatedAt        DateTime @updatedAt
 
     accounts      Account[]
     apiKeys       Apikey[]
@@ -123,6 +124,34 @@ model User {
     subscriptions     Subscription[]
     topicAccess       TopicAccess[]
     webhooks          Webhook[]
+}
+
+// Stripe billing subscriptions (managed by the @better-auth/stripe plugin).
+// Named PlanSubscription because Subscription already means topic subscriptions.
+model PlanSubscription {
+    id                   String    @id @default(cuid())
+
+    billingInterval      String?
+    cancelAt             DateTime?
+    cancelAtPeriodEnd    Boolean?  @default(false)
+    canceledAt           DateTime?
+    createdAt            DateTime  @default(now())
+    endedAt              DateTime?
+    periodEnd            DateTime?
+    periodStart          DateTime?
+    plan                 String
+    referenceId          String
+    seats                Int?
+    status               String    @default("incomplete")
+    stripeCustomerId     String?
+    stripeScheduleId     String?
+    stripeSubscriptionId String?
+    trialEnd             DateTime?
+    trialStart           DateTime?
+    updatedAt            DateTime  @updatedAt
+
+    @@index([referenceId])
+    @@index([stripeCustomerId])
 }
 
 model Verification {

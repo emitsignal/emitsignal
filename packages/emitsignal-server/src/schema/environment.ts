@@ -51,6 +51,13 @@ const environmentSchema = Type.Object({
     SMTP_PORT: Type.Number({ default: 1025 }),
     SMTP_USER: Type.Optional(Type.String()),
 
+    STRIPE_PRICE_BEAM_MONTHLY: Type.Optional(Type.String()),
+    STRIPE_PRICE_BEAM_YEARLY: Type.Optional(Type.String()),
+    STRIPE_PRICE_PULSE_MONTHLY: Type.Optional(Type.String()),
+    STRIPE_PRICE_PULSE_YEARLY: Type.Optional(Type.String()),
+    STRIPE_SECRET_KEY: Type.Optional(Type.String()),
+    STRIPE_WEBHOOK_SECRET: Type.Optional(Type.String()),
+
     UPLOAD_DIR: Type.String({ default: './uploads' }),
 });
 
