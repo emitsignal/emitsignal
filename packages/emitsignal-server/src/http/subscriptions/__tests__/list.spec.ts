@@ -53,8 +53,11 @@ describe('GET /subscriptions', () => {
         expect(data).toEqual([]);
     });
 
-    it('returns 422 when missing deviceId', async () => {
+    it('returns an empty array when unauthenticated and missing deviceId', async () => {
         const res = await app.handle(new Request('http://localhost/subscriptions'));
-        expect(res.status).toBe(422);
+        expect(res.status).toBe(200);
+
+        const data = await res.json();
+        expect(data).toEqual([]);
     });
 });
