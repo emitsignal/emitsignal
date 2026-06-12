@@ -1,5 +1,5 @@
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
 import {
     Alert,
     FlatList,
@@ -15,69 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
-import { useDevice } from '@/ctx/device';
-import { useSession } from '@/ctx/session';
-import { api, type Subscription } from '@/lib/api';
+import { useSubscriptions } from '@/hooks/use-subscriptions';
+import { type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
-    const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
-    const [refreshing, setRefreshing] = useState(false);
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-    const { loading: sessionLoading, user } = useSession();
-    const userId = user?.id;
-    const { deviceId } = useDevice();
-
-    const refresh = useCallback(
-        async ({ silent = false }: { silent?: boolean } = {}) => {
-            if (sessionLoading) {
-                return;
-            }
-
-            if (!userId && !deviceId) {
-                return;
-            }
-
-            if (!silent) {
-                setLoading(true);
-            }
-
-            try {
-                setSubscriptions(
-                    await api.listSubscriptions(userId ? undefined : (deviceId ?? undefined)),
-                );
-            } catch (error) {
-                console.error(error);
-            }
-
-            if (!silent) {
-                setLoading(false);
-            }
-        },
-        [sessionLoading, userId, deviceId],
-    );
-
-    const onPullToRefresh = useCallback(async () => {
-        setRefreshing(true);
-
-        await refresh({ silent: true });
-
-        setRefreshing(false);
-    }, [refresh]);
-
-    useEffect(() => {
-        if (!sessionLoading && (userId || deviceId)) {
-            refresh();
-        }
-    }, [sessionLoading, userId, deviceId]);
-
-    useFocusEffect(
-        useCallback(() => {
-            if (!sessionLoading && (userId || deviceId)) {
-                refresh({ silent: true });
-            }
-        }, [sessionLoading, userId, deviceId, refresh]),
-    );
+    const { loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
 
     const filtered = useMemo(() => {
         if (!query.trim()) {
@@ -94,17 +37,11 @@ export default function ChannelsScreen() {
     }, [subscriptions, query]);
 
     const handleUnsubscribe = (subscription: Subscription) => {
-        if (!deviceId) {
-            return;
-        }
-
         Alert.alert('Unsubscribe', `Stop receiving messages from ${subscription.topic.name}?`, [
             { style: 'cancel', text: 'Cancel' },
             {
-                onPress: async () => {
-                    await api.unsubscribe(deviceId, subscription.topic.name);
-
-                    await refresh({ silent: true });
+                onPress: () => {
+                    void unsubscribe(subscription.topic.name);
                 },
                 style: 'destructive',
                 text: 'Unsubscribe',
@@ -162,7 +99,7 @@ export default function ChannelsScreen() {
                 refreshControl={
                     <RefreshControl
                         colors={[W.violet]}
-                        onRefresh={onPullToRefresh}
+                        onRefresh={refresh}
                         refreshing={refreshing}
                         tintColor={W.violet}
                     />

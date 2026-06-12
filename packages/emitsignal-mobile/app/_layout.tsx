@@ -3,6 +3,7 @@ import {
     DefaultTheme,
     ThemeProvider as NavigationThemeProvider,
 } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
@@ -17,20 +18,26 @@ import { SessionProvider } from '@/ctx/session';
 import { ThemeProvider } from '@/ctx/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useForegroundNotifications } from '@/hooks/use-foreground-notifications';
+import { queryClient } from '@/lib/query-client';
+import { setupQuerySync } from '@/lib/query-online';
+
+setupQuerySync();
 
 export default function RootLayout() {
     return (
-        <ThemeProvider>
-            <FeedStyleProvider>
-                <DebugSectionsProvider>
-                    <SessionProvider>
-                        <DeviceProvider>
-                            <RootLayoutContent />
-                        </DeviceProvider>
-                    </SessionProvider>
-                </DebugSectionsProvider>
-            </FeedStyleProvider>
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+                <FeedStyleProvider>
+                    <DebugSectionsProvider>
+                        <SessionProvider>
+                            <DeviceProvider>
+                                <RootLayoutContent />
+                            </DeviceProvider>
+                        </SessionProvider>
+                    </DebugSectionsProvider>
+                </FeedStyleProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
     );
 }
 

@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
@@ -15,7 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivitySparkline, WCode, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
-import { api, type Topic } from '@/lib/api';
+import { api } from '@/lib/api';
+import { queryKeys } from '@/lib/query-client';
 
 export default function PublishScreen() {
     const [topic, setTopic] = useState('alerts/prod');
@@ -23,14 +25,12 @@ export default function PublishScreen() {
     const [body, setBody] = useState('api-gateway shipped to prod');
     const [priority, setPriority] = useState<1 | 2 | 3 | 4 | 5>(3);
     const [tags, setTags] = useState('deploy,prod');
-    const [topics, setTopics] = useState<Topic[]>([]);
     const [busy, setBusy] = useState(false);
-
-    useEffect(() => {
-        api.listTopics()
-            .then(setTopics)
-            .catch(() => {});
-    }, []);
+    const queryClient = useQueryClient();
+    const { data: topics = [] } = useQuery({
+        queryFn: () => api.listTopics(),
+        queryKey: queryKeys.topics(''),
+    });
 
     const handlePublish = async () => {
         if (!topic.trim() || !title.trim()) {
@@ -48,8 +48,7 @@ export default function PublishScreen() {
                 title: title.trim(),
             });
             Alert.alert('Published', `→ ${topic}`);
-            const updated = await api.listTopics();
-            setTopics(updated);
+            void queryClient.invalidateQueries({ queryKey: queryKeys.topics('') });
         } catch (error) {
             Alert.alert('Failed', error instanceof Error ? error.message : String(error));
         } finally {

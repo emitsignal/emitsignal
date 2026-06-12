@@ -1,6 +1,7 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     ActivityIndicator,
     Platform,
@@ -26,6 +27,7 @@ import { useFeedStyle } from '@/ctx/feed-style';
 import { useSession } from '@/ctx/session';
 import { useTheme } from '@/ctx/theme';
 import { api } from '@/lib/api';
+import { queryKeys } from '@/lib/query-client';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
     { label: 'System', value: 'system' },
@@ -171,24 +173,16 @@ export default function SettingsScreen() {
 function NotificationsSection() {
     const { deviceId, isLoading, pushToken, refreshPushToken } = useDevice();
     const { user } = useSession();
-    const [tokenRecord, setTokenRecord] = useState<null | PushToken>(null);
-    const [loadingRecord, setLoadingRecord] = useState(false);
     const [enabling, setEnabling] = useState(false);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        if (!pushToken || !user) {
-            return;
-        }
+    const { data: tokens = [], isFetching: loadingRecord } = useQuery({
+        enabled: Boolean(pushToken && user),
+        queryFn: () => api.listMyPushTokens(),
+        queryKey: queryKeys.pushTokens,
+    });
 
-        setLoadingRecord(true);
-
-        api.listMyPushTokens()
-            .then((tokens) =>
-                setTokenRecord(tokens.find((token) => token.deviceId === deviceId) ?? null),
-            )
-            .catch(() => setTokenRecord(null))
-            .finally(() => setLoadingRecord(false));
-    }, [pushToken, user, deviceId]);
+    const tokenRecord = tokens.find((token) => token.deviceId === deviceId) ?? null;
 
     const handleEnable = async () => {
         if (!deviceId) {
@@ -210,6 +204,8 @@ function NotificationsSection() {
                     token,
                     userId: user?.id ?? null,
                 });
+
+                void queryClient.invalidateQueries({ queryKey: queryKeys.pushTokens });
             }
         } finally {
             setEnabling(false);
@@ -221,14 +217,21 @@ function NotificationsSection() {
             return;
         }
 
-        const previous = tokenRecord;
+        const { id } = tokenRecord;
 
-        setTokenRecord((prev) => (prev ? { ...prev, pushEnabled } : null));
+        const apply = (next: boolean) =>
+            queryClient.setQueryData<PushToken[]>(queryKeys.pushTokens, (previous) =>
+                (previous ?? []).map((token) =>
+                    token.id === id ? { ...token, pushEnabled: next } : token,
+                ),
+            );
+
+        apply(pushEnabled);
 
         try {
-            await api.updatePushToken(tokenRecord.id, pushEnabled);
+            await api.updatePushToken(id, pushEnabled);
         } catch {
-            setTokenRecord(previous);
+            apply(!pushEnabled);
         }
     };
 

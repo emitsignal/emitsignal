@@ -8,12 +8,13 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
-import { api } from '@/lib/api';
 
 export default function AuthFirstChannels() {
     const { deviceId } = useDevice();
     const { markOnboardingComplete } = useOnboarding();
+    const { subscribe } = useSubscriptions();
     const { data: suggestions } = useTopicSuggestions(deviceId);
     const [picked, setPicked] = useState<Record<string, boolean>>({});
     const [busy, setBusy] = useState(false);
@@ -45,7 +46,7 @@ export default function AuthFirstChannels() {
         setBusy(true);
         try {
             for (const [name, on] of Object.entries(picked)) {
-                if (on) await api.subscribe(deviceId, name, true);
+                if (on) await subscribe(name);
             }
             await markOnboardingComplete();
             router.replace('/(tabs)');

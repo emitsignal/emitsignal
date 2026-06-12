@@ -37,7 +37,7 @@ type TimelineItem =
 // ─── screen ──────────────────────────────────────────────────────────────────
 
 export default function FeedScreen() {
-    const { error, loading, messages, refresh, subscriptions } = useFeed();
+    const { error, loading, messages, refresh, refreshing, subscriptions } = useFeed();
     const { feedStyle } = useFeedStyle();
     const [filter, setFilter] = useState<string>('all');
     const [readIds, setReadIds] = useState<Set<string>>(new Set());
@@ -139,7 +139,7 @@ export default function FeedScreen() {
         <RefreshControl
             colors={[W.violet]}
             onRefresh={refresh}
-            refreshing={loading}
+            refreshing={refreshing}
             tintColor={W.violet}
         />
     );

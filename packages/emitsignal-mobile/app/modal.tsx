@@ -16,11 +16,13 @@ import { WCode, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
+import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 import { api } from '@/lib/api';
 
 export default function SubscribeModal() {
     const { deviceId } = useDevice();
+    const { subscribe } = useSubscriptions();
     const [topic, setTopic] = useState('alerts/prod');
     const [busy, setBusy] = useState(false);
     const { data: suggestions } = useTopicSuggestions(deviceId);
@@ -31,7 +33,7 @@ export default function SubscribeModal() {
         }
         setBusy(true);
         try {
-            await api.subscribe(deviceId, topic.trim(), true);
+            await subscribe(topic.trim());
             router.back();
         } catch (error) {
             console.error('Subscribe failed', error);

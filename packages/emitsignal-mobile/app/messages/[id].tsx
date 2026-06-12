@@ -1,5 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,38 +10,23 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
-import { api, type Message } from '@/lib/api';
+import { api } from '@/lib/api';
+import { queryKeys } from '@/lib/query-client';
 
 export default function MessageDetailScreen() {
-    const [ackCount, setAckCount] = useState(0);
     const [acknowledged, setAcknowledged] = useState(false);
-    const [message, setMessage] = useState<Message | null>(null);
+    const [ackResult, setAckResult] = useState<null | number>(null);
     const { deviceId } = useDevice();
     const { id } = useLocalSearchParams<{ id: string }>();
     const { sections } = useDebugSections();
 
-    useEffect(() => {
-        let cancelled = false;
+    const { data: message } = useQuery({
+        enabled: Boolean(id),
+        queryFn: () => api.getMessage(id),
+        queryKey: queryKeys.message(id),
+    });
 
-        async function load() {
-            try {
-                const msg = await api.getMessage(id);
-
-                if (!cancelled) {
-                    setMessage(msg);
-                    setAckCount(msg.acknowledgmentCount);
-                }
-            } catch (error) {
-                console.warn('Failed to load message:', error);
-            }
-        }
-
-        load();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [id]);
+    const ackCount = ackResult ?? message?.acknowledgmentCount ?? 0;
 
     const handleAcknowledge = async () => {
         if (acknowledged || !deviceId) {
@@ -51,7 +37,7 @@ export default function MessageDetailScreen() {
             const result = await api.acknowledgeMessage(id, deviceId);
 
             setAcknowledged(true);
-            setAckCount(result.count);
+            setAckResult(result.count);
         } catch (error) {
             console.warn('Acknowledge failed:', error);
         }

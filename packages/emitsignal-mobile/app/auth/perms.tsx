@@ -1,6 +1,7 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
     ActivityIndicator,
     Platform,
@@ -18,6 +19,7 @@ import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useSession } from '@/ctx/session';
 import { api, type PushToken } from '@/lib/api';
+import { queryKeys } from '@/lib/query-client';
 
 const PLATFORM_LABEL: Record<string, string> = {
     android: 'Android · FCM',
@@ -28,25 +30,17 @@ const PLATFORM_LABEL: Record<string, string> = {
 export default function AuthPerms() {
     const [chosen, setChosen] = useState(false);
     const [granted, setGranted] = useState(false);
-    const [loadingTokens, setLoadingTokens] = useState(false);
-    const [tokens, setTokens] = useState<PushToken[]>([]);
     const { deviceId, refreshPushToken } = useDevice();
     const { loading: sessionLoading, user } = useSession();
+    const queryClient = useQueryClient();
 
     const userId = user?.id;
 
-    useEffect(() => {
-        if (!granted || !userId || sessionLoading) {
-            return;
-        }
-
-        setLoadingTokens(true);
-
-        api.listMyPushTokens()
-            .then(setTokens)
-            .catch(() => setTokens([]))
-            .finally(() => setLoadingTokens(false));
-    }, [granted, userId, sessionLoading]);
+    const { data: tokens = [], isFetching: loadingTokens } = useQuery({
+        enabled: granted && Boolean(userId) && !sessionLoading,
+        queryFn: () => api.listMyPushTokens(),
+        queryKey: queryKeys.pushTokens,
+    });
 
     const handleAllow = async () => {
         setChosen(true);
@@ -76,7 +70,9 @@ export default function AuthPerms() {
                 platform,
                 token: pushToken,
                 userId: userId ?? null,
-            }).catch((error) => console.warn('push-token register failed', error));
+            })
+                .then(() => queryClient.invalidateQueries({ queryKey: queryKeys.pushTokens }))
+                .catch((error) => console.warn('push-token register failed', error));
         }
     };
 
@@ -85,14 +81,19 @@ export default function AuthPerms() {
             return;
         }
 
-        setTokens((prev) => prev.map((t) => (t.id === id ? { ...t, pushEnabled } : t)));
+        const apply = (next: boolean) =>
+            queryClient.setQueryData<PushToken[]>(queryKeys.pushTokens, (previous) =>
+                (previous ?? []).map((token) =>
+                    token.id === id ? { ...token, pushEnabled: next } : token,
+                ),
+            );
+
+        apply(pushEnabled);
 
         try {
             await api.updatePushToken(id, pushEnabled);
         } catch {
-            setTokens((prev) =>
-                prev.map((t) => (t.id === id ? { ...t, pushEnabled: !pushEnabled } : t)),
-            );
+            apply(!pushEnabled);
         }
     };
 
