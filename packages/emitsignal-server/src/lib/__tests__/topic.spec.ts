@@ -5,7 +5,10 @@ import { fileStorageMock, prismaMock } from '../../__tests__/mocks';
 mock.module('../prisma', () => ({ prisma: prismaMock }));
 mock.module('../storage', () => ({ FileStorageService: fileStorageMock }));
 
+import { resetUserPlansForTests, setUserPlanForTests } from '../billing/get-user-plan';
+import { PlanLimitError, PLANS } from '../billing/plans';
 import {
+    getOrCreateTopic,
     parseActions,
     parseTags,
     serializeMessage,
@@ -28,6 +31,54 @@ describe('TOPIC_NAME_REGEX', () => {
         it(`rejects "${name}"`, () => {
             expect(TOPIC_NAME_REGEX.test(name)).toBe(false);
         });
+    });
+});
+
+describe('getOrCreateTopic — owned topic cap', () => {
+    it('throws PlanLimitError when the owner is at the plan topic limit', async () => {
+        resetUserPlansForTests();
+        setUserPlanForTests('owner-1', 'free');
+        prismaMock.topic.findUnique.mockResolvedValueOnce(null);
+        prismaMock.topic.count.mockResolvedValueOnce(PLANS.free.limits.maxOwnedTopics);
+
+        expect(getOrCreateTopic('capped-topic-1', 'owner-1')).rejects.toThrow(PlanLimitError);
+    });
+
+    it('creates the topic when the owner is under the limit', async () => {
+        resetUserPlansForTests();
+        setUserPlanForTests('owner-1', 'free');
+        prismaMock.topic.findUnique.mockResolvedValueOnce(null);
+        prismaMock.topic.count.mockResolvedValueOnce(0);
+
+        const topic = await getOrCreateTopic('uncapped-topic-1', 'owner-1');
+
+        expect(topic).toHaveProperty('id');
+    });
+
+    it('does not check the cap for unowned topics', async () => {
+        prismaMock.topic.findUnique.mockResolvedValueOnce(null);
+        prismaMock.topic.count.mockClear();
+
+        await getOrCreateTopic('anonymous-topic-1');
+
+        expect(prismaMock.topic.count).not.toHaveBeenCalled();
+    });
+
+    it('does not check the cap for existing topics', async () => {
+        prismaMock.topic.findUnique.mockResolvedValueOnce({
+            createdAt: new Date(),
+            description: '',
+            displayName: 'existing',
+            id: 'topic-existing',
+            isPublic: true,
+            name: 'existing-topic-1',
+        });
+        prismaMock.topic.count.mockClear();
+
+        const topic = await getOrCreateTopic('existing-topic-1', 'owner-1');
+
+        expect(topic.id).toBe('topic-existing');
+        expect(prismaMock.topic.count).not.toHaveBeenCalled();
     });
 });
 

@@ -10,6 +10,7 @@ mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
 mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
+import { resetUserPlansForTests, setUserPlanForTests } from '../../../lib/billing/get-user-plan';
 import { attachments } from '../attachments';
 
 describe('POST /messages/:id/attachments', () => {
@@ -49,13 +50,13 @@ describe('POST /messages/:id/attachments', () => {
         expect(data.error).toBe('message_not_found');
     });
 
-    it('returns 400 when file exceeds 25 MB limit', async () => {
+    it('returns 400 when file exceeds the anonymous (free) 5 MB limit', async () => {
         prismaMock.message.findUnique = mock(() =>
             Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
         );
 
         const form = new FormData();
-        const largeBuffer = new Uint8Array(26 * 1024 * 1024);
+        const largeBuffer = new Uint8Array(6 * 1024 * 1024);
         const file = new File([largeBuffer], 'large.txt', { type: 'text/plain' });
         form.append('files', file);
 
@@ -71,6 +72,69 @@ describe('POST /messages/:id/attachments', () => {
         const data = await res.json();
 
         expect(data.error).toBe('file_too_large');
+        expect(data.maxSizeBytes).toBe(5 * 1024 * 1024);
+    });
+
+    it('accepts a 6 MB file on the pulse plan', async () => {
+        resetUserPlansForTests();
+        setUserPlanForTests('pulse-user', 'pulse');
+        // authAwareBeforeHandle calls resolveUserId once, then the route handler calls it again
+        resolveUserIdMock.mockResolvedValueOnce('pulse-user');
+        resolveUserIdMock.mockResolvedValueOnce('pulse-user');
+        prismaMock.attachment.count = mock(() => Promise.resolve(0));
+        prismaMock.message.findUnique = mock(() =>
+            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
+        );
+
+        const form = new FormData();
+        const buffer = new Uint8Array(6 * 1024 * 1024);
+        const file = new File([buffer], 'medium.txt', { type: 'text/plain' });
+        form.append('files', file);
+
+        const res = await app.handle(
+            new Request('http://localhost/messages/msg-1/attachments', {
+                body: form,
+                method: 'POST',
+            }),
+        );
+
+        expect(res.status).toBe(200);
+    });
+
+    it('rejects a 26 MB file on the pulse plan but accepts it on beam', async () => {
+        resetUserPlansForTests();
+        prismaMock.attachment.count = mock(() => Promise.resolve(0));
+        prismaMock.message.findUnique = mock(() =>
+            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
+        );
+
+        const buffer = new Uint8Array(26 * 1024 * 1024);
+
+        function uploadRequest() {
+            const form = new FormData();
+            form.append('files', new File([buffer], 'big.txt', { type: 'text/plain' }));
+
+            return new Request('http://localhost/messages/msg-1/attachments', {
+                body: form,
+                method: 'POST',
+            });
+        }
+
+        setUserPlanForTests('plan-user', 'pulse');
+        resolveUserIdMock.mockResolvedValueOnce('plan-user');
+        resolveUserIdMock.mockResolvedValueOnce('plan-user');
+
+        const rejected = await app.handle(uploadRequest());
+
+        expect(rejected.status).toBe(400);
+
+        setUserPlanForTests('plan-user', 'beam');
+        resolveUserIdMock.mockResolvedValueOnce('plan-user');
+        resolveUserIdMock.mockResolvedValueOnce('plan-user');
+
+        const accepted = await app.handle(uploadRequest());
+
+        expect(accepted.status).toBe(200);
     });
 
     it('returns 409 when message already has an attachment', async () => {

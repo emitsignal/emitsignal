@@ -19,7 +19,7 @@ describe('POST /subscriptions', () => {
     }
 
     it('creates a subscription', async () => {
-        prismaMock.topic.upsert.mockResolvedValueOnce({
+        prismaMock.topic.findUnique.mockResolvedValueOnce({
             createdAt: new Date(),
             description: '',
             displayName: 'Test',
