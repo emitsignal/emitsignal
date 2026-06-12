@@ -4,6 +4,7 @@ import { GitBranch, Key, Monitor, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 
 import { authClient } from '#/lib/auth-client';
+import { relativeTime } from '#/lib/format';
 import { queryKeys } from '#/lib/query-client';
 
 import { SettingsButton } from './settings-button';
@@ -463,19 +464,4 @@ function parseUA(ua?: null | string): string {
     else if (ua.includes('Linux')) os = 'Linux';
 
     return os ? `${os} · ${browser}` : browser;
-}
-
-// ── component ─────────────────────────────────────────────────────────────────
-
-function relativeTime(date: Date | string): string {
-    const d = new Date(date);
-    const diff = Date.now() - d.getTime();
-    const m = Math.floor(diff / 60_000);
-    if (m < 1) return 'just now';
-    if (m < 60) return `${m}m ago`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h ago`;
-    const days = Math.floor(h / 24);
-    if (days < 7) return `${days}d ago`;
-    return d.toLocaleDateString();
 }

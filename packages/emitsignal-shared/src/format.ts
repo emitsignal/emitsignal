@@ -4,9 +4,10 @@ export function formatSize(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function relativeTime(createdAt: number): string {
-    const now = Date.now();
-    const diff = now - createdAt;
+export function relativeTime(value: Date | number | string): string {
+    const timestamp = typeof value === 'number' ? value : new Date(value).getTime();
+
+    const diff = Date.now() - timestamp;
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
@@ -17,5 +18,5 @@ export function relativeTime(createdAt: number): string {
     if (hours < 24) return `${hours}h`;
     if (days < 7) return `${days}d`;
 
-    return new Date(createdAt).toLocaleDateString();
+    return new Date(timestamp).toLocaleDateString();
 }

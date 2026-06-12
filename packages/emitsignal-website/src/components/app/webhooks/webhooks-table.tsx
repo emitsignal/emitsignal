@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Webhook } from '#/lib/api';
 
 import { API_URL } from '#/lib/api';
+import { relativeTime } from '#/lib/format';
 
 import type { WebhookSource } from './source-glyph';
 
@@ -54,14 +55,6 @@ export function WebhooksTable({ loading, remove, update, webhooks }: TableProps)
             ))}
         </div>
     );
-}
-
-function formatRelativeTime(unix: number): string {
-    const secondsDiff = Math.floor(Date.now() / 1000) - unix;
-    if (secondsDiff < 60) return `${secondsDiff}s ago`;
-    if (secondsDiff < 3600) return `${Math.floor(secondsDiff / 60)}m ago`;
-    if (secondsDiff < 86400) return `${Math.floor(secondsDiff / 3600)}h ago`;
-    return `${Math.floor(secondsDiff / 86400)}d ago`;
 }
 
 function KebabItem({
@@ -135,7 +128,7 @@ function WebhookRow({
     const [copied, setCopied] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
-    const lastLabel = webhook.lastDeliveryAt ? formatRelativeTime(webhook.lastDeliveryAt) : '—';
+    const lastLabel = webhook.lastDeliveryAt ? relativeTime(webhook.lastDeliveryAt * 1000) : '—';
 
     // Close menu on outside click
     useEffect(() => {
