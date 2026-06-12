@@ -8,6 +8,7 @@ import { QueryClient } from '@tanstack/react-query';
  * migrated onto TanStack Query.
  *
  *   ['api-keys']                  → authClient.apiKey.list()
+ *   ['billing']                   → api.getBilling()
  *   ['auth', 'sessions']          → authClient.listSessions()
  *   ['auth', 'passkeys']          → authClient.passkey.listUserPasskeys()
  *   ['auth', 'accounts']          → authClient.listAccounts()
@@ -26,6 +27,7 @@ export const queryKeys = {
     authAccounts: ['auth', 'accounts'] as const,
     authPasskeys: ['auth', 'passkeys'] as const,
     authSessions: ['auth', 'sessions'] as const,
+    billing: ['billing'] as const,
     feed: (scope: string) => ['feed', scope] as const,
     subscriptions: (scope: string) => ['subscriptions', scope] as const,
     topicMessages: (topicName: string) => ['topic-messages', topicName] as const,
