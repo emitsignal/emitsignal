@@ -1,3 +1,6 @@
+import type { PlanDefinition } from '@emitsignal/shared/billing';
+
+import { PLAN_ORDER, PLANS } from '@emitsignal/shared/billing';
 import { AlertTriangle } from 'lucide-react';
 
 import { cn } from '#/lib/cn';
@@ -10,60 +13,51 @@ interface Tier {
     description: string;
     features: string[];
     highlighted?: boolean;
+    href: string;
     name: string;
     price: string;
     priceSubtitle: string;
     tag?: string;
 }
 
-const TIERS: Tier[] = [
-    {
-        cta: 'Start free',
-        description: 'For your own pager, side-projects, and trying it out.',
-        features: [
-            '10,000 signals / month',
-            '5 channels',
-            '1 user',
-            'Push + email + RSS',
-            'Community support',
-        ],
-        name: 'Free',
-        price: '$0',
-        priceSubtitle: 'forever, for hobby use',
-    },
-    {
-        cta: 'Start 14-day trial',
-        description: 'For teams that ship code and want to know about it.',
-        features: [
-            '1M signals / month / user',
-            'Unlimited channels',
-            'SSO · SAML · SCIM',
-            'SMS + Slack + Webhooks',
-            'Routing rules · regex filters',
-            'Audit log · 90d retention',
-        ],
-        highlighted: true,
-        name: 'Team',
-        price: '$24',
-        priceSubtitle: '/ user / month',
-        tag: 'most popular',
-    },
-    {
-        cta: 'Talk to sales',
-        description: 'For when 4am paging needs to be on contract.',
-        features: [
-            'Unlimited signals',
-            'Self-hosted available',
-            'Dedicated cluster',
-            'On-call rotation tooling',
-            '99.99% SLA',
-            'Custom retention · BYOK',
-        ],
-        name: 'Enterprise',
-        price: 'Custom',
-        priceSubtitle: 'volume + on-prem',
-    },
-];
+function planTier(plan: PlanDefinition): Tier {
+    const { limits } = plan;
+
+    const features = [
+        `${limits.messagesPerDay.toLocaleString()} messages / day`,
+        `${limits.emailsPerDay.toLocaleString()} emails / day`,
+        `${Math.floor(limits.attachmentMaxBytes / (1024 * 1024))} MB per attachment`,
+        `${limits.maxOwnedTopics} owned topics`,
+        `${limits.maxWebhooks} webhooks`,
+        'Push + email + SSE',
+    ];
+
+    if (plan.name === 'free') {
+        return {
+            cta: 'Start free',
+            description: plan.description,
+            features,
+            href: '/sign-in',
+            name: plan.label,
+            price: '$0',
+            priceSubtitle: 'forever, for hobby use',
+        };
+    }
+
+    return {
+        cta: `Get ${plan.label}`,
+        description: plan.description,
+        features,
+        highlighted: plan.name === 'pulse',
+        href: '/app/settings/billing',
+        name: plan.label,
+        price: `$${plan.priceMonthlyUsd}`,
+        priceSubtitle: `/ month · $${plan.priceYearlyUsd}/yr`,
+        tag: plan.name === 'pulse' ? 'most popular' : undefined,
+    };
+}
+
+const TIERS: Tier[] = PLAN_ORDER.map((planName) => planTier(PLANS[planName]));
 
 export function Pricing() {
     return (
@@ -76,8 +70,8 @@ export function Pricing() {
                 Pay for what you push.
             </h2>
             <p className="mb-10 max-w-[620px] font-sans text-[17px] leading-[1.55] text-muted">
-                No per-seat tax on read-only viewers. No SDK to license. The free tier is real —
-                many teams stay on it.
+                No per-seat tax. No SDK to license. Pay yearly and get 2 months free. The free tier
+                is real — many people stay on it.
             </p>
 
             <div className="grid grid-cols-1 gap-[18px] md:grid-cols-3">
@@ -89,12 +83,9 @@ export function Pricing() {
             <div className="mt-8 flex items-center gap-4 rounded-xl border border-dashed border-line px-5 py-4 font-mono text-[12px] text-muted">
                 <AlertTriangle className="text-warn shrink-0" size={14} />
                 <span>
-                    A signal = one published message. Receiving is free — same signal to 200
-                    subscribers still counts as 1.
+                    A message = one published signal. Receiving is free — same signal to 200
+                    subscribers still counts as 1. Daily limits reset at midnight UTC.
                 </span>
-                <a className="ml-auto text-accent no-underline" href="#">
-                    see fair-use →
-                </a>
             </div>
         </Section>
     );
@@ -140,7 +131,7 @@ function TierCard({ tier }: { tier: Tier }) {
                         ? 'bg-accent text-bg hover:bg-accent-dim'
                         : 'border border-line text-fg hover:bg-elev',
                 )}
-                href="#"
+                href={tier.href}
             >
                 {tier.cta}
             </a>
