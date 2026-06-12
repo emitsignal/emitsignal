@@ -100,6 +100,12 @@ services:
             SMTP_PASS: 'emitsignal'
             SMTP_PORT: '1025'
             SMTP_USER: 'emitsignal'
+            STRIPE_PRICE_BEAM_MONTHLY: '${STRIPE_PRICE_BEAM_MONTHLY:-}'
+            STRIPE_PRICE_BEAM_YEARLY: '${STRIPE_PRICE_BEAM_YEARLY:-}'
+            STRIPE_PRICE_PULSE_MONTHLY: '${STRIPE_PRICE_PULSE_MONTHLY:-}'
+            STRIPE_PRICE_PULSE_YEARLY: '${STRIPE_PRICE_PULSE_YEARLY:-}'
+            STRIPE_SECRET_KEY: '${STRIPE_SECRET_KEY:-}'
+            STRIPE_WEBHOOK_SECRET: '${STRIPE_WEBHOOK_SECRET:-}'
             UPLOAD_DIR: './uploads'
         image: oven/bun:1
         restart: unless-stopped
