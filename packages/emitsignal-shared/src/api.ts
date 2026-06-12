@@ -1,3 +1,5 @@
+import type { BillingInfo } from './billing.ts';
+
 export interface Action {
     label?: string;
     type: 'acknowledge' | 'view';
@@ -166,6 +168,10 @@ export function createApiClient(baseUrl: string) {
 
         deleteWebhook(id: string) {
             return request<void>(`/webhooks/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        },
+
+        getBilling() {
+            return request<BillingInfo>('/billing');
         },
 
         getMessage(id: string) {

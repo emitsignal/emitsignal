@@ -2,6 +2,7 @@
     "exports": {
         ".": "./src/index.ts",
         "./api": "./src/api.ts",
+        "./billing": "./src/billing.ts",
         "./format": "./src/format.ts",
         "./priority": "./src/priority.ts"
     },
