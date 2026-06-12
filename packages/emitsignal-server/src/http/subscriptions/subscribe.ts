@@ -1,14 +1,31 @@
 import Elysia, { t } from 'elysia';
 
+import { PlanLimitError } from '../../lib/billing/plans';
 import { prisma } from '../../lib/prisma';
 import { getOrCreateTopic } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
 export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
     '/',
-    async ({ body, headers }) => {
+    async ({ body, headers, status }) => {
         const userId = await resolveUserId({ headers });
-        const topic = await getOrCreateTopic(body.topicName);
+
+        let topic;
+
+        try {
+            topic = await getOrCreateTopic(body.topicName, userId ?? undefined);
+        } catch (error) {
+            if (error instanceof PlanLimitError) {
+                return status(403, {
+                    error: 'plan_limit_reached',
+                    limit: error.limit,
+                    metric: error.metric,
+                    plan: error.plan,
+                });
+            }
+
+            throw error;
+        }
 
         const subscription = await prisma.subscription.upsert({
             create: {

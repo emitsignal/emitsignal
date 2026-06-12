@@ -1,5 +1,7 @@
 import type { Action } from './actions';
 
+import { getUserPlan } from './billing/get-user-plan';
+import { PlanLimitError, PLANS } from './billing/plans';
 import { topicNameCache } from './cache';
 import { prisma } from './prisma';
 import { FileStorageService } from './storage';
@@ -15,17 +17,46 @@ export async function getOrCreateTopic(topicName: string, ownerId?: string) {
         return cached;
     }
 
-    const topic = await prisma.topic.upsert({
-        create: {
-            description: '',
-            displayName: name,
-            isPublic: true,
-            name,
-            ownerId,
-        },
-        update: {},
-        where: { name },
-    });
+    const existing = await prisma.topic.findUnique({ where: { name } });
+
+    if (existing) {
+        topicNameCache.set(name, existing);
+
+        return existing;
+    }
+
+    if (ownerId) {
+        const plan = await getUserPlan(ownerId);
+        const limit = PLANS[plan].limits.maxOwnedTopics;
+        const ownedCount = await prisma.topic.count({ where: { ownerId } });
+
+        if (ownedCount >= limit) {
+            throw new PlanLimitError('owned_topics', plan, limit);
+        }
+    }
+
+    const topic = await prisma.topic
+        .create({
+            data: {
+                description: '',
+                displayName: name,
+                isPublic: true,
+                name,
+                ownerId,
+            },
+        })
+        .catch(async (error: unknown) => {
+            // Concurrent create of the same topic — fetch the winner
+            if ((error as { code?: string }).code === 'P2002') {
+                const topic = await prisma.topic.findUnique({ where: { name } });
+
+                if (topic) {
+                    return topic;
+                }
+            }
+
+            throw error;
+        });
 
     topicNameCache.set(name, topic);
 

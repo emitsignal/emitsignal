@@ -49,5 +49,5 @@ export class FileStorageService {
     }
 }
 
-export { ATTACHMENT_MAX_SIZE, AVATAR_MAX_SIZE, isAllowedMimeType } from './provider';
+export { AVATAR_MAX_SIZE, isAllowedMimeType } from './provider';
 export type { FileMetadata, FileUploadInput } from './provider';

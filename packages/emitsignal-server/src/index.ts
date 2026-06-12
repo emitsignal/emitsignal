@@ -6,6 +6,7 @@ import { Elysia } from 'elysia';
 import path from 'node:path';
 
 import pkg from '../package.json';
+import { getBilling } from './http/billing/get';
 import { acknowledge } from './http/messages/acknowledge';
 import { attachments } from './http/messages/attachments';
 import { getMessage } from './http/messages/get';
@@ -64,6 +65,7 @@ const app = new Elysia()
     )
     .all('/api/auth/*', (ctx) => auth.handler(ctx.request))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
+    .use(getBilling)
     .use(acknowledge)
     .use(attachments)
     .use(getMessage)
