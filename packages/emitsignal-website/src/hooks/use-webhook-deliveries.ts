@@ -1,51 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import type { WebhookDelivery } from '#/lib/api';
 
-import { useSession } from '#/ctx/session';
 import { api, sseUrl } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 
-import { useSSE } from './use-sse';
+import { useLiveQuery } from './use-live-query';
 
 export function useWebhookDeliveries(webhookId: string, topicName?: string) {
-    const [deliveries, setDeliveries] = useState<WebhookDelivery[]>([]);
-    const [error, setError] = useState<null | string>(null);
-    const [loading, setLoading] = useState(true);
-    const { loading: authLoading } = useSession();
-
-    const load = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-
-        api.listWebhookDeliveries(webhookId)
-            .then(setDeliveries)
-            .catch((error) =>
-                error instanceof Error ? error.message : 'Failed to load deliveries',
-            )
-            .finally(() => setLoading(false));
-    }, [webhookId]);
-
-    // Re-fetches without touching loading state so the UI doesn't flash on live updates.
-    const silentLoad = useCallback(() => {
-        api.listWebhookDeliveries(webhookId)
-            .then(setDeliveries)
-            .catch(() => null);
-    }, [webhookId]);
-
-    useEffect(() => {
-        void load();
-    }, [load]);
-
-    useSSE({
-        onEvent: (event) => {
-            if (event !== 'message') {
-                return;
-            }
-
-            void silentLoad();
+    const query = useLiveQuery<WebhookDelivery[]>({
+        enabled: Boolean(webhookId),
+        // A live delivery only tells us "something changed"; invalidate so the
+        // list refetches in the background without a loading flash.
+        onMessage: (queryClient) => {
+            void queryClient.invalidateQueries({
+                queryKey: queryKeys.webhookDeliveries(webhookId),
+            });
         },
-        url: !authLoading && topicName ? sseUrl(topicName) : null,
+        queryFn: () => api.listWebhookDeliveries(webhookId),
+        queryKey: queryKeys.webhookDeliveries(webhookId),
+        sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
 
-    return { deliveries, error, loading, refresh: load };
+    return {
+        deliveries: query.data ?? [],
+        error: query.error instanceof Error ? query.error.message : null,
+        loading: query.isPending,
+        refresh: () => query.refetch(),
+    };
 }

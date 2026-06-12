@@ -1,66 +1,25 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { Webhook } from '#/lib/api';
 
-import { useSession } from '#/ctx/session';
 import { api, sseMultiUrl } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 
-import { useSSE } from './use-sse';
+import { useLiveQuery } from './use-live-query';
 
 export function useWebhooks() {
-    const [webhooks, setWebhooks] = useState<Webhook[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<null | string>(null);
+    const queryClient = useQueryClient();
 
-    const { loading: authLoading } = useSession();
-
-    const load = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await api.listWebhooks();
-            setWebhooks(data);
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Failed to load webhooks');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        void load();
-    }, [load]);
-
-    const remove = useCallback(async (id: string) => {
-        await api.deleteWebhook(id);
-        setWebhooks((prev) => prev.filter((w) => w.id !== id));
-    }, []);
-
-    const update = useCallback(
-        async (id: string, input: Parameters<typeof api.updateWebhook>[1]) => {
-            const updated = await api.updateWebhook(id, input);
-            setWebhooks((prev) => prev.map((w) => (w.id === id ? { ...w, ...updated } : w)));
-            return updated;
-        },
-        [],
-    );
-
-    const topicNames = useMemo(() => [...new Set(webhooks.map((w) => w.topicName))], [webhooks]);
-
-    useSSE({
-        onEvent: (event, data) => {
-            if (event !== 'message') {
-                return;
-            }
-
+    const query = useLiveQuery<Webhook[]>({
+        onMessage: (client, data) => {
             const { topicName } = data as { topicName?: string };
 
             if (!topicName) {
                 return;
             }
 
-            setWebhooks((prevWebHooks) =>
-                prevWebHooks.map((webhook) =>
+            client.setQueryData<Webhook[]>(queryKeys.webhooks, (previous = []) =>
+                previous.map((webhook) =>
                     webhook.topicName === topicName
                         ? {
                               ...webhook,
@@ -71,8 +30,35 @@ export function useWebhooks() {
                 ),
             );
         },
-        url: !authLoading && topicNames.length > 0 ? sseMultiUrl(topicNames) : null,
+        queryFn: () => api.listWebhooks(),
+        queryKey: queryKeys.webhooks,
+        sseUrl: (data) => {
+            const topicNames = [...new Set((data ?? []).map((webhook) => webhook.topicName))];
+
+            return topicNames.length > 0 ? sseMultiUrl(topicNames) : null;
+        },
     });
 
-    return { error, loading, refresh: load, remove, update, webhooks };
+    const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.webhooks });
+
+    const removeMutation = useMutation({
+        mutationFn: (id: string) => api.deleteWebhook(id),
+        onSuccess: invalidate,
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: (variables: { id: string; input: Parameters<typeof api.updateWebhook>[1] }) =>
+            api.updateWebhook(variables.id, variables.input),
+        onSuccess: invalidate,
+    });
+
+    return {
+        error: query.error instanceof Error ? query.error.message : null,
+        loading: query.isPending,
+        refresh: () => query.refetch(),
+        remove: (id: string) => removeMutation.mutateAsync(id),
+        update: (id: string, input: Parameters<typeof api.updateWebhook>[1]) =>
+            updateMutation.mutateAsync({ id, input }),
+        webhooks: query.data ?? [],
+    };
 }

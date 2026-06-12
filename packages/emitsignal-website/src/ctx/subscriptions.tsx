@@ -1,9 +1,11 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createContext, type ReactNode, useContext } from 'react';
 
 import type { Subscription } from '#/lib/api';
 
 import { useSession } from '#/ctx/session';
 import { api } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
 interface SubscriptionsContextValue {
@@ -17,58 +19,43 @@ interface SubscriptionsContextValue {
 const SubscriptionsContext = createContext<SubscriptionsContextValue | undefined>(undefined);
 
 export function SubscriptionsProvider({ children }: { children: ReactNode }) {
-    const [error, setError] = useState<Error | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-
+    const queryClient = useQueryClient();
     const { loading: authLoading, user } = useSession();
-    const userId = user?.id;
     const deviceId = getDeviceId();
+    const scope = user?.id ?? deviceId;
 
-    const refresh = useCallback(async () => {
-        try {
-            const fetchedSubscriptions = await api.listSubscriptions(userId ? undefined : deviceId);
+    const { data, error, isPending } = useQuery({
+        enabled: !authLoading,
+        queryFn: () => api.listSubscriptions(user?.id ? undefined : deviceId),
+        queryKey: queryKeys.subscriptions(scope),
+    });
 
-            setSubscriptions(fetchedSubscriptions);
-            setError(null);
-        } catch (error) {
-            setError(error instanceof Error ? error : new Error(String(error)));
-        } finally {
-            setLoading(false);
-        }
-    }, [userId, deviceId]);
+    const invalidate = () =>
+        queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) });
 
-    useEffect(() => {
-        if (authLoading) {
-            return;
-        }
+    const subscribeMutation = useMutation({
+        mutationFn: (topicName: string) => api.subscribe(deviceId, topicName),
+        onSuccess: invalidate,
+    });
 
-        refresh();
-    }, [authLoading, refresh]);
+    const unsubscribeMutation = useMutation({
+        mutationFn: (topicName: string) => api.unsubscribe(deviceId, topicName),
+        onSuccess: invalidate,
+    });
 
-    const subscribe = useCallback(
-        async (topicName: string) => {
-            await api.subscribe(deviceId, topicName);
-            await refresh();
+    const value: SubscriptionsContextValue = {
+        error: error instanceof Error ? error : null,
+        loading: authLoading || isPending,
+        subscribe: async (topicName) => {
+            await subscribeMutation.mutateAsync(topicName);
         },
-        [deviceId, refresh],
-    );
-
-    const unsubscribe = useCallback(
-        async (topicName: string) => {
-            await api.unsubscribe(deviceId, topicName);
-            await refresh();
+        subscriptions: data ?? [],
+        unsubscribe: async (topicName) => {
+            await unsubscribeMutation.mutateAsync(topicName);
         },
-        [deviceId, refresh],
-    );
+    };
 
-    return (
-        <SubscriptionsContext.Provider
-            value={{ error, loading, subscribe, subscriptions, unsubscribe }}
-        >
-            {children}
-        </SubscriptionsContext.Provider>
-    );
+    return <SubscriptionsContext.Provider value={value}>{children}</SubscriptionsContext.Provider>;
 }
 
 export function useSubscriptions() {

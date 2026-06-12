@@ -1,198 +1,122 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useRef } from 'react';
 
 import type { Message, TopicMetrics } from '#/lib/api';
 
 import { useSession } from '#/ctx/session';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, sseMultiUrl, sseUrl } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
-import { useSSE } from './use-sse';
-
-interface FeedState {
-    error: Error | null;
-    loading: boolean;
-    messages: Message[];
-}
+import { useLiveQuery } from './use-live-query';
 
 export function useFeed() {
     const deviceId = getDeviceId();
     const { loading: authLoading, user } = useSession();
     const { subscriptions } = useSubscriptions();
 
-    const [state, setState] = useState<FeedState>({
-        error: null,
-        loading: true,
-        messages: [],
-    });
-
     const userId = user?.id;
-
-    const refresh = useCallback(async () => {
-        try {
-            const allMessages = await api.listSubscriptionMessages(
-                userId ? undefined : deviceId,
-                50,
-            );
-            setState({ error: null, loading: false, messages: allMessages });
-        } catch (error) {
-            setState((prev) => ({
-                ...prev,
-                error: error instanceof Error ? error : new Error(String(error)),
-                loading: false,
-            }));
-        }
-    }, [userId, deviceId]);
-
-    useEffect(() => {
-        if (authLoading) {
-            return;
-        }
-
-        refresh();
-    }, [authLoading, refresh]);
-
+    const scope = userId ?? deviceId;
     const topicNames = subscriptions.map((subscription) => subscription.topic.name);
-    const sseTarget = topicNames.length ? sseMultiUrl(topicNames) : null;
 
-    useSSE({
-        onEvent: (event, data) => {
-            if (event !== 'message') {
-                return;
-            }
-
+    const query = useLiveQuery<Message[]>({
+        enabled: !authLoading,
+        onMessage: (queryClient, data) => {
             const incoming = data as { topicName?: string } & Message;
 
-            setState((prev) => {
-                if (prev.messages.some((message) => message.id === incoming.id)) {
-                    return prev;
+            queryClient.setQueryData<Message[]>(queryKeys.feed(scope), (previous = []) => {
+                if (previous.some((message) => message.id === incoming.id)) {
+                    return previous;
                 }
 
-                return {
-                    ...prev,
-                    messages: [incoming, ...prev.messages].slice(0, 200),
-                };
+                return [incoming, ...previous].slice(0, 200);
             });
         },
-        url: !authLoading && sseTarget ? sseTarget : null,
+        queryFn: () => api.listSubscriptionMessages(userId ? undefined : deviceId, 50),
+        queryKey: queryKeys.feed(scope),
+        sseUrl: () => (topicNames.length ? sseMultiUrl(topicNames) : null),
     });
 
-    return { ...state, refresh, subscriptions };
+    return {
+        error: query.error instanceof Error ? query.error : null,
+        loading: query.isPending,
+        messages: query.data ?? [],
+        refresh: () => query.refetch(),
+        subscriptions,
+    };
 }
 
 export function useTopicMessages(
     topicName: null | string,
     onNewMessage?: (message: Message) => void,
 ) {
-    const [loading, setLoading] = useState(true);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const seenIdsRef = useRef(new Set<string>());
-
-    const { loading: authLoading } = useSession();
-
-    useEffect(() => {
-        if (!topicName) {
-            return;
-        }
-
-        let cancelled = false;
-
-        setLoading(true);
-
-        api.listMessages(topicName)
-            .then((fetchedMessages) => {
-                if (!cancelled) {
-                    seenIdsRef.current = new Set(fetchedMessages.map((message) => message.id));
-
-                    setMessages(fetchedMessages);
-                    setLoading(false);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setLoading(false);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [topicName]);
-
     const onNewMessageRef = useRef(onNewMessage);
     onNewMessageRef.current = onNewMessage;
 
-    useSSE({
-        onEvent: (event, data) => {
-            if (event !== 'message') {
+    const query = useLiveQuery<Message[]>({
+        enabled: Boolean(topicName),
+        onMessage: (queryClient, data) => {
+            if (!topicName) {
                 return;
             }
 
             const incoming = data as Message;
+            const key = queryKeys.topicMessages(topicName);
+            const current = queryClient.getQueryData<Message[]>(key) ?? [];
 
-            if (seenIdsRef.current.has(incoming.id)) {
+            if (current.some((message) => message.id === incoming.id)) {
                 return;
             }
 
-            seenIdsRef.current.add(incoming.id);
-            setMessages((prev) => [incoming, ...prev]);
+            queryClient.setQueryData<Message[]>(key, [incoming, ...current]);
             onNewMessageRef.current?.(incoming);
         },
-        url: !authLoading && topicName ? sseUrl(topicName) : null,
+        queryFn: () => api.listMessages(topicName as string),
+        queryKey: queryKeys.topicMessages(topicName ?? ''),
+        sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
 
-    return { loading, messages };
+    return { loading: query.isPending, messages: query.data ?? [] };
 }
 
 export function useTopicMetrics(topicName: null | string) {
-    const [metrics, setMetrics] = useState<null | TopicMetrics>(null);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        if (!topicName) {
-            setMetrics(null);
+    const { data, isPending } = useQuery({
+        enabled: Boolean(topicName),
+        queryFn: () => api.getTopicMetrics(topicName as string),
+        queryKey: queryKeys.topicMetrics(topicName ?? ''),
+    });
 
-            return setLoading(false);
-        }
-
-        let cancelled = false;
-
-        setLoading(true);
-
-        api.getTopicMetrics(topicName)
-            .then((data) => {
-                if (!cancelled) {
-                    setMetrics(data);
-                    setLoading(false);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) setLoading(false);
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [topicName]);
-
-    const addMessage = useCallback((msg: Message) => {
-        setMetrics((prev) => {
-            if (!prev) {
-                return prev;
+    const addMessage = useCallback(
+        (message: Message) => {
+            if (!topicName) {
+                return;
             }
 
-            const volume = [...prev.volume];
+            queryClient.setQueryData<TopicMetrics>(
+                queryKeys.topicMetrics(topicName),
+                (previous) => {
+                    if (!previous) {
+                        return previous;
+                    }
 
-            volume[23]++;
+                    const volume = [...previous.volume];
 
-            return {
-                ...prev,
-                messageCount24h: prev.messageCount24h + 1,
-                p5Count24h: prev.p5Count24h + (msg.priority === 5 ? 1 : 0),
-                volume,
-            };
-        });
-    }, []);
+                    volume[23]++;
 
-    return { addMessage, loading, metrics };
+                    return {
+                        ...previous,
+                        messageCount24h: previous.messageCount24h + 1,
+                        p5Count24h: previous.p5Count24h + (message.priority === 5 ? 1 : 0),
+                        volume,
+                    };
+                },
+            );
+        },
+        [queryClient, topicName],
+    );
+
+    return { addMessage, loading: topicName ? isPending : false, metrics: data ?? null };
 }

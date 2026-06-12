@@ -1,37 +1,20 @@
-import { useEffect, useState } from 'react';
-
-import type { TopicSuggestion } from '#/lib/api';
+import { useQuery } from '@tanstack/react-query';
 
 import { api } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
 export function useTopicSuggestions() {
-    const [data, setData] = useState<TopicSuggestion[]>([]);
-    const [error, setError] = useState<Error | null>(null);
-    const [loading, setLoading] = useState(true);
+    const deviceId = getDeviceId();
 
-    useEffect(() => {
-        let cancelled = false;
-        const deviceId = getDeviceId();
+    const { data, error, isPending } = useQuery({
+        queryFn: () => api.getSuggestions(deviceId),
+        queryKey: queryKeys.topicSuggestions(deviceId),
+    });
 
-        api.getSuggestions(deviceId)
-            .then((suggestions) => {
-                if (!cancelled) {
-                    setData(suggestions);
-                    setLoading(false);
-                }
-            })
-            .catch((error) => {
-                if (!cancelled) {
-                    setError(error instanceof Error ? error : new Error(String(error)));
-                    setLoading(false);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    return { data, error, loading };
+    return {
+        data: data ?? [],
+        error: error instanceof Error ? error : null,
+        loading: isPending,
+    };
 }

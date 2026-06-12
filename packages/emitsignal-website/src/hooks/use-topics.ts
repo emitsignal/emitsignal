@@ -1,36 +1,19 @@
-import { useEffect, useState } from 'react';
-
-import type { Topic } from '#/lib/api';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { api } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 
 export function useTopics(query?: string) {
-    const [topics, setTopics] = useState<Topic[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<Error | null>(null);
+    const { data, error, isPending } = useQuery({
+        // Keep the previous results visible while typing so the list doesn't flash.
+        placeholderData: keepPreviousData,
+        queryFn: () => api.listTopics(query),
+        queryKey: queryKeys.topics(query ?? ''),
+    });
 
-    useEffect(() => {
-        let cancelled = false;
-
-        setLoading(true);
-        api.listTopics(query)
-            .then((data) => {
-                if (!cancelled) {
-                    setTopics(data);
-                    setLoading(false);
-                }
-            })
-            .catch((error) => {
-                if (!cancelled) {
-                    setError(error instanceof Error ? error : new Error(String(error)));
-                    setLoading(false);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [query]);
-
-    return { error, loading, topics };
+    return {
+        error: error instanceof Error ? error : null,
+        loading: isPending,
+        topics: data ?? [],
+    };
 }
