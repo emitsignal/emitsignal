@@ -88,6 +88,10 @@ export const auth = betterAuth({
             customAPIKeyGetter: (ctx) => getApiKeyFromHeaders(ctx.headers),
             defaultPrefix: API_KEY_PREFIX,
             enableSessionForAPIKeys: true,
+            // Throttling is handled by the project's rate-limiter-flexible
+            // (per-user) and plan quotas; the plugin's default 10/day per-key
+            // limiter would otherwise lock keys after a handful of requests.
+            rateLimit: { enabled: false },
         }),
         passkey({
             origin: environment.APP_URL,
