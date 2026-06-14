@@ -12,6 +12,7 @@ export function Avatar({ monogram, name, rounded = 8, size = 36, src }: AvatarPr
             <img
                 alt={name}
                 className="shrink-0 object-cover"
+                draggable={false}
                 src={src}
                 style={{ borderRadius: rounded, height: size, width: size }}
             />
@@ -19,6 +20,7 @@ export function Avatar({ monogram, name, rounded = 8, size = 36, src }: AvatarPr
     }
 
     const hue = hashHue(name);
+
     const computedMonogram =
         monogram ??
         name

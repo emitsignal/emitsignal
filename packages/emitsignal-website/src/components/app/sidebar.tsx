@@ -1,3 +1,6 @@
+import type { PlanName } from '@emitsignal/shared/billing';
+
+import { PLANS } from '@emitsignal/shared/billing';
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
     Bell,
@@ -17,6 +20,7 @@ import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { useSession } from '#/ctx/session';
 import { useSubscriptions } from '#/ctx/subscriptions';
+import { useBilling } from '#/hooks/use-billing';
 import { hashTopicLevel } from '#/lib/priority';
 
 interface NavItem {
@@ -35,7 +39,10 @@ const ACTIVE =
 export function Sidebar() {
     const { signOut, user } = useSession();
     const { subscribe, subscriptions } = useSubscriptions();
+    const { billing } = useBilling();
     const navigate = useNavigate();
+
+    const plan = billing?.plan;
 
     const [adding, setAdding] = useState(false);
     const [newTopic, setNewTopic] = useState('');
@@ -80,7 +87,7 @@ export function Sidebar() {
     };
 
     return (
-        <aside className="flex w-[210px] shrink-0 flex-col gap-0.5 border-r border-line p-2.5 pt-4">
+        <aside className="flex w-[250px] shrink-0 flex-col gap-0.5 border-r border-line p-2.5 pt-4">
             <div className="px-2.5 pb-3.5 pt-1">
                 <Logo pulse size={13} />
             </div>
@@ -141,18 +148,28 @@ export function Sidebar() {
 
             <div className="mt-auto">
                 {user && (
-                    <div className="flex items-center gap-2 border-t border-line p-2.5">
+                    <div className="flex items-center gap-2.5 border-t border-line p-2.5">
                         <Avatar
                             name={user.name || user.email}
                             rounded={100}
-                            size={22}
+                            size={30}
                             src={user.image}
                         />
 
-                        <span className="flex-1 truncate text-[12px]">{user.email}</span>
+                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                            <div className="flex items-center gap-1.5">
+                                <span className="truncate text-[12.5px] font-medium text-fg">
+                                    {user.name || user.email.split('@')[0]}
+                                </span>
+
+                                {plan && <PlanPill plan={plan} />}
+                            </div>
+
+                            <span className="truncate text-[11px] text-dim">{user.email}</span>
+                        </div>
 
                         <button
-                            className="cursor-pointer rounded p-1 text-dim hover:bg-elev hover:text-fg"
+                            className="cursor-pointer self-start rounded p-1 text-dim hover:bg-elev hover:text-fg"
                             onClick={handleSignOut}
                             title="Sign out"
                         >
@@ -162,6 +179,22 @@ export function Sidebar() {
                 )}
             </div>
         </aside>
+    );
+}
+
+const PLAN_PILL_STYLES: Record<PlanName, string> = {
+    beam: 'bg-info/15 text-info',
+    free: 'bg-elev text-dim',
+    pulse: 'bg-accent/15 text-accent',
+};
+
+function PlanPill({ plan }: { plan: PlanName }) {
+    return (
+        <span
+            className={`shrink-0 rounded px-1.5 py-px font-mono text-[9px] uppercase tracking-wide ${PLAN_PILL_STYLES[plan]}`}
+        >
+            {PLANS[plan].label}
+        </span>
     );
 }
 
