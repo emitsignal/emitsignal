@@ -31,6 +31,7 @@ function WebhooksPage() {
                     <span className="text-accent">template</span> it&apos;s pretty-printed into a
                     notification, without one the raw payload is forwarded as-is.
                 </p>
+
                 <WebhooksTable
                     loading={loading}
                     remove={remove}

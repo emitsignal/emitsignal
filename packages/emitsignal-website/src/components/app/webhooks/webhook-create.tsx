@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { ChevronDown, Copy } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -7,12 +8,11 @@ import type { Webhook, WebhookTemplate } from '#/lib/api';
 import { Dot } from '#/components/ui/dot';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, API_URL } from '#/lib/api';
+import { queryKeys } from '#/lib/query-client';
 
 import { JsonView } from './json-view';
 import { NotifPreview } from './notif-preview';
 import { applyTemplate } from './template-string';
-
-// ── Per-source sample data ────────────────────────────────────────────────────
 
 const SOURCE_DATA: Record<
     string,
@@ -119,6 +119,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     const { subscriptions } = useSubscriptions();
     const isEdit = !!initialData;
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const initialSource = (initialData?.source ?? 'github') as Source;
     const initialTemplate: null | WebhookTemplate = (() => {
@@ -132,19 +133,18 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
     })();
 
-    const [source, setSource] = useState<Source>(initialSource);
-    const [topicName, setTopicName] = useState(initialData?.topicName ?? '');
-    const [useTemplate, setUseTemplate] = useState(initialTemplate !== null);
+    const [copied, setCopied] = useState(false);
+    const [customPayloadText, setCustomPayloadText] = useState('{\n  \n}');
+    const [customPayloadValid, setCustomPayloadValid] = useState(true);
     const [previewMode, setPreviewMode] = useState<'pretty' | 'raw'>('pretty');
+    const [saveError, setSaveError] = useState<null | string>(null);
+    const [saving, setSaving] = useState(false);
+    const [source, setSource] = useState<Source>(initialSource);
     const [templateFields, setTemplateFields] = useState<WebhookTemplate>(
         initialTemplate ?? EMPTY_TEMPLATE,
     );
-    const [customPayloadText, setCustomPayloadText] = useState('{\n  \n}');
-    const [customPayloadValid, setCustomPayloadValid] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState<null | string>(null);
-    const [copied, setCopied] = useState(false);
-
+    const [topicName, setTopicName] = useState(initialData?.topicName ?? '');
+    const [useTemplate, setUseTemplate] = useState(initialTemplate !== null);
     const templateDirtyRef = useRef(false);
 
     // Active payload for preview
@@ -169,27 +169,34 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         title: applyTemplate(templateFields.title ?? '', activePayload),
     };
 
-    function handleSourceChange(s: Source) {
+    function handleSourceChange(source: Source) {
         if (
             templateDirtyRef.current &&
             !window.confirm('Switch source? Your template edits will be reset.')
-        )
+        ) {
             return;
-        setSource(s);
-        const data = SOURCE_DATA[s]!;
-        const tpl = data.template;
-        setTemplateFields(tpl ?? EMPTY_TEMPLATE);
-        setUseTemplate(tpl !== null);
+        }
+
+        setSource(source);
+
+        const data = SOURCE_DATA[source]!;
+        const template = data.template;
+
+        setTemplateFields(template ?? EMPTY_TEMPLATE);
+        setUseTemplate(template !== null);
+
         templateDirtyRef.current = false;
     }
 
     function handleTemplateFieldChange(field: keyof WebhookTemplate, value: string) {
         templateDirtyRef.current = true;
+
         setTemplateFields((prev) => ({ ...prev, [field]: value }));
     }
 
     function handleCustomPayloadChange(text: string) {
         setCustomPayloadText(text);
+
         try {
             JSON.parse(text);
             setCustomPayloadValid(true);
@@ -199,7 +206,10 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     }
 
     function handleCopyEndpoint() {
-        if (!isEdit || !initialData?.slug) return;
+        if (!isEdit || !initialData?.slug) {
+            return;
+        }
+
         void navigator.clipboard.writeText(`${API_URL}/h/${initialData.slug}`).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
@@ -208,13 +218,15 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
     async function handleSave() {
         if (!topicName.trim()) {
-            setSaveError('Channel name is required');
-            return;
+            return setSaveError('Channel name is required');
         }
+
         setSaving(true);
         setSaveError(null);
+
         try {
             const template = useTemplate ? JSON.stringify(templateFields) : null;
+
             if (isEdit && initialData) {
                 await api.updateWebhook(initialData.id, {
                     name: `${source} webhook`,
@@ -229,9 +241,12 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     topicName: topicName.trim(),
                 });
             }
+
+            await queryClient.invalidateQueries({ queryKey: queryKeys.webhooks });
+
             await navigate({ to: '/app/webhooks' });
-        } catch (e) {
-            setSaveError(e instanceof Error ? e.message : 'Failed to save webhook');
+        } catch (error) {
+            setSaveError(error instanceof Error ? error.message : 'Failed to save webhook');
         } finally {
             setSaving(false);
         }
@@ -246,7 +261,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         setTopicName(initialData.topicName);
         setSource((initialData.source as Source) || 'github');
 
-        const tpl = (() => {
+        const template = (() => {
             try {
                 return initialData.template
                     ? (JSON.parse(initialData.template) as WebhookTemplate)
@@ -255,19 +270,18 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                 return null;
             }
         })();
-        setTemplateFields(tpl ?? EMPTY_TEMPLATE);
-        setUseTemplate(tpl !== null);
+        setTemplateFields(template ?? EMPTY_TEMPLATE);
+        setUseTemplate(template !== null);
     }, [initialData?.id]);
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
-            {/* config strip */}
             <div className="grid grid-cols-[1.1fr_1.6fr_1.1fr] gap-5 border-b border-line px-6 py-4">
-                {/* Source */}
                 <div>
                     <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
                         Source
                     </div>
+
                     <div className="flex gap-1.5">
                         {SOURCES.map((s) => (
                             <button
@@ -358,6 +372,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         </select>
                         <ChevronDown className="pointer-events-none text-dim" size={13} />
                     </div>
+
                     {saveError && (
                         <div className="mt-1 font-mono text-[10.5px] text-danger">{saveError}</div>
                     )}
@@ -405,6 +420,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
                             Template
                         </span>
+
                         <button
                             className="ml-auto flex cursor-pointer items-center gap-2"
                             onClick={() => setUseTemplate((v) => !v)}

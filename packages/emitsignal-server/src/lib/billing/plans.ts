@@ -29,12 +29,12 @@ export class PlanLimitError extends Error {
 
 export function isStripeBillingEnabled(): boolean {
     return Boolean(
-        environment.STRIPE_SECRET_KEY &&
-        environment.STRIPE_WEBHOOK_SECRET &&
+        environment.STRIPE_PRICE_BEAM_MONTHLY &&
+        environment.STRIPE_PRICE_BEAM_YEARLY &&
         environment.STRIPE_PRICE_PULSE_MONTHLY &&
         environment.STRIPE_PRICE_PULSE_YEARLY &&
-        environment.STRIPE_PRICE_BEAM_MONTHLY &&
-        environment.STRIPE_PRICE_BEAM_YEARLY,
+        environment.STRIPE_SECRET_KEY &&
+        environment.STRIPE_WEBHOOK_SECRET,
     );
 }
 
