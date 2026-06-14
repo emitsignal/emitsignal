@@ -9,6 +9,7 @@ import { createElement } from 'react';
 import Stripe from 'stripe';
 
 import { environment } from '../schema/environment';
+import { API_KEY_PREFIX, getApiKeyFromHeaders } from './api-key-header';
 import { invalidateUserPlanCache } from './billing/get-user-plan';
 import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
 import { duration } from './duration';
@@ -66,25 +67,28 @@ export const auth = betterAuth({
                     return;
                 }
 
-                const verifyUrl = `${environment.APP_URL}/verify?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(JSON.stringify(otp))}`;
-                const html = await render(
-                    createElement(MagicLinkEmail, {
-                        code: otp,
-                        email,
-                        expiresAt: new Date(Date.now() + duration.minutes(10).as('ms')),
-                        magicLinkUrl: verifyUrl,
-                    }),
-                );
+                const magicLinkUrl = `${environment.APP_URL}/verify?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(JSON.stringify(otp))}`;
 
                 await EmailService.send({
                     from: environment.EMAIL_FROM,
-                    html,
+                    html: await render(
+                        createElement(MagicLinkEmail, {
+                            code: otp,
+                            email,
+                            expiresAt: new Date(Date.now() + duration.minutes(10).as('ms')),
+                            magicLinkUrl,
+                        }),
+                    ),
                     subject: 'Sign in to EmitSignal',
                     to: email,
                 });
             },
         }),
-        apiKey(),
+        apiKey({
+            customAPIKeyGetter: (ctx) => getApiKeyFromHeaders(ctx.headers),
+            defaultPrefix: API_KEY_PREFIX,
+            enableSessionForAPIKeys: true,
+        }),
         passkey({
             origin: environment.APP_URL,
             rpID: rpHostname,
