@@ -138,6 +138,10 @@ export function createApiClient(baseUrl: string) {
             throw new Error(`${response.status} ${text}`);
         }
 
+        if (response.status === 204) {
+            return undefined as T;
+        }
+
         return response.json() as Promise<T>;
     }
 
