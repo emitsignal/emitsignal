@@ -16,7 +16,7 @@ export function RevokeKeyDialog({ apiKey, onClose, onConfirm }: RevokeKeyDialogP
         return null;
     }
 
-    const maskedKey = `${apiKey.prefix ?? ''}${apiKey.start ?? ''}••••••`;
+    const maskedKey = `${apiKey.start ?? ''}••••••`;
 
     const handleConfirm = async () => {
         setLoading(true);

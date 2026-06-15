@@ -88,7 +88,7 @@ export function KeysTable({
     const [revealedId, setRevealedId] = useState<null | string>(null);
 
     const copyPrefix = async (key: ApiKey) => {
-        const prefix = `${key.prefix ?? ''}${key.start ?? ''}`;
+        const prefix = key.start ?? '';
         await navigator.clipboard.writeText(prefix);
 
         onFlash('Key prefix copied');
@@ -135,8 +135,8 @@ export function KeysTable({
                 const isRevoked = !apiKey.enabled;
                 const isRevealed = revealedId === apiKey.id;
                 const maskedDisplay = isRevealed
-                    ? `${apiKey.prefix ?? ''}${apiKey.start ?? ''}`
-                    : `${(apiKey.prefix ?? '') + (apiKey.start ?? '').slice(0, 6)}••••`;
+                    ? `${apiKey.start ?? ''}`
+                    : `${(apiKey.start ?? '').slice(0, 6)}••••`;
                 const isMenuOpen = menuFor === apiKey.id;
                 const expiry = formatExpiry(apiKey.expiresAt);
 
