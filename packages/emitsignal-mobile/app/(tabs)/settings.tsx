@@ -1,5 +1,9 @@
+import type { PlanName } from '@emitsignal/shared/billing';
+
+import { PLANS } from '@emitsignal/shared/billing';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -18,7 +22,7 @@ import type { PushToken } from '@/lib/api';
 import type { FeedStyle } from '@/storage/feed-style';
 import type { ThemePreference } from '@/storage/theme';
 
-import { WLogo } from '@/components/base-theme';
+import { WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
@@ -55,14 +59,45 @@ export default function SettingsScreen() {
     const { feedStyle, setFeedStyle } = useFeedStyle();
     const { signOut, user } = useSession();
 
+    const { data: billing } = useQuery({
+        enabled: Boolean(user),
+        queryFn: () => api.getBilling(),
+        queryKey: queryKeys.billing,
+    });
+
+    const plan = billing?.plan;
+
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <WLogo pulse size={12} />
                 </View>
+
                 <Text style={styles.title}>Settings</Text>
-                <Text style={styles.subtitle}>{user?.email ?? 'anonymous device'}</Text>
+
+                {user ? (
+                    <View style={styles.account}>
+                        {user.image ? (
+                            <Image source={{ uri: user.image }} style={styles.avatar} />
+                        ) : (
+                            <WTopicAvatar name={user.name || user.email} rounded={20} size={40} />
+                        )}
+                        <View style={styles.accountText}>
+                            <View style={styles.accountNameRow}>
+                                <Text numberOfLines={1} style={styles.accountName}>
+                                    {user.name || user.email.split('@')[0]}
+                                </Text>
+                                {plan ? <PlanBadge plan={plan} /> : null}
+                            </View>
+                            <Text numberOfLines={1} style={styles.subtitle}>
+                                {user.email}
+                            </Text>
+                        </View>
+                    </View>
+                ) : (
+                    <Text style={styles.subtitle}>anonymous device</Text>
+                )}
             </View>
 
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -292,6 +327,24 @@ function NotificationsSection() {
     );
 }
 
+const PLAN_BADGE_COLORS: Record<PlanName, { bg: string; fg: string }> = {
+    beam: { bg: 'rgba(103,232,249,0.12)', fg: W.cyan },
+    free: { bg: W.bgChip, fg: W.fgDim },
+    pulse: { bg: W.violetBg, fg: W.violet },
+};
+
+function PlanBadge({ plan }: { plan: PlanName }) {
+    const palette = PLAN_BADGE_COLORS[plan];
+
+    return (
+        <View style={[styles.planBadge, { backgroundColor: palette.bg }]}>
+            <Text style={[styles.planBadgeText, { color: palette.fg }]}>
+                {PLANS[plan].label.toUpperCase()}
+            </Text>
+        </View>
+    );
+}
+
 function SectionLabel({ children }: { children: string }) {
     return (
         <View style={styles.sectionLabelRow}>
@@ -302,6 +355,29 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 const styles = StyleSheet.create({
+    account: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 14,
+    },
+    accountName: {
+        color: W.fg,
+        flexShrink: 1,
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    accountNameRow: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 8,
+    },
+    accountText: { flex: 1 },
+    avatar: {
+        borderRadius: 20,
+        height: 40,
+        width: 40,
+    },
     group: {
         backgroundColor: W.bgElev,
         borderBottomWidth: StyleSheet.hairlineWidth,
@@ -310,6 +386,17 @@ const styles = StyleSheet.create({
     },
     header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
     headerTop: { alignItems: 'center', flexDirection: 'row', marginBottom: 16 },
+    planBadge: {
+        borderRadius: 4,
+        paddingHorizontal: 7,
+        paddingVertical: 2,
+    },
+    planBadgeText: {
+        fontFamily: Fonts.mono,
+        fontSize: 9,
+        fontWeight: '600',
+        letterSpacing: 0.5,
+    },
     root: { backgroundColor: W.bg, flex: 1 },
     row: {
         alignItems: 'center',
