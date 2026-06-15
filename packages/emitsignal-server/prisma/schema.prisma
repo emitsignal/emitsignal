@@ -198,6 +198,7 @@ model Acknowledgment {
 
     @@unique([messageId, deviceId])
     @@index([messageId])
+    @@index([userId])
 }
 
 model Message {
@@ -222,6 +223,7 @@ model Message {
     @@index([topicId, createdAt])
     @@index([topicId])
     @@index([scheduledAt])
+    @@index([senderId])
 }
 
 model PushToken {
