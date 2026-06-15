@@ -8,19 +8,19 @@ import { QueryClient } from '@tanstack/react-query';
  * migrated onto TanStack Query.
  *
  *   ['api-keys']                  → authClient.apiKey.list()
- *   ['billing']                   → api.getBilling()
- *   ['auth', 'sessions']          → authClient.listSessions()
- *   ['auth', 'passkeys']          → authClient.passkey.listUserPasskeys()
  *   ['auth', 'accounts']          → authClient.listAccounts()
- *   ['subscriptions', scope]      → api.listSubscriptions()    (scope = userId ?? deviceId)
+ *   ['auth', 'passkeys']          → authClient.passkey.listUserPasskeys()
+ *   ['auth', 'sessions']          → authClient.listSessions()
+ *   ['billing']                   → api.getBilling()
  *   ['feed', scope]               → api.listSubscriptionMessages()
+ *   ['subscriptions', scope]      → api.listSubscriptions()    (scope = userId ?? deviceId)
  *   ['topic-messages', name]      → api.listMessages(name)
  *   ['topic-metrics', name]       → api.getTopicMetrics(name)
- *   ['webhooks']                  → api.listWebhooks()
- *   ['webhook', id]               → api.getWebhook(id)
- *   ['webhook-deliveries', id]    → api.listWebhookDeliveries(id)
- *   ['topics', query]             → api.listTopics(query)
  *   ['topic-suggestions', device] → api.getSuggestions(device)
+ *   ['topics', query]             → api.listTopics(query)
+ *   ['webhook-deliveries', id]    → api.listWebhookDeliveries(id)
+ *   ['webhook', id]               → api.getWebhook(id)
+ *   ['webhooks']                  → api.listWebhooks()
  */
 export const queryKeys = {
     apiKeys: ['api-keys'] as const,

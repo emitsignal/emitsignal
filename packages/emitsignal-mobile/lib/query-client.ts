@@ -4,15 +4,17 @@ import { QueryClient } from '@tanstack/react-query';
  * Query key conventions (mirrors the website package). Array keys grouped by
  * domain so related queries can be invalidated together. scope = userId ?? deviceId.
  *
- *   ['subscriptions', scope]      → api.listSubscriptions()
+ *   ['billing']                   → api.getBilling()
  *   ['feed', scope]               → api.listSubscriptionMessages()
+ *   ['message', id]               → api.getMessage(id)
+ *   ['push-tokens']               → api.listMyPushTokens()
+ *   ['subscriptions', scope]      → api.listSubscriptions()
  *   ['topic-messages', name]      → api.listMessages(name)
  *   ['topic-suggestions', device] → api.getSuggestions(device)
  *   ['topics', query]             → api.listTopics(query)
- *   ['push-tokens']               → api.listMyPushTokens()
- *   ['message', id]               → api.getMessage(id)
  */
 export const queryKeys = {
+    billing: ['billing'] as const,
     feed: (scope: string) => ['feed', scope] as const,
     message: (id: string) => ['message', id] as const,
     pushTokens: ['push-tokens'] as const,
