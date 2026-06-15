@@ -102,6 +102,6 @@ export default function ApiKeyCreatedEmail({
 ApiKeyCreatedEmail.PreviewProps = {
     createdAt: new Date(),
     label: 'Production Deploy',
-    prefix: 'es_live_••••••••',
+    prefix: 'es_••••••••',
     revokeUrl: 'https://emitsignal.com/settings/api-keys',
 } satisfies ApiKeyCreatedProps;

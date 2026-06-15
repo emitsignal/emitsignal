@@ -14,7 +14,7 @@ interface Props {
 export function PreviewColumn({ body, priority, tags, title, topicName }: Props) {
     const curlCmd = topicName
         ? `curl -X POST ${api.baseUrl}/topic/${topicName} \\
-  -H "Authorization: Bearer es_live_••••" \\
+  -H "Authorization: Bearer es_••••" \\
   -H "Priority: ${priority}" \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({ body: body || '...', priority, tags, title: title || '...' })}'`

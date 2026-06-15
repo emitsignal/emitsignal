@@ -461,7 +461,7 @@ $ emitsignal run --capture-output --topic ci/tests -- npm test
                         <Block>{`# ~/.emitsignal/config.toml
 
 [auth]
-token = "es_live_xxxxxxxxxxxxxxxx"
+token = "es_xxxxxxxxxxxxxxxx"
 workspace = "acme"
 
 [api]
@@ -651,7 +651,7 @@ $ cat /tmp/deploy-status.txt`,
                                     code: `import requests
 requests.post("https://api.emitsignal.com/publish/deploy/prod",
     json={"message": "v2.0.1 shipped", "priority": 4},
-    headers={"Authorization": "Bearer es_live_xxx"})`,
+    headers={"Authorization": "Bearer es_xxx"})`,
                                     desc: 'Publish from Python (no SDK)',
                                 },
                                 {

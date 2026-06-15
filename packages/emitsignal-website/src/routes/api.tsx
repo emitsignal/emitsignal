@@ -32,7 +32,7 @@ $ curl -d "hello" https://api.emitsignal.com/welcome
 
 # Authenticated publish
 $ curl https://api.emitsignal.com/publish/deploy/prod \\
-  -H "Authorization: Bearer es_live_xxxxxxxxxxxx" \\
+  -H "Authorization: Bearer es_xxxxxxxxxxxx" \\
   -H "Content-Type: application/json" \\
   -d '{"message": "v2.14.3 shipped", "priority": 4}'`}</Block>
                 </div>
@@ -48,16 +48,16 @@ $ curl https://api.emitsignal.com/publish/deploy/prod \\
                             Include your API key in the{' '}
                             <code className="font-mono text-[13px] text-accent">Authorization</code>{' '}
                             header. Keys are prefixed with{' '}
-                            <code className="font-mono text-[13px] text-accent">es_live_</code> for
+                            <code className="font-mono text-[13px] text-accent">es_</code> for
                             production and{' '}
                             <code className="font-mono text-[13px] text-accent">es_test_</code> for
                             test/sandbox environments.
                         </P>
                         <Block>{`# In a request header
-Authorization: Bearer es_live_xxxxxxxxxxxxxxxxxxxxxxxx
+Authorization: Bearer es_xxxxxxxxxxxxxxxxxxxxxxxx
 
 # Or via query param (not recommended for production)
-?token=es_live_xxxxxxxxxxxxxxxxxxxxxxxx`}</Block>
+?token=es_xxxxxxxxxxxxxxxxxxxxxxxx`}</Block>
 
                         <div className="mt-5 rounded-xl border border-line bg-elev px-5 py-4">
                             <p className="m-0 font-mono text-[12px] text-muted">
@@ -123,7 +123,7 @@ Authorization: Bearer es_live_xxxxxxxxxxxxxxxxxxxxxxxx
                                 uses by default.
                             </P>
                             <Block>{`$ curl -d "disk full on api-01" \\
-  -H "Authorization: Bearer es_live_xxx" \\
+  -H "Authorization: Bearer es_xxx" \\
   https://api.emitsignal.com/publish/alerts/prod`}</Block>
                         </div>
 
@@ -205,7 +205,7 @@ Content-Type: application/json
                         </div>
 
                         <Block>{`$ curl -N \\
-  -H "Authorization: Bearer es_live_xxx" \\
+  -H "Authorization: Bearer es_xxx" \\
   "https://api.emitsignal.com/subscribe/alerts/prod"
 
 # SSE stream output:
@@ -507,7 +507,7 @@ ci/web-app/main`}</Block>
 {
   "id":         "key_01j9xz3p4q5r",
   "label":      "ci-prod",
-  "secret":     "es_live_xxxxxxxxxxxxxxxxxxxxxxxx",
+  "secret":     "es_xxxxxxxxxxxxxxxxxxxxxxxx",
   "scopes":     ["publish"],
   "created_at": "2026-05-28T09:00:00Z"
 }`}</Block>

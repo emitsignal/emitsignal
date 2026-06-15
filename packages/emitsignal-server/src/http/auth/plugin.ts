@@ -7,7 +7,7 @@ export async function resolveUserId({
     headers: Record<string, string | undefined>;
 }): Promise<null | string> {
     // Only the auth-bearing headers determine the session: the cookie (web),
-    // the Authorization header (Bearer session tokens and es_live_ API keys)
+    // the Authorization header (Bearer session tokens and es_ API keys)
     // and the secondary x-api-key header.
     const cacheKey = `${headers.cookie ?? ''}|${headers.authorization ?? ''}|${headers['x-api-key'] ?? ''}`;
 

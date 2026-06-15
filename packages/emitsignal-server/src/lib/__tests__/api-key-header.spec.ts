@@ -4,15 +4,15 @@ import { getApiKeyFromHeaders } from '../api-key-header';
 
 describe('getApiKeyFromHeaders', () => {
     it('extracts an API token from the Authorization: Bearer header', () => {
-        const headers = new Headers({ authorization: 'Bearer es_live_abc123' });
+        const headers = new Headers({ authorization: 'Bearer es_abc123' });
 
-        expect(getApiKeyFromHeaders(headers)).toBe('es_live_abc123');
+        expect(getApiKeyFromHeaders(headers)).toBe('es_abc123');
     });
 
     it('falls back to the x-api-key header', () => {
-        const headers = new Headers({ 'x-api-key': 'es_live_xyz789' });
+        const headers = new Headers({ 'x-api-key': 'es_xyz789' });
 
-        expect(getApiKeyFromHeaders(headers)).toBe('es_live_xyz789');
+        expect(getApiKeyFromHeaders(headers)).toBe('es_xyz789');
     });
 
     it('ignores Bearer session tokens that are not API keys', () => {
