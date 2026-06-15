@@ -1,4 +1,4 @@
-import { AlertTriangle, Copy, Eye, EyeOff, GitBranch, MoreHorizontal, X } from 'lucide-react';
+import { AlertTriangle, Copy, GitBranch, MoreHorizontal, X } from 'lucide-react';
 import { useState } from 'react';
 
 import type { ApiKey } from '#/hooks/use-api-keys';
@@ -85,7 +85,6 @@ export function KeysTable({
     onRoll,
 }: KeysTableProps) {
     const [menuFor, setMenuFor] = useState<null | string>(null);
-    const [revealedId, setRevealedId] = useState<null | string>(null);
 
     const copyPrefix = async (key: ApiKey) => {
         const prefix = key.start ?? '';
@@ -133,10 +132,7 @@ export function KeysTable({
             {apiKeys.map((apiKey, index) => {
                 const isLast = index === apiKeys.length - 1;
                 const isRevoked = !apiKey.enabled;
-                const isRevealed = revealedId === apiKey.id;
-                const maskedDisplay = isRevealed
-                    ? `${apiKey.start ?? ''}`
-                    : `${(apiKey.start ?? '').slice(0, 6)}••••`;
+                const maskedDisplay = `${(apiKey.start ?? '').slice(0, 11)}••••`;
                 const isMenuOpen = menuFor === apiKey.id;
                 const expiry = formatExpiry(apiKey.expiresAt);
 
@@ -166,21 +162,6 @@ export function KeysTable({
                             <span className="overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[12px] text-muted">
                                 {maskedDisplay}
                             </span>
-                            <button
-                                className="flex flex-shrink-0"
-                                onClick={(event) => {
-                                    event.stopPropagation();
-
-                                    setRevealedId(isRevealed ? null : apiKey.id);
-                                }}
-                                title={isRevealed ? 'Hide' : 'Reveal prefix'}
-                            >
-                                {isRevealed ? (
-                                    <EyeOff className="text-dim hover:text-fg" size={13} />
-                                ) : (
-                                    <Eye className="text-dim hover:text-fg" size={13} />
-                                )}
-                            </button>
                             <button
                                 className="flex flex-shrink-0"
                                 onClick={(event) => {

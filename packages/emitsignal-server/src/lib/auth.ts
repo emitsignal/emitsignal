@@ -92,6 +92,7 @@ export const auth = betterAuth({
             // (per-user) and plan quotas; the plugin's default 10/day per-key
             // limiter would otherwise lock keys after a handful of requests.
             rateLimit: { enabled: false },
+            startingCharactersConfig: { charactersLength: API_KEY_PREFIX.length + 8 },
         }),
         passkey({
             origin: environment.APP_URL,
