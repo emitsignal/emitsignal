@@ -101,6 +101,12 @@ export const auth = betterAuth({
         ...stripePlugins,
     ],
     secret: environment.BETTER_AUTH_SECRET,
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: duration.minutes(5).as('seconds'),
+        },
+    },
     socialProviders: {
         ...(environment.GITHUB_CLIENT_ID && environment.GITHUB_CLIENT_SECRET
             ? {
