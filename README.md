@@ -1,8 +1,88 @@
-# EmitSignal
+<p align="center">
+  <img src="./assets/github-banner.png" alt="EmitSignal — dev-native push notifications" width="100%" />
+</p>
 
-Real-time notification platform. Publish messages to topics, deliver via SSE and push notifications. Built with Bun, Elysia, Expo, and React Email.
+<h2 align="center">Real-time notifications, from your shell to your phone</h2>
 
-## Packages
+<p align="center">Pipe alerts, deploys and CI straight to your phone — emit a signal from anything that can run <code>curl</code>.</p>
+
+<p align="center">
+  <a href="#quick-look">Quick look</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#packages">Packages</a> ·
+  <a href="#getting-started">Getting started</a> ·
+  <a href="#architecture">Architecture</a>
+</p>
+
+<br />
+
+# What is EmitSignal?
+
+EmitSignal is a self-hostable, real-time notification platform built for developers. Publishers `POST` messages to named **topics**; subscribers receive them **live** over Server-Sent Events in the web dashboard and mobile app, and as **push notifications** on their phone. Emails and push are dispatched asynchronously through queued workers, so publishing stays fast.
+
+No SDK required to send — if it can make an HTTP request, it can emit a signal. The publish API is [ntfy](https://ntfy.sh)-style: set everything through headers and skip the JSON.
+
+<br />
+
+# Quick look
+
+**Publish a message** — header-based, no body parsing required:
+
+```bash
+curl -X POST https://emitsignal.com/topic/alerts \
+  -H "X-Title: Deploy finished" \
+  -H "X-Priority: high" \
+  -H "X-Tags: ci,prod" \
+  -d "v2.4.0 shipped to production"
+```
+
+**Or send JSON, authenticated with an API key:**
+
+```bash
+curl -X POST https://emitsignal.com/topic/alerts \
+  -H "Authorization: Bearer es_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{ "title": "Latency alert", "body": "p99 over 800ms", "priority": 5, "tags": ["prod"] }'
+```
+
+**Subscribe and stream signals live** over SSE:
+
+```bash
+# one topic
+curl -N https://emitsignal.com/topics/alerts/listen
+
+# several at once
+curl -N "https://emitsignal.com/listen?topics=alerts,ci,deploys"
+```
+
+**Schedule for later** — relative durations (`30m`, `2h`, `1d`) or a unix timestamp:
+
+```bash
+curl -X POST https://emitsignal.com/topic/reminders \
+  -H "X-Title: Stand-up in 30 minutes" \
+  -H "X-Delay: 30m" \
+  -d "Don't forget the daily"
+```
+
+<br />
+
+# Features
+
+- **Topics** — publish to any named topic; subscribers tune in by name, no pre-registration.
+- **Live delivery (SSE)** — `GET /topics/:name/listen` or `GET /listen?topics=a,b,c`, with `?since=` backlog replay and heartbeats.
+- **Push notifications** — delivered to the Expo mobile app (iOS, Android) via queued workers.
+- **Priorities** — `1`–`5`, or the aliases `min` / `low` / `default` / `high` / `urgent`.
+- **Tags & actions** — categorize with `X-Tags`, attach interactive `X-Actions` to a message.
+- **Scheduling** — `X-Delay` accepts relative durations (`5m`, `2h`, `1d`, `1w`) or a unix timestamp, up to a year out.
+- **Webhooks** — receive from external services at `POST /h/:slug` with built-in templates for `github`, `grafana`, `stripe`, `vercel`, and `custom`.
+- **Attachments** — upload files alongside a message, stored locally or on S3.
+- **Flexible auth** — magic link, passkey (WebAuthn), API keys (`es_…`), and optional GitHub OAuth, via [Better Auth](https://better-auth.com).
+- **Rate limiting** — per-IP and per-user limits, backed by Redis, fail-open if Redis is down.
+- **Email digests** — transactional emails through a pluggable provider (`log`, `smtp`, or [Resend](https://resend.com)).
+
+# Packages
+
+This is a [Bun](https://bun.com) workspace monorepo.
 
 | Package                                                | Description                                     |
 | ------------------------------------------------------ | ----------------------------------------------- |
@@ -11,59 +91,44 @@ Real-time notification platform. Publish messages to topics, deliver via SSE and
 | [`@emitsignal/mobile`](./packages/emitsignal-mobile)   | Expo React Native app (iOS, Android, Web)       |
 | [`@emitsignal/emails`](./packages/emitsignal-emails)   | React Email templates                           |
 
-## Prerequisites
+<br />
 
-- [Bun](https://bun.com) `>= 1.3`
-- [Docker](https://docs.docker.com/get-docker/) (for PostgreSQL, Redis, and SMTP in development)
+# Getting started
 
-## Getting Started
-
-Install dependencies from the root:
+You'll need [Bun](https://bun.com) `>= 1.3` and [Docker](https://docs.docker.com/get-docker/).
 
 ```bash
 bun install
-```
-
-### Start development services
-
-```bash
 docker compose -f packages/emitsignal-docker/docker-compose.dev.yml up
 ```
 
-This starts PostgreSQL, Redis, an SMTP inbox (Kafrainbox at [localhost:3134](http://localhost:3134)), the API server (port 5100), all workers, and the website (port 5173) — all with hot reload.
+That brings up the whole stack with hot reload — PostgreSQL, Redis, an SMTP inbox ([localhost:3134](http://localhost:3134)), all BullMQ workers, the API server ([localhost:5100](https://emitsignal.com)) and the website ([localhost:5173](http://localhost:5173)).
 
-### Manual setup (without Docker)
+<details>
+<summary>Run pieces by hand (without Docker)</summary>
 
 ```bash
+# API + workers
 cd packages/emitsignal-server
 cp .env.example .env          # edit DATABASE_URL, REDIS_URL, etc.
-bun run db:migrate
-bun run db:seed
+bun run db:migrate && bun run db:seed
 bun run dev:worker            # all workers (separate terminal)
 bun run dev                   # API server
+
+# web dashboard
+cd packages/emitsignal-website && bun run dev
+
+# mobile app
+cd packages/emitsignal-mobile && bun run start
 ```
 
-```bash
-cd packages/emitsignal-website
-bun run dev                   # web dashboard
-```
+</details>
 
-```bash
-cd packages/emitsignal-mobile
-bun run start                 # Expo dev server
-```
+Workspace-wide scripts run from the root: `bun format`, `bun lint`, `bun test`, and `bun dev` (runs `dev` in every package).
 
-## Root Scripts
+<br />
 
-| Script             | Description                      |
-| ------------------ | -------------------------------- |
-| `bun format`       | Format all files with Prettier   |
-| `bun format:check` | Check formatting without writing |
-| `bun lint`         | Run ESLint across the workspace  |
-| `bun lint:fix`     | Run ESLint with auto-fix         |
-| `bun dev`          | Run `dev` script in all packages |
-
-## Architecture
+# Architecture
 
 ```
 ┌─────────────┐              ┌─────────────┐              ┌─────────────┐
@@ -79,4 +144,8 @@ bun run start                 # Expo dev server
                                                            └─────────────┘
 ```
 
-Users publish messages to topics. Subscribers receive them in real-time via SSE (website and mobile app). Server dispatches emails and push notifications through BullMQ queues processed by dedicated workers.
+A publish immediately fires an in-process event bus (powering live SSE) and enqueues a push job; scheduled messages skip the bus and go straight to the schedule queue. Dedicated workers drain the `email`, `push`, and `schedule` queues so the publish path never blocks on delivery.
+
+### Built with
+
+[Bun](https://bun.com) · [Elysia](https://elysiajs.com) · [Prisma](https://www.prisma.io) + PostgreSQL · [Redis](https://redis.io) + [BullMQ](https://bullmq.io) · [Better Auth](https://better-auth.com) · [TanStack Start](https://tanstack.com/start) · [Expo](https://expo.dev) / React Native · [React Email](https://react.email) · Tailwind CSS · TypeScript
