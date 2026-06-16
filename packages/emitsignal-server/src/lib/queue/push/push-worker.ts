@@ -1,10 +1,10 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ConnectionOptions, Worker } from 'bullmq';
 
-import type { PushJob } from '../../push-notification';
+import type { PushJob } from '../../push';
 
 import { logger } from '../../logger';
-import { sendPushNotifications } from '../../push-notification';
+import { sendPushNotifications } from '../../push';
 import { redisConnection } from '../connection';
 
 const tracer = trace.getTracer('emitsignal.worker');

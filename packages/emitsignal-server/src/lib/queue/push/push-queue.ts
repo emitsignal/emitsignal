@@ -1,6 +1,6 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
-import type { PushJob } from '../../push-notification';
+import type { PushJob } from '../../push';
 
 import { duration } from '../../duration';
 import { redisConnection } from '../connection';
