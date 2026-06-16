@@ -31,7 +31,7 @@ export default function ApiKeyCreatedEmail({
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
                 <Head />
-                <Preview>Security alert: New API key created</Preview>
+                <Preview>New API key created</Preview>
                 <Body className="bg-es-bg py-10 font-sans">
                     <Container className="mx-auto max-w-xl px-5">
                         <LogoHeader />

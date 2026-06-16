@@ -8,7 +8,7 @@ const tracer = trace.getTracer('emitsignal.prisma');
 
 function createPrismaClient() {
     const adapter = new PrismaPg({ connectionString: Bun.env.DATABASE_URL });
-    const client = new PrismaClient({ adapter, log: ['query'] });
+    const client = new PrismaClient({ adapter });
 
     if (!environment.OTEL_ENABLED) {
         return client;

@@ -4,6 +4,7 @@ import { stripe } from '@better-auth/stripe';
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { createAuthMiddleware, isAPIError } from 'better-auth/api';
 import { bearer, emailOTP } from 'better-auth/plugins';
 import { createElement } from 'react';
 import Stripe from 'stripe';
@@ -15,6 +16,7 @@ import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
 import { duration } from './duration';
 import { EmailService } from './email-service';
 import { prisma } from './prisma';
+import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
 
 // Paid plans only exist when Stripe is fully configured; without the env vars
 // the server boots with every user on the free plan.
@@ -58,6 +60,24 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma as Parameters<typeof prismaAdapter>[0], {
         provider: 'postgresql',
     }),
+    hooks: {
+        // Send a security-alert email whenever a new API key is issued. The
+        // create endpoint returns the key record (incl. owner `referenceId`),
+        // which we hand off to the email helper.
+        after: createAuthMiddleware(async (ctx) => {
+            if (ctx.path !== '/api-key/create') {
+                return;
+            }
+
+            const returned = ctx.context.returned;
+
+            if (!returned || isAPIError(returned)) {
+                return;
+            }
+
+            await sendApiKeyCreatedEmail(returned);
+        }),
+    },
     plugins: [
         bearer(),
         emailOTP({
