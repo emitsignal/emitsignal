@@ -1,6 +1,12 @@
+import pLimit from 'p-limit';
+
 import type { Action } from './actions';
 
 import { prisma } from './prisma';
+
+const EXPO_PUSH_BATCH_SIZE = 100;
+
+const EXPO_PUSH_CONCURRENCY = 6;
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
@@ -76,17 +82,31 @@ export async function sendPushNotifications(job: PushJob): Promise<void> {
         to: token,
     }));
 
-    const response = await fetch(EXPO_PUSH_URL, {
-        body: JSON.stringify(messages),
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        method: 'POST',
-    });
+    const batches = [];
 
-    if (!response.ok) {
-        const text = await response.text();
-
-        throw new Error(`Expo push API error ${response.status}: ${text}`);
+    for (let index = 0; index < messages.length; index += EXPO_PUSH_BATCH_SIZE) {
+        batches.push(messages.slice(index, index + EXPO_PUSH_BATCH_SIZE));
     }
+
+    const limit = pLimit(EXPO_PUSH_CONCURRENCY);
+
+    await Promise.all(
+        batches.map((batch) =>
+            limit(async () => {
+                const response = await fetch(EXPO_PUSH_URL, {
+                    body: JSON.stringify(batch),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    method: 'POST',
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+
+                    throw new Error(`Expo push API error ${response.status}: ${text}`);
+                }
+            }),
+        ),
+    );
 }
