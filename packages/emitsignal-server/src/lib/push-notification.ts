@@ -19,7 +19,7 @@ export interface PushJob {
 
 export async function sendPushNotifications(job: PushJob): Promise<void> {
     const subscriptions = await prisma.subscription.findMany({
-        select: { deviceId: true },
+        select: { deviceId: true, userId: true },
         where: { pushEnabled: true, topicId: job.topicId },
     });
 
@@ -27,23 +27,42 @@ export async function sendPushNotifications(job: PushJob): Promise<void> {
         return;
     }
 
-    const deviceIds = [...new Set(subscriptions.map(({ deviceId }) => deviceId))];
+    // Prefer userId: it identifies the user precisely and lets us notify every device
+    // the user owns. Subscriptions without a userId fall back to matching by deviceId.
+    const userIds = [
+        ...new Set(
+            subscriptions
+                .map(({ userId }) => userId)
+                .filter((userId): userId is string => userId !== null),
+        ),
+    ];
+
+    const deviceIds = [
+        ...new Set(
+            subscriptions.filter(({ userId }) => userId === null).map(({ deviceId }) => deviceId),
+        ),
+    ];
 
     const pushTokens = await prisma.pushToken.findMany({
         select: { token: true },
-        where: { deviceId: { in: deviceIds }, pushEnabled: true },
+        where: {
+            OR: [{ userId: { in: userIds } }, { deviceId: { in: deviceIds } }],
+            pushEnabled: true,
+        },
     });
 
     if (pushTokens.length === 0) {
         return;
     }
 
+    const tokens = [...new Set(pushTokens.map(({ token }) => token))];
+
     const truncatedBody =
         job.body.length > MAX_BODY_LENGTH ? `${job.body.slice(0, MAX_BODY_LENGTH - 1)}…` : job.body;
 
     const hasActions = job.actions && job.actions.length > 0;
 
-    const messages = pushTokens.map(({ token }) => ({
+    const messages = tokens.map((token) => ({
         body: truncatedBody,
         categoryId: hasActions ? 'emitsignal-message' : undefined,
         data: {
