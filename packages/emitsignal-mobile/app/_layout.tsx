@@ -5,11 +5,13 @@ import {
 } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
+import { AnimatedSplash } from '@/components/animated-splash';
 import { W } from '@/constants/theme';
 import { DebugSectionsProvider } from '@/ctx/debug-sections';
 import { DeviceProvider } from '@/ctx/device';
@@ -22,6 +24,10 @@ import { queryClient } from '@/lib/query-client';
 import { setupQuerySync } from '@/lib/query-online';
 
 setupQuerySync();
+
+// Keep the native splash up until the JS bundle is ready, then hand off to the
+// in-app animated intro. Both share the #0f0a1a background so the swap is seamless.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     return (
@@ -45,9 +51,11 @@ function RootLayoutContent() {
     useForegroundNotifications();
 
     const colorScheme = useColorScheme();
+    const [introDone, setIntroDone] = useState(false);
 
     useEffect(() => {
         SystemUI.setBackgroundColorAsync(W.bg);
+        SplashScreen.hideAsync();
     }, []);
 
     return (
@@ -67,6 +75,7 @@ function RootLayoutContent() {
                     }}
                 />
             </Stack>
+            {introDone ? null : <AnimatedSplash onFinish={() => setIntroDone(true)} />}
             <StatusBar style="light" />
         </NavigationThemeProvider>
     );
