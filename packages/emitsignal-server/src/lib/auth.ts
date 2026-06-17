@@ -140,6 +140,9 @@ export const auth = betterAuth({
     },
     trustedOrigins: ['*'],
     user: {
+        additionalFields: {
+            onboarded: { defaultValue: false, required: false, type: 'boolean' },
+        },
         deleteUser: { enabled: true },
     },
 });
