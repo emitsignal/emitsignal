@@ -1,3 +1,5 @@
+import type { MediaRef } from '@emitsignal/shared';
+
 import type { Action } from './actions';
 
 import { getUserPlan } from './billing/get-user-plan';
@@ -86,6 +88,42 @@ export function parseActions(raw: string): Action[] {
     }
 }
 
+export function parseMediaRef(raw: null | string): MediaRef | null {
+    const refs = parseMediaRefs(raw ?? '');
+
+    return refs[0] ?? null;
+}
+
+export function parseMediaRefs(raw: string): MediaRef[] {
+    if (!raw) {
+        return [];
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+
+        return items
+            .filter(
+                (item: unknown): item is MediaRef =>
+                    typeof item === 'object' &&
+                    item !== null &&
+                    typeof (item as MediaRef).href === 'string',
+            )
+            .map((item) => {
+                const ref: MediaRef = { href: item.href };
+
+                if (typeof item.title === 'string' && item.title) {
+                    ref.title = item.title;
+                }
+
+                return ref;
+            });
+    } catch {
+        return [];
+    }
+}
+
 export function parseTags(raw: string): string[] {
     if (!raw) {
         return [];
@@ -103,9 +141,12 @@ export function parseTags(raw: string): string[] {
 export async function serializeMessage(
     message: {
         actions: string;
+        bannerImage?: null | string;
         body: string;
         createdAt: Date;
         id: string;
+        inlineAttachments?: string;
+        inlineImages?: string;
         priority: number;
         tags: string;
         title: string;
@@ -149,9 +190,12 @@ export async function serializeMessage(
         acknowledgmentCount,
         actions: parseActions(message.actions),
         attachments,
+        bannerImage: parseMediaRef(message.bannerImage ?? null),
         body: message.body,
         createdAt: message.createdAt.getTime(),
         id: message.id,
+        inlineAttachments: parseMediaRefs(message.inlineAttachments ?? ''),
+        inlineImages: parseMediaRefs(message.inlineImages ?? ''),
         priority: message.priority,
         tags: parseTags(message.tags),
         title: message.title,

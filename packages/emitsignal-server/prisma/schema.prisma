@@ -204,16 +204,19 @@ model Acknowledgment {
 model Message {
     id        String   @id @default(cuid())
 
-    actions     String   @default("[]") // JSON array of Action objects
-    body        String
-    createdAt   DateTime @default(now())
-    deliveredAt DateTime?
-    priority    Int      @default(3) // 1=min..5=max
-    scheduledAt DateTime?
-    senderId    String?
-    tags        String // JSON array string for sqlite
-    title       String
-    topicId     String
+    actions           String   @default("[]") // JSON array of Action objects
+    bannerImage       String? // JSON {title?, href} or null
+    body              String
+    createdAt         DateTime @default(now())
+    deliveredAt       DateTime?
+    inlineAttachments String   @default("[]") // JSON array of {title?, href}
+    inlineImages      String   @default("[]") // JSON array of {title?, href}
+    priority          Int      @default(3) // 1=min..5=max
+    scheduledAt       DateTime?
+    senderId          String?
+    tags              String // JSON array string for sqlite
+    title             String
+    topicId           String
 
     acknowledgments Acknowledgment[]
     attachments     Attachment[]

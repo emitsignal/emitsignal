@@ -8,6 +8,7 @@ import { consumeDailyQuota, quotaExceededHeaders } from '../../lib/billing/usage
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
 import { parsePublishHeaders } from '../../lib/header-publish';
+import { ANON_INLINE_MAX, validateMessageMedia } from '../../lib/media-refs';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
@@ -15,6 +16,12 @@ import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/top
 import { resolveUserId } from '../auth/plugin';
 
 const MAX_SCHEDULE_SECONDS = duration.years(1).as('seconds');
+
+const mediaItemSchema = t.Union([
+    t.String(),
+    t.Object({ href: t.String(), title: t.Optional(t.String()) }),
+]);
+const mediaInputSchema = t.Union([mediaItemSchema, t.Array(mediaItemSchema)]);
 
 export const publish = new Elysia().post(
     '/topic/:name',
@@ -32,8 +39,11 @@ export const publish = new Elysia().post(
         // daily plan quotas apply to authenticated users.
         const userId = await resolveUserId({ headers });
 
+        let inlineMax = ANON_INLINE_MAX;
+
         if (userId) {
             const limits = await getUserLimits(userId);
+            inlineMax = limits.inlineMaxPerArray;
             const quota = await consumeDailyQuota(userId, 'messages', limits.messagesPerDay);
 
             if (!quota.allowed) {
@@ -46,6 +56,19 @@ export const publish = new Elysia().post(
                     resetAt: quota.resetAt,
                 });
             }
+        }
+
+        const media = validateMessageMedia(
+            {
+                bannerImage: body.bannerImage,
+                inlineAttachments: body.inlineAttachments,
+                inlineImages: body.inlineImages,
+            },
+            inlineMax,
+        );
+
+        if ('error' in media) {
+            return status(400, { error: 'invalid_media', message: media.error });
         }
 
         let topic;
@@ -76,7 +99,10 @@ export const publish = new Elysia().post(
         const message = await prisma.message.create({
             data: {
                 actions: JSON.stringify(actions),
+                bannerImage: media.bannerImage ? JSON.stringify(media.bannerImage) : null,
                 body: body.body,
+                inlineAttachments: JSON.stringify(media.inlineAttachments),
+                inlineImages: JSON.stringify(media.inlineImages),
                 priority: body.priority,
                 scheduledAt: isScheduled ? new Date(scheduledAtUnix * 1000) : null,
                 tags: serializeTags(body.tags),
@@ -125,7 +151,10 @@ export const publish = new Elysia().post(
                     { maxItems: 2 },
                 ),
             ),
+            bannerImage: t.Optional(mediaItemSchema),
             body: t.String(),
+            inlineAttachments: t.Optional(mediaInputSchema),
+            inlineImages: t.Optional(mediaInputSchema),
             priority: t.Integer({ maximum: 5, minimum: 1 }),
             scheduledAt: t.Optional(t.Integer()),
             tags: t.Array(t.String()),

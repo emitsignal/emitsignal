@@ -26,7 +26,10 @@ export function parsePublishHeaders(
     rawBody: string,
 ): {
     actions?: unknown;
+    bannerImage?: unknown;
     body: string;
+    inlineAttachments?: unknown;
+    inlineImages?: unknown;
     priority: number;
     scheduledAt?: number;
     tags: string[];
@@ -34,6 +37,9 @@ export function parsePublishHeaders(
 } {
     const messageOverride = firstHeader(headers, 'x-message', 'message', 'm');
     const rawActions = firstHeader(headers, 'x-actions', 'actions');
+    const rawBanner = firstHeader(headers, 'x-banner', 'banner');
+    const rawInlineAttachments = firstHeader(headers, 'x-inline-attachments', 'inline-attachments');
+    const rawInlineImages = firstHeader(headers, 'x-inline-images', 'inline-images');
     const rawDelay = firstHeader(headers, 'x-delay', 'delay', 'x-at', 'at', 'x-in', 'in');
     const rawPriority = firstHeader(headers, 'x-priority', 'priority', 'prio', 'p');
     const rawTags = firstHeader(headers, 'x-tags', 'tags', 'ta');
@@ -51,7 +57,12 @@ export function parsePublishHeaders(
 
     return {
         actions,
+        bannerImage: rawBanner ? parseMediaHeader(rawBanner) : undefined,
         body: messageOverride || rawBody,
+        inlineAttachments: rawInlineAttachments
+            ? parseMediaHeader(rawInlineAttachments)
+            : undefined,
+        inlineImages: rawInlineImages ? parseMediaHeader(rawInlineImages) : undefined,
         priority: rawPriority ? parsePriority(rawPriority) : 3,
         scheduledAt: rawDelay ? parseDelay(rawDelay) : undefined,
         tags: rawTags ? parseHeaderTags(rawTags) : [],
@@ -96,6 +107,29 @@ function parseHeaderTags(raw: string): string[] {
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean);
+}
+
+// Header media accepts JSON ([...] or {...}) or a comma-separated list of URLs.
+// Returned raw; validateMessageMedia normalizes and enforces per-array limits.
+function parseMediaHeader(raw: string): unknown {
+    const trimmed = raw.trim();
+
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+        try {
+            return JSON.parse(trimmed);
+        } catch {
+            // fall through to comma handling
+        }
+    }
+
+    if (trimmed.includes(',')) {
+        return trimmed
+            .split(',')
+            .map((value) => value.trim())
+            .filter(Boolean);
+    }
+
+    return trimmed;
 }
 
 function parsePriority(raw: string): number {

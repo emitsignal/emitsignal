@@ -2,6 +2,8 @@
 // One bus per server instance — sufficient for single-node dev.
 // For multi-node deployments, swap with Redis pub/sub or NATS.
 
+import type { MediaRef } from '@emitsignal/shared';
+
 import { EventEmitter } from 'node:events';
 
 import type { Action } from './actions';
@@ -18,9 +20,12 @@ export interface MessageEvent {
     acknowledgmentCount: number;
     actions: Action[];
     attachments: AttachmentInfo[];
+    bannerImage: MediaRef | null;
     body: string;
     createdAt: number;
     id: string;
+    inlineAttachments: MediaRef[];
+    inlineImages: MediaRef[];
     priority: number;
     tags: string[];
     title: string;
