@@ -1,12 +1,15 @@
-import type { Message } from '#/lib/api';
+import { ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+
+import type { MediaRef, Message } from '#/lib/api';
 
 import { Dot } from '#/components/ui/dot';
+import { ImageGallery } from '#/components/ui/image-gallery';
+import { LinkWarningDialog } from '#/components/ui/link-warning-dialog';
 import { Pill } from '#/components/ui/pill';
 import { SubHeading } from '#/components/ui/sub-head';
 import { relativeTime } from '#/lib/format';
 import { priorityHex } from '#/lib/priority';
-
-import { MetricChart } from './metric-chart';
 
 const PRIORITY_LABELS: Record<number, string> = {
     1: 'PRIORITY 1 · LOW',
@@ -17,6 +20,9 @@ const PRIORITY_LABELS: Record<number, string> = {
 };
 
 export function InboxPreview({ message }: { message: Message | null }) {
+    const [galleryIndex, setGalleryIndex] = useState<null | number>(null);
+    const [pendingLink, setPendingLink] = useState<MediaRef | null>(null);
+
     if (!message) {
         return (
             <div className="flex min-w-0 flex-1 items-center justify-center p-7 font-mono text-[12px] text-dim">
@@ -28,6 +34,14 @@ export function InboxPreview({ message }: { message: Message | null }) {
     const channel = message.topicName ?? message.topicId;
     const hasAcknowledge = message.actions.some((action) => action.type === 'acknowledge');
     const otherActions = message.actions.filter((action) => action.type !== 'acknowledge');
+
+    // Banner first, then inline images — a single gallery the lightbox traverses.
+    const galleryImages: MediaRef[] = [
+        ...(message.bannerImage ? [message.bannerImage] : []),
+        ...message.inlineImages,
+    ];
+
+    const bannerOffset = message.bannerImage ? 1 : 0;
 
     return (
         <div className="min-w-0 flex-1 overflow-auto p-7">
@@ -50,6 +64,22 @@ export function InboxPreview({ message }: { message: Message | null }) {
             <p className="m-0 mb-4.5 whitespace-pre-wrap text-[14px] leading-[1.5] text-muted">
                 {message.body}
             </p>
+
+            {message.bannerImage && (
+                <button
+                    className="mb-4.5 block w-full cursor-pointer"
+                    onClick={() => setGalleryIndex(0)}
+                    title={message.bannerImage.title}
+                    type="button"
+                >
+                    <img
+                        alt={message.bannerImage.title ?? 'banner'}
+                        className="max-h-[280px] w-full rounded-lg border border-line object-cover"
+                        draggable={false}
+                        src={message.bannerImage.href}
+                    />
+                </button>
+            )}
 
             {message.tags.length > 0 && (
                 <div className="mb-4.5 flex flex-wrap gap-1.5">
@@ -85,17 +115,60 @@ export function InboxPreview({ message }: { message: Message | null }) {
                 </div>
             )}
 
-            <SubHeading>METRIC</SubHeading>
-            <MetricChart />
+            {message.inlineAttachments.length > 0 && (
+                <div className="mb-4.5">
+                    <SubHeading>ATTACHMENTS</SubHeading>
+                    <div className="flex flex-col gap-1.5">
+                        {message.inlineAttachments.map((attachment, index) => (
+                            <button
+                                className="flex w-full items-center gap-2 rounded-md border border-line bg-elev px-3 py-2 text-left text-[12.5px] text-fg hover:bg-elev-2"
+                                key={index}
+                                onClick={() => setPendingLink(attachment)}
+                                type="button"
+                            >
+                                <ExternalLink className="flex-shrink-0 text-dim" size={13} />
+                                <span className="truncate">
+                                    {attachment.title ?? attachment.href}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
-            <div className="h-4.5" />
+            {message.inlineImages.length > 0 && (
+                <div className="mb-4.5">
+                    <SubHeading>IMAGES</SubHeading>
+                    <div className="flex flex-wrap gap-2">
+                        {message.inlineImages.map((image, index) => (
+                            <button
+                                className="cursor-pointer"
+                                key={index}
+                                onClick={() => setGalleryIndex(bannerOffset + index)}
+                                title={image.title}
+                                type="button"
+                            >
+                                <img
+                                    alt={image.title ?? `image ${index + 1}`}
+                                    className="h-20 w-20 rounded-md border border-line object-cover"
+                                    draggable={false}
+                                    src={image.href}
+                                />
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <SubHeading>PAYLOAD</SubHeading>
             <pre className="overflow-auto rounded-lg border border-line bg-deep p-4 font-mono text-[12px] leading-[1.6] text-muted">
                 {JSON.stringify(
                     {
+                        bannerImage: message.bannerImage,
                         body: message.body,
                         id: message.id,
+                        inlineAttachments: message.inlineAttachments,
+                        inlineImages: message.inlineImages,
                         priority: message.priority,
                         tags: message.tags,
                         title: message.title,
@@ -106,6 +179,16 @@ export function InboxPreview({ message }: { message: Message | null }) {
                     2,
                 )}
             </pre>
+
+            {galleryIndex !== null && (
+                <ImageGallery
+                    images={galleryImages}
+                    onClose={() => setGalleryIndex(null)}
+                    startIndex={galleryIndex}
+                />
+            )}
+
+            <LinkWarningDialog link={pendingLink} onClose={() => setPendingLink(null)} />
         </div>
     );
 }
