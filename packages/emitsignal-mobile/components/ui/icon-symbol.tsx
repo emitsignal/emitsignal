@@ -52,6 +52,7 @@ const MAPPING = {
     // Status
     'info.circle': 'info',
     key: 'vpn-key',
+    link: 'link',
     'list.bullet': 'list',
     magnifyingglass: 'search',
     megaphone: 'campaign',

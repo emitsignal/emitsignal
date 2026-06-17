@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
+import { MessageMedia } from '@/components/message-media';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
@@ -85,6 +86,12 @@ export default function MessageDetailScreen() {
 
                     <Text style={styles.title}>{message.title}</Text>
                     <Text style={styles.body}>{message.body}</Text>
+
+                    <MessageMedia
+                        bannerImage={message.bannerImage}
+                        inlineAttachments={message.inlineAttachments}
+                        inlineImages={message.inlineImages}
+                    />
 
                     {message.attachments && message.attachments.length > 0 ? (
                         <View style={styles.attachments}>
@@ -173,8 +180,11 @@ export default function MessageDetailScreen() {
                                     {
                                         acknowledgmentCount: message.acknowledgmentCount,
                                         actions: message.actions,
+                                        bannerImage: message.bannerImage,
                                         body: message.body,
                                         createdAt: new Date(message.createdAt).toISOString(),
+                                        inlineAttachments: message.inlineAttachments,
+                                        inlineImages: message.inlineImages,
                                         priority: message.priority,
                                         tags: message.tags,
                                         title: message.title,
