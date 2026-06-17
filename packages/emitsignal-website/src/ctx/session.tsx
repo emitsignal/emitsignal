@@ -13,6 +13,7 @@ export interface SessionUser {
     id: string;
     image: null | string;
     name: null | string;
+    onboarded: boolean;
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -31,6 +32,7 @@ export function useSession(): SessionContextValue {
                   id: data.user.id,
                   image: data.user.image ?? null,
                   name: data.user.name ?? null,
+                  onboarded: data.user.onboarded ?? false,
               }
             : null,
     };
