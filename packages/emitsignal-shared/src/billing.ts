@@ -25,6 +25,7 @@ export interface PlanDefinition {
 export interface PlanLimits {
     attachmentMaxBytes: number;
     emailsPerDay: number;
+    inlineMaxPerArray: number;
     maxOwnedTopics: number;
     maxWebhooks: number;
     messagesPerDay: number;
@@ -49,6 +50,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
         limits: {
             attachmentMaxBytes: 100 * MEGABYTE,
             emailsPerDay: 250,
+            inlineMaxPerArray: 15,
             maxOwnedTopics: 50,
             maxWebhooks: 30,
             messagesPerDay: 20_000,
@@ -63,6 +65,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
         limits: {
             attachmentMaxBytes: 5 * MEGABYTE,
             emailsPerDay: 5,
+            inlineMaxPerArray: 3,
             maxOwnedTopics: 5,
             maxWebhooks: 2,
             messagesPerDay: 100,
@@ -77,6 +80,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
         limits: {
             attachmentMaxBytes: 25 * MEGABYTE,
             emailsPerDay: 50,
+            inlineMaxPerArray: 5,
             maxOwnedTopics: 15,
             maxWebhooks: 10,
             messagesPerDay: 2500,

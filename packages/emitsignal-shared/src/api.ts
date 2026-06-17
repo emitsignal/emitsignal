@@ -14,13 +14,25 @@ export interface Attachment {
     url: string;
 }
 
+// Flexible publisher input for bannerImage/inlineImages/inlineAttachments:
+// a bare URL string, a {title, href} object, or an array mixing both.
+export type MediaInput = Array<MediaRef | string> | MediaRef | string;
+
+export interface MediaRef {
+    href: string;
+    title?: string;
+}
+
 export interface Message {
     acknowledgmentCount: number;
     actions: Action[];
     attachments: Attachment[];
+    bannerImage: MediaRef | null;
     body: string;
     createdAt: number;
     id: string;
+    inlineAttachments: MediaRef[];
+    inlineImages: MediaRef[];
     priority: 1 | 2 | 3 | 4 | 5;
     tags: string[];
     title: string;
