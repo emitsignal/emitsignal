@@ -449,11 +449,26 @@ export function AccountPage() {
 
 function parseUA(ua?: null | string): string {
     if (!ua) return 'Unknown device';
+
+    // EmitSignal mobile app, e.g. "EmitSignal/1.0.0 (iPhone 15 Pro; iOS 18.0)".
+    if (ua.startsWith('EmitSignal/')) {
+        const match = ua.match(/\(([^;]+);/);
+        const model = match?.[1]?.trim();
+
+        return model && model !== 'Unknown device' ? `${model} · EmitSignal App` : 'EmitSignal App';
+    }
+
     let browser = 'Browser';
     if (ua.includes('Edg/')) browser = 'Edge';
     else if (ua.includes('Chrome/')) browser = 'Chrome';
     else if (ua.includes('Firefox/')) browser = 'Firefox';
     else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
+
+    // Legacy mobile sessions sent the OS-default app UA (CFNetwork/Darwin with no
+    // browser tokens). Render them as the app rather than the generic "Browser".
+    if (!ua.includes('Mozilla') && (ua.includes('CFNetwork') || ua.includes('Darwin'))) {
+        return 'EmitSignal App';
+    }
 
     let os = '';
     if (ua.includes('iPhone')) os = 'iPhone';
