@@ -1,5 +1,5 @@
 import { expoClient } from '@better-auth/expo/client';
-import { emailOTPClient } from 'better-auth/client/plugins';
+import { emailOTPClient, inferAdditionalFields } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
@@ -26,5 +26,6 @@ export const authClient = createAuthClient({
             storage: SecureStore,
         }),
         emailOTPClient(),
+        inferAdditionalFields({ user: { onboarded: { type: 'boolean' } } }),
     ],
 });
