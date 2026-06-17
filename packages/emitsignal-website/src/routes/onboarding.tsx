@@ -54,7 +54,7 @@ function hashHue(name: string): number {
 }
 
 function OnboardingPage() {
-    const { user } = useSession();
+    const { loading, user } = useSession();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
@@ -65,11 +65,29 @@ function OnboardingPage() {
     const [previewUrl, setPreviewUrl] = useState<null | string>(null);
     const [suggestions, setSuggestions] = useState<TopicSuggestion[]>([]);
 
+    const redirected = useRef(false);
+
     useEffect(() => {
-        if (isOnboardingComplete()) {
-            navigate({ to: '/app' });
+        if (loading || redirected.current) {
+            return;
         }
-    }, [navigate]);
+
+        // The account already knows onboarding is done — skip straight to the app.
+        if (user?.onboarded) {
+            redirected.current = true;
+            navigate({ to: '/app' });
+            return;
+        }
+
+        // Backfill: existing users whose completion only lived in localStorage get
+        // their DB flag set once, so other devices/browsers stop re-prompting.
+        if (user && isOnboardingComplete()) {
+            redirected.current = true;
+            authClient.updateUser({ onboarded: true }).finally(() => {
+                navigate({ to: '/app' });
+            });
+        }
+    }, [loading, user, navigate]);
 
     const synced = useRef(false);
 
@@ -145,6 +163,8 @@ function OnboardingPage() {
                 await authClient.updateUser({ name: trimmed });
             }
 
+            await authClient.updateUser({ onboarded: true });
+
             const deviceId = getDeviceId();
 
             await Promise.allSettled(
@@ -160,7 +180,9 @@ function OnboardingPage() {
         navigate({ to: '/app' });
     };
 
-    const handleSkip = () => {
+    const handleSkip = async () => {
+        await authClient.updateUser({ onboarded: true }).catch(() => {});
+
         markOnboardingComplete();
         navigate({ to: '/app' });
     };

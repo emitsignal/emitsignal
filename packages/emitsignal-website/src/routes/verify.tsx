@@ -34,7 +34,7 @@ function VerifyPage() {
             setBusy(true);
             setError('');
 
-            const { error: err } = await authClient.signIn.emailOtp({
+            const { data, error: err } = await authClient.signIn.emailOtp({
                 email: emailValue,
                 otp: otpValue,
             });
@@ -44,7 +44,9 @@ function VerifyPage() {
             if (err) {
                 setError(err.message ?? 'Invalid or expired code');
             } else {
-                navigate({ to: isOnboardingComplete() ? '/app' : '/onboarding' });
+                const onboarded = data?.user?.onboarded || isOnboardingComplete();
+
+                navigate({ to: onboarded ? '/app' : '/onboarding' });
             }
         },
         [navigate],
