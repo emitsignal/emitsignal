@@ -108,6 +108,7 @@ model User {
     emailVerified    Boolean  @default(false)
     image            String?
     name             String?
+    onboarded        Boolean  @default(false)
     stripeCustomerId String?
     updatedAt        DateTime @updatedAt
 
