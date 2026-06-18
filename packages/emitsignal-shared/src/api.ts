@@ -228,7 +228,7 @@ export function createApiClient(baseUrl: string) {
             return request<PushToken[]>('/push-tokens');
         },
 
-        listSubscriptionMessages(deviceId?: string, limit?: number) {
+        listSubscriptionMessages(deviceId?: string, limit?: number, topicName?: string) {
             const params = new URLSearchParams();
 
             if (deviceId) {
@@ -237,6 +237,10 @@ export function createApiClient(baseUrl: string) {
 
             if (limit !== undefined) {
                 params.set('limit', String(limit));
+            }
+
+            if (topicName) {
+                params.set('topicName', topicName);
             }
 
             const query = params.toString();
