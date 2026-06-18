@@ -54,6 +54,9 @@ export function useTopicMessages(
     const onNewMessageRef = useRef(onNewMessage);
     onNewMessageRef.current = onNewMessage;
 
+    const deviceId = getDeviceId();
+    const { user } = useSession();
+
     const query = useLiveQuery<Message[]>({
         enabled: Boolean(topicName),
         onMessage: (queryClient, data) => {
@@ -72,7 +75,8 @@ export function useTopicMessages(
             queryClient.setQueryData<Message[]>(key, [incoming, ...current]);
             onNewMessageRef.current?.(incoming);
         },
-        queryFn: () => api.listMessages(topicName as string),
+        queryFn: () =>
+            api.listSubscriptionMessages(user?.id ? undefined : deviceId, 50, topicName as string),
         queryKey: queryKeys.topicMessages(topicName ?? ''),
         sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
