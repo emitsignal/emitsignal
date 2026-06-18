@@ -12,7 +12,11 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
     async ({ headers, query }) => {
         const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
 
-        if (rows.length === 0) {
+        const subscriptions = query.topicName
+            ? rows.filter((row) => row.topic.name === query.topicName)
+            : rows;
+
+        if (subscriptions.length === 0) {
             return [];
         }
 
@@ -24,7 +28,7 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
             orderBy: { createdAt: 'desc' },
             take: query.limit,
             where: {
-                OR: rows.map((subscription) => {
+                OR: subscriptions.map((subscription) => {
                     const { listenSince } = parseSubscriptionSettings(subscription.settings);
 
                     if (listenSince === 'always') {
@@ -56,6 +60,7 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
         query: t.Object({
             deviceId: t.Optional(t.String({ minLength: 1 })),
             limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
+            topicName: t.Optional(t.String({ minLength: 1 })),
         }),
     },
 );
