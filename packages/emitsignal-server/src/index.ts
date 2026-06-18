@@ -19,6 +19,7 @@ import { listSubscriptions } from './http/subscriptions/list';
 import { listSubscriptionMessages } from './http/subscriptions/messages';
 import { subscribe } from './http/subscriptions/subscribe';
 import { unsubscribe } from './http/subscriptions/unsubscribe';
+import { updateSubscription } from './http/subscriptions/update';
 import { getTopic } from './http/topic/get';
 import { listTopics } from './http/topic/list';
 import { listen } from './http/topic/listen';
@@ -98,6 +99,7 @@ const app = new Elysia()
     .use(suggestions)
     .use(unsubscribe)
     .use(updatePushToken)
+    .use(updateSubscription)
     .use(userAvatar)
     .use(listWebhooks)
     .use(getWebhook)

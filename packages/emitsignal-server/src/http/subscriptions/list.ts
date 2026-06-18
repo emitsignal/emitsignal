@@ -1,5 +1,6 @@
 import Elysia, { t } from 'elysia';
 
+import { parseSubscriptionSettings } from '../../lib/subscription-settings';
 import { resolveSubscriptions } from './resolve';
 
 export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
@@ -11,6 +12,7 @@ export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
             createdAt: subscription.createdAt.getTime(),
             id: subscription.id,
             pushEnabled: subscription.pushEnabled,
+            settings: parseSubscriptionSettings(subscription.settings),
             topic: {
                 description: subscription.topic.description,
                 displayName: subscription.topic.displayName,

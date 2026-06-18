@@ -16,6 +16,7 @@ describe('GET /subscriptions', () => {
                 createdAt: new Date(1700000000000),
                 id: 'sub-1',
                 pushEnabled: true,
+                settings: '{"listenSince":"always"}',
                 topic: {
                     description: 'desc',
                     displayName: 'Test',
@@ -35,6 +36,7 @@ describe('GET /subscriptions', () => {
             createdAt: 1700000000000,
             id: 'sub-1',
             pushEnabled: true,
+            settings: { listenSince: 'always' },
             topic: {
                 description: 'desc',
                 displayName: 'Test',

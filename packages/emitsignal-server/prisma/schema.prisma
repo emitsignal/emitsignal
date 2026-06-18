@@ -254,6 +254,7 @@ model Subscription {
     createdAt   DateTime @default(now())
     deviceId    String
     pushEnabled Boolean  @default(true)
+    settings    String   @default("{}")
     topicId     String
     userId      String?
 
