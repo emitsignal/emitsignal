@@ -29,6 +29,7 @@ const config: ExpoConfig = {
     icon: './assets/images/icon.png',
     ios: {
         bundleIdentifier: 'com.emitsignal',
+        icon: './assets/emitsignal-ios.icon',
         infoPlist: {
             ITSAppUsesNonExemptEncryption: false,
         },
