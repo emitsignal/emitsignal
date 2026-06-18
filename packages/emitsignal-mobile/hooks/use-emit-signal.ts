@@ -45,6 +45,9 @@ export function useFeed() {
 }
 
 export function useTopicMessages(topicName: null | string) {
+    const { deviceId } = useDevice();
+    const { user } = useSession();
+
     const query = useLiveQuery<Message[]>({
         enabled: Boolean(topicName),
         onMessage: (queryClient, data) => {
@@ -62,7 +65,12 @@ export function useTopicMessages(topicName: null | string) {
 
             queryClient.setQueryData<Message[]>(key, [incoming, ...current]);
         },
-        queryFn: () => api.listMessages(topicName as string),
+        queryFn: () =>
+            api.listSubscriptionMessages(
+                user?.id ? undefined : (deviceId ?? undefined),
+                50,
+                topicName as string,
+            ),
         queryKey: queryKeys.topicMessages(topicName ?? ''),
         sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
