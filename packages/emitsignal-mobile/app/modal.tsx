@@ -13,18 +13,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WCode, WTopicAvatar } from '@/components/base-theme';
+import { SubscriptionSettingsFields } from '@/components/subscription-settings-fields';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
-import { api } from '@/lib/api';
+import { api, type ListenSince } from '@/lib/api';
 
 export default function SubscribeModal() {
+    const [busy, setBusy] = useState(false);
+    const [listenSince, setListenSince] = useState<ListenSince>('subscription_date');
+    const [pushEnabled, setPushEnabled] = useState(true);
+    const [topic, setTopic] = useState('alerts/prod');
+
     const { deviceId } = useDevice();
     const { subscribe } = useSubscriptions();
-    const [topic, setTopic] = useState('alerts/prod');
-    const [busy, setBusy] = useState(false);
     const { data: suggestions } = useTopicSuggestions(deviceId);
 
     const handleSubscribe = async () => {
@@ -33,7 +37,8 @@ export default function SubscribeModal() {
         }
         setBusy(true);
         try {
-            await subscribe(topic.trim());
+            await subscribe(topic.trim(), { pushEnabled, settings: { listenSince } });
+
             router.back();
         } catch (error) {
             console.error('Subscribe failed', error);
@@ -100,6 +105,16 @@ export default function SubscribeModal() {
                                 ))}
                             </View>
                         ) : null}
+
+                        <View style={styles.section}>
+                            <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
+                            <SubscriptionSettingsFields
+                                listenSince={listenSince}
+                                onChangeListenSince={setListenSince}
+                                onChangePushEnabled={setPushEnabled}
+                                pushEnabled={pushEnabled}
+                            />
+                        </View>
 
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>PUBLISH FROM</Text>

@@ -2,8 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useDevice } from '@/ctx/device';
 import { useSession } from '@/ctx/session';
-import { api } from '@/lib/api';
+import { api, type SubscriptionSettings } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
+
+interface SubscribeOptions {
+    pushEnabled?: boolean;
+    settings?: Partial<SubscriptionSettings>;
+}
 
 export function useSubscriptions() {
     const queryClient = useQueryClient();
@@ -23,7 +28,31 @@ export function useSubscriptions() {
         queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) });
 
     const subscribeMutation = useMutation({
-        mutationFn: (topicName: string) => api.subscribe(deviceId ?? '', topicName, true),
+        mutationFn: ({ options, topicName }: { options?: SubscribeOptions; topicName: string }) =>
+            api.subscribe(
+                deviceId ?? '',
+                topicName,
+                options?.pushEnabled ?? true,
+                options?.settings,
+            ),
+        onSuccess: invalidate,
+    });
+
+    const updateSubscriptionMutation = useMutation({
+        mutationFn: ({
+            id,
+            pushEnabled,
+            settings,
+        }: {
+            id: string;
+            pushEnabled?: boolean;
+            settings?: Partial<SubscriptionSettings>;
+        }) =>
+            api.updateSubscription(id, {
+                deviceId: deviceId ?? undefined,
+                pushEnabled,
+                settings,
+            }),
         onSuccess: invalidate,
     });
 
@@ -37,8 +66,14 @@ export function useSubscriptions() {
         loading: isPending,
         refresh: () => refetch(),
         refreshing: isFetching,
-        subscribe: (topicName: string) => subscribeMutation.mutateAsync(topicName),
+        subscribe: (topicName: string, options?: SubscribeOptions) =>
+            subscribeMutation.mutateAsync({ options, topicName }),
         subscriptions: data ?? [],
         unsubscribe: (topicName: string) => unsubscribeMutation.mutateAsync(topicName),
+        updateSubscription: (args: {
+            id: string;
+            pushEnabled?: boolean;
+            settings?: Partial<SubscriptionSettings>;
+        }) => updateSubscriptionMutation.mutateAsync(args),
     };
 }
