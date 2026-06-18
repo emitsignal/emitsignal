@@ -59,6 +59,7 @@ const MAPPING = {
     'paperplane.fill': 'send',
     // Actions
     plus: 'add',
+    'rectangle.portrait.and.arrow.right': 'logout',
     'server.rack': 'dns',
     'speaker.slash': 'volume-off',
     // Base Theme

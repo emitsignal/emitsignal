@@ -2,7 +2,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WChip, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { WChip, WTopicAvatar } from '@/components/base-theme';
+import { TopicActionsMenu } from '@/components/topic-actions-menu';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, PriorityColors, W } from '@/constants/theme';
 import { useTopicMessages } from '@/hooks/use-emit-signal';
@@ -33,7 +34,7 @@ export default function TopicScreen() {
                         {messages.length === 1 ? '' : 's'}
                     </Text>
                 </View>
-                <WLogo pulse size={11} />
+                <TopicActionsMenu topicName={topic} />
             </View>
 
             <FlatList
