@@ -2,6 +2,7 @@ import Elysia, { t } from 'elysia';
 
 import { prisma } from '../../lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
+import { parseSubscriptionSettings } from '../../lib/subscription-settings';
 import { serializeMessage } from '../../lib/topic';
 import { authAwareBeforeHandle } from '../plugins/rate-limit-plugin';
 import { resolveSubscriptions } from './resolve';
@@ -11,9 +12,7 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
     async ({ headers, query }) => {
         const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
 
-        const topicIds = rows.map((row) => row.topicId);
-
-        if (topicIds.length === 0) {
+        if (rows.length === 0) {
             return [];
         }
 
@@ -24,7 +23,20 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
             },
             orderBy: { createdAt: 'desc' },
             take: query.limit,
-            where: { topicId: { in: topicIds } },
+            where: {
+                OR: rows.map((subscription) => {
+                    const { listenSince } = parseSubscriptionSettings(subscription.settings);
+
+                    if (listenSince === 'always') {
+                        return { topicId: subscription.topicId };
+                    }
+
+                    return {
+                        createdAt: { gte: subscription.createdAt },
+                        topicId: subscription.topicId,
+                    };
+                }),
+            },
         });
 
         return Promise.all(

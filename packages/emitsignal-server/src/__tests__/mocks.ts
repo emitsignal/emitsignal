@@ -56,6 +56,15 @@ export const prismaMock = {
         delete: mock<() => Promise<object>>(() => Promise.resolve({ id: 'sub-1' })),
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
+        update: mock<() => Promise<object>>(() =>
+            Promise.resolve({
+                deviceId: 'd1',
+                id: 'sub-1',
+                pushEnabled: true,
+                settings: '{}',
+                topicId: 'topic-1',
+            }),
+        ),
         upsert: mock<() => Promise<object>>(() =>
             Promise.resolve({
                 deviceId: 'd1',
