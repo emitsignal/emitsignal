@@ -14,6 +14,8 @@ export interface Attachment {
     url: string;
 }
 
+export type ListenSince = 'always' | 'subscription_date';
+
 // Flexible publisher input for bannerImage/inlineImages/inlineAttachments:
 // a bare URL string, a {title, href} object, or an array mixing both.
 export type MediaInput = Array<MediaRef | string> | MediaRef | string;
@@ -51,7 +53,12 @@ export interface Subscription {
     createdAt: number;
     id: string;
     pushEnabled: boolean;
+    settings: SubscriptionSettings;
     topic: Topic;
+}
+
+export interface SubscriptionSettings {
+    listenSince: ListenSince;
 }
 
 export interface Topic {
@@ -287,9 +294,14 @@ export function createApiClient(baseUrl: string) {
             });
         },
 
-        subscribe(deviceId: string, topicName: string, pushEnabled = true) {
+        subscribe(
+            deviceId: string,
+            topicName: string,
+            pushEnabled = true,
+            settings?: Partial<SubscriptionSettings>,
+        ) {
             return request<{ id: string; topic: Topic }>('/subscriptions', {
-                body: JSON.stringify({ deviceId, pushEnabled, topicName }),
+                body: JSON.stringify({ deviceId, pushEnabled, settings, topicName }),
                 method: 'POST',
             });
         },
@@ -304,6 +316,20 @@ export function createApiClient(baseUrl: string) {
         updatePushToken(id: string, pushEnabled: boolean) {
             return request<PushToken>(`/push-tokens/${id}`, {
                 body: JSON.stringify({ pushEnabled }),
+                method: 'PATCH',
+            });
+        },
+
+        updateSubscription(
+            id: string,
+            body: {
+                deviceId?: string;
+                pushEnabled?: boolean;
+                settings?: Partial<SubscriptionSettings>;
+            },
+        ) {
+            return request<Subscription>(`/subscriptions/${id}`, {
+                body: JSON.stringify(body),
                 method: 'PATCH',
             });
         },
