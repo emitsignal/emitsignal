@@ -13,11 +13,11 @@ export default function TopicScreen() {
     const params = useLocalSearchParams<{ topic: string | string[] }>();
     const topic = Array.isArray(params.topic) ? params.topic.join('/') : (params.topic ?? '');
 
+    const { loading, messages } = useTopicMessages(topic);
+
     if (!topic) {
         return null;
     }
-
-    const { loading, messages } = useTopicMessages(topic);
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>

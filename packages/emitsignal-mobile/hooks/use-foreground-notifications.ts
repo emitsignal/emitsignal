@@ -67,7 +67,7 @@ export function useForegroundNotifications() {
     function handleAction(
         actionIdentifier: string | undefined,
         messageId: string,
-        data: Record<string, unknown>,
+        data: Record<string, unknown> | undefined,
     ) {
         if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER || !actionIdentifier) {
             router.push(`/messages/${encodeURIComponent(messageId)}`);

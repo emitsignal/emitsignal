@@ -32,7 +32,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         saveThemePreference(newTheme);
     };
 
-    const currentScheme = theme === 'system' ? (systemScheme ?? 'light') : theme;
+    const currentScheme: 'dark' | 'light' =
+        theme === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : theme;
 
     // Optional: Show nothing until theme is loaded to prevent flash
     if (!isLoaded) {

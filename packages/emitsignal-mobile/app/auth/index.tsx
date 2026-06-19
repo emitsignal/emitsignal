@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -11,7 +11,7 @@ import { API_URL } from '@/lib/api';
 
 export default function AuthWelcome() {
     const { markOnboardingComplete } = useOnboarding();
-    const pulse = useRef(new Animated.Value(1)).current;
+    const [pulse] = useState(() => new Animated.Value(1));
 
     useEffect(() => {
         Animated.loop(
