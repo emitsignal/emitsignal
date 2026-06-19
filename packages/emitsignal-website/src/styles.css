@@ -40,6 +40,46 @@
     --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 
+/* Light theme — scoped to the dashboard subtree via [data-theme='light'] on the
+   /app wrapper. The :root values above stay the global default so public pages
+   remain dark. Mirrors the mobile lightPalette for cross-platform consistency. */
+[data-theme='light'] {
+    color-scheme: light;
+
+    /* Backgrounds */
+    --color-bg: #f5f3ff;
+    --color-elev: #ffffff;
+    --color-elev-2: #f3eefc;
+    --color-line: #e0d6f5;
+    --color-chip: #ece6fb;
+    --color-deep: #ede7fb;
+
+    /* Text */
+    --color-fg: #1a1625;
+    --color-muted: #4a4166;
+    --color-dim: #6b6190;
+    --color-faint: #a99fc4;
+
+    /* Accent (violet) — deep enough that `bg-accent text-bg` stays legible */
+    --color-accent: #7c3aed;
+    --color-accent-dim: #6d28d9;
+    --color-accent-deep: #5b21b6;
+
+    /* Semantic */
+    --color-success: #16a34a;
+    --color-warn: #d97706;
+    --color-danger: #dc2626;
+    --color-info: #0891b2;
+    --color-pink: #c026d3;
+
+    /* Priority 1–5 */
+    --color-p1: #6366f1;
+    --color-p2: #7c3aed;
+    --color-p3: #9333ea;
+    --color-p4: #d97706;
+    --color-p5: #dc2626;
+}
+
 @keyframes signal-pulse {
     0%,
     100% {
