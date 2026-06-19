@@ -21,3 +21,5 @@ out
 .agents/skills/vercel-*
 
 .docs
+
+.claude/skills
