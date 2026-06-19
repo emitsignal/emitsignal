@@ -5,13 +5,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 
 export default function AuthFirstChannels() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const { deviceId } = useDevice();
     const { markOnboardingComplete } = useOnboarding();
     const { subscribe } = useSubscriptions();
@@ -66,7 +68,7 @@ export default function AuthFirstChannels() {
         <SafeAreaView style={styles.root}>
             <View style={styles.topBar}>
                 <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                    <IconSymbol color={W.fg} name="arrow.left" size={16} />
+                    <IconSymbol color={palette.fg} name="arrow.left" size={16} />
                 </Pressable>
                 <WLogo pulse size={11} />
                 <Text style={styles.step}>05/05</Text>
@@ -98,7 +100,7 @@ export default function AuthFirstChannels() {
                                 <View style={[styles.checkbox, on && styles.checkboxOn]}>
                                     {on ? (
                                         <IconSymbol
-                                            color={W.bg}
+                                            color={palette.bg}
                                             name="checkmark.circle.fill"
                                             size={14}
                                         />
@@ -119,7 +121,7 @@ export default function AuthFirstChannels() {
                     <Text style={styles.ctaText}>
                         {busy ? 'subscribing…' : `subscribe to ${pickedCount} · finish`}
                     </Text>
-                    <IconSymbol color={W.bg} name="arrow.right" size={14} />
+                    <IconSymbol color={palette.bg} name="arrow.right" size={14} />
                 </Pressable>
 
                 <Pressable
@@ -136,85 +138,86 @@ export default function AuthFirstChannels() {
     );
 }
 
-const styles = StyleSheet.create({
-    backBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    body: { flex: 1, padding: 28 },
-    checkbox: {
-        alignItems: 'center',
-        borderColor: W.bgLine,
-        borderRadius: 5,
-        borderWidth: 1.5,
-        height: 22,
-        justifyContent: 'center',
-        width: 22,
-    },
-    checkboxOn: { backgroundColor: W.violet, borderColor: W.violet },
-    cta: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderRadius: 10,
-        flexDirection: 'row',
-        gap: 8,
-        justifyContent: 'center',
-        paddingVertical: 14,
-    },
-    ctaText: {
-        color: W.bg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    footer: { padding: 28 },
-    lede: { color: W.fgMuted, fontSize: 13, marginBottom: 22, marginTop: 6 },
-    root: { backgroundColor: W.bg, flex: 1 },
-    row: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        flexDirection: 'row',
-        gap: 12,
-        marginBottom: 8,
-        paddingHorizontal: 14,
-        paddingVertical: 14,
-    },
-    rowActive: {
-        backgroundColor: W.violetBg,
-        borderColor: W.violet,
-    },
-    rowDesc: { color: W.fgMuted, fontSize: 11.5, marginTop: 2 },
-    rowName: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 13,
-        fontWeight: '500',
-    },
-    skip: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        textAlign: 'center',
-    },
-    step: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        marginLeft: 'auto',
-    },
-    title: { color: W.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
-    topBar: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        backBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        body: { flex: 1, padding: 28 },
+        checkbox: {
+            alignItems: 'center',
+            borderColor: palette.bgLine,
+            borderRadius: 5,
+            borderWidth: 1.5,
+            height: 22,
+            justifyContent: 'center',
+            width: 22,
+        },
+        checkboxOn: { backgroundColor: palette.violet, borderColor: palette.violet },
+        cta: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderRadius: 10,
+            flexDirection: 'row',
+            gap: 8,
+            justifyContent: 'center',
+            paddingVertical: 14,
+        },
+        ctaText: {
+            color: palette.bg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        footer: { padding: 28 },
+        lede: { color: palette.fgMuted, fontSize: 13, marginBottom: 22, marginTop: 6 },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        row: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: 1.5,
+            flexDirection: 'row',
+            gap: 12,
+            marginBottom: 8,
+            paddingHorizontal: 14,
+            paddingVertical: 14,
+        },
+        rowActive: {
+            backgroundColor: palette.violetBg,
+            borderColor: palette.violet,
+        },
+        rowDesc: { color: palette.fgMuted, fontSize: 11.5, marginTop: 2 },
+        rowName: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 13,
+            fontWeight: '500',
+        },
+        skip: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            textAlign: 'center',
+        },
+        step: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            marginLeft: 'auto',
+        },
+        title: { color: palette.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
+        topBar: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+        },
+    });

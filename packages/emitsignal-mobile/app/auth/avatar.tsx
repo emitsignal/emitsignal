@@ -16,12 +16,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
 import { useSession } from '@/ctx/session';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { API_URL, getAuthToken } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 
 export default function AuthAvatar() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const { user } = useSession();
     const [localUri, setLocalUri] = useState<null | string>(null);
     const [name, setName] = useState(user?.name ?? '');
@@ -103,7 +105,7 @@ export default function AuthAvatar() {
             >
                 <View style={styles.topBar}>
                     <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                        <IconSymbol color={W.fg} name="arrow.left" size={16} />
+                        <IconSymbol color={palette.fg} name="arrow.left" size={16} />
                     </Pressable>
                     <WLogo pulse size={11} />
                     <Text style={styles.step}>04/05</Text>
@@ -124,7 +126,7 @@ export default function AuthAvatar() {
                                 </View>
                             )}
                             <View style={styles.cameraBtn}>
-                                <IconSymbol color={W.bg} name="camera.fill" size={13} />
+                                <IconSymbol color={palette.bg} name="camera.fill" size={13} />
                             </View>
                         </Pressable>
 
@@ -137,7 +139,7 @@ export default function AuthAvatar() {
                             autoCorrect={false}
                             onChangeText={setName}
                             placeholder="your name"
-                            placeholderTextColor={W.fgDim}
+                            placeholderTextColor={palette.fgDim}
                             style={styles.input}
                             value={name}
                         />
@@ -151,11 +153,11 @@ export default function AuthAvatar() {
                         style={[styles.cta, busy && { opacity: 0.6 }]}
                     >
                         {busy ? (
-                            <ActivityIndicator color={W.bg} size="small" />
+                            <ActivityIndicator color={palette.bg} size="small" />
                         ) : (
                             <>
                                 <Text style={styles.ctaText}>continue</Text>
-                                <IconSymbol color={W.bg} name="arrow.right" size={14} />
+                                <IconSymbol color={palette.bg} name="arrow.right" size={14} />
                             </>
                         )}
                     </Pressable>
@@ -171,121 +173,122 @@ export default function AuthAvatar() {
 
 const AVATAR_SIZE = 120;
 
-const styles = StyleSheet.create({
-    avatarImage: {
-        borderRadius: AVATAR_SIZE / 2,
-        height: AVATAR_SIZE,
-        width: AVATAR_SIZE,
-    },
-    avatarInitials: {
-        color: W.violet,
-        fontFamily: Fonts.mono,
-        fontSize: AVATAR_SIZE * 0.32,
-        fontWeight: '600',
-        letterSpacing: -1,
-    },
-    avatarPlaceholder: {
-        alignItems: 'center',
-        backgroundColor: W.violetBg,
-        borderColor: `${W.violet}55`,
-        borderRadius: AVATAR_SIZE / 2,
-        borderWidth: 1.5,
-        height: AVATAR_SIZE,
-        justifyContent: 'center',
-        width: AVATAR_SIZE,
-    },
-    avatarWrap: {
-        position: 'relative',
-    },
-    backBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    body: { flex: 1, padding: 28 },
-    cameraBtn: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderColor: W.bg,
-        borderRadius: 18,
-        borderWidth: 2,
-        bottom: 2,
-        height: 32,
-        justifyContent: 'center',
-        position: 'absolute',
-        right: 2,
-        width: 32,
-    },
-    cta: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderRadius: 10,
-        flexDirection: 'row',
-        gap: 8,
-        justifyContent: 'center',
-        paddingVertical: 14,
-    },
-    ctaText: {
-        color: W.bg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    footer: { gap: 12, padding: 28 },
-    hero: {
-        alignItems: 'center',
-        flex: 1,
-        justifyContent: 'center',
-        paddingBottom: 40,
-    },
-    hint: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        marginTop: 14,
-    },
-    input: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        padding: 0,
-    },
-    inputBox: {
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
-    nameLabel: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        letterSpacing: 1.5,
-        marginBottom: 8,
-    },
-    root: { backgroundColor: W.bg, flex: 1 },
-    skipBtn: { alignItems: 'center', paddingVertical: 4 },
-    skipText: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-    },
-    step: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        marginLeft: 'auto',
-    },
-    topBar: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        avatarImage: {
+            borderRadius: AVATAR_SIZE / 2,
+            height: AVATAR_SIZE,
+            width: AVATAR_SIZE,
+        },
+        avatarInitials: {
+            color: palette.violet,
+            fontFamily: Fonts.mono,
+            fontSize: AVATAR_SIZE * 0.32,
+            fontWeight: '600',
+            letterSpacing: -1,
+        },
+        avatarPlaceholder: {
+            alignItems: 'center',
+            backgroundColor: palette.violetBg,
+            borderColor: `${palette.violet}55`,
+            borderRadius: AVATAR_SIZE / 2,
+            borderWidth: 1.5,
+            height: AVATAR_SIZE,
+            justifyContent: 'center',
+            width: AVATAR_SIZE,
+        },
+        avatarWrap: {
+            position: 'relative',
+        },
+        backBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        body: { flex: 1, padding: 28 },
+        cameraBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderColor: palette.bg,
+            borderRadius: 18,
+            borderWidth: 2,
+            bottom: 2,
+            height: 32,
+            justifyContent: 'center',
+            position: 'absolute',
+            right: 2,
+            width: 32,
+        },
+        cta: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderRadius: 10,
+            flexDirection: 'row',
+            gap: 8,
+            justifyContent: 'center',
+            paddingVertical: 14,
+        },
+        ctaText: {
+            color: palette.bg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        footer: { gap: 12, padding: 28 },
+        hero: {
+            alignItems: 'center',
+            flex: 1,
+            justifyContent: 'center',
+            paddingBottom: 40,
+        },
+        hint: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+            marginTop: 14,
+        },
+        input: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            padding: 0,
+        },
+        inputBox: {
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: 1.5,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+        },
+        nameLabel: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            letterSpacing: 1.5,
+            marginBottom: 8,
+        },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        skipBtn: { alignItems: 'center', paddingVertical: 4 },
+        skipText: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+        },
+        step: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            marginLeft: 'auto',
+        },
+        topBar: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+        },
+    });

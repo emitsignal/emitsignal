@@ -4,11 +4,13 @@ import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SubscriptionSettingsFields } from '@/components/subscription-settings-fields';
 import { type ActionMenuItem, NativeActionMenu } from '@/components/ui/native-action-menu';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api, type ListenSince } from '@/lib/api';
 
 export function TopicActionsMenu({ topicName }: { topicName: string }) {
+    const { styles } = useThemedStyles(createStyles);
     const { subscriptions, unsubscribe, updateSubscription } = useSubscriptions();
     const subscription = subscriptions.find((item) => item.topic.name === topicName);
 
@@ -139,45 +141,46 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
     );
 }
 
-const styles = StyleSheet.create({
-    cancelBtn: {
-        alignItems: 'center',
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        flex: 1,
-        paddingVertical: 11,
-    },
-    cancelText: { color: W.fgMuted, fontSize: 13, fontWeight: '600' },
-    saveBtn: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderRadius: 10,
-        flex: 1,
-        paddingVertical: 11,
-    },
-    saveText: { color: W.bg, fontSize: 13, fontWeight: '700' },
-    sheetActions: { flexDirection: 'row', gap: 10, marginTop: 18 },
-    sheetBackdrop: {
-        alignItems: 'center',
-        backgroundColor: 'rgba(6,3,15,0.72)',
-        flex: 1,
-        justifyContent: 'center',
-        padding: 24,
-    },
-    sheetCard: {
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 14,
-        borderWidth: StyleSheet.hairlineWidth,
-        padding: 20,
-        width: '100%',
-    },
-    sheetTitle: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 15,
-        fontWeight: '600',
-        marginBottom: 16,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        cancelBtn: {
+            alignItems: 'center',
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            flex: 1,
+            paddingVertical: 11,
+        },
+        cancelText: { color: palette.fgMuted, fontSize: 13, fontWeight: '600' },
+        saveBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderRadius: 10,
+            flex: 1,
+            paddingVertical: 11,
+        },
+        saveText: { color: palette.bg, fontSize: 13, fontWeight: '700' },
+        sheetActions: { flexDirection: 'row', gap: 10, marginTop: 18 },
+        sheetBackdrop: {
+            alignItems: 'center',
+            backgroundColor: palette.scrim,
+            flex: 1,
+            justifyContent: 'center',
+            padding: 24,
+        },
+        sheetCard: {
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 14,
+            borderWidth: StyleSheet.hairlineWidth,
+            padding: 20,
+            width: '100%',
+        },
+        sheetTitle: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 15,
+            fontWeight: '600',
+            marginBottom: 16,
+        },
+    });

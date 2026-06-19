@@ -8,13 +8,15 @@ import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
 import { MessageMedia } from '@/components/message-media';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 
 export default function MessageDetailScreen() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const [acknowledged, setAcknowledged] = useState(false);
     const [ackResult, setAckResult] = useState<null | number>(null);
     const { deviceId } = useDevice();
@@ -69,7 +71,7 @@ export default function MessageDetailScreen() {
         <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.topBar}>
                 <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                    <IconSymbol color={W.fg} name="arrow.left" size={16} />
+                    <IconSymbol color={palette.fg} name="arrow.left" size={16} />
                 </Pressable>
                 <WLogo pulse size={11} />
                 <Text style={styles.channelLabel}>{message.topicName ?? ''}</Text>
@@ -137,7 +139,7 @@ export default function MessageDetailScreen() {
                                             style={[styles.actionBtn, styles.actionPrimary]}
                                         >
                                             <IconSymbol
-                                                color={W.bg}
+                                                color={palette.bg}
                                                 name="checkmark.circle.fill"
                                                 size={14}
                                             />
@@ -156,7 +158,7 @@ export default function MessageDetailScreen() {
                                             onPress={() => action.url && handleView(action.url)}
                                             style={styles.actionBtn}
                                         >
-                                            <IconSymbol color={W.fg} name="globe" size={14} />
+                                            <IconSymbol color={palette.fg} name="globe" size={14} />
                                             <Text style={styles.actionText}>
                                                 {action.label ?? 'View'}
                                             </Text>
@@ -241,7 +243,10 @@ export default function MessageDetailScreen() {
                             <View key={i} style={styles.timelineRow}>
                                 <Text style={styles.timelineTime}>{s.t}</Text>
                                 <Text
-                                    style={[styles.timelineDot, { color: s.ok ? W.green : W.red }]}
+                                    style={[
+                                        styles.timelineDot,
+                                        { color: s.ok ? palette.green : palette.red },
+                                    ]}
                                 >
                                     {s.ok ? '✓' : '✗'}
                                 </Text>
@@ -264,128 +269,130 @@ function pad(n: number) {
     return n.toString().padStart(2, '0');
 }
 function SectionHead({ children }: { children: string }) {
+    const { styles } = useThemedStyles(createStyles);
     return <Text style={styles.sectionHead}>{children}</Text>;
 }
 
-const styles = StyleSheet.create({
-    actionBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 8,
-        borderWidth: StyleSheet.hairlineWidth,
-        flex: 1,
-        flexDirection: 'row',
-        gap: 6,
-        justifyContent: 'center',
-        paddingVertical: 10,
-    },
-    actionPrimary: { backgroundColor: W.violet, borderColor: W.violet },
-    actionPrimaryText: { color: W.bg, fontSize: 12.5, fontWeight: '600' },
-    actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
-    actionText: {
-        color: W.fg,
-        fontSize: 12.5,
-        fontWeight: '600',
-    },
-    attachments: {
-        gap: 8,
-        marginTop: 14,
-    },
-    backBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    body: {
-        color: W.fgMuted,
-        fontSize: 14,
-        lineHeight: 22,
-        marginTop: 10,
-    },
-    channelLabel: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        marginLeft: 'auto',
-    },
-    codeWrap: { paddingHorizontal: 20 },
-    hero: {
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        paddingBottom: 18,
-        paddingHorizontal: 20,
-        paddingTop: 20,
-    },
-    loading: {
-        color: W.fgMuted,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        paddingTop: 40,
-        textAlign: 'center',
-    },
-    priorityText: {
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        fontWeight: '600',
-        letterSpacing: 1.2,
-        textTransform: 'uppercase',
-    },
-    prioRow: { alignItems: 'center', flexDirection: 'row', gap: 8 },
-    root: { backgroundColor: W.bg, flex: 1 },
-    sectionHead: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        fontWeight: '500',
-        letterSpacing: 1.5,
-        marginBottom: 8,
-        marginTop: 18,
-        paddingHorizontal: 20,
-    },
-    tagsRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 6,
-        marginTop: 14,
-    },
-    timelineDot: { fontFamily: Fonts.mono, fontSize: 11, width: 12 },
-    timelineRow: {
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 20,
-        paddingVertical: 6,
-    },
-    timelineText: {
-        color: W.fgMuted,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-    },
-    timelineTime: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        width: 64,
-    },
-    title: {
-        color: W.fg,
-        fontSize: 22,
-        fontWeight: '600',
-        letterSpacing: -0.6,
-        lineHeight: 28,
-        marginTop: 12,
-    },
-    topBar: {
-        alignItems: 'center',
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        actionBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 8,
+            borderWidth: StyleSheet.hairlineWidth,
+            flex: 1,
+            flexDirection: 'row',
+            gap: 6,
+            justifyContent: 'center',
+            paddingVertical: 10,
+        },
+        actionPrimary: { backgroundColor: palette.violet, borderColor: palette.violet },
+        actionPrimaryText: { color: palette.bg, fontSize: 12.5, fontWeight: '600' },
+        actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
+        actionText: {
+            color: palette.fg,
+            fontSize: 12.5,
+            fontWeight: '600',
+        },
+        attachments: {
+            gap: 8,
+            marginTop: 14,
+        },
+        backBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        body: {
+            color: palette.fgMuted,
+            fontSize: 14,
+            lineHeight: 22,
+            marginTop: 10,
+        },
+        channelLabel: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            marginLeft: 'auto',
+        },
+        codeWrap: { paddingHorizontal: 20 },
+        hero: {
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            paddingBottom: 18,
+            paddingHorizontal: 20,
+            paddingTop: 20,
+        },
+        loading: {
+            color: palette.fgMuted,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            paddingTop: 40,
+            textAlign: 'center',
+        },
+        priorityText: {
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+            fontWeight: '600',
+            letterSpacing: 1.2,
+            textTransform: 'uppercase',
+        },
+        prioRow: { alignItems: 'center', flexDirection: 'row', gap: 8 },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        sectionHead: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            fontWeight: '500',
+            letterSpacing: 1.5,
+            marginBottom: 8,
+            marginTop: 18,
+            paddingHorizontal: 20,
+        },
+        tagsRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 6,
+            marginTop: 14,
+        },
+        timelineDot: { fontFamily: Fonts.mono, fontSize: 11, width: 12 },
+        timelineRow: {
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 20,
+            paddingVertical: 6,
+        },
+        timelineText: {
+            color: palette.fgMuted,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+        },
+        timelineTime: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+            width: 64,
+        },
+        title: {
+            color: palette.fg,
+            fontSize: 22,
+            fontWeight: '600',
+            letterSpacing: -0.6,
+            lineHeight: 28,
+            marginTop: 12,
+        },
+        topBar: {
+            alignItems: 'center',
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+        },
+    });

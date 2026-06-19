@@ -10,7 +10,9 @@ import {
     type ViewStyle,
 } from 'react-native';
 
-import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
+import { usePalette } from '@/hooks/use-palette';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 
 interface ActivitySparklineProps {
     color: string;
@@ -57,6 +59,7 @@ export function ActivitySparkline({
     height = 14,
     showTotal = true,
 }: ActivitySparklineProps) {
+    const palette = usePalette();
     const max = Math.max(...data, 1);
     const total = data.reduce((a, b) => a + b, 0);
     return (
@@ -78,7 +81,7 @@ export function ActivitySparkline({
             {showTotal ? (
                 <Text
                     style={{
-                        color: W.fgDim,
+                        color: palette.fgDim,
                         fontFamily: Fonts.mono,
                         fontSize: 9,
                         marginLeft: 6,
@@ -92,10 +95,11 @@ export function ActivitySparkline({
 }
 
 export function WChip({ children, tone = 'default' }: WChipProps) {
+    const colors = usePalette();
     const palette = {
-        default: { bg: W.bgChip, border: W.bgLine, fg: W.fgMuted },
-        muted: { bg: 'transparent', border: W.bgLine, fg: W.fgDim },
-        violet: { bg: W.violetBg, border: `${W.violetDim}55`, fg: W.violet },
+        default: { bg: colors.bgChip, border: colors.bgLine, fg: colors.fgMuted },
+        muted: { bg: 'transparent', border: colors.bgLine, fg: colors.fgDim },
+        violet: { bg: colors.violetBg, border: `${colors.violetDim}55`, fg: colors.violet },
     }[tone];
     return (
         <View
@@ -122,6 +126,7 @@ export function WChip({ children, tone = 'default' }: WChipProps) {
 }
 
 export function WCode({ children, language, style }: WCodeProps) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <View style={[styles.code, style]}>
             {language ? <Text style={styles.codeLanguage}>{language}</Text> : null}
@@ -145,12 +150,14 @@ export function WDot({ color, level = 3, size = 6 }: WDotProps) {
 }
 
 export function WLogo({
-    color = W.violet,
+    color,
     label = 'EmitSignal',
     labelStyle,
     pulse = false,
     size = 14,
 }: WLogoProps) {
+    const { palette, styles } = useThemedStyles(createStyles);
+    const dotColor = color ?? palette.violet;
     const [opacity] = useState(() => new Animated.Value(1));
 
     useEffect(() => {
@@ -181,7 +188,7 @@ export function WLogo({
         <View style={[styles.logoRow, { gap: size * 0.55 }]}>
             <Animated.View
                 style={{
-                    backgroundColor: color,
+                    backgroundColor: dotColor,
                     borderRadius: size * 0.55,
                     height: size * 0.55,
                     opacity,
@@ -191,7 +198,7 @@ export function WLogo({
             <Text
                 style={[
                     {
-                        color: W.fg,
+                        color: palette.fg,
                         fontFamily: Fonts.mono,
                         fontSize: size,
                         fontWeight: '500',
@@ -272,29 +279,30 @@ function hslToHex(h: number, s: number, l: number): string {
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-const styles = StyleSheet.create({
-    code: {
-        backgroundColor: '#06030f',
-        borderColor: W.bgLine,
-        borderRadius: 8,
-        borderWidth: StyleSheet.hairlineWidth,
-        padding: 12,
-    },
-    codeBody: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 11.5,
-        lineHeight: 18,
-    },
-    codeLanguage: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 9.5,
-        letterSpacing: 1.2,
-        marginBottom: 6,
-    },
-    logoRow: {
-        alignItems: 'center',
-        flexDirection: 'row',
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        code: {
+            backgroundColor: palette.bgCode,
+            borderColor: palette.bgLine,
+            borderRadius: 8,
+            borderWidth: StyleSheet.hairlineWidth,
+            padding: 12,
+        },
+        codeBody: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 11.5,
+            lineHeight: 18,
+        },
+        codeLanguage: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 9.5,
+            letterSpacing: 1.2,
+            marginBottom: 6,
+        },
+        logoRow: {
+            alignItems: 'center',
+            flexDirection: 'row',
+        },
+    });

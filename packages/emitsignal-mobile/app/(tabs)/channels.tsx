@@ -14,11 +14,13 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const [query, setQuery] = useState('');
     const insets = useSafeAreaInsets();
     const { loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
@@ -63,13 +65,13 @@ export default function ChannelsScreen() {
 
             <View style={styles.searchWrap}>
                 <View style={styles.searchBar}>
-                    <IconSymbol color={W.fgDim} name="magnifyingglass" size={14} />
+                    <IconSymbol color={palette.fgDim} name="magnifyingglass" size={14} />
                     <TextInput
                         autoCapitalize="none"
                         autoCorrect={false}
                         onChangeText={setQuery}
                         placeholder="search topics…"
-                        placeholderTextColor={W.fgDim}
+                        placeholderTextColor={palette.fgDim}
                         style={styles.searchInput}
                         value={query}
                     />
@@ -99,10 +101,10 @@ export default function ChannelsScreen() {
                 }
                 refreshControl={
                     <RefreshControl
-                        colors={[W.violet]}
+                        colors={[palette.violet]}
                         onRefresh={refresh}
                         refreshing={refreshing}
-                        tintColor={W.violet}
+                        tintColor={palette.violet}
                     />
                 }
                 renderItem={({ item }) => (
@@ -120,7 +122,7 @@ export default function ChannelsScreen() {
                 onPress={() => router.push('/modal')}
                 style={[styles.fab, { bottom: insets.bottom + 24 }]}
             >
-                <IconSymbol color={W.bg} name="plus" size={14} />
+                <IconSymbol color={palette.bg} name="plus" size={14} />
                 <Text style={styles.fabText}>Subscribe</Text>
             </Pressable>
         </SafeAreaView>
@@ -136,6 +138,7 @@ function ChannelRow({
     onPress: () => void;
     sub: Subscription;
 }) {
+    const { styles } = useThemedStyles(createStyles);
     // Stable activity-sparkline placeholder — once we have message-time
     // history this can be derived from real data.
     const seed = sub.topic.id.charCodeAt(sub.topic.id.length - 1);
@@ -163,114 +166,115 @@ function ChannelRow({
     );
 }
 
-const styles = StyleSheet.create({
-    channelDesc: {
-        color: W.fgMuted,
-        fontSize: 11.5,
-        marginTop: 4,
-    },
-    channelHeader: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 6,
-    },
-    channelName: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 13,
-        fontWeight: '500',
-    },
-    channelRow: {
-        alignItems: 'center',
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-    },
-    empty: {
-        alignItems: 'center',
-        flex: 1,
-        gap: 10,
-        justifyContent: 'center',
-        padding: 40,
-    },
-    emptyBody: {
-        color: W.fgMuted,
-        fontSize: 13,
-        textAlign: 'center',
-    },
-    emptyTitle: {
-        color: W.fg,
-        fontSize: 16,
-        fontWeight: '600',
-        marginTop: 6,
-    },
-    fab: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderRadius: 100,
-        elevation: 8,
-        flexDirection: 'row',
-        gap: 8,
-        paddingHorizontal: 18,
-        paddingVertical: 12,
-        position: 'absolute',
-        right: 20,
-        shadowColor: W.violet,
-        shadowOffset: { height: 4, width: 0 },
-        shadowOpacity: 0.5,
-        shadowRadius: 12,
-    },
-    fabText: {
-        color: W.bg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
-    headerTop: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        marginBottom: 16,
-    },
-    live: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-        marginLeft: 'auto',
-    },
-    root: { backgroundColor: W.bg, flex: 1 },
-    searchBar: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-    },
-    searchInput: {
-        color: W.fg,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        padding: 0,
-    },
-    searchWrap: { paddingBottom: 14, paddingHorizontal: 20 },
-    subtitle: {
-        color: W.fgMuted,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        marginTop: 4,
-    },
-    title: {
-        color: W.fg,
-        fontSize: 28,
-        fontWeight: '600',
-        letterSpacing: -0.5,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        channelDesc: {
+            color: palette.fgMuted,
+            fontSize: 11.5,
+            marginTop: 4,
+        },
+        channelHeader: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 6,
+        },
+        channelName: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 13,
+            fontWeight: '500',
+        },
+        channelRow: {
+            alignItems: 'center',
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 20,
+            paddingVertical: 14,
+        },
+        empty: {
+            alignItems: 'center',
+            flex: 1,
+            gap: 10,
+            justifyContent: 'center',
+            padding: 40,
+        },
+        emptyBody: {
+            color: palette.fgMuted,
+            fontSize: 13,
+            textAlign: 'center',
+        },
+        emptyTitle: {
+            color: palette.fg,
+            fontSize: 16,
+            fontWeight: '600',
+            marginTop: 6,
+        },
+        fab: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderRadius: 100,
+            elevation: 8,
+            flexDirection: 'row',
+            gap: 8,
+            paddingHorizontal: 18,
+            paddingVertical: 12,
+            position: 'absolute',
+            right: 20,
+            shadowColor: palette.violet,
+            shadowOffset: { height: 4, width: 0 },
+            shadowOpacity: 0.5,
+            shadowRadius: 12,
+        },
+        fabText: {
+            color: palette.bg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
+        headerTop: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            marginBottom: 16,
+        },
+        live: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+            marginLeft: 'auto',
+        },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        searchBar: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+        },
+        searchInput: {
+            color: palette.fg,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            padding: 0,
+        },
+        searchWrap: { paddingBottom: 14, paddingHorizontal: 20 },
+        subtitle: {
+            color: palette.fgMuted,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            marginTop: 4,
+        },
+        title: {
+            color: palette.fg,
+            fontSize: 28,
+            fontWeight: '600',
+            letterSpacing: -0.5,
+        },
+    });

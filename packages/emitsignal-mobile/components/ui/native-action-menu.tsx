@@ -2,7 +2,8 @@ import { type ComponentProps, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { W } from '@/constants/theme';
+import { type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 
 export interface ActionMenuItem {
     destructive?: boolean;
@@ -23,6 +24,7 @@ interface NativeActionMenuProps {
  * swift-ui import. The menu closes itself once an item is pressed.
  */
 export function NativeActionMenu({ accessibilityLabel, items }: NativeActionMenuProps) {
+    const { palette, styles } = useThemedStyles(createStyles);
     const [open, setOpen] = useState(false);
 
     return (
@@ -32,7 +34,7 @@ export function NativeActionMenu({ accessibilityLabel, items }: NativeActionMenu
                 onPress={() => setOpen(true)}
                 style={styles.trigger}
             >
-                <IconSymbol color={W.fgDim} name="ellipsis" size={20} />
+                <IconSymbol color={palette.fgDim} name="ellipsis" size={20} />
             </Pressable>
 
             <Modal
@@ -53,11 +55,16 @@ export function NativeActionMenu({ accessibilityLabel, items }: NativeActionMenu
                                 style={styles.row}
                             >
                                 <IconSymbol
-                                    color={item.destructive ? W.red : W.fg}
+                                    color={item.destructive ? palette.red : palette.fg}
                                     name={item.icon}
                                     size={16}
                                 />
-                                <Text style={[styles.label, item.destructive && { color: W.red }]}>
+                                <Text
+                                    style={[
+                                        styles.label,
+                                        item.destructive && { color: palette.red },
+                                    ]}
+                                >
                                     {item.label}
                                 </Text>
                             </Pressable>
@@ -69,37 +76,38 @@ export function NativeActionMenu({ accessibilityLabel, items }: NativeActionMenu
     );
 }
 
-const styles = StyleSheet.create({
-    backdrop: {
-        flex: 1,
-        paddingHorizontal: 12,
-        paddingTop: 52,
-    },
-    card: {
-        alignSelf: 'flex-end',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 14,
-        borderWidth: StyleSheet.hairlineWidth,
-        minWidth: 230,
-        overflow: 'hidden',
-    },
-    label: { color: W.fg, fontSize: 14 },
-    row: {
-        alignItems: 'center',
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
-    trigger: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        backdrop: {
+            flex: 1,
+            paddingHorizontal: 12,
+            paddingTop: 52,
+        },
+        card: {
+            alignSelf: 'flex-end',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 14,
+            borderWidth: StyleSheet.hairlineWidth,
+            minWidth: 230,
+            overflow: 'hidden',
+        },
+        label: { color: palette.fg, fontSize: 14 },
+        row: {
+            alignItems: 'center',
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+        },
+        trigger: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+    });

@@ -15,9 +15,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Message, Subscription } from '@/lib/api';
 
 import { WChip, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
-import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useFeedStyle } from '@/ctx/feed-style';
 import { useFeed } from '@/hooks/use-emit-signal';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { addReadId, getReadIds } from '@/storage/read-messages';
 
 const FIXED_FILTERS = ['all', 'p4+', 'unread'] as const;
@@ -37,6 +38,7 @@ type TimelineItem =
 // ─── screen ──────────────────────────────────────────────────────────────────
 
 export default function FeedScreen() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const { error, loading, messages, refresh, refreshing, subscriptions } = useFeed();
     const { feedStyle } = useFeedStyle();
     const [filter, setFilter] = useState<string>('all');
@@ -137,10 +139,10 @@ export default function FeedScreen() {
 
     const refreshControl = (
         <RefreshControl
-            colors={[W.violet]}
+            colors={[palette.violet]}
             onRefresh={refresh}
             refreshing={refreshing}
-            tintColor={W.violet}
+            tintColor={palette.violet}
         />
     );
 
@@ -283,6 +285,7 @@ function dayLabel(ts: number): string {
 }
 
 function EmptyFeed({ filter, message }: { filter: string; message?: string }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <View style={styles.empty}>
             <WDot level={2} size={10} />
@@ -313,6 +316,7 @@ function NotifRow({
     onPress: () => void;
     topicName: string;
 }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <Pressable onPress={onPress} style={styles.row}>
             <View
@@ -351,6 +355,7 @@ function NotifRow({
 }
 
 function PriorityHeader({ label, level }: { label: string; level: 1 | 2 | 3 | 4 | 5 }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <View style={styles.phRow}>
             <WDot level={level} size={6} />
@@ -372,6 +377,7 @@ function PriorityRow({
     onPress: () => void;
     topicName: string;
 }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <Pressable onPress={onPress} style={styles.prRow}>
             <WTopicAvatar name={topicName} size={32} />
@@ -405,6 +411,7 @@ function PriorityRow({
 // ─── C: Timeline ─────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: string }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <View style={styles.sectionLabelRow}>
             <Text style={styles.sectionLabelText}>{children}</Text>
@@ -416,6 +423,7 @@ function SectionLabel({ children }: { children: string }) {
 // ─── D: Priority-first ───────────────────────────────────────────────────────
 
 function TimelineDateLabel({ children }: { children: string }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <View style={styles.tlDateRow}>
             <View style={styles.tlTrack}>
@@ -439,6 +447,7 @@ function TimelineRow({
     onPress: () => void;
     topicName: string;
 }) {
+    const { styles } = useThemedStyles(createStyles);
     const priorityColor = PriorityColors[message.priority];
     return (
         <Pressable onPress={onPress} style={styles.tlRow}>
@@ -475,281 +484,282 @@ function TimelineRow({
 
 // ─── styles ───────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
-    empty: {
-        alignItems: 'center',
-        flex: 1,
-        gap: 10,
-        justifyContent: 'center',
-        padding: 40,
-    },
-    emptyBody: {
-        color: W.fgMuted,
-        fontSize: 13,
-        textAlign: 'center',
-    },
-    emptyTitle: {
-        color: W.fg,
-        fontSize: 16,
-        fontWeight: '600',
-        marginTop: 6,
-    },
-    filterPill: {
-        alignSelf: 'flex-start',
-        borderColor: W.bgLine,
-        borderRadius: 100,
-        borderWidth: StyleSheet.hairlineWidth,
-        paddingHorizontal: 11,
-        paddingVertical: 5,
-    },
-    filterPillActive: {
-        backgroundColor: W.violetBg,
-        borderColor: `${W.violetDim}55`,
-    },
-    filterRow: {
-        alignItems: 'center',
-        gap: 6,
-        paddingBottom: 14,
-        paddingHorizontal: 20,
-    },
-    filterScroll: {
-        flexGrow: 0,
-        flexShrink: 0,
-    },
-    filterText: {
-        color: W.fgMuted,
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-    },
-    filterTextActive: {
-        color: W.violet,
-    },
-    header: {
-        paddingBottom: 16,
-        paddingHorizontal: 20,
-        paddingTop: 12,
-    },
-    headerTop: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        marginBottom: 16,
-    },
-    live: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-        marginLeft: 'auto',
-    },
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        empty: {
+            alignItems: 'center',
+            flex: 1,
+            gap: 10,
+            justifyContent: 'center',
+            padding: 40,
+        },
+        emptyBody: {
+            color: palette.fgMuted,
+            fontSize: 13,
+            textAlign: 'center',
+        },
+        emptyTitle: {
+            color: palette.fg,
+            fontSize: 16,
+            fontWeight: '600',
+            marginTop: 6,
+        },
+        filterPill: {
+            alignSelf: 'flex-start',
+            borderColor: palette.bgLine,
+            borderRadius: 100,
+            borderWidth: StyleSheet.hairlineWidth,
+            paddingHorizontal: 11,
+            paddingVertical: 5,
+        },
+        filterPillActive: {
+            backgroundColor: palette.violetBg,
+            borderColor: `${palette.violetDim}55`,
+        },
+        filterRow: {
+            alignItems: 'center',
+            gap: 6,
+            paddingBottom: 14,
+            paddingHorizontal: 20,
+        },
+        filterScroll: {
+            flexGrow: 0,
+            flexShrink: 0,
+        },
+        filterText: {
+            color: palette.fgMuted,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+        },
+        filterTextActive: {
+            color: palette.violet,
+        },
+        header: {
+            paddingBottom: 16,
+            paddingHorizontal: 20,
+            paddingTop: 12,
+        },
+        headerTop: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            marginBottom: 16,
+        },
+        live: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+            marginLeft: 'auto',
+        },
 
-    // ── priority-first header ──
-    phLabel: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        fontWeight: '500',
-        letterSpacing: 1.5,
-    },
-    phLevel: {
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-    },
-    phLine: {
-        backgroundColor: W.bgLine,
-        flex: 1,
-        height: 1,
-        marginLeft: 4,
-    },
-    phRow: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 6,
-        paddingBottom: 6,
-        paddingHorizontal: 20,
-        paddingTop: 18,
-    },
+        // ── priority-first header ──
+        phLabel: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            fontWeight: '500',
+            letterSpacing: 1.5,
+        },
+        phLevel: {
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            fontWeight: '700',
+            letterSpacing: 0.5,
+        },
+        phLine: {
+            backgroundColor: palette.bgLine,
+            flex: 1,
+            height: 1,
+            marginLeft: 4,
+        },
+        phRow: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 6,
+            paddingBottom: 6,
+            paddingHorizontal: 20,
+            paddingTop: 18,
+        },
 
-    // ── comfy row ──
-    priorityRibbon: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        top: 0,
-        width: 2,
-    },
+        // ── comfy row ──
+        priorityRibbon: {
+            bottom: 0,
+            left: 0,
+            position: 'absolute',
+            top: 0,
+            width: 2,
+        },
 
-    // ── priority row ──
-    prRow: {
-        alignItems: 'center',
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 20,
-        paddingVertical: 11,
-    },
-    root: {
-        backgroundColor: W.bg,
-        flex: 1,
-    },
-    row: {
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-        position: 'relative',
-    },
-    rowBody: {
-        color: W.fgMuted,
-        fontSize: 12.5,
-        lineHeight: 18,
-        marginBottom: 6,
-    },
-    rowChannel: {
-        color: W.fgDim,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-    },
-    rowMeta: {
-        alignItems: 'baseline',
-        flexDirection: 'row',
-        marginBottom: 2,
-    },
-    rowTime: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-    },
-    rowTitle: {
-        color: W.fg,
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    sectionLabelLine: {
-        backgroundColor: W.bgLine,
-        flex: 1,
-        height: 1,
-        marginLeft: 10,
-    },
-    sectionLabelRow: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        paddingBottom: 6,
-        paddingHorizontal: 20,
-        paddingTop: 14,
-    },
-    sectionLabelText: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        fontWeight: '500',
-        letterSpacing: 1.5,
-    },
-    subtitle: {
-        color: W.fgMuted,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        marginTop: 4,
-    },
+        // ── priority row ──
+        prRow: {
+            alignItems: 'center',
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 20,
+            paddingVertical: 11,
+        },
+        root: {
+            backgroundColor: palette.bg,
+            flex: 1,
+        },
+        row: {
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 20,
+            paddingVertical: 14,
+            position: 'relative',
+        },
+        rowBody: {
+            color: palette.fgMuted,
+            fontSize: 12.5,
+            lineHeight: 18,
+            marginBottom: 6,
+        },
+        rowChannel: {
+            color: palette.fgDim,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+        },
+        rowMeta: {
+            alignItems: 'baseline',
+            flexDirection: 'row',
+            marginBottom: 2,
+        },
+        rowTime: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+        },
+        rowTitle: {
+            color: palette.fg,
+            fontSize: 14,
+            fontWeight: '600',
+            marginBottom: 4,
+        },
+        sectionLabelLine: {
+            backgroundColor: palette.bgLine,
+            flex: 1,
+            height: 1,
+            marginLeft: 10,
+        },
+        sectionLabelRow: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            paddingBottom: 6,
+            paddingHorizontal: 20,
+            paddingTop: 14,
+        },
+        sectionLabelText: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            fontWeight: '500',
+            letterSpacing: 1.5,
+        },
+        subtitle: {
+            color: palette.fgMuted,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            marginTop: 4,
+        },
 
-    tagRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 6,
-    },
-    title: {
-        color: W.fg,
-        fontSize: 28,
-        fontWeight: '600',
-        letterSpacing: -0.5,
-    },
-    // ── timeline ──
-    tlBody: {
-        color: W.fgMuted,
-        fontSize: 12,
-        lineHeight: 17,
-        marginBottom: 8,
-    },
-    tlContent: {
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flex: 1,
-        paddingBottom: 14,
-        paddingRight: 20,
-        paddingTop: 12,
-    },
-    tlDateBadge: {
-        backgroundColor: W.bgChip,
-        borderColor: W.bgLine,
-        borderRadius: 4,
-        borderWidth: StyleSheet.hairlineWidth,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-    },
-    tlDateRow: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        paddingVertical: 10,
-    },
-    tlDateText: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        fontWeight: '500',
-        letterSpacing: 0.8,
-    },
-    tlDot: {
-        borderRadius: 4,
-        height: 8,
-        marginTop: 16,
-        width: 8,
-        zIndex: 1,
-    },
-    tlLine: {
-        backgroundColor: W.bgLine,
-        bottom: 0,
-        left: '50%',
-        position: 'absolute',
-        top: 0,
-        width: 1,
-    },
-    tlLineHalf: {
-        bottom: '50%',
-    },
-    tlMeta: {
-        alignItems: 'baseline',
-        flexDirection: 'row',
-        marginBottom: 3,
-    },
-    tlRow: {
-        flexDirection: 'row',
-        paddingLeft: 20,
-    },
-    tlTime: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-    },
-    tlTitle: {
-        color: W.fg,
-        fontSize: 13.5,
-        fontWeight: '600',
-        marginBottom: 3,
-    },
-    tlTopic: {
-        color: W.fgDim,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-    },
-    tlTrack: {
-        alignItems: 'center',
-        position: 'relative',
-        width: 28,
-    },
-});
+        tagRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 6,
+        },
+        title: {
+            color: palette.fg,
+            fontSize: 28,
+            fontWeight: '600',
+            letterSpacing: -0.5,
+        },
+        // ── timeline ──
+        tlBody: {
+            color: palette.fgMuted,
+            fontSize: 12,
+            lineHeight: 17,
+            marginBottom: 8,
+        },
+        tlContent: {
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flex: 1,
+            paddingBottom: 14,
+            paddingRight: 20,
+            paddingTop: 12,
+        },
+        tlDateBadge: {
+            backgroundColor: palette.bgChip,
+            borderColor: palette.bgLine,
+            borderRadius: 4,
+            borderWidth: StyleSheet.hairlineWidth,
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+        },
+        tlDateRow: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            paddingVertical: 10,
+        },
+        tlDateText: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            fontWeight: '500',
+            letterSpacing: 0.8,
+        },
+        tlDot: {
+            borderRadius: 4,
+            height: 8,
+            marginTop: 16,
+            width: 8,
+            zIndex: 1,
+        },
+        tlLine: {
+            backgroundColor: palette.bgLine,
+            bottom: 0,
+            left: '50%',
+            position: 'absolute',
+            top: 0,
+            width: 1,
+        },
+        tlLineHalf: {
+            bottom: '50%',
+        },
+        tlMeta: {
+            alignItems: 'baseline',
+            flexDirection: 'row',
+            marginBottom: 3,
+        },
+        tlRow: {
+            flexDirection: 'row',
+            paddingLeft: 20,
+        },
+        tlTime: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+        },
+        tlTitle: {
+            color: palette.fg,
+            fontSize: 13.5,
+            fontWeight: '600',
+            marginBottom: 3,
+        },
+        tlTopic: {
+            color: palette.fgDim,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+        },
+        tlTrack: {
+            alignItems: 'center',
+            position: 'relative',
+            width: 28,
+        },
+    });

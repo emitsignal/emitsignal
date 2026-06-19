@@ -14,10 +14,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { authClient } from '@/lib/auth-client';
 
 export default function AuthVerify() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const [busy, setBusy] = useState(false);
     const [otp, setOtp] = useState('');
     const inputRef = useRef<TextInput>(null);
@@ -55,7 +57,7 @@ export default function AuthVerify() {
             >
                 <View style={styles.topBar}>
                     <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                        <IconSymbol color={W.fg} name="arrow.left" size={16} />
+                        <IconSymbol color={palette.fg} name="arrow.left" size={16} />
                     </Pressable>
                     <WLogo pulse size={11} />
                     <Text style={styles.step}>02/05</Text>
@@ -90,7 +92,7 @@ export default function AuthVerify() {
                     </Pressable>
 
                     <Text style={styles.expires}>
-                        expires in <Text style={{ color: W.amber }}>10 min</Text>
+                        expires in <Text style={{ color: palette.amber }}>10 min</Text>
                     </Text>
 
                     <Pressable
@@ -98,7 +100,7 @@ export default function AuthVerify() {
                         onPress={handleVerify}
                         style={[styles.cta, (busy || otp.length < 6) && styles.ctaDisabled]}
                     >
-                        <Text style={[styles.ctaText, otp.length < 6 && { color: W.fgDim }]}>
+                        <Text style={[styles.ctaText, otp.length < 6 && { color: palette.fgDim }]}>
                             {busy ? 'verifying…' : 'sign in →'}
                         </Text>
                     </Pressable>
@@ -107,7 +109,7 @@ export default function AuthVerify() {
                 <View style={styles.footer}>
                     <Text style={styles.resend}>
                         {"didn't arrive? "}
-                        <Text onPress={() => router.back()} style={{ color: W.violet }}>
+                        <Text onPress={() => router.back()} style={{ color: palette.violet }}>
                             resend
                         </Text>
                     </Text>
@@ -117,87 +119,88 @@ export default function AuthVerify() {
     );
 }
 
-const styles = StyleSheet.create({
-    backBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    body: { flex: 1, padding: 28 },
-    codeCell: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        height: 56,
-        justifyContent: 'center',
-        width: 48,
-    },
-    codeCellActive: { borderColor: W.violet },
-    codeChar: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 20,
-        fontWeight: '600',
-    },
-    codeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
-    cta: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderRadius: 10,
-        paddingVertical: 14,
-    },
-    ctaDisabled: {
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderWidth: StyleSheet.hairlineWidth,
-    },
-    ctaText: {
-        color: W.bg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    expires: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 11, marginBottom: 24 },
-    fieldLabel: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        letterSpacing: 1.5,
-        marginBottom: 10,
-    },
-    footer: { padding: 28 },
-    hiddenInput: {
-        height: 1,
-        opacity: 0,
-        position: 'absolute',
-        width: 1,
-    },
-    lede: { color: W.fgMuted, fontSize: 13, marginBottom: 28, marginTop: 6 },
-    mono: { color: W.fg, fontFamily: Fonts.mono },
-    resend: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        textAlign: 'center',
-    },
-    root: { backgroundColor: W.bg, flex: 1 },
-    step: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10,
-        marginLeft: 'auto',
-    },
-    title: { color: W.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
-    topBar: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        backBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        body: { flex: 1, padding: 28 },
+        codeCell: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: 1.5,
+            height: 56,
+            justifyContent: 'center',
+            width: 48,
+        },
+        codeCellActive: { borderColor: palette.violet },
+        codeChar: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 20,
+            fontWeight: '600',
+        },
+        codeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+        cta: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderRadius: 10,
+            paddingVertical: 14,
+        },
+        ctaDisabled: {
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderWidth: StyleSheet.hairlineWidth,
+        },
+        ctaText: {
+            color: palette.bg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        expires: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 11, marginBottom: 24 },
+        fieldLabel: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            letterSpacing: 1.5,
+            marginBottom: 10,
+        },
+        footer: { padding: 28 },
+        hiddenInput: {
+            height: 1,
+            opacity: 0,
+            position: 'absolute',
+            width: 1,
+        },
+        lede: { color: palette.fgMuted, fontSize: 13, marginBottom: 28, marginTop: 6 },
+        mono: { color: palette.fg, fontFamily: Fonts.mono },
+        resend: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            textAlign: 'center',
+        },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        step: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10,
+            marginLeft: 'auto',
+        },
+        title: { color: palette.fg, fontSize: 26, fontWeight: '600', letterSpacing: -0.6 },
+        topBar: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+        },
+    });

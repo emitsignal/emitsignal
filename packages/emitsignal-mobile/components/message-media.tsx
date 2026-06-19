@@ -7,7 +7,8 @@ import type { MediaRef } from '@/lib/api';
 
 import { LinkWarningDialog } from '@/components/link-warning-dialog';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 
 interface Props {
     bannerImage: MediaRef | null;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function MessageMedia({ bannerImage, inlineAttachments, inlineImages }: Props) {
+    const { palette, styles } = useThemedStyles(createStyles);
     const [pendingLink, setPendingLink] = useState<MediaRef | null>(null);
 
     if (!bannerImage && inlineImages.length === 0 && inlineAttachments.length === 0) {
@@ -47,11 +49,11 @@ export function MessageMedia({ bannerImage, inlineAttachments, inlineImages }: P
                     onPress={() => setPendingLink(attachment)}
                     style={styles.linkRow}
                 >
-                    <IconSymbol color={W.fgDim} name="link" size={16} />
+                    <IconSymbol color={palette.fgDim} name="link" size={16} />
                     <Text numberOfLines={1} style={styles.linkText}>
                         {attachment.title ?? attachment.href}
                     </Text>
-                    <IconSymbol color={W.fgDim} name="arrow.right" size={14} />
+                    <IconSymbol color={palette.fgDim} name="arrow.right" size={14} />
                 </Pressable>
             ))}
 
@@ -75,43 +77,44 @@ export function MessageMedia({ bannerImage, inlineAttachments, inlineImages }: P
     );
 }
 
-const styles = StyleSheet.create({
-    banner: {
-        backgroundColor: W.bgElev2,
-        borderRadius: 10,
-        height: 180,
-        width: '100%',
-    },
-    imageRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    linkRow: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 8,
-        borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-    },
-    linkText: {
-        color: W.fg,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-    },
-    thumb: {
-        backgroundColor: W.bgElev2,
-        borderRadius: 8,
-        height: 88,
-        width: 88,
-    },
-    wrap: {
-        gap: 10,
-        marginTop: 14,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        banner: {
+            backgroundColor: palette.bgElev2,
+            borderRadius: 10,
+            height: 180,
+            width: '100%',
+        },
+        imageRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 8,
+        },
+        linkRow: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 8,
+            borderWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+        },
+        linkText: {
+            color: palette.fg,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+        },
+        thumb: {
+            backgroundColor: palette.bgElev2,
+            borderRadius: 8,
+            height: 88,
+            width: 88,
+        },
+        wrap: {
+            gap: 10,
+            marginTop: 14,
+        },
+    });
