@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import { type ComponentProps, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SubscriptionSettingsFields } from '@/components/subscription-settings-fields';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { type ActionMenuItem, NativeActionMenu } from '@/components/ui/native-action-menu';
 import { Fonts, W } from '@/constants/theme';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { api, type ListenSince } from '@/lib/api';
@@ -12,15 +12,12 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
     const { subscriptions, unsubscribe, updateSubscription } = useSubscriptions();
     const subscription = subscriptions.find((item) => item.topic.name === topicName);
 
-    const [menuOpen, setMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [pushEnabled, setPushEnabled] = useState(true);
     const [listenSince, setListenSince] = useState<ListenSince>('subscription_date');
     const [saving, setSaving] = useState(false);
 
     const handleSendTest = async () => {
-        setMenuOpen(false);
-
         try {
             await api.publish(topicName, {
                 body: 'This is a test from EmitSignal',
@@ -36,8 +33,6 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
     };
 
     const handleUnsubscribe = () => {
-        setMenuOpen(false);
-
         Alert.alert('Unsubscribe', `Stop receiving messages from ${topicName}?`, [
             { style: 'cancel', text: 'Cancel' },
             {
@@ -57,9 +52,29 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
 
         setPushEnabled(subscription.pushEnabled);
         setListenSince(subscription.settings.listenSince);
-        setMenuOpen(false);
         setSettingsOpen(true);
     };
+
+    const menuItems = useMemo<ActionMenuItem[]>(() => {
+        const actions: ActionMenuItem[] = [
+            { icon: 'paperplane.fill', label: 'Send test notification', onPress: handleSendTest },
+        ];
+
+        if (subscription) {
+            actions.push(
+                { icon: 'gear', label: 'Settings', onPress: openSettings },
+                {
+                    destructive: true,
+                    icon: 'rectangle.portrait.and.arrow.right',
+                    label: 'Unsubscribe',
+                    onPress: handleUnsubscribe,
+                },
+            );
+        }
+
+        return actions;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [subscription]);
 
     const handleSaveSettings = async () => {
         if (!subscription) {
@@ -85,42 +100,7 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
 
     return (
         <>
-            <Pressable
-                accessibilityLabel="Topic actions"
-                onPress={() => setMenuOpen(true)}
-                style={styles.trigger}
-            >
-                <IconSymbol color={W.fgDim} name="ellipsis" size={20} />
-            </Pressable>
-
-            <Modal
-                animationType="fade"
-                onRequestClose={() => setMenuOpen(false)}
-                transparent
-                visible={menuOpen}
-            >
-                <Pressable onPress={() => setMenuOpen(false)} style={styles.menuBackdrop}>
-                    <Pressable onPress={() => {}} style={styles.menuCard}>
-                        <MenuRow
-                            icon="paperplane.fill"
-                            label="Send test notification"
-                            onPress={handleSendTest}
-                        />
-
-                        {subscription ? (
-                            <>
-                                <MenuRow icon="gear" label="Settings" onPress={openSettings} />
-                                <MenuRow
-                                    destructive
-                                    icon="rectangle.portrait.and.arrow.right"
-                                    label="Unsubscribe"
-                                    onPress={handleUnsubscribe}
-                                />
-                            </>
-                        ) : null}
-                    </Pressable>
-                </Pressable>
-            </Modal>
+            <NativeActionMenu accessibilityLabel="Topic actions" items={menuItems} />
 
             <Modal
                 animationType="fade"
@@ -159,25 +139,6 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
     );
 }
 
-function MenuRow({
-    destructive,
-    icon,
-    label,
-    onPress,
-}: {
-    destructive?: boolean;
-    icon: ComponentProps<typeof IconSymbol>['name'];
-    label: string;
-    onPress: () => void;
-}) {
-    return (
-        <Pressable onPress={onPress} style={styles.menuRow}>
-            <IconSymbol color={destructive ? W.red : W.fg} name={icon} size={16} />
-            <Text style={[styles.menuLabel, destructive && { color: W.red }]}>{label}</Text>
-        </Pressable>
-    );
-}
-
 const styles = StyleSheet.create({
     cancelBtn: {
         alignItems: 'center',
@@ -188,30 +149,6 @@ const styles = StyleSheet.create({
         paddingVertical: 11,
     },
     cancelText: { color: W.fgMuted, fontSize: 13, fontWeight: '600' },
-    menuBackdrop: {
-        flex: 1,
-        paddingHorizontal: 12,
-        paddingTop: 52,
-    },
-    menuCard: {
-        alignSelf: 'flex-end',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 14,
-        borderWidth: StyleSheet.hairlineWidth,
-        minWidth: 230,
-        overflow: 'hidden',
-    },
-    menuLabel: { color: W.fg, fontSize: 14 },
-    menuRow: {
-        alignItems: 'center',
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
     saveBtn: {
         alignItems: 'center',
         backgroundColor: W.violet,
@@ -242,13 +179,5 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '600',
         marginBottom: 16,
-    },
-    trigger: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
     },
 });
