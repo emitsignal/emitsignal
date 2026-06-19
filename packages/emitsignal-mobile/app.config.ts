@@ -10,7 +10,6 @@ const config: ExpoConfig = {
             foregroundImage: './assets/images/android-icon-foreground.png',
             monochromeImage: './assets/images/android-icon-monochrome.png',
         },
-        edgeToEdgeEnabled: true,
         googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
         package: 'com.emitsignal',
         predictiveBackGestureEnabled: false,
@@ -36,7 +35,6 @@ const config: ExpoConfig = {
         supportsTablet: true,
     },
     name: 'EmitSignal',
-    newArchEnabled: true,
     orientation: 'portrait',
     owner: 'kevenleone',
     plugins: [
@@ -44,6 +42,7 @@ const config: ExpoConfig = {
         'expo-notifications',
         'expo-router',
         'expo-secure-store',
+        'expo-web-browser',
         [
             'expo-splash-screen',
             {
