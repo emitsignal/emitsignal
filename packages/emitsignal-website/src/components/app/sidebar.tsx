@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { ThemeToggle } from '#/components/app/theme-toggle';
 import { Avatar } from '#/components/ui/avatar';
 import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
@@ -147,6 +148,10 @@ export function Sidebar() {
             ))}
 
             <div className="mt-auto">
+                <div className="px-2.5 pb-2 pt-2.5">
+                    <ThemeToggle />
+                </div>
+
                 {user && (
                     <div className="flex items-center gap-2.5 border-t border-line p-2.5">
                         <Avatar
