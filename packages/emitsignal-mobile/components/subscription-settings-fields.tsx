@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { NativeSwitch } from '@/components/ui/native-switch';
 import { Fonts, W } from '@/constants/theme';
 import { type ListenSince } from '@/lib/api';
 
@@ -41,12 +42,7 @@ export function SubscriptionSettingsFields({
                     <Text style={styles.rowLabel}>Push notifications</Text>
                     <Text style={styles.rowHint}>Get notified when messages arrive</Text>
                 </View>
-                <Switch
-                    onValueChange={onChangePushEnabled}
-                    thumbColor={W.fg}
-                    trackColor={{ false: W.bgLine, true: W.violet }}
-                    value={pushEnabled}
-                />
+                <NativeSwitch onValueChange={onChangePushEnabled} value={pushEnabled} />
             </View>
 
             <Text style={styles.sectionLabel}>SHOW MESSAGES</Text>

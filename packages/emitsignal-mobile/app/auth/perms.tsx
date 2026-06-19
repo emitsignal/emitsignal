@@ -2,19 +2,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-    ActivityIndicator,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Switch,
-    Text,
-    View,
-} from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { NativeSwitch } from '@/components/ui/native-switch';
 import { Fonts, W } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useSession } from '@/ctx/session';
@@ -121,7 +114,7 @@ export default function AuthPerms() {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.permTitle}>
-                                "EmitSignal" would like to send you notifications
+                                {'"EmitSignal" would like to send you notifications'}
                             </Text>
                             <Text style={styles.permSub}>Alerts, sounds, icon badges</Text>
                         </View>
@@ -143,7 +136,7 @@ export default function AuthPerms() {
                                     chosen && !granted && styles.permActionDenyActiveText,
                                 ]}
                             >
-                                Don't Allow
+                                {"Don't Allow"}
                             </Text>
                         </Pressable>
                         <Pressable
@@ -224,12 +217,7 @@ function TargetRow({
                 <Text style={styles.targetLabel}>{label}</Text>
                 <Text style={styles.targetSub}>{sub}</Text>
             </View>
-            <Switch
-                onValueChange={onChange}
-                thumbColor={W.fg}
-                trackColor={{ false: W.bgLine, true: W.violet }}
-                value={on}
-            />
+            <NativeSwitch onValueChange={onChange} value={on} />
         </View>
     );
 }
