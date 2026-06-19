@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { AnimatedSplash } from '@/components/animated-splash';
-import { W } from '@/constants/theme';
+import { palettes } from '@/constants/theme';
 import { DebugSectionsProvider } from '@/ctx/debug-sections';
 import { DeviceProvider } from '@/ctx/device';
 import { FeedStyleProvider } from '@/ctx/feed-style';
@@ -54,9 +54,12 @@ function RootLayoutContent() {
     const [introDone, setIntroDone] = useState(false);
 
     useEffect(() => {
-        SystemUI.setBackgroundColorAsync(W.bg);
         SplashScreen.hideAsync();
     }, []);
+
+    useEffect(() => {
+        SystemUI.setBackgroundColorAsync(palettes[colorScheme].bg);
+    }, [colorScheme]);
 
     return (
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -76,7 +79,7 @@ function RootLayoutContent() {
                 />
             </Stack>
             {introDone ? null : <AnimatedSplash onFinish={() => setIntroDone(true)} />}
-            <StatusBar style="light" />
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         </NavigationThemeProvider>
     );
 }

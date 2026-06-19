@@ -2,11 +2,12 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 
-import { W } from '@/constants/theme';
 import { useSession } from '@/ctx/session';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { usePalette } from '@/hooks/use-palette';
 
 export default function Index() {
+    const palette = usePalette();
     const { isLoading: onboardingLoading, isOnboardingComplete } = useOnboarding();
     const { loading: sessionLoading, user } = useSession();
     const isSignedIn = !!user;
@@ -23,5 +24,5 @@ export default function Index() {
         }
     }, [onboardingLoading, sessionLoading, isSignedIn, isOnboardingComplete]);
 
-    return <View style={{ backgroundColor: W.bg, flex: 1 }} />;
+    return <View style={{ backgroundColor: palette.bg, flex: 1 }} />;
 }
