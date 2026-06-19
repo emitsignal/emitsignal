@@ -12,7 +12,6 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    Switch,
     Text,
     View,
 } from 'react-native';
@@ -24,6 +23,7 @@ import type { ThemePreference } from '@/storage/theme';
 
 import { WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { NativeSwitch } from '@/components/ui/native-switch';
 import { Fonts, W } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
@@ -315,10 +315,8 @@ function NotificationsSection() {
             ) : (
                 <View style={styles.row}>
                     <Text style={styles.rowLabel}>Push</Text>
-                    <Switch
+                    <NativeSwitch
                         onValueChange={handleToggle}
-                        thumbColor={W.fg}
-                        trackColor={{ false: W.bgLine, true: W.violet }}
                         value={tokenRecord?.pushEnabled ?? true}
                     />
                 </View>
