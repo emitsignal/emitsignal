@@ -29,5 +29,8 @@
         "test": "bun --filter '*' test"
     },
     "type": "module",
-    "workspaces": ["packages/*"]
+    "workspaces": ["packages/*"],
+    "patchedDependencies": {
+        "expo-router@56.2.11": "patches/expo-router@56.2.11.patch"
+    }
 }
