@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Animated,
     Easing,
@@ -151,7 +151,7 @@ export function WLogo({
     pulse = false,
     size = 14,
 }: WLogoProps) {
-    const opacity = useRef(new Animated.Value(1)).current;
+    const [opacity] = useState(() => new Animated.Value(1));
 
     useEffect(() => {
         if (!pulse) {

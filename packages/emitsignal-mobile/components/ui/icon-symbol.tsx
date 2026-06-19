@@ -1,11 +1,10 @@
 // Fallback for using MaterialIcons on Android and web.
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { SymbolViewProps, SymbolWeight } from 'expo-symbols';
+import { SymbolWeight } from 'expo-symbols';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
 type IconSymbolName = keyof typeof MAPPING;
 
 /**
@@ -14,17 +13,19 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
+    'arrow.down.to.line': 'file-download',
     'arrow.left': 'arrow-back',
     'arrow.right': 'arrow-forward',
     'arrow.triangle.2.circlepath': 'sync',
     // Notifications
     bell: 'notifications',
-
     'bell.badge': 'notifications-active',
+
     'bell.badge.fill': 'notifications-active',
     'bell.fill': 'notifications',
     'bell.slash': 'notifications-off',
     bolt: 'bolt',
+    'camera.fill': 'photo-camera',
 
     'chart.bar': 'bar-chart',
     'checkmark.circle.fill': 'check-circle',
@@ -35,6 +36,7 @@ const MAPPING = {
 
     clock: 'schedule',
     'doc.on.doc': 'content-copy',
+    'doc.text': 'description',
     ellipsis: 'more-horiz',
     envelope: 'mail',
     'exclamationmark.triangle': 'warning',
@@ -62,12 +64,13 @@ const MAPPING = {
     'rectangle.portrait.and.arrow.right': 'logout',
     'server.rack': 'dns',
     'speaker.slash': 'volume-off',
+    'square.and.arrow.down': 'file-download',
     // Base Theme
     'square.grid.2x2': 'grid-view',
     tag: 'label',
     terminal: 'terminal',
     xmark: 'close',
-} as IconMapping;
+} satisfies Record<string, ComponentProps<typeof MaterialIcons>['name']>;
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,28 +16,33 @@ export default function AuthFirstChannels() {
     const { markOnboardingComplete } = useOnboarding();
     const { subscribe } = useSubscriptions();
     const { data: suggestions } = useTopicSuggestions(deviceId);
-    const [picked, setPicked] = useState<Record<string, boolean>>({});
+    const [picked, setPicked] = useState<null | Record<string, boolean>>(null);
     const [busy, setBusy] = useState(false);
 
-    useEffect(() => {
-        if (!suggestions) {
-            return;
-        }
-
+    // Default to the official emitsignal/* channels until the user changes the
+    // selection. Derived during render so we never sync this state in an effect.
+    const defaultPicked = useMemo(() => {
         const initial: Record<string, boolean> = {};
 
-        for (const suggestion of suggestions) {
+        for (const suggestion of suggestions ?? []) {
             if (suggestion.name.startsWith('emitsignal/')) {
                 initial[suggestion.name] = true;
             }
         }
 
-        setPicked(initial);
+        return initial;
     }, [suggestions]);
 
-    const toggle = (name: string) => setPicked((p) => ({ ...p, [name]: !p[name] }));
+    const effectivePicked = picked ?? defaultPicked;
 
-    const pickedCount = Object.values(picked).filter(Boolean).length;
+    const toggle = (name: string) =>
+        setPicked((previous) => {
+            const base = previous ?? defaultPicked;
+
+            return { ...base, [name]: !base[name] };
+        });
+
+    const pickedCount = Object.values(effectivePicked).filter(Boolean).length;
 
     const handleFinish = async () => {
         if (!deviceId) {
@@ -45,7 +50,7 @@ export default function AuthFirstChannels() {
         }
         setBusy(true);
         try {
-            for (const [name, on] of Object.entries(picked)) {
+            for (const [name, on] of Object.entries(effectivePicked)) {
                 if (on) await subscribe(name);
             }
             await markOnboardingComplete();
@@ -75,7 +80,7 @@ export default function AuthFirstChannels() {
 
                 <ScrollView style={{ flex: 1 }}>
                     {suggestions?.map((suggestion) => {
-                        const on = !!picked[suggestion.name];
+                        const on = !!effectivePicked[suggestion.name];
                         return (
                             <Pressable
                                 key={suggestion.name}
