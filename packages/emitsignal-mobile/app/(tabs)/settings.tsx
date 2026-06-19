@@ -1,6 +1,7 @@
 import type { PlanName } from '@emitsignal/shared/billing';
 
 import { PLANS } from '@emitsignal/shared/billing';
+import { SegmentedControl } from '@expo/ui/community/segmented-control';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
@@ -103,22 +104,15 @@ export default function SettingsScreen() {
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
                 <SectionLabel>APPEARANCE</SectionLabel>
                 <View style={styles.group}>
-                    {THEME_OPTIONS.map((opt) => (
-                        <Pressable
-                            key={opt.value}
-                            onPress={() => setTheme(opt.value)}
-                            style={[styles.row, opt.value === theme && styles.rowActive]}
-                        >
-                            <Text style={styles.rowLabel}>{opt.label}</Text>
-                            {opt.value === theme ? (
-                                <IconSymbol
-                                    color={W.violet}
-                                    name="checkmark.circle.fill"
-                                    size={18}
-                                />
-                            ) : null}
-                        </Pressable>
-                    ))}
+                    <SegmentedControl
+                        appearance="dark"
+                        onChange={(event) =>
+                            setTheme(THEME_OPTIONS[event.nativeEvent.selectedSegmentIndex].value)
+                        }
+                        selectedIndex={THEME_OPTIONS.findIndex((opt) => opt.value === theme)}
+                        tintColor={W.violet}
+                        values={THEME_OPTIONS.map((opt) => opt.label)}
+                    />
                 </View>
 
                 <SectionLabel>FEED</SectionLabel>
