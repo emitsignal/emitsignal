@@ -2,11 +2,12 @@ import { router } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useEffect } from 'react';
 
-import { W } from '@/constants/theme';
 import { useSession } from '@/ctx/session';
 import { useOnboarding } from '@/hooks/use-onboarding';
+import { usePalette } from '@/hooks/use-palette';
 
 export default function TabLayout() {
+    const palette = usePalette();
     const { isLoading: onboardingLoading, isOnboardingComplete } = useOnboarding();
     const { loading: sessionLoading, user } = useSession();
     const isSignedIn = !!user?.id;
@@ -25,7 +26,11 @@ export default function TabLayout() {
     }
 
     return (
-        <NativeTabs backgroundColor={W.bg} iconColor={W.fgDim} tintColor={W.violet}>
+        <NativeTabs
+            backgroundColor={palette.bg}
+            iconColor={palette.fgDim}
+            tintColor={palette.violet}
+        >
             <NativeTabs.Trigger name="index">
                 <NativeTabs.Trigger.Icon md="notifications" sf="bell" />
                 <NativeTabs.Trigger.Label>Feed</NativeTabs.Trigger.Label>
