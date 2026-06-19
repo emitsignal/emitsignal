@@ -16,6 +16,9 @@
     "overrides": {
         "@tanstack/query-core": "5.101.0"
     },
+    "patchedDependencies": {
+        "expo-router@56.2.11": "patches/expo-router@56.2.11.patch"
+    },
     "peerDependencies": {
         "typescript": "^5"
     },
@@ -29,8 +32,5 @@
         "test": "bun --filter '*' test"
     },
     "type": "module",
-    "workspaces": ["packages/*"],
-    "patchedDependencies": {
-        "expo-router@56.2.11": "patches/expo-router@56.2.11.patch"
-    }
+    "workspaces": ["packages/*"]
 }

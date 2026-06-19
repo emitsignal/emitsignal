@@ -20,6 +20,7 @@ import { SessionProvider } from '@/ctx/session';
 import { ThemeProvider } from '@/ctx/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useForegroundNotifications } from '@/hooks/use-foreground-notifications';
+import { usePalette } from '@/hooks/use-palette';
 import { queryClient } from '@/lib/query-client';
 import { setupQuerySync } from '@/lib/query-online';
 
@@ -51,6 +52,7 @@ function RootLayoutContent() {
     useForegroundNotifications();
 
     const colorScheme = useColorScheme();
+    const palette = usePalette();
     const [introDone, setIntroDone] = useState(false);
 
     useEffect(() => {
@@ -61,8 +63,18 @@ function RootLayoutContent() {
         SystemUI.setBackgroundColorAsync(palettes[colorScheme].bg);
     }, [colorScheme]);
 
+    // Use the active palette as the navigation theme background. The patched
+    // expo-router forwards this to the native stack container (ScreenStack's
+    // nativeContainerStyle), so the interactive back-swipe no longer flashes the
+    // unpainted white container behind the screens.
+    const baseTheme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+    const navigationTheme = {
+        ...baseTheme,
+        colors: { ...baseTheme.colors, background: palette.bg, card: palette.bg },
+    };
+
     return (
-        <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <NavigationThemeProvider value={navigationTheme}>
             <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
