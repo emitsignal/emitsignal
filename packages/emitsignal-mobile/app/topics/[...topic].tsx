@@ -5,11 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WChip, WTopicAvatar } from '@/components/base-theme';
 import { TopicActionsMenu } from '@/components/topic-actions-menu';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, PriorityColors, W } from '@/constants/theme';
+import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useTopicMessages } from '@/hooks/use-emit-signal';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { type Message } from '@/lib/api';
 
 export default function TopicScreen() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const params = useLocalSearchParams<{ topic: string | string[] }>();
     const topic = Array.isArray(params.topic) ? params.topic.join('/') : (params.topic ?? '');
 
@@ -23,7 +25,7 @@ export default function TopicScreen() {
         <SafeAreaView edges={['top']} style={styles.root}>
             <View style={styles.topBar}>
                 <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                    <IconSymbol color={W.fg} name="arrow.left" size={16} />
+                    <IconSymbol color={palette.fg} name="arrow.left" size={16} />
                 </Pressable>
 
                 <WTopicAvatar name={topic} rounded={6} size={32} />
@@ -63,6 +65,7 @@ export default function TopicScreen() {
 }
 
 function MessageRow({ message, onPress }: { message: Message; onPress: () => void }) {
+    const { styles } = useThemedStyles(createStyles);
     return (
         <Pressable onPress={onPress} style={styles.row}>
             <View
@@ -98,70 +101,71 @@ function MessageRow({ message, onPress }: { message: Message; onPress: () => voi
     );
 }
 
-const styles = StyleSheet.create({
-    backBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    body: {
-        color: W.fgMuted,
-        fontSize: 12.5,
-        lineHeight: 18,
-        marginTop: 4,
-    },
-    channelMeta: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-        marginTop: 2,
-    },
-    channelName: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    empty: { alignItems: 'center', flex: 1, justifyContent: 'center', padding: 40 },
-    emptyBody: {
-        color: W.fgMuted,
-        fontSize: 13,
-        marginTop: 8,
-        textAlign: 'center',
-    },
-    emptyExample: { marginTop: 20, width: '100%' },
-    emptyTitle: { color: W.fg, fontSize: 16, fontWeight: '600' },
-    metaRow: { flexDirection: 'row', marginBottom: 4 },
-    mono: { fontFamily: Fonts.mono },
-    priorityRibbon: {
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        top: 0,
-        width: 2,
-    },
-    root: { backgroundColor: W.bg, flex: 1 },
-    row: {
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-        position: 'relative',
-    },
-    tags: { flexDirection: 'row', gap: 6, marginTop: 8 },
-    timeText: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 10.5 },
-    title: { color: W.fg, fontSize: 14, fontWeight: '600' },
-    topBar: {
-        alignItems: 'center',
-        borderBottomColor: W.bgLine,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        backBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        body: {
+            color: palette.fgMuted,
+            fontSize: 12.5,
+            lineHeight: 18,
+            marginTop: 4,
+        },
+        channelMeta: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+            marginTop: 2,
+        },
+        channelName: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        empty: { alignItems: 'center', flex: 1, justifyContent: 'center', padding: 40 },
+        emptyBody: {
+            color: palette.fgMuted,
+            fontSize: 13,
+            marginTop: 8,
+            textAlign: 'center',
+        },
+        emptyExample: { marginTop: 20, width: '100%' },
+        emptyTitle: { color: palette.fg, fontSize: 16, fontWeight: '600' },
+        metaRow: { flexDirection: 'row', marginBottom: 4 },
+        mono: { fontFamily: Fonts.mono },
+        priorityRibbon: {
+            bottom: 0,
+            left: 0,
+            position: 'absolute',
+            top: 0,
+            width: 2,
+        },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        row: {
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            paddingHorizontal: 20,
+            paddingVertical: 14,
+            position: 'relative',
+        },
+        tags: { flexDirection: 'row', gap: 6, marginTop: 8 },
+        timeText: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 10.5 },
+        title: { color: palette.fg, fontSize: 14, fontWeight: '600' },
+        topBar: {
+            alignItems: 'center',
+            borderBottomColor: palette.bgLine,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+        },
+    });

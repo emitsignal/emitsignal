@@ -3,7 +3,8 @@ import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'r
 import type { MediaRef } from '@/lib/api';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 
 interface Props {
     link: MediaRef | null;
@@ -11,6 +12,8 @@ interface Props {
 }
 
 export function LinkWarningDialog({ link, onClose }: Props) {
+    const { palette, styles } = useThemedStyles(createStyles);
+
     const handleOpen = () => {
         if (!link) {
             return;
@@ -27,7 +30,11 @@ export function LinkWarningDialog({ link, onClose }: Props) {
                 <Pressable onPress={() => {}} style={styles.card}>
                     <View style={styles.header}>
                         <View style={styles.iconWrap}>
-                            <IconSymbol color={W.amber} name="exclamationmark.triangle" size={18} />
+                            <IconSymbol
+                                color={palette.amber}
+                                name="exclamationmark.triangle"
+                                size={18}
+                            />
                         </View>
                         <Text style={styles.title}>External link</Text>
                     </View>
@@ -49,7 +56,7 @@ export function LinkWarningDialog({ link, onClose }: Props) {
                             <Text style={styles.cancelText}>Cancel</Text>
                         </Pressable>
                         <Pressable onPress={handleOpen} style={styles.openBtn}>
-                            <IconSymbol color={W.bg} name="link" size={14} />
+                            <IconSymbol color={palette.bg} name="link" size={14} />
                             <Text style={styles.openText}>Open link</Text>
                         </Pressable>
                     </View>
@@ -59,103 +66,104 @@ export function LinkWarningDialog({ link, onClose }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
-    actions: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 18,
-    },
-    backdrop: {
-        alignItems: 'center',
-        backgroundColor: 'rgba(6,3,15,0.72)',
-        flex: 1,
-        justifyContent: 'center',
-        padding: 24,
-    },
-    body: {
-        color: W.fgMuted,
-        fontSize: 13.5,
-        lineHeight: 20,
-    },
-    bodyStrong: {
-        color: W.fg,
-        fontWeight: '600',
-    },
-    cancelBtn: {
-        alignItems: 'center',
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        flex: 1,
-        paddingVertical: 11,
-    },
-    cancelText: {
-        color: W.fgMuted,
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    card: {
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 14,
-        borderWidth: StyleSheet.hairlineWidth,
-        padding: 20,
-        width: '100%',
-    },
-    header: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 12,
-        marginBottom: 14,
-    },
-    iconWrap: {
-        alignItems: 'center',
-        backgroundColor: 'rgba(251,191,36,0.13)',
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    linkTitle: {
-        color: W.fg,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        marginTop: 14,
-    },
-    openBtn: {
-        alignItems: 'center',
-        backgroundColor: W.amber,
-        borderRadius: 10,
-        flex: 1,
-        flexDirection: 'row',
-        gap: 6,
-        justifyContent: 'center',
-        paddingVertical: 11,
-    },
-    openText: {
-        color: W.bg,
-        fontSize: 13,
-        fontWeight: '700',
-    },
-    title: {
-        color: W.fg,
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    url: {
-        color: W.fgMuted,
-        fontFamily: Fonts.mono,
-        fontSize: 12,
-        lineHeight: 18,
-    },
-    urlBox: {
-        backgroundColor: W.bg,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        marginTop: 10,
-        maxHeight: 120,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        actions: {
+            flexDirection: 'row',
+            gap: 10,
+            marginTop: 18,
+        },
+        backdrop: {
+            alignItems: 'center',
+            backgroundColor: palette.scrim,
+            flex: 1,
+            justifyContent: 'center',
+            padding: 24,
+        },
+        body: {
+            color: palette.fgMuted,
+            fontSize: 13.5,
+            lineHeight: 20,
+        },
+        bodyStrong: {
+            color: palette.fg,
+            fontWeight: '600',
+        },
+        cancelBtn: {
+            alignItems: 'center',
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            flex: 1,
+            paddingVertical: 11,
+        },
+        cancelText: {
+            color: palette.fgMuted,
+            fontSize: 13,
+            fontWeight: '600',
+        },
+        card: {
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 14,
+            borderWidth: StyleSheet.hairlineWidth,
+            padding: 20,
+            width: '100%',
+        },
+        header: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 12,
+            marginBottom: 14,
+        },
+        iconWrap: {
+            alignItems: 'center',
+            backgroundColor: palette.warningBg,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        linkTitle: {
+            color: palette.fg,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            marginTop: 14,
+        },
+        openBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.amber,
+            borderRadius: 10,
+            flex: 1,
+            flexDirection: 'row',
+            gap: 6,
+            justifyContent: 'center',
+            paddingVertical: 11,
+        },
+        openText: {
+            color: palette.bg,
+            fontSize: 13,
+            fontWeight: '700',
+        },
+        title: {
+            color: palette.fg,
+            fontSize: 16,
+            fontWeight: '600',
+        },
+        url: {
+            color: palette.fgMuted,
+            fontFamily: Fonts.mono,
+            fontSize: 12,
+            lineHeight: 18,
+        },
+        urlBox: {
+            backgroundColor: palette.bg,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            marginTop: 10,
+            maxHeight: 120,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+        },
+    });

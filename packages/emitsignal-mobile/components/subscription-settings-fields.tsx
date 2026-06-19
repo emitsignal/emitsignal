@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { NativeSwitch } from '@/components/ui/native-switch';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { type ListenSince } from '@/lib/api';
 
 interface Props {
@@ -35,6 +36,8 @@ export function SubscriptionSettingsFields({
     onChangePushEnabled,
     pushEnabled,
 }: Props) {
+    const { palette, styles } = useThemedStyles(createStyles);
+
     return (
         <View style={styles.group}>
             <View style={styles.switchRow}>
@@ -60,7 +63,11 @@ export function SubscriptionSettingsFields({
                             <Text style={styles.rowHint}>{option.description}</Text>
                         </View>
                         {selected ? (
-                            <IconSymbol color={W.violet} name="checkmark.circle.fill" size={18} />
+                            <IconSymbol
+                                color={palette.violet}
+                                name="checkmark.circle.fill"
+                                size={18}
+                            />
                         ) : (
                             <View style={styles.radioEmpty} />
                         )}
@@ -71,50 +78,51 @@ export function SubscriptionSettingsFields({
     );
 }
 
-const styles = StyleSheet.create({
-    group: { gap: 8 },
-    optionRow: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-    },
-    optionRowActive: { backgroundColor: W.violetBg, borderColor: W.violet },
-    radioEmpty: {
-        borderColor: W.bgLine,
-        borderRadius: 9,
-        borderWidth: 1.5,
-        height: 18,
-        width: 18,
-    },
-    rowHint: {
-        color: W.fgDim,
-        fontSize: 11.5,
-        marginTop: 2,
-    },
-    rowLabel: { color: W.fg, fontSize: 14 },
-    sectionLabel: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        letterSpacing: 1.2,
-        marginBottom: 4,
-        marginTop: 4,
-    },
-    switchRow: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 10,
-        borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        group: { gap: 8 },
+        optionRow: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+        },
+        optionRowActive: { backgroundColor: palette.violetBg, borderColor: palette.violet },
+        radioEmpty: {
+            borderColor: palette.bgLine,
+            borderRadius: 9,
+            borderWidth: 1.5,
+            height: 18,
+            width: 18,
+        },
+        rowHint: {
+            color: palette.fgDim,
+            fontSize: 11.5,
+            marginTop: 2,
+        },
+        rowLabel: { color: palette.fg, fontSize: 14 },
+        sectionLabel: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+            letterSpacing: 1.2,
+            marginBottom: 4,
+            marginTop: 4,
+        },
+        switchRow: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+        },
+    });

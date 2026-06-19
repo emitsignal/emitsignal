@@ -3,7 +3,7 @@ import { background, contentShape, cornerRadius, frame, shapes } from '@expo/ui/
 import { type ComponentProps } from 'react';
 
 import { type ActionMenuItem } from '@/components/ui/native-action-menu';
-import { W } from '@/constants/theme';
+import { usePalette } from '@/hooks/use-palette';
 
 interface NativeActionMenuProps {
     accessibilityLabel?: string;
@@ -23,15 +23,17 @@ type SystemImage = ComponentProps<typeof Button>['systemImage'];
  * the system accent color) and gives the full 32×32 square a tappable hit area.
  */
 export function NativeActionMenu({ items }: NativeActionMenuProps) {
+    const palette = usePalette();
+
     return (
         <Host matchContents>
             <Menu
                 label={
                     <Image
-                        color={W.fgDim}
+                        color={palette.fgDim}
                         modifiers={[
                             frame({ height: 32, width: 32 }),
-                            background(W.bgElev),
+                            background(palette.bgElev),
                             cornerRadius(8),
                             contentShape(shapes.rectangle()),
                         ]}

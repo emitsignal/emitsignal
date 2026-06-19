@@ -15,13 +15,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WCode, WTopicAvatar } from '@/components/base-theme';
 import { SubscriptionSettingsFields } from '@/components/subscription-settings-fields';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts, W } from '@/constants/theme';
+import { Fonts, type Palette } from '@/constants/theme';
 import { useDevice } from '@/ctx/device';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
+import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 import { api, type ListenSince } from '@/lib/api';
 
 export default function SubscribeModal() {
+    const { palette, styles } = useThemedStyles(createStyles);
     const [busy, setBusy] = useState(false);
     const [listenSince, setListenSince] = useState<ListenSince>('subscription_date');
     const [pushEnabled, setPushEnabled] = useState(true);
@@ -57,7 +59,7 @@ export default function SubscribeModal() {
                 >
                     <View style={styles.topBar}>
                         <Pressable onPress={() => router.back()} style={styles.closeBtn}>
-                            <IconSymbol color={W.fg} name="xmark" size={14} />
+                            <IconSymbol color={palette.fg} name="xmark" size={14} />
                         </Pressable>
                         <Text style={styles.barTitle}>Subscribe</Text>
                     </View>
@@ -74,14 +76,14 @@ export default function SubscribeModal() {
                                     autoCorrect={false}
                                     onChangeText={setTopic}
                                     placeholder="alerts/prod"
-                                    placeholderTextColor={W.fgDim}
+                                    placeholderTextColor={palette.fgDim}
                                     style={styles.topicInput}
                                     value={topic}
                                 />
                             </View>
                             <Text style={styles.hint}>
                                 a-z, 0-9, / and - · e.g.{' '}
-                                <Text style={{ color: W.violet }}>team/backend/alerts</Text>
+                                <Text style={{ color: palette.violet }}>team/backend/alerts</Text>
                             </Text>
                         </View>
 
@@ -100,7 +102,7 @@ export default function SubscribeModal() {
                                             size={24}
                                         />
                                         <Text style={styles.suggestedText}>{suggestion.name}</Text>
-                                        <IconSymbol color={W.fgDim} name="plus" size={13} />
+                                        <IconSymbol color={palette.fgDim} name="plus" size={13} />
                                     </Pressable>
                                 ))}
                             </View>
@@ -137,7 +139,7 @@ emitsignal publish ${topic} "deploy ok"`}
                             <Text style={styles.submitText}>
                                 {busy ? 'subscribing…' : `subscribe → ${topic}`}
                             </Text>
-                            <IconSymbol color={W.bg} name="arrow.right" size={14} />
+                            <IconSymbol color={palette.bg} name="arrow.right" size={14} />
                         </Pressable>
                     </View>
                 </KeyboardAvoidingView>
@@ -146,94 +148,95 @@ emitsignal publish ${topic} "deploy ok"`}
     );
 }
 
-const styles = StyleSheet.create({
-    barTitle: { color: W.fg, fontSize: 16, fontWeight: '600', letterSpacing: -0.3 },
-    closeBtn: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderRadius: 8,
-        height: 32,
-        justifyContent: 'center',
-        width: 32,
-    },
-    footer: {
-        backgroundColor: W.bg,
-        borderTopColor: W.bgLine,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        paddingHorizontal: 20,
-        paddingVertical: 14,
-    },
-    hint: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 10.5,
-        marginTop: 8,
-    },
-    prefix: { color: W.fgDim, fontFamily: Fonts.mono, fontSize: 13 },
-    root: { backgroundColor: W.bg, flex: 1 },
-    section: { paddingHorizontal: 20, paddingVertical: 12 },
-    sectionLabel: {
-        color: W.fgDim,
-        fontFamily: Fonts.mono,
-        fontSize: 11,
-        letterSpacing: 1.2,
-        marginBottom: 8,
-    },
-    submit: {
-        alignItems: 'center',
-        backgroundColor: W.violet,
-        borderRadius: 10,
-        flexDirection: 'row',
-        gap: 8,
-        justifyContent: 'center',
-        paddingVertical: 14,
-    },
-    submitText: {
-        color: W.bg,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    suggestedRow: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.bgLine,
-        borderRadius: 8,
-        borderWidth: StyleSheet.hairlineWidth,
-        flexDirection: 'row',
-        gap: 10,
-        marginBottom: 4,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-    },
-    suggestedText: {
-        color: W.fg,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 12.5,
-    },
-    topBar: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-    },
-    topicInput: {
-        color: W.fg,
-        flex: 1,
-        fontFamily: Fonts.mono,
-        fontSize: 14,
-        padding: 0,
-    },
-    topicInputBox: {
-        alignItems: 'center',
-        backgroundColor: W.bgElev,
-        borderColor: W.violet,
-        borderRadius: 10,
-        borderWidth: 1.5,
-        flexDirection: 'row',
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-    },
-});
+const createStyles = (palette: Palette) =>
+    StyleSheet.create({
+        barTitle: { color: palette.fg, fontSize: 16, fontWeight: '600', letterSpacing: -0.3 },
+        closeBtn: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderRadius: 8,
+            height: 32,
+            justifyContent: 'center',
+            width: 32,
+        },
+        footer: {
+            backgroundColor: palette.bg,
+            borderTopColor: palette.bgLine,
+            borderTopWidth: StyleSheet.hairlineWidth,
+            paddingHorizontal: 20,
+            paddingVertical: 14,
+        },
+        hint: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 10.5,
+            marginTop: 8,
+        },
+        prefix: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 13 },
+        root: { backgroundColor: palette.bg, flex: 1 },
+        section: { paddingHorizontal: 20, paddingVertical: 12 },
+        sectionLabel: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+            letterSpacing: 1.2,
+            marginBottom: 8,
+        },
+        submit: {
+            alignItems: 'center',
+            backgroundColor: palette.violet,
+            borderRadius: 10,
+            flexDirection: 'row',
+            gap: 8,
+            justifyContent: 'center',
+            paddingVertical: 14,
+        },
+        submitText: {
+            color: palette.bg,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            fontWeight: '600',
+        },
+        suggestedRow: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 8,
+            borderWidth: StyleSheet.hairlineWidth,
+            flexDirection: 'row',
+            gap: 10,
+            marginBottom: 4,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+        },
+        suggestedText: {
+            color: palette.fg,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 12.5,
+        },
+        topBar: {
+            alignItems: 'center',
+            flexDirection: 'row',
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 14,
+        },
+        topicInput: {
+            color: palette.fg,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 14,
+            padding: 0,
+        },
+        topicInputBox: {
+            alignItems: 'center',
+            backgroundColor: palette.bgElev,
+            borderColor: palette.violet,
+            borderRadius: 10,
+            borderWidth: 1.5,
+            flexDirection: 'row',
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+        },
+    });
