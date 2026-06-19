@@ -1,10 +1,10 @@
+import { QueryClientProvider } from '@tanstack/react-query';
+import { Stack } from 'expo-router';
 import {
     DarkTheme,
     DefaultTheme,
     ThemeProvider as NavigationThemeProvider,
-} from '@react-navigation/native';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+} from 'expo-router/react-navigation';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
