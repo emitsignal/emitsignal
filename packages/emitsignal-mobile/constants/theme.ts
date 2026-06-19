@@ -2,74 +2,130 @@ import { Platform } from 'react-native';
 
 export { PRIORITY_HEX as PriorityColors } from '@emitsignal/shared/priority';
 
-// Dark is the canonical surface; light mode falls back to a softer palette.
+// Two full palettes sharing identical keys. Components read the active one at
+// render time via `usePalette()`; the scheme is resolved by the ThemeProvider.
 
-export const W = {
+export const darkPalette = {
     amber: '#fbbf24',
     // Backgrounds
     bg: '#0f0a1a',
     bgChip: '#1f1930',
+    bgCode: '#06030f',
     bgElev: '#1a1625',
     bgElev2: '#231c33',
-
     bgLine: '#2a2340',
+    // Control overlay on the media lightbox (sits on a black backdrop)
+    controlOverlay: 'rgba(255,255,255,0.12)',
     cyan: '#67e8f9',
+    // Semantic tint backgrounds
+    dangerBg: 'rgba(248,113,113,0.10)',
     // Text
     fg: '#f5f0ff',
     fgDim: '#7a6d99',
-
     fgFaint: '#4a4166',
     fgMuted: '#b8a9d9',
     // Semantic
     green: '#4ade80',
+    infoBg: 'rgba(103,232,249,0.12)',
+    link: '#67e8f9',
+    // Fullscreen media backdrop
+    mediaBackdrop: 'rgba(0,0,0,0.88)',
     // Severity dots (priority 1-5)
     p1: '#818cf8',
-
     p2: '#a78bfa',
     p3: '#c4b5fd',
     p4: '#fbbf24',
     p5: '#f87171',
     pink: '#f0abfc',
-
     red: '#f87171',
+    // Dialog scrim
+    scrim: 'rgba(6,3,15,0.72)',
     // Accents
     violet: '#a78bfa',
     violetBg: 'rgba(124,58,237,0.12)',
     violetDeep: '#5b21b6',
     violetDim: '#7c3aed',
+    warningBg: 'rgba(251,191,36,0.13)',
 };
 
-const tintLight = '#7c3aed';
-const tintDark = W.violet;
+export type Palette = typeof darkPalette;
+
+export const lightPalette: Palette = {
+    amber: '#d97706',
+    // Backgrounds
+    bg: '#f5f3ff',
+    bgChip: '#ece6fb',
+    bgCode: '#ede7fb',
+    bgElev: '#ffffff',
+    bgElev2: '#f3eefc',
+    bgLine: '#e0d6f5',
+    controlOverlay: 'rgba(255,255,255,0.12)',
+    cyan: '#0891b2',
+    dangerBg: 'rgba(220,38,38,0.08)',
+    // Text (darkest = primary, lightening toward faint)
+    fg: '#1a1625',
+    fgDim: '#6b6190',
+    fgFaint: '#a99fc4',
+    fgMuted: '#4a4166',
+    // Semantic
+    green: '#16a34a',
+    infoBg: 'rgba(8,145,178,0.10)',
+    link: '#0891b2',
+    mediaBackdrop: 'rgba(0,0,0,0.88)',
+    // Severity dots (priority 1-5)
+    p1: '#6366f1',
+    p2: '#7c3aed',
+    p3: '#9333ea',
+    p4: '#d97706',
+    p5: '#dc2626',
+    pink: '#c026d3',
+    red: '#dc2626',
+    scrim: 'rgba(20,16,40,0.45)',
+    // Accents
+    violet: '#7c3aed',
+    violetBg: 'rgba(124,58,237,0.10)',
+    violetDeep: '#5b21b6',
+    violetDim: '#6d28d9',
+    warningBg: 'rgba(217,119,6,0.12)',
+};
+
+export const palettes: Record<'dark' | 'light', Palette> = {
+    dark: darkPalette,
+    light: lightPalette,
+};
+
+// Static dark palette: alias kept for pre-theme contexts (the splash screen
+// paints before the theme is resolved) and as a non-reactive fallback.
+export const W = darkPalette;
 
 export const Colors = {
     dark: {
-        background: W.bg,
-        border: W.bgLine,
-        cardBackground: W.bgElev,
-        error: W.red,
-        icon: W.fgDim,
-        info: W.cyan,
-        success: W.green,
-        tabIconDefault: W.fgDim,
-        tabIconSelected: tintDark,
-        text: W.fg,
-        tint: tintDark,
-        warning: W.amber,
+        background: darkPalette.bg,
+        border: darkPalette.bgLine,
+        cardBackground: darkPalette.bgElev,
+        error: darkPalette.red,
+        icon: darkPalette.fgDim,
+        info: darkPalette.cyan,
+        success: darkPalette.green,
+        tabIconDefault: darkPalette.fgDim,
+        tabIconSelected: darkPalette.violet,
+        text: darkPalette.fg,
+        tint: darkPalette.violet,
+        warning: darkPalette.amber,
     },
     light: {
-        background: '#f5f3ff',
-        border: '#e0d6f5',
-        cardBackground: '#ffffff',
-        error: W.red,
-        icon: '#7a6d99',
-        info: W.cyan,
-        success: W.green,
-        tabIconDefault: '#9b8fb8',
-        tabIconSelected: tintLight,
-        text: '#1a1625',
-        tint: tintLight,
-        warning: W.amber,
+        background: lightPalette.bg,
+        border: lightPalette.bgLine,
+        cardBackground: lightPalette.bgElev,
+        error: lightPalette.red,
+        icon: lightPalette.fgDim,
+        info: lightPalette.cyan,
+        success: lightPalette.green,
+        tabIconDefault: lightPalette.fgDim,
+        tabIconSelected: lightPalette.violet,
+        text: lightPalette.fg,
+        tint: lightPalette.violet,
+        warning: lightPalette.amber,
     },
 };
 
