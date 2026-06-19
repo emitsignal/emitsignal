@@ -10,7 +10,7 @@ import {
     TextInput,
     View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -20,6 +20,7 @@ import { type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
     const [query, setQuery] = useState('');
+    const insets = useSafeAreaInsets();
     const { loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
 
     const filtered = useMemo(() => {
@@ -115,7 +116,10 @@ export default function ChannelsScreen() {
                 )}
             />
 
-            <Pressable onPress={() => router.push('/modal')} style={styles.fab}>
+            <Pressable
+                onPress={() => router.push('/modal')}
+                style={[styles.fab, { bottom: insets.bottom + 24 }]}
+            >
                 <IconSymbol color={W.bg} name="plus" size={14} />
                 <Text style={styles.fabText}>Subscribe</Text>
             </Pressable>
@@ -207,7 +211,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: W.violet,
         borderRadius: 100,
-        bottom: 24,
         elevation: 8,
         flexDirection: 'row',
         gap: 8,
