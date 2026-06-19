@@ -1,9 +1,7 @@
-import { router, Tabs } from 'expo-router';
+import { router } from 'expo-router';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { W } from '@/constants/theme';
 import { useSession } from '@/ctx/session';
 import { useOnboarding } from '@/hooks/use-onboarding';
@@ -27,55 +25,23 @@ export default function TabLayout() {
     }
 
     return (
-        <Tabs
-            screenOptions={{
-                headerShown: false,
-                tabBarActiveTintColor: W.violet,
-                tabBarButton: HapticTab,
-                tabBarInactiveTintColor: W.fgDim,
-                tabBarLabelStyle: {
-                    fontSize: 10,
-                    fontWeight: '500',
-                },
-                tabBarStyle: {
-                    backgroundColor: W.bg,
-                    borderTopColor: W.bgLine,
-                    borderTopWidth: StyleSheet.hairlineWidth,
-                },
-            }}
-        >
-            <Tabs.Screen
-                name="index"
-                options={{
-                    tabBarIcon: ({ color }) => <IconSymbol color={color} name="bell" size={22} />,
-                    title: 'Feed',
-                }}
-            />
-            <Tabs.Screen
-                name="channels"
-                options={{
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol color={color} name="square.grid.2x2" size={22} />
-                    ),
-                    title: 'Channels',
-                }}
-            />
-            <Tabs.Screen
-                name="publish"
-                options={{
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol color={color} name="terminal" size={22} />
-                    ),
-                    title: 'Publish',
-                }}
-            />
-            <Tabs.Screen
-                name="settings"
-                options={{
-                    tabBarIcon: ({ color }) => <IconSymbol color={color} name="gear" size={22} />,
-                    title: 'Settings',
-                }}
-            />
-        </Tabs>
+        <NativeTabs backgroundColor={W.bg} iconColor={W.fgDim} tintColor={W.violet}>
+            <NativeTabs.Trigger name="index">
+                <NativeTabs.Trigger.Icon md="notifications" sf="bell" />
+                <NativeTabs.Trigger.Label>Feed</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="channels">
+                <NativeTabs.Trigger.Icon md="grid_view" sf="square.grid.2x2" />
+                <NativeTabs.Trigger.Label>Channels</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="publish">
+                <NativeTabs.Trigger.Icon md="terminal" sf="terminal" />
+                <NativeTabs.Trigger.Label>Publish</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="settings">
+                <NativeTabs.Trigger.Icon md="settings" sf="gear" />
+                <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+            </NativeTabs.Trigger>
+        </NativeTabs>
     );
 }
