@@ -56,6 +56,7 @@ services:
         environment:
             API_URL: '${API_URL:-http://localhost:5100}'
             APP_URL: '${APP_URL:-http://localhost:5200}'
+            AUTH_ALLOWED_EMAILS: '${AUTH_ALLOWED_EMAILS:-}'
             BETTER_AUTH_SECRET: '${BETTER_AUTH_SECRET}'
             DATABASE_URL: 'postgresql://emitsignal:${POSTGRES_PASSWORD}@postgres:5432/emitsignal'
             EMAIL_FROM: '${EMAIL_FROM:-EmitSignal <noreply@emitsignal.com>}'

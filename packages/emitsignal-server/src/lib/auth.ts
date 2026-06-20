@@ -4,7 +4,7 @@ import { stripe } from '@better-auth/stripe';
 import { MagicLinkEmail, render } from '@emitsignal/emails';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { createAuthMiddleware, isAPIError } from 'better-auth/api';
+import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
 import { bearer, emailOTP } from 'better-auth/plugins';
 import { createElement } from 'react';
 import Stripe from 'stripe';
@@ -14,6 +14,7 @@ import { API_KEY_PREFIX, getApiKeyFromHeaders } from './api-key-header';
 import { invalidateUserPlanCache } from './billing/get-user-plan';
 import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
 import { duration } from './duration';
+import { isEmailAllowed } from './email-allowlist';
 import { EmailService } from './email-service';
 import { prisma } from './prisma';
 import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
@@ -76,6 +77,24 @@ export const auth = betterAuth({
             }
 
             await sendApiKeyCreatedEmail(returned);
+        }),
+        before: createAuthMiddleware(async (ctx) => {
+            // Gate the email OTP sign-in flow against AUTH_ALLOWED_EMAILS.
+            if (ctx.path !== '/email-otp/send-verification-otp') {
+                return;
+            }
+
+            if (ctx.body?.type !== 'sign-in') {
+                return;
+            }
+
+            const email = ctx.body?.email;
+
+            if (typeof email === 'string' && !isEmailAllowed(email)) {
+                throw new APIError('FORBIDDEN', {
+                    message: 'This email address is not allowed to sign in.',
+                });
+            }
         }),
     },
     plugins: [

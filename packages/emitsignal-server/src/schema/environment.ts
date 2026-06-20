@@ -5,6 +5,10 @@ const environmentSchema = Type.Object({
     API_URL: Type.String({ default: 'http://localhost:5001' }),
     APP_URL: Type.String({ default: 'http://localhost:5002' }),
 
+    // Comma-separated allowlist of emails permitted to sign in via email OTP.
+    // Empty = allowlist disabled (anyone may sign in).
+    AUTH_ALLOWED_EMAILS: Type.String({ default: '' }),
+
     BETTER_AUTH_SECRET: Type.String({ default: 'emitsignal-dev-better-auth-secret-32chars!!' }),
 
     EMAIL_FROM: Type.String({ default: 'EmitSignal <noreply@emitsignal.com>' }),
