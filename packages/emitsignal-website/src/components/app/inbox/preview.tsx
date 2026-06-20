@@ -3,11 +3,14 @@ import { useState } from 'react';
 
 import type { MediaRef, Message } from '#/lib/api';
 
+import { CodeBlock } from '#/components/ui/code-block';
 import { Dot } from '#/components/ui/dot';
 import { ImageGallery } from '#/components/ui/image-gallery';
 import { LinkWarningDialog } from '#/components/ui/link-warning-dialog';
 import { Pill } from '#/components/ui/pill';
 import { SubHeading } from '#/components/ui/sub-head';
+import { useDebugSections } from '#/ctx/debug-sections';
+import { API_URL } from '#/lib/api';
 import { relativeTime } from '#/lib/format';
 import { priorityHex } from '#/lib/priority';
 
@@ -20,6 +23,7 @@ const PRIORITY_LABELS: Record<number, string> = {
 };
 
 export function InboxPreview({ message }: { message: Message | null }) {
+    const { sections } = useDebugSections();
     const [galleryIndex, setGalleryIndex] = useState<null | number>(null);
     const [pendingLink, setPendingLink] = useState<MediaRef | null>(null);
 
@@ -42,6 +46,33 @@ export function InboxPreview({ message }: { message: Message | null }) {
     ];
 
     const bannerOffset = message.bannerImage ? 1 : 0;
+
+    const payloadJson = JSON.stringify(
+        {
+            bannerImage: message.bannerImage,
+            body: message.body,
+            id: message.id,
+            inlineAttachments: message.inlineAttachments,
+            inlineImages: message.inlineImages,
+            priority: message.priority,
+            tags: message.tags,
+            title: message.title,
+            topicId: message.topicId,
+            topicName: message.topicName,
+        },
+        null,
+        2,
+    );
+
+    const curlCommand = `curl -X POST ${API_URL}/topic/${encodeURIComponent(channel)} \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify({
+      actions: message.actions.length ? message.actions : undefined,
+      body: message.body,
+      priority: message.priority,
+      tags: message.tags,
+      title: message.title,
+  })}'`;
 
     return (
         <div className="min-w-0 flex-1 overflow-auto p-7">
@@ -160,25 +191,34 @@ export function InboxPreview({ message }: { message: Message | null }) {
                 </div>
             )}
 
-            <SubHeading>PAYLOAD</SubHeading>
-            <pre className="overflow-auto rounded-lg border border-line bg-deep p-4 font-mono text-[12px] leading-[1.6] text-muted">
-                {JSON.stringify(
-                    {
-                        bannerImage: message.bannerImage,
-                        body: message.body,
-                        id: message.id,
-                        inlineAttachments: message.inlineAttachments,
-                        inlineImages: message.inlineImages,
-                        priority: message.priority,
-                        tags: message.tags,
-                        title: message.title,
-                        topicId: message.topicId,
-                        topicName: message.topicName,
-                    },
-                    null,
-                    2,
-                )}
-            </pre>
+            {sections.showPayload ? <CodeBlock code={payloadJson} label="PAYLOAD" /> : null}
+
+            {sections.showCurl ? <CodeBlock code={curlCommand} label="REPRODUCE · CURL" /> : null}
+
+            {sections.showDelivery ? (
+                <div className="mb-4.5">
+                    <SubHeading>DELIVERY</SubHeading>
+                    <div className="flex flex-col gap-1.5">
+                        {[
+                            { event: 'received', time: message.createdAt },
+                            { event: `routed → ${channel}`, time: message.createdAt },
+                            { event: 'push → fcm', time: message.createdAt + 1000 },
+                            { event: 'delivered · this device', time: message.createdAt + 2000 },
+                        ].map((step) => (
+                            <div
+                                className="flex items-baseline gap-2.5 font-mono text-[11px]"
+                                key={step.event}
+                            >
+                                <span className="w-16 shrink-0 text-dim">
+                                    {formatTime(step.time)}
+                                </span>
+                                <span className="w-3 shrink-0 text-success">✓</span>
+                                <span className="text-muted">{step.event}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
 
             {galleryIndex !== null && (
                 <ImageGallery
@@ -191,4 +231,14 @@ export function InboxPreview({ message }: { message: Message | null }) {
             <LinkWarningDialog link={pendingLink} onClose={() => setPendingLink(null)} />
         </div>
     );
+}
+
+function formatTime(timestamp: number): string {
+    const date = new Date(timestamp);
+
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+function pad(value: number): string {
+    return value.toString().padStart(2, '0');
 }
