@@ -1,10 +1,22 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
+import { isAuthenticated } from '#/lib/auth-guard';
 
-export const Route = createFileRoute('/sign-in')({ component: SignInPage });
+export const Route = createFileRoute('/sign-in')({
+    beforeLoad: async ({ preload }) => {
+        if (preload) {
+            return;
+        }
+
+        if (await isAuthenticated()) {
+            throw redirect({ to: '/app' });
+        }
+    },
+    component: SignInPage,
+});
 
 function SignInPage() {
     const [email, setEmail] = useState('');

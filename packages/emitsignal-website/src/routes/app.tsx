@@ -6,28 +6,13 @@ import { DebugSectionsProvider } from '#/ctx/debug-sections';
 import { FeedStyleProvider } from '#/ctx/feed-style';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { ThemeProvider, useTheme } from '#/ctx/theme';
-import { authClient } from '#/lib/auth-client';
-import { hasAuthCookie } from '#/lib/auth.server';
+import { isAuthenticated } from '#/lib/auth-guard';
 import { readDebugSectionsFromDocument } from '#/lib/debug-sections';
 import { getDebugSections } from '#/lib/debug-sections.server';
 import { readFeedStyleFromDocument } from '#/lib/feed-style';
 import { getFeedStyle } from '#/lib/feed-style.server';
 import { readThemePreferenceFromDocument } from '#/lib/theme';
 import { getThemePreference } from '#/lib/theme.server';
-
-const isAuthenticated = createIsomorphicFn()
-    .server(() => hasAuthCookie())
-    .client(async () => {
-        const cached = authClient.$store.atoms['session'].get();
-
-        if (cached.data?.user) {
-            return true;
-        }
-
-        const { data } = await authClient.getSession();
-
-        return !!data?.user;
-    });
 
 const resolveInitialTheme = createIsomorphicFn()
     .server(() => getThemePreference())
@@ -42,7 +27,11 @@ const resolveInitialDebugSections = createIsomorphicFn()
     .client(() => readDebugSectionsFromDocument());
 
 export const Route = createFileRoute('/app')({
-    beforeLoad: async () => {
+    beforeLoad: async ({ preload }) => {
+        if (preload) {
+            return;
+        }
+
         if (!(await isAuthenticated())) {
             throw redirect({ to: '/sign-in' });
         }

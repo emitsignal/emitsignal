@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
-import { createIsomorphicFn } from '@tanstack/react-start';
 import { useEffect, useRef, useState } from 'react';
 
 import type { TopicSuggestion } from '#/lib/api';
@@ -9,26 +8,16 @@ import { Logo } from '#/components/ui/logo';
 import { useSession } from '#/ctx/session';
 import { api, API_URL } from '#/lib/api';
 import { authClient } from '#/lib/auth-client';
-import { hasAuthCookie } from '#/lib/auth.server';
+import { isAuthenticated } from '#/lib/auth-guard';
 import { isOnboardingComplete, markOnboardingComplete } from '#/lib/onboarding';
 import { getDeviceId } from '#/lib/storage';
 
-const isAuthenticated = createIsomorphicFn()
-    .server(() => hasAuthCookie())
-    .client(async () => {
-        const cached = authClient.$store.atoms['session'].get();
-
-        if (cached.data?.user) {
-            return true;
+export const Route = createFileRoute('/onboarding')({
+    beforeLoad: async ({ preload }) => {
+        if (preload) {
+            return;
         }
 
-        const { data } = await authClient.getSession();
-
-        return !!data?.user;
-    });
-
-export const Route = createFileRoute('/onboarding')({
-    beforeLoad: async () => {
         if (!(await isAuthenticated())) {
             throw redirect({ to: '/sign-in' });
         }

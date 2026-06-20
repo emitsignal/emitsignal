@@ -2,9 +2,7 @@ import type { ReactNode } from 'react';
 
 import { Link } from '@tanstack/react-router';
 
-import { Avatar } from '#/components/ui/avatar';
 import { Logo } from '#/components/ui/logo';
-import { useSession } from '#/ctx/session';
 
 interface NavLink {
     href: string;
@@ -28,8 +26,6 @@ const LINKS: NavLink[] = [
 ];
 
 export function Nav() {
-    const { user } = useSession();
-
     return (
         <nav className="sticky top-0 z-10 flex items-center gap-4 border-b border-line bg-bg/85 px-4 py-3.5 font-mono text-[12.5px] backdrop-blur-md sm:gap-7 sm:px-8">
             <Link className="text-fg no-underline" to="/">
@@ -47,32 +43,18 @@ export function Nav() {
                 ))}
             </div>
             <div className="ml-auto flex items-center gap-3">
-                {user ? (
-                    <>
-                        <Link
-                            className="flex items-center gap-2 text-muted no-underline hover:text-fg"
-                            to="/app"
-                        >
-                            <Avatar name={user.email} rounded={100} size={22} />
-                            <span className="hidden sm:inline">Dashboard</span>
-                        </Link>
-                    </>
-                ) : (
-                    <>
-                        <Link
-                            className="hidden text-muted no-underline hover:text-fg sm:inline"
-                            to="/sign-in"
-                        >
-                            Sign in
-                        </Link>
-                        <Link
-                            className="rounded-md bg-accent px-3.5 py-1.5 font-semibold text-bg no-underline hover:bg-accent-dim"
-                            to="/sign-in"
-                        >
-                            Get started
-                        </Link>
-                    </>
-                )}
+                <Link
+                    className="hidden text-muted no-underline hover:text-fg sm:inline"
+                    to="/sign-in"
+                >
+                    Sign in
+                </Link>
+                <Link
+                    className="rounded-md bg-accent px-3.5 py-1.5 font-semibold text-bg no-underline hover:bg-accent-dim"
+                    to="/sign-in"
+                >
+                    Get started
+                </Link>
             </div>
         </nav>
     );
