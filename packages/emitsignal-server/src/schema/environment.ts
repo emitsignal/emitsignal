@@ -6,7 +6,6 @@ const environmentSchema = Type.Object({
     APP_URL: Type.String({ default: 'http://localhost:5002' }),
 
     BETTER_AUTH_SECRET: Type.String({ default: 'emitsignal-dev-better-auth-secret-32chars!!' }),
-    BETTER_AUTH_URL: Type.String({ default: 'http://localhost:5001' }),
 
     EMAIL_FROM: Type.String({ default: 'EmitSignal <noreply@emitsignal.com>' }),
     EMAIL_PROVIDER: Type.Union(

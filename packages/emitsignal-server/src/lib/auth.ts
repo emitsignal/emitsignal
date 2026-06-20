@@ -56,7 +56,7 @@ const rpHostname = (() => {
 })();
 
 export const auth = betterAuth({
-    baseURL: environment.BETTER_AUTH_URL,
+    baseURL: environment.API_URL,
     database: prismaAdapter(prisma as Parameters<typeof prismaAdapter>[0], {
         provider: 'postgresql',
     }),

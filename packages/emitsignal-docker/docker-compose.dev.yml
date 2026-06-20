@@ -84,7 +84,8 @@ services:
                    bunx prisma db push &&
                    bun run --watch src/index.ts"
         environment:
-            APP_URL: 'http://localhost:5100'
+            API_URL: 'http://localhost:5100'
+            APP_URL: 'http://localhost:5200'
             OTEL_ENABLED: 'true'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
             OTEL_SERVICE_NAME: 'emitsignal-server'
@@ -94,7 +95,6 @@ services:
             EMIT_SIGNAL_HTTP_PORT: '5100'
             FILE_STORAGE_PROVIDER: 'local'
             BETTER_AUTH_SECRET: 'emitsignal-dev-better-auth-secret-32chars!!'
-            BETTER_AUTH_URL: 'http://localhost:5100'
             REDIS_URL: 'redis://redis:6379'
             SMTP_HOST: 'kafrainbox'
             SMTP_PASS: 'emitsignal'
@@ -132,7 +132,8 @@ services:
                    cd /app/packages/emitsignal-server &&
                    bun run --watch src/workers/all.ts"
         environment:
-            APP_URL: 'http://localhost:5100'
+            API_URL: 'http://localhost:5100'
+            APP_URL: 'http://localhost:5200'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             OTEL_ENABLED: 'true'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
@@ -141,7 +142,6 @@ services:
             EMAIL_PROVIDER: 'smtp'
             FILE_STORAGE_PROVIDER: 'local'
             BETTER_AUTH_SECRET: 'emitsignal-dev-better-auth-secret-32chars!!'
-            BETTER_AUTH_URL: 'http://localhost:5100'
             REDIS_URL: 'redis://redis:6379'
             SMTP_HOST: 'kafrainbox'
             SMTP_PASS: 'emitsignal'
