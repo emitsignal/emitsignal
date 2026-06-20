@@ -1,14 +1,24 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, type ReactNode, useState } from 'react';
 
 import type { Message } from '#/lib/api';
+import type { Priority } from '#/lib/priority';
 
 import { NotificationRow } from '#/components/app/inbox/notif-row';
 import { InboxPreview } from '#/components/app/inbox/preview';
+import { PriorityHeader, PriorityRow } from '#/components/app/inbox/priority-row';
+import { TimelineDateLabel, TimelineRow } from '#/components/app/inbox/timeline-row';
 import { Toolbar } from '#/components/app/toolbar';
+import { useFeedStyle } from '#/ctx/feed-style';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useFeed } from '#/hooks/use-emit-signal';
+
+interface ListProps {
+    messages: Message[];
+    onSelect: (id: string) => void;
+    selectedId: null | string;
+}
 
 export function InboxLayout({ selectedId }: { selectedId: null | string }) {
     const { loading, messages, subscriptions } = useFeed();
@@ -43,28 +53,12 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
     );
 }
 
-function NotificationList({
-    messages,
-    onSelect,
-    selectedId,
-}: {
-    messages: Message[];
-    onSelect: (id: string) => void;
-    selectedId: null | string;
-}) {
-    if (messages.length === 0) {
-        return (
-            <div className="flex w-[380px] shrink-0 items-center justify-center border-r border-line p-4 font-mono text-[12px] text-dim">
-                no messages yet — subscribe to a channel
-            </div>
-        );
-    }
-
+function ComfyList({ messages, onSelect, selectedId }: ListProps) {
     const now = messages.slice(0, 2);
     const earlier = messages.slice(2);
 
     return (
-        <div className="w-[380px] shrink-0 overflow-auto border-r border-line">
+        <>
             {now.length > 0 && (
                 <>
                     <SectionLabel>NOW</SectionLabel>
@@ -91,7 +85,82 @@ function NotificationList({
                     ))}
                 </>
             )}
+        </>
+    );
+}
+
+function dayLabel(createdAt: number): string {
+    const startOfDay = (value: Date) =>
+        new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
+
+    const diffDays = Math.round(
+        (startOfDay(new Date()) - startOfDay(new Date(createdAt))) / 86400000,
+    );
+
+    if (diffDays === 0) {
+        return 'Today';
+    }
+
+    if (diffDays === 1) {
+        return 'Yesterday';
+    }
+
+    return new Date(createdAt).toLocaleDateString();
+}
+
+function NotificationList({ messages, onSelect, selectedId }: ListProps) {
+    const { feedStyle } = useFeedStyle();
+
+    if (messages.length === 0) {
+        return (
+            <div className="flex w-[380px] shrink-0 items-center justify-center border-r border-line p-4 font-mono text-[12px] text-dim">
+                no messages yet — subscribe to a channel
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-[380px] shrink-0 overflow-auto border-r border-line">
+            {feedStyle === 'comfy' ? (
+                <ComfyList messages={messages} onSelect={onSelect} selectedId={selectedId} />
+            ) : null}
+            {feedStyle === 'timeline' ? (
+                <TimelineList messages={messages} onSelect={onSelect} selectedId={selectedId} />
+            ) : null}
+            {feedStyle === 'priority' ? (
+                <PriorityList messages={messages} onSelect={onSelect} selectedId={selectedId} />
+            ) : null}
         </div>
+    );
+}
+
+function PriorityList({ messages, onSelect, selectedId }: ListProps) {
+    const levels: Priority[] = [5, 4, 3, 2, 1];
+
+    return (
+        <>
+            {levels.map((level) => {
+                const group = messages.filter((message) => message.priority === level);
+
+                if (group.length === 0) {
+                    return null;
+                }
+
+                return (
+                    <Fragment key={level}>
+                        <PriorityHeader level={level} />
+                        {group.map((message) => (
+                            <PriorityRow
+                                active={message.id === selectedId}
+                                key={message.id}
+                                message={message}
+                                onClick={() => onSelect(message.id)}
+                            />
+                        ))}
+                    </Fragment>
+                );
+            })}
+        </>
     );
 }
 
@@ -161,4 +230,33 @@ function SubscribeButton() {
             </button>
         </div>
     );
+}
+
+function TimelineList({ messages, onSelect, selectedId }: ListProps) {
+    const nodes: ReactNode[] = [];
+    let currentDay = '';
+
+    messages.forEach((message, index) => {
+        const day = dayLabel(message.createdAt);
+
+        if (day !== currentDay) {
+            currentDay = day;
+            nodes.push(<TimelineDateLabel key={`day-${message.id}`}>{day}</TimelineDateLabel>);
+        }
+
+        const next = messages[index + 1];
+        const isLast = !next || dayLabel(next.createdAt) !== currentDay;
+
+        nodes.push(
+            <TimelineRow
+                active={message.id === selectedId}
+                isLast={isLast}
+                key={message.id}
+                message={message}
+                onClick={() => onSelect(message.id)}
+            />,
+        );
+    });
+
+    return <>{nodes}</>;
 }
