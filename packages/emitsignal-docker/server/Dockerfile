@@ -19,6 +19,9 @@ COPY packages/emitsignal-server/package.json    ./packages/emitsignal-server/
 COPY packages/emitsignal-shared/package.json    ./packages/emitsignal-shared/
 COPY packages/emitsignal-website/package.json   ./packages/emitsignal-website/
 
+# Copy patch files referenced by patchedDependencies in package.json
+COPY patches ./patches/
+
 # Install all workspace dependencies (hoisted to /app/node_modules by Bun)
 RUN bun install --frozen-lockfile
 

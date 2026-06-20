@@ -43,7 +43,7 @@ const environmentSchema = Type.Object({
     S3_REGION: Type.Optional(Type.String()),
     S3_SECRET_ACCESS_KEY: Type.Optional(Type.String()),
 
-    SENTRY_DSN: Type.String(),
+    SENTRY_DSN: Type.Optional(Type.String()),
     SENTRY_ENABLED: Type.Boolean({ default: true }),
 
     SMTP_HOST: Type.String({ default: 'localhost' }),

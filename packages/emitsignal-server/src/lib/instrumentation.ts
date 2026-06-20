@@ -10,7 +10,7 @@ import { environment } from '../schema/environment';
 
 const [, scriptName] = argv;
 
-if (environment.SENTRY_ENABLED) {
+if (environment.SENTRY_ENABLED && environment.SENTRY_DSN) {
     Sentry.init({
         dsn: environment.SENTRY_DSN,
         environment: Bun.env.NODE_ENV ?? 'development',
