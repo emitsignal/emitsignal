@@ -56,7 +56,7 @@ const config: ExpoConfig = {
             },
         ],
     ],
-    scheme: 'mobile',
+    scheme: 'emitsignal',
     slug: 'emit-signal',
     userInterfaceStyle: 'automatic',
     version,

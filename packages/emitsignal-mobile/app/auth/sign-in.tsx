@@ -5,6 +5,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Pressable,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -54,60 +55,70 @@ export default function AuthSignIn() {
                     <Text style={styles.step}>01/05</Text>
                 </View>
 
-                <View style={styles.body}>
-                    <Text style={styles.title}>Sign in</Text>
-                    <Text style={styles.lede}>
-                        {"We'll email you a sign-in code. No passwords."}
-                    </Text>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.body}>
+                        <Text style={styles.title}>Sign in</Text>
+                        <Text style={styles.lede}>
+                            {"We'll email you a sign-in code. No passwords."}
+                        </Text>
 
-                    <Text style={styles.fieldLabel}>EMAIL</Text>
-                    <View style={styles.inputBox}>
-                        <TextInput
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            keyboardType="email-address"
-                            onChangeText={setEmail}
-                            placeholder="you@example.com"
-                            placeholderTextColor={palette.fgDim}
-                            style={styles.input}
-                            value={email}
-                        />
-                    </View>
+                        <Text style={styles.fieldLabel}>EMAIL</Text>
+                        <View style={styles.inputBox}>
+                            <TextInput
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                keyboardType="email-address"
+                                onChangeText={setEmail}
+                                placeholder="you@example.com"
+                                placeholderTextColor={palette.fgDim}
+                                style={styles.input}
+                                value={email}
+                            />
+                        </View>
 
-                    <Pressable
-                        disabled={busy}
-                        onPress={handleSend}
-                        style={[styles.cta, busy && { opacity: 0.6 }]}
-                    >
-                        <Text style={styles.ctaText}>{busy ? 'sending…' : 'send code →'}</Text>
-                    </Pressable>
-
-                    <View style={styles.divider}>
-                        <View style={styles.dividerLine} />
-                        <Text style={styles.dividerText}>OR</Text>
-                        <View style={styles.dividerLine} />
-                    </View>
-
-                    {[
-                        { icon: 'globe' as const, label: 'continue with GitHub' },
-                        { icon: 'key' as const, label: 'continue with Apple' },
-                    ].map((option) => (
-                        <Pressable key={option.label} onPress={handleSend} style={styles.altBtn}>
-                            <IconSymbol color={palette.violet} name={option.icon} size={14} />
-                            <Text style={styles.altText}>{option.label}</Text>
-                            <IconSymbol color={palette.fgDim} name="chevron.right" size={13} />
+                        <Pressable
+                            disabled={busy}
+                            onPress={handleSend}
+                            style={[styles.cta, busy && { opacity: 0.6 }]}
+                        >
+                            <Text style={styles.ctaText}>{busy ? 'sending…' : 'send code →'}</Text>
                         </Pressable>
-                    ))}
-                </View>
 
-                <View style={styles.footer}>
-                    <Text style={styles.terms}>
-                        by continuing you agree to the{'\n'}
-                        <Text style={{ color: palette.violet }}>terms</Text> ·{' '}
-                        <Text style={{ color: palette.violet }}>privacy</Text> ·{' '}
-                        <Text style={{ color: palette.violet }}>acceptable use</Text>
-                    </Text>
-                </View>
+                        <View style={styles.divider}>
+                            <View style={styles.dividerLine} />
+                            <Text style={styles.dividerText}>OR</Text>
+                            <View style={styles.dividerLine} />
+                        </View>
+
+                        {[
+                            { icon: 'globe' as const, label: 'continue with GitHub' },
+                            { icon: 'key' as const, label: 'continue with Apple' },
+                        ].map((option) => (
+                            <Pressable
+                                key={option.label}
+                                onPress={handleSend}
+                                style={styles.altBtn}
+                            >
+                                <IconSymbol color={palette.violet} name={option.icon} size={14} />
+                                <Text style={styles.altText}>{option.label}</Text>
+                                <IconSymbol color={palette.fgDim} name="chevron.right" size={13} />
+                            </Pressable>
+                        ))}
+                    </View>
+
+                    <View style={styles.footer}>
+                        <Text style={styles.terms}>
+                            by continuing you agree to the{'\n'}
+                            <Text style={{ color: palette.violet }}>terms</Text> ·{' '}
+                            <Text style={{ color: palette.violet }}>privacy</Text> ·{' '}
+                            <Text style={{ color: palette.violet }}>acceptable use</Text>
+                        </Text>
+                    </View>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -141,7 +152,7 @@ const createStyles = (palette: Palette) =>
             justifyContent: 'center',
             width: 32,
         },
-        body: { flex: 1, padding: 28 },
+        body: { padding: 28 },
         cta: {
             alignItems: 'center',
             backgroundColor: palette.violet,
@@ -169,7 +180,7 @@ const createStyles = (palette: Palette) =>
             letterSpacing: 1.5,
             marginBottom: 8,
         },
-        footer: { padding: 28 },
+        footer: { marginTop: 'auto', padding: 28 },
         input: {
             color: palette.fg,
             fontFamily: Fonts.mono,
@@ -187,6 +198,7 @@ const createStyles = (palette: Palette) =>
         },
         lede: { color: palette.fgMuted, fontSize: 13, marginBottom: 28, marginTop: 6 },
         root: { backgroundColor: palette.bg, flex: 1 },
+        scrollContent: { flexGrow: 1 },
         step: {
             color: palette.fgDim,
             fontFamily: Fonts.mono,

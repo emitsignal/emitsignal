@@ -1,4 +1,5 @@
 import { apiKey } from '@better-auth/api-key';
+import { expo } from '@better-auth/expo';
 import { passkey } from '@better-auth/passkey';
 import { stripe } from '@better-auth/stripe';
 import { MagicLinkEmail, render } from '@emitsignal/emails';
@@ -113,6 +114,11 @@ export const auth = betterAuth({
         }),
     },
     plugins: [
+        // Mobile clients can't set the `Origin` header, so `@better-auth/expo`'s
+        // client sends it as `expo-origin`; this server plugin copies it back to
+        // `origin` before the origin check runs. Without it, mobile requests fail
+        // with `MISSING_OR_NULL_ORIGIN`.
+        expo(),
         bearer(),
         emailOTP({
             expiresIn: duration.minutes(10).as('seconds'),
@@ -172,7 +178,16 @@ export const auth = betterAuth({
               }
             : {}),
     },
-    trustedOrigins: ['*'],
+    // Custom schemes (mobile) only match a trusted origin via exact `startsWith`,
+    // so they must be listed literally — `'*'` cannot cover scheme-only origins
+    // like `emitsignal://` (it requires a host). Listing them outside the
+    // NODE_ENV gate makes mobile auth work regardless of how NODE_ENV is set.
+    trustedOrigins: [
+        environment.APP_URL, // website browser origin (cookie-based web auth)
+        'emitsignal://', // mobile app deep-link scheme (app.config.ts `scheme`)
+        'exp://', // Expo Go / dev client
+        ...(process.env.NODE_ENV === 'production' ? [] : ['*']),
+    ],
     user: {
         additionalFields: {
             onboarded: { defaultValue: false, required: false, type: 'boolean' },
