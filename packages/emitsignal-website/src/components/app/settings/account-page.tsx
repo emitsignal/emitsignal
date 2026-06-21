@@ -31,7 +31,6 @@ type PasskeyItem = {
 type SessionItem = {
     createdAt: Date | string;
     id: string;
-    ipAddress?: null | string;
     token: string;
     updatedAt: Date | string;
     userAgent?: null | string;
@@ -354,7 +353,6 @@ export function AccountPage() {
                                                 )}
                                             </div>
                                             <div className="mt-1 font-mono text-[11px] text-dim">
-                                                {s.ipAddress ? `${s.ipAddress} · ` : ''}
                                                 {relativeTime(s.updatedAt)}
                                             </div>
                                         </div>
