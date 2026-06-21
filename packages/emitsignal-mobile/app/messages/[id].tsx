@@ -95,22 +95,23 @@ export default function MessageDetailScreen() {
                         inlineImages={message.inlineImages}
                     />
 
-                    {message.attachments && message.attachments.length > 0 ? (
+                    {message.attachments && message.attachments.length > 0 && (
                         <View style={styles.attachments}>
-                            {message.attachments.map((att, i) => {
-                                const isImg = att.mimeType.startsWith('image/');
+                            {message.attachments.map((attachment, index) => {
+                                const isImg = attachment.mimeType.startsWith('image/');
+
                                 return (
                                     <AttachmentPreview
-                                        attachment={att}
-                                        key={i}
+                                        attachment={attachment}
+                                        key={index}
                                         onPress={
                                             isImg
                                                 ? () =>
                                                       router.push({
                                                           params: {
-                                                              filename: att.filename,
-                                                              size: String(att.size),
-                                                              url: att.url,
+                                                              filename: attachment.filename,
+                                                              size: String(attachment.size),
+                                                              url: attachment.url,
                                                           },
                                                           pathname: '/image-viewer',
                                                       })
@@ -120,15 +121,15 @@ export default function MessageDetailScreen() {
                                 );
                             })}
                         </View>
-                    ) : null}
+                    )}
 
                     <View style={styles.tagsRow}>
-                        {message.tags.map((tag) => (
-                            <WChip key={tag}>{`#${tag}`}</WChip>
+                        {message.tags.map((tag, index) => (
+                            <WChip key={index}>{`#${tag}`}</WChip>
                         ))}
                     </View>
 
-                    {message.actions.length > 0 ? (
+                    {message.actions.length > 0 && (
                         <View style={styles.actions}>
                             {message.actions.map((action, i) => {
                                 if (action.type === 'acknowledge') {
@@ -169,10 +170,10 @@ export default function MessageDetailScreen() {
                                 return null;
                             })}
                         </View>
-                    ) : null}
+                    )}
                 </View>
 
-                {sections.showPayload ? (
+                {sections.showPayload && (
                     <>
                         <SectionHead>payload</SectionHead>
 
@@ -198,7 +199,7 @@ export default function MessageDetailScreen() {
                             </WCode>
                         </View>
                     </>
-                ) : null}
+                )}
 
                 {sections.showCurl ? (
                     <>

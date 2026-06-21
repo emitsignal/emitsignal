@@ -344,8 +344,8 @@ function NotifRow({
 
                 {message.tags.length > 0 ? (
                     <View style={styles.tagRow}>
-                        {message.tags.slice(0, 3).map((tag) => (
-                            <WChip key={tag}>{tag}</WChip>
+                        {message.tags.slice(0, 3).map((tag, index) => (
+                            <WChip key={index}>{tag}</WChip>
                         ))}
                     </View>
                 ) : null}
@@ -398,8 +398,8 @@ function PriorityRow({
 
                 {message.tags.length > 0 ? (
                     <View style={styles.tagRow}>
-                        {message.tags.slice(0, 2).map((tag) => (
-                            <WChip key={tag}>{tag}</WChip>
+                        {message.tags.slice(0, 2).map((tag, index) => (
+                            <WChip key={index}>{tag}</WChip>
                         ))}
                     </View>
                 ) : null}
@@ -472,8 +472,8 @@ function TimelineRow({
 
                 {message.tags.length > 0 ? (
                     <View style={[styles.tagRow, { marginBottom: 2 }]}>
-                        {message.tags.slice(0, 3).map((tag) => (
-                            <WChip key={tag}>{tag}</WChip>
+                        {message.tags.slice(0, 3).map((tag, index) => (
+                            <WChip key={index}>{tag}</WChip>
                         ))}
                     </View>
                 ) : null}
