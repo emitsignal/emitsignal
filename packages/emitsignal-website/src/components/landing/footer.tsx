@@ -37,8 +37,8 @@ const COLUMNS: FooterColumn[] = [
     {
         heading: 'legal',
         links: [
-            { href: '#', label: 'Privacy' },
-            { href: '#', label: 'Terms' },
+            { label: 'Privacy', to: '/privacy' },
+            { label: 'Terms', to: '/terms' },
             { href: '#', label: 'Security' },
             { href: '#', label: 'SOC2' },
             { href: '#', label: 'DPA' },

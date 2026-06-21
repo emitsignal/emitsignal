@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -41,9 +43,19 @@ const VerifyRoute = VerifyRouteImport.update({
   path: '/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -177,7 +189,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
   '/onboarding': typeof OnboardingRoute
+  '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
@@ -204,7 +218,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
   '/onboarding': typeof OnboardingRoute
+  '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
@@ -232,7 +248,9 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
   '/onboarding': typeof OnboardingRoute
+  '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
@@ -262,7 +280,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/mobile'
     | '/onboarding'
+    | '/privacy'
     | '/sign-in'
+    | '/terms'
     | '/verify'
     | '/app/channels'
     | '/app/keys'
@@ -289,7 +309,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/mobile'
     | '/onboarding'
+    | '/privacy'
     | '/sign-in'
+    | '/terms'
     | '/verify'
     | '/app/channels'
     | '/app/keys'
@@ -316,7 +338,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/mobile'
     | '/onboarding'
+    | '/privacy'
     | '/sign-in'
+    | '/terms'
     | '/verify'
     | '/app/channels'
     | '/app/keys'
@@ -345,7 +369,9 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   MobileRoute: typeof MobileRoute
   OnboardingRoute: typeof OnboardingRoute
+  PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
+  TermsRoute: typeof TermsRoute
   VerifyRoute: typeof VerifyRoute
 }
 
@@ -358,11 +384,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-in': {
       id: '/sign-in'
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -604,7 +644,9 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   MobileRoute: MobileRoute,
   OnboardingRoute: OnboardingRoute,
+  PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
+  TermsRoute: TermsRoute,
   VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
