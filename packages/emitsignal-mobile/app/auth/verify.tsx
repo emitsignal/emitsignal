@@ -34,12 +34,18 @@ export default function AuthVerify() {
 
         setBusy(true);
 
-        const { error } = await authClient.signIn.emailOtp({ email, otp });
+        const { data, error } = await authClient.signIn.emailOtp({ email, otp });
 
         setBusy(false);
 
         if (error) {
             return Alert.alert('Sign-in failed', error.message ?? 'Invalid or expired code');
+        }
+
+        if (data?.user.onboarded) {
+            router.replace('/(tabs)');
+
+            return;
         }
 
         router.push('/auth/perms');
