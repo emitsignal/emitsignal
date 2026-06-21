@@ -17,7 +17,7 @@ export const Route = createFileRoute('/privacy')({
     }),
 });
 
-const LAST_UPDATED = 'June 20, 2026';
+const LAST_UPDATED = 'June 21, 2026';
 
 interface TableOfContentsEntry {
     id: string;
@@ -192,11 +192,11 @@ export default function PrivacyPage() {
                         <P>
                             We support sign-in by email one-time code / magic link, passkeys
                             (WebAuthn), API keys, and optional GitHub OAuth. For each active session
-                            we store a session token, the <strong>IP address</strong> and{' '}
-                            <strong>user-agent string</strong> of the device used to sign in, and
-                            expiry timestamps. Passkeys store a public key and authenticator
-                            metadata (never your biometrics). If you sign in with GitHub, we store
-                            the OAuth access, refresh, and identity tokens issued by GitHub.
+                            we store a session token, the <strong>user-agent string</strong> of the
+                            device used to sign in, and expiry timestamps. Passkeys store a public
+                            key and authenticator metadata (never your biometrics). If you sign in
+                            with GitHub, we store the OAuth access, refresh, and identity tokens
+                            issued by GitHub.
                         </P>
 
                         <H3>Devices &amp; push notifications</H3>
