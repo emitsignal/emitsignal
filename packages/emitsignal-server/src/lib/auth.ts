@@ -56,7 +56,22 @@ const rpHostname = (() => {
     }
 })();
 
+// Shared parent domain for auth cookies, derived from the website host
+// (APP_URL). Scoping the cookie here lets it reach both the website apex and
+// the API subdomain (e.g. `emitsignal.com` + `api.emitsignal.com`); without it
+// the cookie is host-only to the API and the website's SSR cannot read it.
+// Skipped in dev, where the API and website share `localhost` (port-agnostic).
+const cookieDomain = rpHostname === 'localhost' || !rpHostname.includes('.') ? '' : rpHostname;
+
 export const auth = betterAuth({
+    advanced: cookieDomain
+        ? {
+              crossSubDomainCookies: {
+                  domain: cookieDomain,
+                  enabled: true,
+              },
+          }
+        : {},
     baseURL: environment.API_URL,
     database: prismaAdapter(prisma as Parameters<typeof prismaAdapter>[0], {
         provider: 'postgresql',
