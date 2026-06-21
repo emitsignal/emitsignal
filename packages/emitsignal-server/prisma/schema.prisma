@@ -89,6 +89,11 @@ model Session {
     
     createdAt DateTime @default(now())
     expiresAt DateTime
+    // Better Auth always writes this core session field; with
+    // `advanced.ipAddress.disableIpTracking` enabled it only ever stores an
+    // empty string, so no real IP address is persisted. The column is kept
+    // because the adapter rejects sessions if it is missing.
+    ipAddress String?
     token     String   @unique
     updatedAt DateTime @updatedAt
     userAgent String?
