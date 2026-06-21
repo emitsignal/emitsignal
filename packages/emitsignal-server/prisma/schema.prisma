@@ -89,7 +89,6 @@ model Session {
     
     createdAt DateTime @default(now())
     expiresAt DateTime
-    ipAddress String?
     token     String   @unique
     updatedAt DateTime @updatedAt
     userAgent String?

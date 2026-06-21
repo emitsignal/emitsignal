@@ -67,14 +67,17 @@ const rpHostname = (() => {
 const cookieDomain = rpHostname === 'localhost' || !rpHostname.includes('.') ? '' : rpHostname;
 
 export const auth = betterAuth({
-    advanced: cookieDomain
-        ? {
-              crossSubDomainCookies: {
-                  domain: cookieDomain,
-                  enabled: true,
-              },
-          }
-        : {},
+    advanced: {
+        ipAddress: { disableIpTracking: true },
+        ...(cookieDomain
+            ? {
+                  crossSubDomainCookies: {
+                      domain: cookieDomain,
+                      enabled: true,
+                  },
+              }
+            : {}),
+    },
     baseURL: environment.API_URL,
     database: prismaAdapter(prisma as Parameters<typeof prismaAdapter>[0], {
         provider: 'postgresql',
