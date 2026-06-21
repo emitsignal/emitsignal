@@ -32,13 +32,14 @@ export const userAvatar = new Elysia({ prefix: '/user' })
             const storage = FileStorageService.provider;
 
             await storage.upload({
+                bucket: 'public',
                 buffer,
                 filename: file.name || 'avatar',
                 mimeType: file.type,
                 storageKey,
             });
 
-            const imageUrl = await storage.getUrl(storageKey);
+            const imageUrl = await storage.getUrl(storageKey, 'public');
 
             await prisma.user.update({
                 data: { image: imageUrl },
@@ -72,7 +73,7 @@ export const userAvatar = new Elysia({ prefix: '/user' })
         const ext = path.extname(new URL(user.image).pathname);
         const storageKey = `avatars/${userId}${ext}`;
 
-        await FileStorageService.provider.delete(storageKey);
+        await FileStorageService.provider.delete(storageKey, 'public');
 
         await prisma.user.update({
             data: { image: null },
