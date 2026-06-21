@@ -17,7 +17,9 @@ import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
 import { duration } from './duration';
 import { isEmailAllowed } from './email-allowlist';
 import { EmailService } from './email-service';
+import { getClientIP } from './ip';
 import { prisma } from './prisma';
+import { enforceAuthRateLimit, magicLinkLimiter, verifyLimiter } from './rate-limit';
 import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
 
 // Paid plans only exist when Stripe is fully configured; without the env vars
@@ -95,7 +97,19 @@ export const auth = betterAuth({
             await sendApiKeyCreatedEmail(returned);
         }),
         before: createAuthMiddleware(async (ctx) => {
-            // Gate the email OTP sign-in flow against AUTH_ALLOWED_EMAILS.
+            // No Bun `server` here, so getClientIP falls back through the proxy
+            // headers (cf-connecting-ip / x-real-ip / x-forwarded-for); dev
+            // localhost resolves to 'unknown', which is fine since the send key
+            // also includes the email.
+            const clientIp = ctx.request ? getClientIP(ctx.request, null) : 'unknown';
+
+            // Throttle OTP code-guessing (brute-force) — keyed by IP.
+            if (ctx.path === '/email-otp/verify-otp') {
+                await enforceAuthRateLimit(verifyLimiter, clientIp);
+
+                return;
+            }
+
             if (ctx.path !== '/email-otp/send-verification-otp') {
                 return;
             }
@@ -105,6 +119,13 @@ export const auth = betterAuth({
             }
 
             const email = ctx.body?.email;
+
+            // Throttle OTP sends to block email spam — keyed by IP + email.
+            // Runs before the allowlist check so abuse is capped regardless.
+            await enforceAuthRateLimit(
+                magicLinkLimiter,
+                `${clientIp}:${typeof email === 'string' ? email : ''}`,
+            );
 
             if (typeof email === 'string' && !isEmailAllowed(email)) {
                 throw new APIError('FORBIDDEN', {
