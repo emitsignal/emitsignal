@@ -3,6 +3,7 @@ import { useState } from 'react';
 import {
     Alert,
     KeyboardAvoidingView,
+    Linking,
     Platform,
     Pressable,
     ScrollView,
@@ -18,6 +19,14 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { authClient } from '@/lib/auth-client';
+
+const WEBSITE_URL = 'https://emitsignal.com';
+const TERMS_URL = `${WEBSITE_URL}/terms`;
+const PRIVACY_URL = `${WEBSITE_URL}/privacy`;
+
+const openLink = (url: string) => {
+    Linking.openURL(url).catch(() => {});
+};
 
 export default function AuthSignIn() {
     const { palette, styles } = useThemedStyles(createStyles);
@@ -113,9 +122,20 @@ export default function AuthSignIn() {
                     <View style={styles.footer}>
                         <Text style={styles.terms}>
                             by continuing you agree to the{'\n'}
-                            <Text style={{ color: palette.violet }}>terms</Text> ·{' '}
-                            <Text style={{ color: palette.violet }}>privacy</Text> ·{' '}
-                            <Text style={{ color: palette.violet }}>acceptable use</Text>
+                            <Text
+                                onPress={() => openLink(TERMS_URL)}
+                                style={{ color: palette.violet }}
+                            >
+                                terms
+                            </Text>{' '}
+                            ·{' '}
+                            <Text
+                                onPress={() => openLink(PRIVACY_URL)}
+                                style={{ color: palette.violet }}
+                            >
+                                privacy
+                            </Text>{' '}
+                            · <Text style={{ color: palette.violet }}>acceptable use</Text>
                         </Text>
                     </View>
                 </ScrollView>

@@ -155,9 +155,14 @@ function SignInPage() {
                 <p className="mt-8 text-center font-mono text-[11px] leading-[18px] text-dim">
                     by continuing you agree to the
                     <br />
-                    <span className="text-accent">terms</span> ·{' '}
-                    <span className="text-accent">privacy</span> ·{' '}
-                    <span className="text-accent">acceptable use</span>
+                    <Link className="text-accent no-underline hover:underline" to="/terms">
+                        terms
+                    </Link>{' '}
+                    ·{' '}
+                    <Link className="text-accent no-underline hover:underline" to="/privacy">
+                        privacy
+                    </Link>{' '}
+                    · <span className="text-accent">acceptable use</span>
                 </p>
             </div>
         </div>
