@@ -103,7 +103,7 @@ data: {"id":"…","title":"…","body":"…","priority":4,"tags":[…],"actions"
 
 ### S3 (when `FILE_STORAGE_PROVIDER=s3`)
 
-`S3_BUCKET_NAME`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT` (optional), `S3_PUBLIC_URL_BASE` (optional), `S3_FORCE_PATH_STYLE` (optional)
+`S3_PRIVATE_BUCKET_NAME` (attachments), `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_PUBLIC_BUCKET_NAME` (public-read bucket for avatars; falls back to the private bucket if unset), `S3_PUBLIC_URL_BASE` (CDN/public base URL for avatars), `S3_ENDPOINT` (optional), `S3_FORCE_PATH_STYLE` (optional)
 
 ## Database
 
