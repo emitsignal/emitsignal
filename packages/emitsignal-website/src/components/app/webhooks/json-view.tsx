@@ -10,12 +10,14 @@ interface Token {
 
 type TokenType = 'key' | 'keyword' | 'number' | 'punctuation' | 'string';
 
+// Theme-aware tokens — these CSS variables resolve to darker, higher-contrast
+// values under [data-theme='light'] (see src/styles.css).
 const COLOR: Record<TokenType, string> = {
-    key: '#67e8f9',
-    keyword: '#fbbf24',
-    number: '#fbbf24',
-    punctuation: '#7a6d99',
-    string: '#4ade80',
+    key: 'var(--color-info)',
+    keyword: 'var(--color-accent)',
+    number: 'var(--color-warn)',
+    punctuation: 'var(--color-dim)',
+    string: 'var(--color-success)',
 };
 
 export function JsonView({ data, size = 12 }: JsonViewProps) {
