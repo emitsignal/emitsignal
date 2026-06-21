@@ -38,10 +38,11 @@ const environmentSchema = Type.Object({
     RESEND_API_KEY: Type.Optional(Type.String()),
 
     S3_ACCESS_KEY_ID: Type.Optional(Type.String()),
-    S3_BUCKET_NAME: Type.Optional(Type.String()),
-
     S3_ENDPOINT: Type.Optional(Type.String()),
+
     S3_FORCE_PATH_STYLE: Type.Optional(Type.Boolean()),
+    S3_PRIVATE_BUCKET_NAME: Type.Optional(Type.String()),
+    S3_PUBLIC_BUCKET_NAME: Type.Optional(Type.String()),
     S3_PUBLIC_URL_BASE: Type.Optional(Type.String()),
     S3_REGION: Type.Optional(Type.String()),
     S3_SECRET_ACCESS_KEY: Type.Optional(Type.String()),

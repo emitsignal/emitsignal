@@ -6,17 +6,20 @@ export interface FileMetadata {
 }
 
 export interface FileStorage {
-    delete(storageKey: string): Promise<void>;
-    getUrl(storageKey: string): Promise<string>;
+    delete(storageKey: string, bucket?: StorageBucket): Promise<void>;
+    getUrl(storageKey: string, bucket?: StorageBucket): Promise<string>;
     upload(input: FileUploadInput): Promise<FileMetadata>;
 }
 
 export interface FileUploadInput {
+    bucket?: StorageBucket;
     buffer: Buffer;
     filename: string;
     mimeType: string;
     storageKey?: string;
 }
+
+export type StorageBucket = 'private' | 'public';
 
 export const ALLOWED_MIME_TYPES = ['image/', 'text/plain'] as const;
 // Attachment size limits are plan-based — see src/lib/billing/plans.ts

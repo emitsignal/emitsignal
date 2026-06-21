@@ -24,17 +24,21 @@ export class FileStorageService {
 
         switch (env.FILE_STORAGE_PROVIDER) {
             case 's3': {
-                if (!env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY || !env.S3_BUCKET_NAME) {
+                if (
+                    !env.S3_ACCESS_KEY_ID ||
+                    !env.S3_SECRET_ACCESS_KEY ||
+                    !env.S3_PRIVATE_BUCKET_NAME
+                ) {
                     throw new Error(
-                        'S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY and S3_BUCKET_NAME are required when FILE_STORAGE_PROVIDER=s3',
+                        'S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY and S3_PRIVATE_BUCKET_NAME are required when FILE_STORAGE_PROVIDER=s3',
                     );
                 }
 
                 FileStorageService.instance = new S3FileStorage({
                     accessKeyId: env.S3_ACCESS_KEY_ID,
-                    bucket: env.S3_BUCKET_NAME,
                     endpoint: env.S3_ENDPOINT,
-                    forcePathStyle: env.S3_FORCE_PATH_STYLE,
+                    privateBucket: env.S3_PRIVATE_BUCKET_NAME,
+                    publicBucket: env.S3_PUBLIC_BUCKET_NAME ?? env.S3_PRIVATE_BUCKET_NAME,
                     publicUrlBase: env.S3_PUBLIC_URL_BASE,
                     region: env.S3_REGION,
                     secretAccessKey: env.S3_SECRET_ACCESS_KEY,

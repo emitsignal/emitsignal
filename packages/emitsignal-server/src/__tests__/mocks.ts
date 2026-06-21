@@ -139,10 +139,15 @@ export const prismaMock = {
 
 export const fileStorageMock = {
     provider: {
-        delete: mock<() => Promise<void>>(() => Promise.resolve()),
-        getUrl: mock<() => Promise<string>>(() => Promise.resolve('https://example.com/file.txt')),
+        delete: mock<(storageKey: string, bucket?: 'private' | 'public') => Promise<void>>(() =>
+            Promise.resolve(),
+        ),
+        getUrl: mock<(storageKey: string, bucket?: 'private' | 'public') => Promise<string>>(() =>
+            Promise.resolve('https://example.com/file.txt'),
+        ),
         upload: mock<
             (input: {
+                bucket?: 'private' | 'public';
                 buffer: { byteLength: number };
                 filename: string;
                 mimeType: string;

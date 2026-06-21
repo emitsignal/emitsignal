@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { existsSync, mkdirSync, rmSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import { LocalFileStorage } from '../storage/local-provider';
 import { isAllowedMimeType } from '../storage/provider';
+import { S3FileStorage } from '../storage/s3-provider';
 
 describe('LocalFileStorage', () => {
     const testDir = path.join(import.meta.dir, 'test-uploads');
@@ -88,6 +89,117 @@ describe('LocalFileStorage', () => {
     if (existsSync(testDir)) {
         rmSync(testDir, { force: true, recursive: true });
     }
+});
+
+describe('S3FileStorage', () => {
+    const writes: Array<{ bucket: string; key: string }> = [];
+    const deletes: Array<{ bucket: string; key: string }> = [];
+
+    class FakeS3Client {
+        constructor(private readonly config: { bucket: string }) {}
+
+        async delete(key: string): Promise<void> {
+            deletes.push({ bucket: this.config.bucket, key });
+        }
+
+        presign(key: string): string {
+            return `https://s3.example.com/${this.config.bucket}/${key}?signature=abc`;
+        }
+
+        async write(key: string): Promise<void> {
+            writes.push({ bucket: this.config.bucket, key });
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const originalS3Client = (Bun as any).S3Client;
+
+    beforeAll(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (Bun as any).S3Client = FakeS3Client;
+    });
+
+    afterAll(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (Bun as any).S3Client = originalS3Client;
+    });
+
+    const baseConfig = {
+        accessKeyId: 'key',
+        privateBucket: 'private-bucket',
+        publicBucket: 'public-bucket',
+        secretAccessKey: 'secret',
+    };
+
+    it('getUrl on the public bucket returns a stable public URL when publicUrlBase is set', async () => {
+        const storage = new S3FileStorage({
+            ...baseConfig,
+            publicUrlBase: 'https://cdn.example.com',
+        });
+
+        const url = await storage.getUrl('avatars/user-123.png', 'public');
+
+        expect(url).toBe('https://cdn.example.com/avatars/user-123.png');
+    });
+
+    it('getUrl on the private bucket always presigns (default bucket)', async () => {
+        const storage = new S3FileStorage({
+            ...baseConfig,
+            publicUrlBase: 'https://cdn.example.com',
+        });
+
+        const url = await storage.getUrl('attachments/file.png');
+
+        expect(url).toContain('private-bucket');
+        expect(url).toContain('signature=');
+    });
+
+    it('getUrl on the public bucket falls back to presigning when publicUrlBase is unset', async () => {
+        const storage = new S3FileStorage(baseConfig);
+
+        const url = await storage.getUrl('avatars/user-123.png', 'public');
+
+        expect(url).toContain('public-bucket');
+        expect(url).toContain('signature=');
+    });
+
+    it('upload routes to the public bucket when bucket is public', async () => {
+        writes.length = 0;
+        const storage = new S3FileStorage(baseConfig);
+
+        await storage.upload({
+            bucket: 'public',
+            buffer: Buffer.from('img'),
+            filename: 'avatar.png',
+            mimeType: 'image/png',
+            storageKey: 'avatars/user-123.png',
+        });
+
+        expect(writes).toEqual([{ bucket: 'public-bucket', key: 'avatars/user-123.png' }]);
+    });
+
+    it('upload defaults to the private bucket', async () => {
+        writes.length = 0;
+        const storage = new S3FileStorage(baseConfig);
+
+        await storage.upload({
+            buffer: Buffer.from('file'),
+            filename: 'file.txt',
+            mimeType: 'text/plain',
+            storageKey: 'attachments/file.txt',
+        });
+
+        expect(writes).toEqual([{ bucket: 'private-bucket', key: 'attachments/file.txt' }]);
+    });
+
+    it('delete targets the requested bucket', async () => {
+        deletes.length = 0;
+        const storage = new S3FileStorage(baseConfig);
+
+        await storage.delete('avatars/user-123.png', 'public');
+
+        expect(deletes).toEqual([{ bucket: 'public-bucket', key: 'avatars/user-123.png' }]);
+    });
 });
 
 describe('isAllowedMimeType', () => {
