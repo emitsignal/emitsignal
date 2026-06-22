@@ -29,6 +29,7 @@ export default function TabLayout() {
         <NativeTabs
             backgroundColor={palette.bg}
             iconColor={palette.fgDim}
+            indicatorColor={palette.bgChip}
             tintColor={palette.violet}
         >
             <NativeTabs.Trigger name="index">
