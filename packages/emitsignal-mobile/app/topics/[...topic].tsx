@@ -2,16 +2,16 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WChip, WTopicAvatar } from '@/components/base-theme';
+import { WChip } from '@/components/base-theme';
+import { ScreenHeader } from '@/components/screen-header';
 import { TopicActionsMenu } from '@/components/topic-actions-menu';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useTopicMessages } from '@/hooks/use-emit-signal';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { type Message } from '@/lib/api';
 
 export default function TopicScreen() {
-    const { palette, styles } = useThemedStyles(createStyles);
+    const { styles } = useThemedStyles(createStyles);
     const params = useLocalSearchParams<{ topic: string | string[] }>();
     const topic = Array.isArray(params.topic) ? params.topic.join('/') : (params.topic ?? '');
 
@@ -23,21 +23,11 @@ export default function TopicScreen() {
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
-            <View style={styles.topBar}>
-                <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                    <IconSymbol color={palette.fg} name="arrow.left" size={16} />
-                </Pressable>
-
-                <WTopicAvatar name={topic} rounded={6} size={32} />
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.channelName}>{topic}</Text>
-                    <Text style={styles.channelMeta}>
-                        {messages.length} message
-                        {messages.length === 1 ? '' : 's'}
-                    </Text>
-                </View>
-                <TopicActionsMenu topicName={topic} />
-            </View>
+            <ScreenHeader
+                right={<TopicActionsMenu topicName={topic} />}
+                subtitle={`${messages.length} message${messages.length === 1 ? '' : 's'}`}
+                title={topic}
+            />
 
             <FlatList
                 contentContainerStyle={messages.length === 0 ? { flex: 1 } : { paddingBottom: 40 }}
@@ -103,31 +93,11 @@ function MessageRow({ message, onPress }: { message: Message; onPress: () => voi
 
 const createStyles = (palette: Palette) =>
     StyleSheet.create({
-        backBtn: {
-            alignItems: 'center',
-            backgroundColor: palette.bgElev,
-            borderRadius: 8,
-            height: 32,
-            justifyContent: 'center',
-            width: 32,
-        },
         body: {
             color: palette.fgMuted,
             fontSize: 12.5,
             lineHeight: 18,
             marginTop: 4,
-        },
-        channelMeta: {
-            color: palette.fgDim,
-            fontFamily: Fonts.mono,
-            fontSize: 10.5,
-            marginTop: 2,
-        },
-        channelName: {
-            color: palette.fg,
-            fontFamily: Fonts.mono,
-            fontSize: 14,
-            fontWeight: '600',
         },
         empty: { alignItems: 'center', flex: 1, justifyContent: 'center', padding: 40 },
         emptyBody: {
@@ -159,13 +129,4 @@ const createStyles = (palette: Palette) =>
         tags: { flexDirection: 'row', gap: 6, marginTop: 8 },
         timeText: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 10.5 },
         title: { color: palette.fg, fontSize: 14, fontWeight: '600' },
-        topBar: {
-            alignItems: 'center',
-            borderBottomColor: palette.bgLine,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            flexDirection: 'row',
-            gap: 12,
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-        },
     });

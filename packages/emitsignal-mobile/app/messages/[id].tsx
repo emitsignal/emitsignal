@@ -5,14 +5,16 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AttachmentPreview } from '@/components/attachment-preview';
-import { WChip, WCode, WDot, WLogo } from '@/components/base-theme';
+import { WChip, WCode, WDot } from '@/components/base-theme';
 import { MessageMedia } from '@/components/message-media';
+import { ScreenHeader } from '@/components/screen-header';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
+import { relativeTime } from '@/lib/format';
 import { queryKeys } from '@/lib/query-client';
 
 export default function MessageDetailScreen() {
@@ -69,13 +71,11 @@ export default function MessageDetailScreen() {
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
-            <View style={styles.topBar}>
-                <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                    <IconSymbol color={palette.fg} name="arrow.left" size={16} />
-                </Pressable>
-                <WLogo pulse size={11} />
-                <Text style={styles.channelLabel}>{message.topicName ?? ''}</Text>
-            </View>
+            <ScreenHeader
+                altName={message.topicName}
+                subtitle={relativeTime(message.createdAt)}
+                title={message.topicName ?? 'message'}
+            />
 
             <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
                 <View style={styles.hero}>
@@ -300,25 +300,11 @@ const createStyles = (palette: Palette) =>
             gap: 8,
             marginTop: 14,
         },
-        backBtn: {
-            alignItems: 'center',
-            backgroundColor: palette.bgElev,
-            borderRadius: 8,
-            height: 32,
-            justifyContent: 'center',
-            width: 32,
-        },
         body: {
             color: palette.fgMuted,
             fontSize: 14,
             lineHeight: 22,
             marginTop: 10,
-        },
-        channelLabel: {
-            color: palette.fgDim,
-            fontFamily: Fonts.mono,
-            fontSize: 10,
-            marginLeft: 'auto',
         },
         codeWrap: { paddingHorizontal: 20 },
         hero: {
@@ -386,14 +372,5 @@ const createStyles = (palette: Palette) =>
             letterSpacing: -0.6,
             lineHeight: 28,
             marginTop: 12,
-        },
-        topBar: {
-            alignItems: 'center',
-            borderBottomColor: palette.bgLine,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            flexDirection: 'row',
-            gap: 10,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
         },
     });
