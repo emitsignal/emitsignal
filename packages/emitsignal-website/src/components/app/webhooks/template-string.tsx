@@ -1,22 +1,13 @@
+import { applyTemplate as applyTemplateShared } from '@emitsignal/shared/webhook-template';
+
 interface TemplateStringProps {
     size?: number;
     str: string;
 }
 
+// Preview wrapper: renders missing values as an em dash so the UI shows a placeholder.
 export function applyTemplate(str: string, data: Record<string, unknown>): string {
-    return str.replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, path: string) => {
-        const val = path
-            .trim()
-            .split('.')
-            .reduce<unknown>(
-                (accumulator, key) =>
-                    accumulator != null && typeof accumulator === 'object'
-                        ? (accumulator as Record<string, unknown>)[key]
-                        : undefined,
-                data,
-            );
-        return val == null ? '—' : String(val);
-    });
+    return applyTemplateShared(str, data, '—');
 }
 
 export function TemplateString({ size = 12.5, str }: TemplateStringProps) {

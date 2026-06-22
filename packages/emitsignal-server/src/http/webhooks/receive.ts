@@ -1,10 +1,10 @@
+import { parseTemplate, renderTemplate } from '@emitsignal/shared/webhook-template';
 import Elysia, { t } from 'elysia';
 
 import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue } from '../../lib/queue';
 import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
-import { parseTemplate, renderTemplate } from '../../lib/webhook-template';
 
 export const receiveWebhook = new Elysia().post(
     '/h/:slug',
