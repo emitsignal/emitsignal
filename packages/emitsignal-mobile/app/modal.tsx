@@ -23,11 +23,11 @@ import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 import { api, type ListenSince } from '@/lib/api';
 
 export default function SubscribeModal() {
-    const { palette, styles } = useThemedStyles(createStyles);
     const [busy, setBusy] = useState(false);
     const [listenSince, setListenSince] = useState<ListenSince>('subscription_date');
     const [pushEnabled, setPushEnabled] = useState(true);
-    const [topic, setTopic] = useState('alerts/prod');
+    const [topic, setTopic] = useState('');
+    const { palette, styles } = useThemedStyles(createStyles);
 
     const { deviceId } = useDevice();
     const { subscribe } = useSubscriptions();
@@ -52,6 +52,7 @@ export default function SubscribeModal() {
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
+
             <SafeAreaView style={styles.root}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -71,9 +72,11 @@ export default function SubscribeModal() {
                                 <Text style={styles.prefix}>
                                     {api.baseUrl.replace(/^https?:\/\//, '')}/
                                 </Text>
+
                                 <TextInput
                                     autoCapitalize="none"
                                     autoCorrect={false}
+                                    autoFocus
                                     onChangeText={setTopic}
                                     placeholder="alerts/prod"
                                     placeholderTextColor={palette.fgDim}
@@ -81,13 +84,14 @@ export default function SubscribeModal() {
                                     value={topic}
                                 />
                             </View>
+
                             <Text style={styles.hint}>
                                 a-z, 0-9, / and - · e.g.{' '}
-                                <Text style={{ color: palette.violet }}>team/backend/alerts</Text>
+                                <Text style={{ color: palette.violet }}>acme/infra</Text>
                             </Text>
                         </View>
 
-                        {suggestions && suggestions.length > 0 ? (
+                        {suggestions && suggestions.length > 0 && (
                             <View style={styles.section}>
                                 <Text style={styles.sectionLabel}>SUGGESTED</Text>
                                 {suggestions.map((suggestion) => (
@@ -101,12 +105,13 @@ export default function SubscribeModal() {
                                             rounded={6}
                                             size={24}
                                         />
+
                                         <Text style={styles.suggestedText}>{suggestion.name}</Text>
                                         <IconSymbol color={palette.fgDim} name="plus" size={13} />
                                     </Pressable>
                                 ))}
                             </View>
-                        ) : null}
+                        )}
 
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
@@ -137,9 +142,12 @@ emitsignal publish ${topic} "deploy ok"`}
                             style={[styles.submit, (busy || !topic.trim()) && { opacity: 0.5 }]}
                         >
                             <Text style={styles.submitText}>
-                                {busy ? 'subscribing…' : `subscribe → ${topic}`}
+                                {busy ? 'subscribing…' : `subscribe`}
                             </Text>
+
                             <IconSymbol color={palette.bg} name="arrow.right" size={14} />
+
+                            <Text style={styles.submitText}>{topic}</Text>
                         </Pressable>
                     </View>
                 </KeyboardAvoidingView>

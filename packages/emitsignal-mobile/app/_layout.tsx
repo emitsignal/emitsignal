@@ -75,13 +75,23 @@ function RootLayoutContent() {
 
     return (
         <NavigationThemeProvider value={navigationTheme}>
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+
             <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="auth" />
                 <Stack.Screen name="topics" />
                 <Stack.Screen name="messages" />
-                <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+                <Stack.Screen
+                    name="modal"
+                    options={{
+                        contentStyle: { backgroundColor: palette.bg },
+                        presentation: 'formSheet',
+                        sheetCornerRadius: 16,
+                        sheetGrabberVisible: true,
+                    }}
+                />
                 <Stack.Screen
                     name="image-viewer"
                     options={{
@@ -90,8 +100,8 @@ function RootLayoutContent() {
                     }}
                 />
             </Stack>
+
             {introDone ? null : <AnimatedSplash onFinish={() => setIntroDone(true)} />}
-            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         </NavigationThemeProvider>
     );
 }

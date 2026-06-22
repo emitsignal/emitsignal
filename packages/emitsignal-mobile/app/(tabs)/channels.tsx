@@ -20,10 +20,10 @@ import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
-    const { palette, styles } = useThemedStyles(createStyles);
     const [query, setQuery] = useState('');
-    const insets = useSafeAreaInsets();
     const { loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
+    const { palette, styles } = useThemedStyles(createStyles);
+    const insets = useSafeAreaInsets();
 
     const filtered = useMemo(() => {
         if (!query.trim()) {
@@ -34,8 +34,8 @@ export default function ChannelsScreen() {
 
         return subscriptions.filter(
             (subscription) =>
-                subscription.topic.name.toLowerCase().includes(q) ||
-                subscription.topic.displayName.toLowerCase().includes(q),
+                subscription.topic.displayName.toLowerCase().includes(q) ||
+                subscription.topic.name.toLowerCase().includes(q),
         );
     }, [subscriptions, query]);
 
@@ -81,7 +81,7 @@ export default function ChannelsScreen() {
             <FlatList
                 contentContainerStyle={filtered.length === 0 ? { flex: 1 } : { paddingBottom: 100 }}
                 data={filtered}
-                keyExtractor={(s) => s.id}
+                keyExtractor={({ id }) => id}
                 ListEmptyComponent={
                     !loading ? (
                         <View style={styles.empty}>
@@ -148,16 +148,19 @@ function ChannelRow({
     return (
         <Pressable onLongPress={onLongPress} onPress={onPress} style={styles.channelRow}>
             <WTopicAvatar name={sub.topic.name} size={36} />
+
             <View style={{ flex: 1, minWidth: 0 }}>
                 <View style={styles.channelHeader}>
                     <WDot level={priority} size={5} />
                     <Text style={styles.channelName}>{sub.topic.name}</Text>
                 </View>
-                {sub.topic.description ? (
+
+                {sub.topic.description && (
                     <Text numberOfLines={1} style={styles.channelDesc}>
                         {sub.topic.description}
                     </Text>
-                ) : null}
+                )}
+
                 <View style={{ marginTop: 6 }}>
                     <ActivitySparkline color={PriorityColors[priority]} data={data} height={14} />
                 </View>

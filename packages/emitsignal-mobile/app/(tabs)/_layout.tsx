@@ -7,13 +7,13 @@ import { useOnboarding } from '@/hooks/use-onboarding';
 import { usePalette } from '@/hooks/use-palette';
 
 export default function TabLayout() {
-    const palette = usePalette();
     const { isLoading: onboardingLoading, isOnboardingComplete } = useOnboarding();
     const { loading: sessionLoading, user } = useSession();
-    const isSignedIn = !!user?.id;
+    const palette = usePalette();
 
-    const isLoading = onboardingLoading || sessionLoading;
+    const isSignedIn = !!user?.id;
     const isAllowed = isOnboardingComplete || isSignedIn;
+    const isLoading = onboardingLoading || sessionLoading;
 
     useEffect(() => {
         if (!isLoading && !isAllowed) {
