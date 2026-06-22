@@ -4,7 +4,8 @@
         "./api": "./src/api.ts",
         "./billing": "./src/billing.ts",
         "./format": "./src/format.ts",
-        "./priority": "./src/priority.ts"
+        "./priority": "./src/priority.ts",
+        "./webhook-template": "./src/webhook-template.ts"
     },
     "main": "src/index.ts",
     "name": "@emitsignal/shared",
