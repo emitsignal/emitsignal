@@ -56,6 +56,7 @@ export default function TopicScreen() {
 
 function MessageRow({ message, onPress }: { message: Message; onPress: () => void }) {
     const { styles } = useThemedStyles(createStyles);
+
     return (
         <Pressable onPress={onPress} style={styles.row}>
             <View
@@ -67,6 +68,7 @@ function MessageRow({ message, onPress }: { message: Message; onPress: () => voi
                     },
                 ]}
             />
+
             <View style={{ flex: 1, paddingLeft: 12 }}>
                 <View style={styles.metaRow}>
                     <Text style={styles.timeText}>
@@ -79,13 +81,13 @@ function MessageRow({ message, onPress }: { message: Message; onPress: () => voi
                     {message.body}
                 </Text>
 
-                {message.tags.length > 0 ? (
+                {message.tags.length > 0 && (
                     <View style={styles.tags}>
-                        {message.tags.slice(0, 4).map((tag) => (
-                            <WChip key={tag}>{tag}</WChip>
+                        {message.tags.slice(0, 4).map((tag, index) => (
+                            <WChip key={index}>{tag}</WChip>
                         ))}
                     </View>
-                ) : null}
+                )}
             </View>
         </Pressable>
     );
