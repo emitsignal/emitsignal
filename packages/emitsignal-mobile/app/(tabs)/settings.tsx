@@ -113,7 +113,7 @@ export default function SettingsScreen() {
                             setTheme(THEME_OPTIONS[event.nativeEvent.selectedSegmentIndex].value)
                         }
                         selectedIndex={THEME_OPTIONS.findIndex((opt) => opt.value === theme)}
-                        tintColor={palette.violet}
+                        tintColor={palette.violetBg}
                         values={THEME_OPTIONS.map((opt) => opt.label)}
                     />
                 </View>
