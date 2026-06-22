@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { api, setAuthToken } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
+import { queryClient, queryKeys } from '@/lib/query-client';
 
 const DEVICE_ID_KEY = '@emitsignal/device_id';
 const PUSH_TOKEN_KEY = '@emitsignal/push_token';
@@ -30,6 +31,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (data?.session?.token) {
             setAuthToken(data.session.token);
+
+            queryClient.invalidateQueries({ queryKey: queryKeys.feed(data.user.id) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(data.user.id) });
         } else if (!isPending) {
             setAuthToken(null);
         }
