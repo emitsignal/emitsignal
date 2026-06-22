@@ -1,0 +1,18 @@
+diff --git a/android/src/main/java/com/swmansion/rnscreens/gamma/tabs/container/TabsContainer.kt b/android/src/main/java/com/swmansion/rnscreens/gamma/tabs/container/TabsContainer.kt
+index 3916fdc2ac05a87caf39dfa6c55e4a071a6aabf6..626d3e2ea323e7fc1b8090e235817150ac66eeff 100644
+--- a/android/src/main/java/com/swmansion/rnscreens/gamma/tabs/container/TabsContainer.kt
++++ b/android/src/main/java/com/swmansion/rnscreens/gamma/tabs/container/TabsContainer.kt
+@@ -378,7 +378,12 @@ class TabsContainer internal constructor(
+     // region TabsScreenDelegate impl
+ 
+     override fun onAppearanceChanged(tabsScreen: TabsScreen) {
+-        if (selectedTab.tabsScreen === tabsScreen) {
++        // The selected tab may be momentarily unresolvable while an appearance
++        // update (e.g. a theme switch pushing new standardAppearance props) lands
++        // before the navigation state has settled. Bail out instead of throwing;
++        // the appearance is reapplied once the nav state resolves.
++        val selectedTabFragment = getFragmentForScreenKey(navState.selectedScreenKey) ?: return
++        if (selectedTabFragment.tabsScreen === tabsScreen) {
+             invalidationFlags.isNavigationMenuAppearanceInvalidated = true
+             post {
+                 this.flushPendingUpdates()

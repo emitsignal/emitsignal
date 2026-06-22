@@ -202,6 +202,7 @@
   },
   "patchedDependencies": {
     "expo-router@56.2.11": "patches/expo-router@56.2.11.patch",
+    "react-native-screens@4.25.2": "patches/react-native-screens@4.25.2.patch",
   },
   "overrides": {
     "@tanstack/query-core": "5.101.0",
