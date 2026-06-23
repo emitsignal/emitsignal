@@ -1,4 +1,4 @@
-import type { PlanDefinition } from '@emitsignal/shared/billing';
+import type { BillingInfo, PlanDefinition } from '@emitsignal/shared/billing';
 
 import { PLAN_ORDER, PLANS } from '@emitsignal/shared/billing';
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,7 +34,13 @@ export function BillingPage() {
         useBilling();
     const queryClient = useQueryClient();
     const navigate = useNavigate({ from: '/app/settings/billing' });
-    const { checkout } = useSearch({ from: '/app/settings/billing' });
+    const {
+        checkout,
+        interval: expectedInterval,
+        plan: expectedPlan,
+    } = useSearch({ from: '/app/settings/billing' });
+    const [confirming, setConfirming] = useState(false);
+    const [welcome, setWelcome] = useState(false);
     const [yearly, setYearly] = useState(false);
 
     useEffect(() => {
@@ -42,12 +48,91 @@ export function BillingPage() {
             return;
         }
 
-        if (checkout === 'success') {
-            void queryClient.invalidateQueries({ queryKey: queryKeys.billing });
+        let cancelled = false;
+
+        function matchesExpectation(current: BillingInfo | undefined): boolean {
+            if (!current) {
+                return false;
+            }
+
+            const planMatches = !expectedPlan || current.plan === expectedPlan;
+            const intervalMatches =
+                !expectedInterval || current.subscription?.interval === expectedInterval;
+
+            return planMatches && intervalMatches;
         }
 
-        void navigate({ replace: true, search: { checkout: undefined } });
-    }, [checkout, navigate, queryClient]);
+        async function refreshUntilUpdated() {
+            const maxAttempts = checkout === 'success' ? 15 : 5;
+
+            let matched = false;
+
+            // Nothing to confirm if billing already reflects the expectation
+            // (reloading a post-success URL, or a `plan` param that is already the
+            // current plan). Skip polling so the search params cannot force
+            // background requests. The genuinely pending-webhook case does not
+            // match yet and falls through to the bounded poll below.
+            if (
+                checkout === 'success' &&
+                expectedPlan &&
+                matchesExpectation(queryClient.getQueryData<BillingInfo>(queryKeys.billing))
+            ) {
+                matched = true;
+            }
+
+            if (!matched) {
+                setConfirming(true);
+
+                for (let attempt = 0; attempt < maxAttempts && !cancelled; attempt += 1) {
+                    await queryClient.invalidateQueries({ queryKey: queryKeys.billing });
+
+                    if (
+                        checkout === 'success' &&
+                        matchesExpectation(queryClient.getQueryData<BillingInfo>(queryKeys.billing))
+                    ) {
+                        matched = true;
+                        break;
+                    }
+
+                    if (attempt < maxAttempts - 1) {
+                        await sleep(5000);
+                    }
+                }
+            }
+
+            if (cancelled) {
+                return;
+            }
+
+            setConfirming(false);
+
+            // Only celebrate a change we actually observed — a crafted or stale
+            // `?checkout=success` that never matches shows no success banner.
+            setWelcome(matched);
+
+            void navigate({
+                replace: true,
+                search: { checkout: undefined, interval: undefined, plan: undefined },
+            });
+        }
+
+        void refreshUntilUpdated();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [checkout, expectedInterval, expectedPlan, navigate, queryClient]);
+
+    // Auto-dismiss the post-checkout confirmation banner.
+    useEffect(() => {
+        if (!welcome) {
+            return;
+        }
+
+        const timer = setTimeout(() => setWelcome(false), 5000);
+
+        return () => clearTimeout(timer);
+    }, [welcome]);
 
     useEffect(() => {
         if (billing?.subscription?.interval === 'year') {
@@ -90,7 +175,14 @@ export function BillingPage() {
         <>
             <PageHeader />
 
-            {checkout === 'success' ? (
+            {confirming ? (
+                <div className="mb-[18px] flex items-center gap-2.5 rounded-[10px] border border-accent/40 bg-accent/5 px-4 py-3 text-[12.5px] text-accent">
+                    <Clock className="animate-spin" size={14} />
+                    Finalizing your subscription…
+                </div>
+            ) : null}
+
+            {welcome ? (
                 <div className="mb-[18px] flex items-center gap-2.5 rounded-[10px] border border-success/40 bg-success/5 px-4 py-3 text-[12.5px] text-success">
                     <Check size={14} />
                     Subscription updated — welcome to {currentPlan.label}!
@@ -431,4 +523,8 @@ function planFeatures(plan: PlanDefinition): string[] {
         `${limits.maxOwnedTopics} owned topics`,
         `${limits.maxWebhooks} webhooks`,
     ];
+}
+
+function sleep(milliseconds: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }

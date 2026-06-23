@@ -14,6 +14,7 @@ export function useBilling() {
     const { data, error, isPending } = useQuery({
         queryFn: () => api.getBilling(),
         queryKey: queryKeys.billing,
+        staleTime: 5 * 60_000,
     });
 
     const stripeSubscriptionId = data?.subscription?.stripeSubscriptionId ?? undefined;
@@ -27,7 +28,9 @@ export function useBilling() {
                 cancelUrl: `${billingPageUrl()}?checkout=cancelled`,
                 plan,
                 subscriptionId: stripeSubscriptionId,
-                successUrl: `${billingPageUrl()}?checkout=success`,
+                // Carry the expected plan/interval so the return page can poll
+                // billing until the webhook flips it, instead of reading stale data.
+                successUrl: `${billingPageUrl()}?checkout=success&plan=${plan}&interval=${annual ? 'year' : 'month'}`,
             });
 
             if (apiError) {
@@ -40,7 +43,7 @@ export function useBilling() {
         mutationFn: async () => {
             // Routes through the Stripe Billing Portal cancellation flow
             const { error: apiError } = await authClient.subscription.cancel({
-                returnUrl: billingPageUrl(),
+                returnUrl: `${billingPageUrl()}?checkout=updated`,
                 subscriptionId: stripeSubscriptionId,
             });
 
@@ -68,7 +71,7 @@ export function useBilling() {
     const portalMutation = useMutation({
         mutationFn: async () => {
             const { data: portal, error: apiError } = await authClient.subscription.billingPortal({
-                returnUrl: billingPageUrl(),
+                returnUrl: `${billingPageUrl()}?checkout=updated`,
             });
 
             if (apiError) {
