@@ -4,11 +4,9 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { WCode } from '@/components/base-theme';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { API_URL } from '@/lib/api';
 
 export default function AuthWelcome() {
     const { palette, styles } = useThemedStyles(createStyles);
@@ -51,12 +49,6 @@ export default function AuthWelcome() {
                     Subscribe to any topic. Publish from a shell, a cron, a CI, a webhook. Arrives
                     on your phone in under a second.
                 </Text>
-
-                <View style={{ marginTop: 16 }}>
-                    <WCode language="NO ACCOUNT NEEDED · TRY IT">
-                        {`$ curl -d "hi" ${API_URL.replace('https://', '').replace('http://', '')}/welcome`}
-                    </WCode>
-                </View>
             </View>
 
             <View style={styles.footer}>
