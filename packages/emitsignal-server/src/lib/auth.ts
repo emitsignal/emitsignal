@@ -202,10 +202,6 @@ export const auth = betterAuth({
               }
             : {}),
     },
-    // Custom schemes (mobile) only match a trusted origin via exact `startsWith`,
-    // so they must be listed literally — `'*'` cannot cover scheme-only origins
-    // like `emitsignal://` (it requires a host). Listing them outside the
-    // NODE_ENV gate makes mobile auth work regardless of how NODE_ENV is set.
     trustedOrigins: [
         environment.APP_URL, // website browser origin (cookie-based web auth)
         'emitsignal://', // mobile app deep-link scheme (app.config.ts `scheme`)
