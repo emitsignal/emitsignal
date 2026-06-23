@@ -24,16 +24,23 @@ export function MessageMedia({ bannerImage, inlineAttachments, inlineImages }: P
         return null;
     }
 
-    const openImage = (image: MediaRef) =>
+    const gallery = [...(bannerImage ? [bannerImage] : []), ...inlineImages];
+
+    const openImage = (startIndex: number) =>
         router.push({
-            params: { filename: image.title ?? '', url: image.href },
+            params: {
+                gallery: JSON.stringify(
+                    gallery.map((image) => ({ filename: image.title ?? '', url: image.href })),
+                ),
+                index: String(startIndex),
+            },
             pathname: '/image-viewer',
         });
 
     return (
         <View style={styles.wrap}>
             {bannerImage && (
-                <Pressable onPress={() => openImage(bannerImage)}>
+                <Pressable onPress={() => openImage(0)}>
                     <Image
                         contentFit="cover"
                         source={{ uri: bannerImage.href }}
@@ -60,7 +67,10 @@ export function MessageMedia({ bannerImage, inlineAttachments, inlineImages }: P
             {inlineImages.length > 0 && (
                 <View style={styles.imageRow}>
                     {inlineImages.map((image, index) => (
-                        <Pressable key={index} onPress={() => openImage(image)}>
+                        <Pressable
+                            key={index}
+                            onPress={() => openImage((bannerImage ? 1 : 0) + index)}
+                        >
                             <Image
                                 contentFit="cover"
                                 source={{ uri: image.href }}

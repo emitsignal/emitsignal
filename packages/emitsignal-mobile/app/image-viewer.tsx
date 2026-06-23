@@ -5,7 +5,10 @@ import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
 import {
     ActivityIndicator,
+    FlatList,
     Linking,
+    type NativeScrollEvent,
+    type NativeSyntheticEvent,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -19,19 +22,44 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { formatSize } from '@/lib/format';
 
+interface GalleryItem {
+    filename?: string;
+    size?: string;
+    url: string;
+}
+
 export default function ImageViewerScreen() {
     const insets = useSafeAreaInsets();
     const [downloading, setDownloading] = useState(false);
-    const { filename, size, url } = useLocalSearchParams<{
-        filename: string;
-        size: string;
-        url: string;
+    const params = useLocalSearchParams<{
+        filename?: string;
+        gallery?: string;
+        index?: string;
+        size?: string;
+        url?: string;
     }>();
     const { height: screenHeight, width: screenWidth } = useWindowDimensions();
 
-    if (!url) {
+    const items = parseItems(params);
+    const initialIndex = Math.min(
+        Math.max(parseInt(params.index ?? '0', 10) || 0, 0),
+        items.length - 1,
+    );
+    const [activeIndex, setActiveIndex] = useState(initialIndex);
+
+    if (items.length === 0) {
         return null;
     }
+
+    const active = items[activeIndex] ?? items[0];
+
+    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const index = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
+
+        if (index !== activeIndex && index >= 0 && index < items.length) {
+            setActiveIndex(index);
+        }
+    };
 
     const handleDownload = async () => {
         if (downloading) {
@@ -44,16 +72,16 @@ export default function ImageViewerScreen() {
             const available = await Sharing.isAvailableAsync();
 
             if (!available) {
-                await Linking.openURL(url);
+                await Linking.openURL(active.url);
 
                 return;
             }
 
-            const localUri = `${FileSystem.cacheDirectory}${filename ?? 'image'}`;
-            const result = await FileSystem.downloadAsync(url, localUri);
+            const localUri = `${FileSystem.cacheDirectory}${active.filename ?? 'image'}`;
+            const result = await FileSystem.downloadAsync(active.url, localUri);
 
             await Sharing.shareAsync(result.uri, {
-                dialogTitle: filename,
+                dialogTitle: active.filename,
                 mimeType: 'image/*',
             });
         } catch (error) {
@@ -65,41 +93,67 @@ export default function ImageViewerScreen() {
 
     return (
         <View style={[styles.root, { paddingBottom: insets.bottom }]}>
-            <View style={[styles.closeOverlay, { top: insets.top }]}>
+            <View style={[styles.topOverlay, { top: insets.top }]}>
+                {items.length > 1 ? (
+                    <Text style={styles.counter}>
+                        {activeIndex + 1} / {items.length}
+                    </Text>
+                ) : (
+                    <View />
+                )}
                 <Pressable hitSlop={12} onPress={() => router.back()} style={styles.closeBtn}>
                     <IconSymbol color={W.fg} name="xmark" size={22} />
                 </Pressable>
             </View>
 
-            <ScrollView
-                bouncesZoom={false}
-                contentContainerStyle={styles.scrollContent}
-                maximumZoomScale={5}
-                minimumZoomScale={1}
+            <FlatList
+                data={items}
+                getItemLayout={(_, index) => ({
+                    index,
+                    length: screenWidth,
+                    offset: screenWidth * index,
+                })}
+                horizontal
+                initialScrollIndex={initialIndex}
+                keyExtractor={(_, index) => String(index)}
+                onScroll={handleScroll}
+                pagingEnabled
+                renderItem={({ item }) => (
+                    <ScrollView
+                        bouncesZoom={false}
+                        centerContent
+                        contentContainerStyle={styles.scrollContent}
+                        maximumZoomScale={5}
+                        minimumZoomScale={1}
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        style={{ width: screenWidth }}
+                    >
+                        <Image
+                            contentFit="contain"
+                            source={{ uri: item.url }}
+                            style={{
+                                height: (screenHeight - insets.top - insets.bottom) * 0.75,
+                                width: screenWidth,
+                            }}
+                            transition={300}
+                        />
+                    </ScrollView>
+                )}
+                scrollEventThrottle={16}
                 showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                style={styles.scrollView}
-            >
-                <Image
-                    contentFit="contain"
-                    source={{ uri: url }}
-                    style={{
-                        height: (screenHeight - insets.top - insets.bottom) * 0.75,
-                        width: screenWidth,
-                    }}
-                    transition={300}
-                />
-            </ScrollView>
+                style={styles.list}
+            />
 
             <View style={styles.footer}>
                 <View style={styles.footerInfo}>
-                    {filename ? (
+                    {active.filename ? (
                         <Text numberOfLines={1} style={styles.filename}>
-                            {filename}
+                            {active.filename}
                         </Text>
                     ) : null}
-                    {size ? (
-                        <Text style={styles.size}>{formatSize(parseInt(size, 10))}</Text>
+                    {active.size ? (
+                        <Text style={styles.size}>{formatSize(parseInt(active.size, 10))}</Text>
                     ) : null}
                 </View>
                 <Pressable
@@ -119,6 +173,31 @@ export default function ImageViewerScreen() {
     );
 }
 
+function parseItems(params: {
+    filename?: string;
+    gallery?: string;
+    size?: string;
+    url?: string;
+}): GalleryItem[] {
+    if (params.gallery) {
+        try {
+            const parsed = JSON.parse(params.gallery) as GalleryItem[];
+
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        } catch {
+            // fall through to single-item handling
+        }
+    }
+
+    if (params.url) {
+        return [{ filename: params.filename, size: params.size, url: params.url }];
+    }
+
+    return [];
+}
+
 const styles = StyleSheet.create({
     closeBtn: {
         alignItems: 'center',
@@ -128,14 +207,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: 36,
     },
-    closeOverlay: {
-        alignItems: 'flex-end',
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        zIndex: 10,
+    counter: {
+        backgroundColor: 'rgba(255,255,255,0.12)',
+        borderRadius: 14,
+        color: W.fg,
+        fontFamily: Fonts.mono,
+        fontSize: 12,
+        overflow: 'hidden',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
     },
     downloadBtn: {
         alignItems: 'center',
@@ -161,6 +241,9 @@ const styles = StyleSheet.create({
     footerInfo: {
         flex: 1,
     },
+    list: {
+        flex: 1,
+    },
     root: {
         backgroundColor: 'rgba(0,0,0,0.88)',
         flex: 1,
@@ -170,13 +253,21 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
     },
-    scrollView: {
-        flex: 1,
-    },
     size: {
         color: W.fgDim,
         fontFamily: Fonts.mono,
         fontSize: 11,
         marginTop: 4,
+    },
+    topOverlay: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        left: 0,
+        paddingHorizontal: 16,
+        paddingTop: 8,
+        position: 'absolute',
+        right: 0,
+        zIndex: 10,
     },
 });
