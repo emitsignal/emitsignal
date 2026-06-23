@@ -4,6 +4,8 @@ import { version } from './package.json';
 
 const appMode = process.env.APP_MODE ?? 'development';
 
+const projectId = '1424f0ee-b60d-4b18-b09c-4a3bd2740ae8';
+
 function getProjectConfig() {
     if (appMode === 'development') {
         return {
@@ -52,7 +54,7 @@ const config: ExpoConfig = {
     },
     extra: {
         eas: {
-            projectId: '1424f0ee-b60d-4b18-b09c-4a3bd2740ae8',
+            projectId,
         },
         router: {},
     },
@@ -89,8 +91,14 @@ const config: ExpoConfig = {
             },
         ],
     ],
+    runtimeVersion: {
+        policy: 'appVersion',
+    },
     scheme,
     slug: 'emit-signal',
+    updates: {
+        url: `https://u.expo.dev/${projectId}`,
+    },
     userInterfaceStyle: 'automatic',
     version,
     web: {
