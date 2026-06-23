@@ -105,6 +105,7 @@ export const publish = new Elysia().post(
                 inlineImages: JSON.stringify(media.inlineImages),
                 priority: body.priority,
                 scheduledAt: isScheduled ? new Date(scheduledAtUnix * 1000) : null,
+                senderId: userId,
                 tags: serializeTags(body.tags),
                 title: body.title,
                 topicId: topic.id,

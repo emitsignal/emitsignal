@@ -5,10 +5,11 @@ import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue } from '../../lib/queue';
 import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
+import { resolveUserId } from '../auth/plugin';
 
 export const receiveWebhook = new Elysia().post(
     '/h/:slug',
-    async ({ body, params, status }) => {
+    async ({ body, headers, params, status }) => {
         const start = Date.now();
 
         const webhook = await prisma.webhook.findUnique({
@@ -49,11 +50,18 @@ export const receiveWebhook = new Elysia().post(
 
         const topic = await getOrCreateTopic(webhook.topicName);
 
+        // The /h/:slug endpoint is public — anyone with the slug can post. Only
+        // attribute the message to a sender when the caller authenticated the
+        // request (Bearer session/API key, x-api-key, or cookie); otherwise the
+        // inbound delivery has no known sender.
+        const senderId = await resolveUserId({ headers });
+
         const message = await prisma.message.create({
             data: {
                 actions: '[]',
                 body: messageBody,
                 priority,
+                senderId,
                 tags: serializeTags(tags),
                 title,
                 topicId: topic.id,
