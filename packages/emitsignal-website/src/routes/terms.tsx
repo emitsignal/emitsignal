@@ -17,7 +17,7 @@ export const Route = createFileRoute('/terms')({
     }),
 });
 
-const LAST_UPDATED = 'June 20, 2026';
+const LAST_UPDATED = 'June 23, 2026';
 
 interface TableOfContentsEntry {
     id: string;
@@ -295,8 +295,9 @@ export default function TermsPage() {
                         <H2>Suspension &amp; termination</H2>
                         <P>
                             You may stop using the service and delete your account at any time.
-                            Deleting your account removes your profile and cascades to related
-                            records such as sessions, API keys, passkeys, and subscriptions. We may
+                            Deleting your account removes your profile and cascades to all related
+                            records — channels, messages, push tokens, subscriptions, sessions, API
+                            keys, and passkeys — and erases your stored attachment files. We may
                             suspend or terminate your access if you breach these Terms, create risk
                             or legal exposure for us, or for prolonged inactivity. Provisions that
                             by their nature should survive termination — including ownership,

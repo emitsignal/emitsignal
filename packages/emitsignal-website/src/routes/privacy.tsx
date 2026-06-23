@@ -17,7 +17,7 @@ export const Route = createFileRoute('/privacy')({
     }),
 });
 
-const LAST_UPDATED = 'June 21, 2026';
+const LAST_UPDATED = 'June 23, 2026';
 
 interface TableOfContentsEntry {
     id: string;
@@ -369,13 +369,13 @@ export default function PrivacyPage() {
                             </Li>
                             <Li>
                                 <strong>
-                                    Accounts, sessions, API keys, passkeys, messages, and webhook
-                                    delivery logs
+                                    Accounts, sessions, API keys, passkeys, channels, messages, and
+                                    webhook delivery logs
                                 </strong>{' '}
-                                are retained until your account is deleted or we remove them during
-                                maintenance. We do not currently run automated deletion for these
-                                records, and webhook delivery logs are retained until manually
-                                purged.
+                                are retained until your account is deleted. Deleting your account
+                                erases these records automatically, including the underlying message
+                                attachment files. You can also purge all of your signals at any time
+                                from Settings → Advanced while keeping your channels.
                             </Li>
                             <Li>
                                 <strong>Billing records</strong> are retained for as long as
@@ -397,9 +397,10 @@ export default function PrivacyPage() {
                             whom data is shared, and revocation of consent.
                         </P>
                         <P>
-                            You can delete your account from your account settings, which removes
-                            your profile and cascades to related records such as sessions, API keys,
-                            passkeys, and subscriptions. To request a data export, or to exercise
+                            You can delete your account from Settings → Advanced, which removes your
+                            profile and cascades to all related records — channels, messages, push
+                            tokens, subscriptions, sessions, API keys, and passkeys — and erases
+                            your stored attachment files. To request a data export, or to exercise
                             any other right, email <Token>[privacy@emitsignal.com]</Token>. We
                             respond within the timeframes required by law.
                         </P>
@@ -413,9 +414,8 @@ export default function PrivacyPage() {
                             apply rate limiting to reduce abuse and brute-force attempts. In the
                             interest of transparency, you should know that OAuth tokens from
                             connected providers are currently stored without additional encryption
-                            at rest, and that not all data categories have automated deletion. No
-                            system is perfectly secure; we work continuously to improve our
-                            safeguards.
+                            at rest. No system is perfectly secure; we work continuously to improve
+                            our safeguards.
                         </P>
                     </Section>
 
