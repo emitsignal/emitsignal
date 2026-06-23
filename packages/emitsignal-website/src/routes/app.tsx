@@ -6,11 +6,13 @@ import { DebugSectionsProvider } from '#/ctx/debug-sections';
 import { FeedStyleProvider } from '#/ctx/feed-style';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { ThemeProvider, useTheme } from '#/ctx/theme';
+import { fetchBillingServer, fetchSessionServer } from '#/lib/api-server-fns';
 import { isAuthenticated } from '#/lib/auth-guard';
 import { readDebugSectionsFromDocument } from '#/lib/debug-sections';
 import { getDebugSections } from '#/lib/debug-sections.server';
 import { readFeedStyleFromDocument } from '#/lib/feed-style';
 import { getFeedStyle } from '#/lib/feed-style.server';
+import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
 import { readThemePreferenceFromDocument } from '#/lib/theme';
 import { getThemePreference } from '#/lib/theme.server';
 
@@ -27,8 +29,24 @@ const resolveInitialDebugSections = createIsomorphicFn()
     .client(() => readDebugSectionsFromDocument());
 
 export const Route = createFileRoute('/app')({
-    beforeLoad: async ({ preload }) => {
+    beforeLoad: async ({ context, preload }) => {
         if (preload) {
+            return;
+        }
+
+        // On the client the session lives in the (SSR-seeded, hydrated) query
+        // cache. Read it through `ensureQueryData` instead of calling
+        // `authClient.getSession()` directly: the seeded value is fresh so this
+        // resolves with zero network calls, and React Query dedupes the burst of
+        // guard runs that route matching triggers into a single request if the
+        // cache is ever cold. SSR keeps using the cheap cookie check.
+        if (!import.meta.env.SSR) {
+            const session = await context.queryClient.ensureQueryData(sessionQueryOptions);
+
+            if (!session?.user) {
+                throw redirect({ to: '/sign-in' });
+            }
+
             return;
         }
 
@@ -37,11 +55,33 @@ export const Route = createFileRoute('/app')({
         }
     },
     component: WebShell,
-    loader: () => ({
-        debugSections: resolveInitialDebugSections(),
-        feedStyle: resolveInitialFeedStyle(),
-        theme: resolveInitialTheme(),
-    }),
+    loader: async ({ context }) => {
+        // Seed the always-mounted sidebar footer (user + plan) server-side so it
+        // renders complete on first paint instead of flashing in after mount.
+        // SSR only: on client-side navigation the component queries fetch from
+        // the API directly (no extra server hop). A failed fetch is swallowed so
+        // the route still renders — the client queries then fetch normally.
+        if (import.meta.env.SSR) {
+            await Promise.allSettled([
+                context.queryClient.ensureQueryData({
+                    queryFn: () => fetchSessionServer(),
+                    queryKey: queryKeys.session,
+                    staleTime: 5 * 60_000,
+                }),
+                context.queryClient.ensureQueryData({
+                    queryFn: () => fetchBillingServer(),
+                    queryKey: queryKeys.billing,
+                    staleTime: 5 * 60_000,
+                }),
+            ]);
+        }
+
+        return {
+            debugSections: resolveInitialDebugSections(),
+            feedStyle: resolveInitialFeedStyle(),
+            theme: resolveInitialTheme(),
+        };
+    },
 });
 
 function DashboardShell() {

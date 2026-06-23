@@ -1,13 +1,25 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, redirect, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
 import { isAuthenticated } from '#/lib/auth-guard';
+import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
 
 export const Route = createFileRoute('/sign-in')({
-    beforeLoad: async ({ preload }) => {
+    beforeLoad: async ({ context, preload }) => {
         if (preload) {
+            return;
+        }
+
+        if (!import.meta.env.SSR) {
+            const session = await context.queryClient.ensureQueryData(sessionQueryOptions);
+
+            if (session?.user) {
+                throw redirect({ to: '/app' });
+            }
+
             return;
         }
 
@@ -19,11 +31,12 @@ export const Route = createFileRoute('/sign-in')({
 });
 
 function SignInPage() {
-    const [email, setEmail] = useState('');
     const [busy, setBusy] = useState(false);
-    const [passkeyBusy, setPasskeyBusy] = useState(false);
+    const [email, setEmail] = useState('');
     const [error, setError] = useState('');
+    const [passkeyBusy, setPasskeyBusy] = useState(false);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const callbackURL = `${typeof window !== 'undefined' ? window.location.origin : ''}/app`;
 
@@ -74,6 +87,8 @@ function SignInPage() {
         if (err) {
             setError(err.message ?? 'Passkey sign-in failed');
         } else if (data) {
+            queryClient.removeQueries({ queryKey: queryKeys.session });
+
             navigate({ to: '/app' });
         }
     };

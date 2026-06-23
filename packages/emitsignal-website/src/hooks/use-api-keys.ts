@@ -21,6 +21,7 @@ export function useApiKeys() {
     const { data, error, isPending } = useQuery({
         queryFn: fetchApiKeys,
         queryKey: queryKeys.apiKeys,
+        staleTime: 5 * 60_000,
     });
 
     const disableMutation = useMutation({

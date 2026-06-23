@@ -8,6 +8,7 @@ export function getRouter() {
     const queryClient = makeQueryClient();
 
     const router = createTanStackRouter({
+        context: { queryClient },
         defaultPreload: 'render',
         defaultPreloadStaleTime: 30000,
         routeTree,

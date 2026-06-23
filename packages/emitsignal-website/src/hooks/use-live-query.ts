@@ -10,6 +10,7 @@ interface UseLiveQueryOptions<TData> {
     queryFn: () => Promise<TData>;
     queryKey: QueryKey;
     sseUrl: (data: TData | undefined) => null | string;
+    staleTime?: number;
 }
 
 /**
@@ -25,11 +26,12 @@ export function useLiveQuery<TData>({
     queryFn,
     queryKey,
     sseUrl,
+    staleTime,
 }: UseLiveQueryOptions<TData>) {
     const queryClient = useQueryClient();
     const { loading: authLoading } = useSession();
 
-    const query = useQuery({ enabled, queryFn, queryKey });
+    const query = useQuery({ enabled, queryFn, queryKey, staleTime });
 
     const target = sseUrl(query.data);
 

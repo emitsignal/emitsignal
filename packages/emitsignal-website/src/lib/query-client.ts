@@ -1,5 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 
+import { authClient } from '#/lib/auth-client';
+
 /**
  * Query key conventions
  * ----------------------
@@ -13,6 +15,7 @@ import { QueryClient } from '@tanstack/react-query';
  *   ['auth', 'sessions']          → authClient.listSessions()
  *   ['billing']                   → api.getBilling()
  *   ['feed', scope]               → api.listSubscriptionMessages()
+ *   ['session']                   → authClient.getSession()
  *   ['subscriptions', scope]      → api.listSubscriptions()    (scope = userId ?? deviceId)
  *   ['topic-messages', name]      → api.listMessages(name)
  *   ['topic-metrics', name]       → api.getTopicMetrics(name)
@@ -29,6 +32,7 @@ export const queryKeys = {
     authSessions: ['auth', 'sessions'] as const,
     billing: ['billing'] as const,
     feed: (scope: string) => ['feed', scope] as const,
+    session: ['session'] as const,
     subscriptions: (scope: string) => ['subscriptions', scope] as const,
     topicMessages: (topicName: string) => ['topic-messages', topicName] as const,
     topicMetrics: (topicName: string) => ['topic-metrics', topicName] as const,
@@ -38,6 +42,16 @@ export const queryKeys = {
     webhookDeliveries: (id: string) => ['webhook-deliveries', id] as const,
     webhooks: ['webhooks'] as const,
 };
+
+// Single source of truth for reading the session through TanStack Query. Used
+// by the `/app` and `/sign-in` route guards and the `useSession` hook so every
+// caller resolves auth state from the same cache entry — preventing the guards
+// from disagreeing and bouncing the user in a redirect loop.
+export const sessionQueryOptions = {
+    queryFn: () => authClient.getSession().then((result) => result.data),
+    queryKey: queryKeys.session,
+    staleTime: 5 * 60_000,
+} as const;
 
 export function makeQueryClient(): QueryClient {
     return new QueryClient({

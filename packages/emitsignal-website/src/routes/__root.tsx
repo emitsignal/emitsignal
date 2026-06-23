@@ -1,13 +1,19 @@
+import type { QueryClient } from '@tanstack/react-query';
+
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
-import { createRootRoute, HeadContent, Scripts } from '@tanstack/react-router';
+import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import { SessionProvider } from '#/ctx/session';
 
 import appCss from '../styles.css?url';
 
-export const Route = createRootRoute({
+export interface RouterContext {
+    queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
     head: () => ({
         links: [{ href: appCss, rel: 'stylesheet' }],
         meta: [

@@ -1,9 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
 import { isOnboardingComplete } from '#/lib/onboarding';
+import { queryKeys } from '#/lib/query-client';
 
 export const Route = createFileRoute('/verify')({
     component: VerifyPage,
@@ -28,6 +30,7 @@ function VerifyPage() {
     const [otp, setOtp] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const signInWithOtp = useCallback(
         async (emailValue: string, otpValue: string) => {
@@ -46,10 +49,13 @@ function VerifyPage() {
             } else {
                 const onboarded = data?.user?.onboarded || isOnboardingComplete();
 
+                // Drop the cached (signed-out) session so the `/app` guard
+                // fetches the freshly-authenticated one instead of a stale value.
+                queryClient.removeQueries({ queryKey: queryKeys.session });
                 navigate({ to: onboarded ? '/app' : '/onboarding' });
             }
         },
-        [navigate],
+        [navigate, queryClient],
     );
 
     useEffect(() => {

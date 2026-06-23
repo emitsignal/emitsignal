@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { authClient } from '#/lib/auth-client';
+import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
 
 export interface SessionContextValue {
     loading: boolean;
@@ -21,11 +24,18 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 }
 
 export function useSession(): SessionContextValue {
-    const { data, isPending } = authClient.useSession();
+    const queryClient = useQueryClient();
+
+    const { data, isPending } = useQuery(sessionQueryOptions);
 
     return {
         loading: isPending,
-        signOut: () => authClient.signOut().then(() => {}),
+        signOut: async () => {
+            await authClient.signOut();
+
+            queryClient.removeQueries({ queryKey: queryKeys.session });
+            queryClient.removeQueries({ queryKey: queryKeys.billing });
+        },
         user: data?.user
             ? {
                   email: data.user.email,

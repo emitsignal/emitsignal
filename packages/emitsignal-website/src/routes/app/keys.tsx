@@ -11,9 +11,26 @@ import { RevokeKeyDialog } from '#/components/app/keys/revoke-key-dialog';
 import { Toolbar } from '#/components/app/toolbar';
 import { SubHeading } from '#/components/ui/sub-head';
 import { useApiKeys } from '#/hooks/use-api-keys';
+import { fetchApiKeysServer } from '#/lib/api-server-fns';
 import { authClient } from '#/lib/auth-client';
+import { queryKeys } from '#/lib/query-client';
 
-export const Route = createFileRoute('/app/keys')({ component: KeysPage });
+export const Route = createFileRoute('/app/keys')({
+    component: KeysPage,
+    loader: async ({ context }) => {
+        if (!import.meta.env.SSR) {
+            return;
+        }
+
+        await context.queryClient
+            .ensureQueryData({
+                queryFn: () => fetchApiKeysServer(),
+                queryKey: queryKeys.apiKeys,
+                staleTime: 5 * 60_000,
+            })
+            .catch(() => undefined);
+    },
+});
 
 interface Toast {
     kind: 'danger' | 'ok' | 'warn';

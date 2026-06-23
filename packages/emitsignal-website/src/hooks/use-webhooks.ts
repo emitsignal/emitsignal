@@ -37,6 +37,7 @@ export function useWebhooks() {
 
             return topicNames.length > 0 ? sseMultiUrl(topicNames) : null;
         },
+        staleTime: 5 * 60_000,
     });
 
     const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.webhooks });

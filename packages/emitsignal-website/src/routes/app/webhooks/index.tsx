@@ -4,8 +4,25 @@ import { Plus } from 'lucide-react';
 import { Toolbar } from '#/components/app/toolbar';
 import { WebhooksTable } from '#/components/app/webhooks/webhooks-table';
 import { useWebhooks } from '#/hooks/use-webhooks';
+import { fetchWebhooksServer } from '#/lib/api-server-fns';
+import { queryKeys } from '#/lib/query-client';
 
-export const Route = createFileRoute('/app/webhooks/')({ component: WebhooksPage });
+export const Route = createFileRoute('/app/webhooks/')({
+    component: WebhooksPage,
+    loader: async ({ context }) => {
+        if (!import.meta.env.SSR) {
+            return;
+        }
+
+        await context.queryClient
+            .ensureQueryData({
+                queryFn: () => fetchWebhooksServer(),
+                queryKey: queryKeys.webhooks,
+                staleTime: 5 * 60_000,
+            })
+            .catch(() => undefined);
+    },
+});
 
 function WebhooksPage() {
     const { loading, remove, update, webhooks } = useWebhooks();
