@@ -13,6 +13,7 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
+    'apple.logo': 'apple',
     'arrow.down.to.line': 'file-download',
     'arrow.left': 'arrow-back',
     'arrow.right': 'arrow-forward',

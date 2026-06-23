@@ -33,11 +33,13 @@ const config: ExpoConfig = {
             ITSAppUsesNonExemptEncryption: false,
         },
         supportsTablet: true,
+        usesAppleSignIn: true,
     },
     name: 'EmitSignal',
     orientation: 'portrait',
     owner: 'kevenleone',
     plugins: [
+        'expo-apple-authentication',
         'expo-font',
         'expo-notifications',
         'expo-router',

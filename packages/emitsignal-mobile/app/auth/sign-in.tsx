@@ -28,10 +28,21 @@ const openLink = (url: string) => {
     Linking.openURL(url).catch(() => {});
 };
 
+// Social sign-in buttons, in display order. Apple is only offered on Apple devices.
+const SOCIAL_PROVIDERS = [
+    { icon: 'globe', label: 'GitHub', provider: 'github' },
+    ...(Platform.OS === 'ios'
+        ? ([{ icon: 'apple.logo', label: 'Apple', provider: 'apple' }] as const)
+        : []),
+] as const;
+
+type SocialProvider = (typeof SOCIAL_PROVIDERS)[number]['provider'];
+
 export default function AuthSignIn() {
-    const { palette, styles } = useThemedStyles(createStyles);
-    const [email, setEmail] = useState('');
     const [busy, setBusy] = useState(false);
+    const [email, setEmail] = useState('');
+    const [pendingProvider, setPendingProvider] = useState<null | SocialProvider>(null);
+    const { palette, styles } = useThemedStyles(createStyles);
 
     const handleSend = async () => {
         if (!email.trim()) {
@@ -47,6 +58,33 @@ export default function AuthSignIn() {
             Alert.alert('Sign-in failed', error.message ?? 'Failed to send sign-in code');
         } else {
             router.push({ params: { email: email.trim() }, pathname: '/auth/verify' });
+        }
+    };
+
+    const handleSocial = async (provider: SocialProvider, label: string) => {
+        setPendingProvider(provider);
+
+        const { error } = await authClient.signIn.social({ callbackURL: '/', provider });
+
+        if (error) {
+            setPendingProvider(null);
+
+            return Alert.alert(
+                'Sign-in failed',
+                error.message ?? `Failed to sign in with ${label}`,
+            );
+        }
+        // The browser flow resolves without an error even when the user cancels,
+        // so only redirect once we confirm a session was actually established.
+
+        const { data: session } = await authClient.getSession({
+            query: { disableCookieCache: true },
+        });
+
+        setPendingProvider(null);
+
+        if (session?.user) {
+            router.replace('/');
         }
     };
 
@@ -103,20 +141,34 @@ export default function AuthSignIn() {
                             <View style={styles.dividerLine} />
                         </View>
 
-                        {[
-                            { icon: 'globe' as const, label: 'continue with GitHub' },
-                            { icon: 'key' as const, label: 'continue with Apple' },
-                        ].map((option) => (
-                            <Pressable
-                                key={option.label}
-                                onPress={handleSend}
-                                style={styles.altBtn}
-                            >
-                                <IconSymbol color={palette.violet} name={option.icon} size={14} />
-                                <Text style={styles.altText}>{option.label}</Text>
-                                <IconSymbol color={palette.fgDim} name="chevron.right" size={13} />
-                            </Pressable>
-                        ))}
+                        {SOCIAL_PROVIDERS.map((option) => {
+                            const busyProvider = pendingProvider === option.provider;
+
+                            return (
+                                <Pressable
+                                    disabled={busyProvider}
+                                    key={option.provider}
+                                    onPress={() => handleSocial(option.provider, option.label)}
+                                    style={[styles.altBtn, busyProvider && { opacity: 0.6 }]}
+                                >
+                                    <IconSymbol
+                                        color={palette.violet}
+                                        name={option.icon}
+                                        size={14}
+                                    />
+                                    <Text style={styles.altText}>
+                                        {busyProvider
+                                            ? 'connecting…'
+                                            : `Continue with ${option.label}`}
+                                    </Text>
+                                    <IconSymbol
+                                        color={palette.fgDim}
+                                        name="chevron.right"
+                                        size={13}
+                                    />
+                                </Pressable>
+                            );
+                        })}
                     </View>
 
                     <View style={styles.footer}>
