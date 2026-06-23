@@ -14,13 +14,15 @@
             }
         },
         "preview": {
+            "channel": "preview",
             "distribution": "internal",
             "env": {
                 "APP_MODE": "preview"
             }
         },
         "production": {
-            "autoIncrement": true
+            "autoIncrement": true,
+            "channel": "production"
         }
     },
     "cli": {
