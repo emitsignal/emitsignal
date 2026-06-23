@@ -107,11 +107,13 @@ const EMPTY_TEMPLATE: WebhookTemplate = { body: '', link: '', priority: '3', tag
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface WebhookCreateProps {
-    initialData?: { template: null | string } & Pick<
+    initialData?: { samplePayload?: null | string; template: null | string } & Pick<
         Webhook,
         'id' | 'name' | 'slug' | 'source' | 'topicName'
     >;
 }
+
+const EMPTY_PAYLOAD = '{\n  \n}';
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -134,7 +136,9 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     })();
 
     const [copied, setCopied] = useState(false);
-    const [customPayloadText, setCustomPayloadText] = useState('{\n  \n}');
+    const [customPayloadText, setCustomPayloadText] = useState(
+        initialData?.samplePayload ?? EMPTY_PAYLOAD,
+    );
     const [customPayloadValid, setCustomPayloadValid] = useState(true);
     const [previewMode, setPreviewMode] = useState<'pretty' | 'raw'>('pretty');
     const [saveError, setSaveError] = useState<null | string>(null);
@@ -273,6 +277,17 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         setTemplateFields(template ?? EMPTY_TEMPLATE);
         setUseTemplate(template !== null);
     }, [initialData?.id]);
+
+    // Seed the custom payload editor once deliveries resolve (the sample payload
+    // arrives after mount, so it has its own effect to avoid resetting template edits).
+    useEffect(() => {
+        if (!initialData?.samplePayload) {
+            return;
+        }
+
+        setCustomPayloadText(initialData.samplePayload);
+        setCustomPayloadValid(true);
+    }, [initialData?.samplePayload]);
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">

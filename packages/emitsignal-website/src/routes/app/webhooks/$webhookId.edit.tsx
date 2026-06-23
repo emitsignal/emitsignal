@@ -3,6 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { Toolbar } from '#/components/app/toolbar';
 import { WebhookCreate } from '#/components/app/webhooks/webhook-create';
 import { useWebhook } from '#/hooks/use-webhook';
+import { useWebhookDeliveries } from '#/hooks/use-webhook-deliveries';
 
 export const Route = createFileRoute('/app/webhooks/$webhookId/edit')({
     component: EditWebhookPage,
@@ -11,6 +12,10 @@ export const Route = createFileRoute('/app/webhooks/$webhookId/edit')({
 function EditWebhookPage() {
     const { webhookId } = Route.useParams();
     const { loading, webhook } = useWebhook(webhookId);
+    const { deliveries } = useWebhookDeliveries(webhookId, webhook?.topicName);
+
+    const latestPayload = deliveries[0]?.payload;
+    const samplePayload = latestPayload ? JSON.stringify(latestPayload, null, 2) : null;
 
     return (
         <>
@@ -37,6 +42,7 @@ function EditWebhookPage() {
                     initialData={{
                         id: webhook.id,
                         name: webhook.name,
+                        samplePayload,
                         slug: webhook.slug,
                         source: webhook.source,
                         template: webhook.template ?? null,
