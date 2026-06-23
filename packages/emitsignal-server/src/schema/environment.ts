@@ -18,7 +18,9 @@ const environmentSchema = Type.Object({
             default: 'log',
         },
     ),
+
     EMIT_SIGNAL_HTTP_PORT: Type.Number({ default: 3333 }),
+    EXPO_ACCESS_TOKEN: Type.Optional(Type.String()),
 
     FILE_STORAGE_PROVIDER: Type.Union([Type.Literal('local'), Type.Literal('s3')], {
         default: 'local',
