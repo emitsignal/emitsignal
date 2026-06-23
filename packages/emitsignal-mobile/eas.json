@@ -2,7 +2,10 @@
     "build": {
         "development": {
             "developmentClient": true,
-            "distribution": "internal"
+            "distribution": "internal",
+            "env": {
+                "APP_MODE": "development"
+            }
         },
         "ios-simulator": {
             "extends": "development",
@@ -11,7 +14,10 @@
             }
         },
         "preview": {
-            "distribution": "internal"
+            "distribution": "internal",
+            "env": {
+                "APP_MODE": "preview"
+            }
         },
         "production": {
             "autoIncrement": true

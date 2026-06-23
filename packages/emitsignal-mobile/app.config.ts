@@ -2,6 +2,37 @@ import { ExpoConfig } from 'expo/config';
 
 import { version } from './package.json';
 
+const appMode = process.env.APP_MODE ?? 'development';
+
+function getProjectConfig() {
+    if (appMode === 'development') {
+        return {
+            bundleIdentifier: 'com.emitsignal.development',
+            iosIcon: './assets/emitsignal-development-ios.icon',
+            name: 'EmitSignal (Development)',
+            scheme: 'emitsignal-development',
+        };
+    }
+
+    if (appMode === 'preview') {
+        return {
+            bundleIdentifier: 'com.emitsignal.preview',
+            iosIcon: './assets/emitsignal-development-ios.icon',
+            name: 'EmitSignal (Preview)',
+            scheme: 'emitsignal-preview',
+        };
+    }
+
+    return {
+        bundleIdentifier: 'com.emitsignal',
+        iosIcon: './assets/emitsignal-ios.icon',
+        name: 'EmitSignal',
+        scheme: 'emitsignal',
+    };
+}
+
+const { bundleIdentifier, iosIcon, name, scheme } = getProjectConfig();
+
 const config: ExpoConfig = {
     android: {
         adaptiveIcon: {
@@ -11,7 +42,7 @@ const config: ExpoConfig = {
             monochromeImage: './assets/images/android-icon-monochrome.png',
         },
         googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
-        package: 'com.emitsignal',
+        package: bundleIdentifier,
         predictiveBackGestureEnabled: false,
     },
     backgroundColor: '#0f0a1a',
@@ -27,15 +58,15 @@ const config: ExpoConfig = {
     },
     icon: './assets/images/icon.png',
     ios: {
-        bundleIdentifier: 'com.emitsignal',
-        icon: './assets/emitsignal-ios.icon',
+        bundleIdentifier,
+        icon: iosIcon,
         infoPlist: {
             ITSAppUsesNonExemptEncryption: false,
         },
         supportsTablet: true,
         usesAppleSignIn: true,
     },
-    name: 'EmitSignal',
+    name,
     orientation: 'portrait',
     owner: 'kevenleone',
     plugins: [
@@ -58,7 +89,7 @@ const config: ExpoConfig = {
             },
         ],
     ],
-    scheme: 'emitsignal',
+    scheme,
     slug: 'emit-signal',
     userInterfaceStyle: 'automatic',
     version,
