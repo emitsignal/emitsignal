@@ -37,7 +37,8 @@ export function buildExpoMessages(tokens: string[], job: PushJob): ExpoPushMessa
             topicName: job.topicName,
         },
         priority: job.priority >= 4 ? 'high' : 'normal',
-        title: `${job.topicDisplayName}: ${job.title}`,
+        subtitle: job.topicDisplayName,
+        title: job.title,
         to: token,
     }));
 }
