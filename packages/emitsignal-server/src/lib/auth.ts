@@ -7,6 +7,7 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
 import { bearer, emailOTP } from 'better-auth/plugins';
+import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
@@ -19,6 +20,7 @@ import { isEmailAllowed } from './email-allowlist';
 import { EmailService } from './email-service';
 import { getClientIP } from './ip';
 import { prisma } from './prisma';
+import { purgeQueue } from './queue';
 import { enforceAuthRateLimit, magicLinkLimiter, verifyLimiter } from './rate-limit';
 import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
 
@@ -212,7 +214,38 @@ export const auth = betterAuth({
         additionalFields: {
             onboarded: { defaultValue: false, required: false, type: 'boolean' },
         },
-        deleteUser: { enabled: true },
+        deleteUser: {
+            // Deleting the User row cascades to every owned record in the database
+            // (topics, messages, push tokens, subscriptions, acknowledgments, API
+            // keys, passkeys, accounts, sessions, topic access, webhooks). Here we
+            // capture the orphaned storage files and Stripe rows that the DB cascade
+            // can't reach, then hand the file cleanup to the async purge queue.
+            beforeDelete: async (user) => {
+                const attachments = await prisma.attachment.findMany({
+                    select: { storageKey: true },
+                    where: {
+                        message: {
+                            OR: [{ senderId: user.id }, { topic: { ownerId: user.id } }],
+                        },
+                    },
+                });
+
+                const avatarKey = user.image
+                    ? `avatars/${user.id}${path.extname(new URL(user.image).pathname)}`
+                    : undefined;
+
+                await purgeQueue.add('purge-storage', {
+                    avatarKey,
+                    kind: 'storage',
+                    storageKeys: attachments.map((attachment) => attachment.storageKey),
+                });
+
+                // Stripe subscription rows are keyed by referenceId, not a User FK,
+                // so they don't cascade — remove them explicitly.
+                await prisma.planSubscription.deleteMany({ where: { referenceId: user.id } });
+            },
+            enabled: true,
+        },
     },
 });
 

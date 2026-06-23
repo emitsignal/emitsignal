@@ -199,7 +199,7 @@ model Acknowledgment {
     userId    String?
 
     message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
-    user    User?   @relation(fields: [userId], references: [id])
+    user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([messageId, deviceId])
     @@index([messageId])
@@ -225,7 +225,7 @@ model Message {
 
     acknowledgments Acknowledgment[]
     attachments     Attachment[]
-    sender          User?              @relation("MessageSender", fields: [senderId], references: [id])
+    sender          User?              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
     topic           Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
     @@index([topicId, createdAt])
@@ -245,7 +245,7 @@ model PushToken {
     updatedAt   DateTime @updatedAt
     userId      String?
 
-    user User? @relation(fields: [userId], references: [id])
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([token])
     @@index([userId])
@@ -263,7 +263,7 @@ model Subscription {
     userId      String?
 
     topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-    user  User? @relation(fields: [userId], references: [id])
+    user  User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@index([topicId])
     @@index([userId])
@@ -280,7 +280,7 @@ model Topic {
     name        String   @unique
     updatedAt   DateTime @updatedAt
 
-    owner   User?   @relation("TopicOwner", fields: [ownerId], references: [id])
+    owner   User?   @relation("TopicOwner", fields: [ownerId], references: [id], onDelete: Cascade)
     ownerId String?
 
     access        TopicAccess[]
