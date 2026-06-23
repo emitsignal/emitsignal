@@ -1,10 +1,14 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { AlertTriangle, Check } from 'lucide-react';
+import { useState } from 'react';
 
 import type { FeedStyle } from '#/lib/feed-style';
 
 import { useDebugSections } from '#/ctx/debug-sections';
 import { useFeedStyle } from '#/ctx/feed-style';
-import { API_URL } from '#/lib/api';
+import { api, API_URL } from '#/lib/api';
+import { authClient } from '#/lib/auth-client';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
@@ -47,8 +51,54 @@ const DEBUG_OPTIONS: {
 ];
 
 export function AdvancedPage() {
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [confirmPurge, setConfirmPurge] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
+    const [deleting, setDeleting] = useState(false);
     const { feedStyle, setFeedStyle } = useFeedStyle();
     const { sections, setSection } = useDebugSections();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
+    const purgeMutation = useMutation({
+        mutationFn: () => api.purgeSignals(),
+        onSuccess: () => {
+            setConfirmPurge(false);
+
+            queryClient.invalidateQueries({ queryKey: ['feed'] });
+            queryClient.invalidateQueries({ queryKey: ['topic-messages'] });
+        },
+    });
+
+    const handlePurge = () => {
+        if (!confirmPurge) {
+            setConfirmPurge(true);
+
+            return;
+        }
+
+        purgeMutation.mutate();
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!confirmDelete) {
+            return setConfirmDelete(true);
+        }
+
+        setDeleting(true);
+        setDeleteError('');
+
+        const { error } = await authClient.deleteUser({ callbackURL: '/' });
+
+        if (error) {
+            setDeleting(false);
+            setDeleteError(error.message ?? 'Deletion failed');
+
+            return;
+        }
+
+        navigate({ replace: true, to: '/' });
+    };
 
     return (
         <>
@@ -155,42 +205,128 @@ export function AdvancedPage() {
 
                 <SettingsCard
                     className="border-danger/30"
-                    description="These actions are permanent and affect every member of the workspace."
+                    description="These actions are permanent and affect your account and its data."
                     title="Danger zone"
                 >
                     <SettingsGroup className="border-danger/20">
                         <SettingsRow>
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-semibold text-danger">
-                                    Purge all signals
+                            {confirmPurge ? (
+                                <div className="flex w-full items-center justify-between gap-4">
+                                    <div>
+                                        <div className="text-[13.5px] font-semibold text-danger">
+                                            Purge every signal?
+                                        </div>
+                                        <div className="mt-0.5 font-mono text-[11px] text-dim">
+                                            This deletes all your signals and their attachments.
+                                            Channels stay.
+                                        </div>
+                                        {purgeMutation.isError && (
+                                            <div className="mt-1 font-mono text-[11px] text-danger">
+                                                {purgeMutation.error.message}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex shrink-0 gap-2">
+                                        <SettingsButton
+                                            disabled={purgeMutation.isPending}
+                                            onClick={() => setConfirmPurge(false)}
+                                            size="sm"
+                                            variant="ghost"
+                                        >
+                                            Cancel
+                                        </SettingsButton>
+                                        <SettingsButton
+                                            disabled={purgeMutation.isPending}
+                                            onClick={handlePurge}
+                                            size="sm"
+                                            variant="danger"
+                                        >
+                                            {purgeMutation.isPending ? 'Purging…' : 'Yes, purge'}
+                                        </SettingsButton>
+                                    </div>
                                 </div>
-                                <div className="mt-0.5 text-[12px] text-muted">
-                                    Permanently delete every signal across all channels. Channels
-                                    stay.
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="danger">
-                                Purge
-                            </SettingsButton>
+                            ) : (
+                                <>
+                                    <div className="flex-1">
+                                        <div className="text-[13.5px] font-semibold text-danger">
+                                            Purge all signals
+                                        </div>
+                                        <div className="mt-0.5 text-[12px] text-muted">
+                                            {purgeMutation.isSuccess
+                                                ? 'Purge queued — your signals are being deleted.'
+                                                : 'Permanently delete every signal across all channels. Channels stay.'}
+                                        </div>
+                                    </div>
+                                    <SettingsButton
+                                        onClick={handlePurge}
+                                        size="sm"
+                                        variant="danger"
+                                    >
+                                        Purge
+                                    </SettingsButton>
+                                </>
+                            )}
                         </SettingsRow>
                         <SettingsRow last>
-                            <div className="flex-1">
-                                <div className="text-[13.5px] font-semibold text-danger">
-                                    Delete workspace
+                            {confirmDelete ? (
+                                <div className="flex w-full items-center justify-between gap-4">
+                                    <div>
+                                        <div className="text-[13.5px] font-semibold text-danger">
+                                            Are you sure?
+                                        </div>
+                                        <div className="mt-0.5 font-mono text-[11px] text-dim">
+                                            This will permanently delete your account.
+                                        </div>
+                                        {deleteError && (
+                                            <div className="mt-1 font-mono text-[11px] text-danger">
+                                                {deleteError}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex shrink-0 gap-2">
+                                        <SettingsButton
+                                            disabled={deleting}
+                                            onClick={() => setConfirmDelete(false)}
+                                            size="sm"
+                                            variant="ghost"
+                                        >
+                                            Cancel
+                                        </SettingsButton>
+                                        <SettingsButton
+                                            disabled={deleting}
+                                            onClick={handleDeleteAccount}
+                                            size="sm"
+                                            variant="danger"
+                                        >
+                                            {deleting ? 'Deleting…' : 'Yes, delete'}
+                                        </SettingsButton>
+                                    </div>
                                 </div>
-                                <div className="mt-0.5 text-[12px] text-muted">
-                                    Removes acme-engineering, all channels, keys, members, and
-                                    billing. Irreversible.
-                                </div>
-                            </div>
-                            <SettingsButton size="sm" variant="danger">
-                                Delete
-                            </SettingsButton>
+                            ) : (
+                                <>
+                                    <div className="flex-1">
+                                        <div className="text-[13.5px] font-semibold text-danger">
+                                            Close account
+                                        </div>
+                                        <div className="mt-0.5 text-[12px] text-muted">
+                                            Permanently deletes your account and all associated
+                                            data. This cannot be undone.
+                                        </div>
+                                    </div>
+                                    <SettingsButton
+                                        onClick={handleDeleteAccount}
+                                        size="sm"
+                                        variant="danger"
+                                    >
+                                        Delete account
+                                    </SettingsButton>
+                                </>
+                            )}
                         </SettingsRow>
                     </SettingsGroup>
                     <div className="mt-3.5 flex items-center gap-2 font-mono text-[11px] text-danger">
                         <AlertTriangle className="shrink-0" size={13} />
-                        Deleting requires typing the workspace slug and re-authenticating.
+                        These actions are permanent and cannot be undone.
                     </div>
                 </SettingsCard>
             </div>

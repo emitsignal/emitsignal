@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
 import { GitBranch, Key, Monitor, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 
@@ -39,7 +38,6 @@ type SessionItem = {
 export function AccountPage() {
     const { data: sessionData } = authClient.useSession();
     const currentToken = sessionData?.session?.token;
-    const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     // Sessions
@@ -69,11 +67,6 @@ export function AccountPage() {
         },
         queryKey: queryKeys.authAccounts,
     });
-
-    // Delete account
-    const [confirmDelete, setConfirmDelete] = useState(false);
-    const [deleteError, setDeleteError] = useState('');
-    const [deleting, setDeleting] = useState(false);
 
     // ── session handlers ─────────────────────────────────────────────────────
 
@@ -159,30 +152,6 @@ export function AccountPage() {
     const handleUnlinkGitHub = () => unlinkGitHubMutation.mutate();
 
     const unlinkingGitHub = unlinkGitHubMutation.isPending;
-
-    // ── delete account handler ────────────────────────────────────────────────
-
-    const handleDeleteAccount = async () => {
-        if (!confirmDelete) {
-            return setConfirmDelete(true);
-        }
-
-        setDeleting(true);
-        setDeleteError('');
-
-        const { error } = await authClient.deleteUser({
-            callbackURL: '/',
-        });
-
-        if (error) {
-            setDeleting(false);
-            setDeleteError(error.message ?? 'Deletion failed');
-
-            return;
-        }
-
-        navigate({ replace: true, to: '/' });
-    };
 
     // ── render ────────────────────────────────────────────────────────────────
 
@@ -373,72 +342,6 @@ export function AccountPage() {
                             })}
                         </SettingsGroup>
                     )}
-                </SettingsCard>
-
-                {/* ── Close account ──────────────────────────────────────── */}
-                <SettingsCard
-                    className="border-danger/30"
-                    description="Permanently deletes your account and all associated data. This cannot be undone."
-                    title="Close account"
-                >
-                    <SettingsGroup className="border-danger/20">
-                        <SettingsRow last>
-                            {confirmDelete ? (
-                                <div className="flex w-full items-center justify-between gap-4">
-                                    <div>
-                                        <div className="text-[13.5px] font-semibold text-danger">
-                                            Are you sure?
-                                        </div>
-                                        <div className="mt-0.5 font-mono text-[11px] text-dim">
-                                            This will permanently delete your account.
-                                        </div>
-                                        {deleteError && (
-                                            <div className="mt-1 font-mono text-[11px] text-danger">
-                                                {deleteError}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex shrink-0 gap-2">
-                                        <SettingsButton
-                                            disabled={deleting}
-                                            onClick={() => setConfirmDelete(false)}
-                                            size="sm"
-                                            variant="ghost"
-                                        >
-                                            Cancel
-                                        </SettingsButton>
-                                        <SettingsButton
-                                            disabled={deleting}
-                                            onClick={handleDeleteAccount}
-                                            size="sm"
-                                            variant="danger"
-                                        >
-                                            {deleting ? 'Deleting…' : 'Yes, delete'}
-                                        </SettingsButton>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="flex-1">
-                                        <div className="text-[13.5px] font-semibold text-danger">
-                                            Delete my account
-                                        </div>
-                                        <div className="mt-0.5 text-[12px] text-muted">
-                                            Your inbox, keys, and personal data are erased. This
-                                            cannot be undone.
-                                        </div>
-                                    </div>
-                                    <SettingsButton
-                                        onClick={() => setConfirmDelete(true)}
-                                        size="sm"
-                                        variant="danger"
-                                    >
-                                        Delete account
-                                    </SettingsButton>
-                                </>
-                            )}
-                        </SettingsRow>
-                    </SettingsGroup>
                 </SettingsCard>
             </div>
         </>
