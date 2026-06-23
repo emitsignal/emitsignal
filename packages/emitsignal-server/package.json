@@ -51,6 +51,7 @@
         "dev": "bun run --watch src/index.ts",
         "dev:worker": "bun run --watch src/workers/all.ts",
         "dev:worker:email": "bun run --watch src/workers/email.ts",
+        "dev:worker:purge": "bun run --watch src/workers/purge.ts",
         "dev:worker:push": "bun run --watch src/workers/push.ts",
         "dev:worker:schedule": "bun run --watch src/workers/schedule.ts",
         "test": "bun test"

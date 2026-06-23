@@ -10,6 +10,7 @@ import { getBilling } from './http/billing/get';
 import { acknowledge } from './http/messages/acknowledge';
 import { attachments } from './http/messages/attachments';
 import { getMessage } from './http/messages/get';
+import { purgeSignals } from './http/messages/purge';
 import { loggerPlugin } from './http/plugins/logger-plugin';
 import { rateLimitPlugin } from './http/plugins/rate-limit-plugin';
 import { listPushTokens } from './http/push-tokens/list';
@@ -40,7 +41,7 @@ import { auth } from './lib/auth';
 import { Email } from './lib/email';
 import { EmailService } from './lib/email-service';
 import { logger } from './lib/logger';
-import { emailQueue, pushQueue, redisConnection, scheduleQueue } from './lib/queue';
+import { emailQueue, purgeQueue, pushQueue, redisConnection, scheduleQueue } from './lib/queue';
 import { rateLimitRedis } from './lib/rate-limit';
 import { FileStorageService } from './lib/storage';
 import { environment } from './schema/environment';
@@ -70,6 +71,7 @@ const app = new Elysia()
     .use(acknowledge)
     .use(attachments)
     .use(getMessage)
+    .use(purgeSignals)
     .get('/uploads/*', async ({ params, status }) => {
         if (environment.FILE_STORAGE_PROVIDER === 's3') {
             return status(501);
@@ -131,6 +133,7 @@ async function shutdown() {
     logger.info('shutting down server');
 
     await emailQueue.close();
+    await purgeQueue.close();
     await pushQueue.close();
     await scheduleQueue.close();
 
