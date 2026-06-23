@@ -3,6 +3,7 @@ import { useSession } from '@/ctx/session';
 import { api, type Message, sseMultiUrl, sseUrl } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 
+import { useBoundedPending } from './use-bounded-pending';
 import { useLiveQuery } from './use-live-query';
 import { useSubscriptions } from './use-subscriptions';
 
@@ -15,8 +16,10 @@ export function useFeed() {
     const scope = userId ?? deviceId ?? '';
     const topicNames = subscriptions.map((subscription) => subscription.topic.name);
 
+    const enabled = !sessionLoading && Boolean(userId || deviceId);
+
     const query = useLiveQuery<Message[]>({
-        enabled: !sessionLoading && Boolean(userId || deviceId),
+        enabled,
         onMessage: (queryClient, data) => {
             const incoming = data as { topicName?: string } & Message;
 
@@ -34,9 +37,14 @@ export function useFeed() {
         sseUrl: () => (topicNames.length ? sseMultiUrl(topicNames) : null),
     });
 
+    // A disabled query reports `status: 'pending'`; only treat the screen as
+    // loading while it actually fetches, or while prerequisites resolve.
+    const waitingForPrerequisites = useBoundedPending(!enabled);
+    const loading = enabled ? query.isLoading : waitingForPrerequisites;
+
     return {
         error: query.error instanceof Error ? query.error : null,
-        loading: query.isPending,
+        loading,
         messages: query.data ?? [],
         refresh: () => query.refetch(),
         refreshing: query.isFetching,
@@ -48,8 +56,10 @@ export function useTopicMessages(topicName: null | string) {
     const { deviceId } = useDevice();
     const { user } = useSession();
 
+    const enabled = Boolean(topicName);
+
     const query = useLiveQuery<Message[]>({
-        enabled: Boolean(topicName),
+        enabled,
         onMessage: (queryClient, data) => {
             if (!topicName) {
                 return;
@@ -75,5 +85,8 @@ export function useTopicMessages(topicName: null | string) {
         sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
 
-    return { loading: query.isPending, messages: query.data ?? [] };
+    const waitingForPrerequisites = useBoundedPending(!enabled);
+    const loading = enabled ? query.isLoading : waitingForPrerequisites;
+
+    return { loading, messages: query.data ?? [] };
 }

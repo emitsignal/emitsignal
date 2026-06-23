@@ -2,6 +2,7 @@ import { PRIORITY_LABEL, relativeTime } from '@emitsignal/shared';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     FlatList,
     Pressable,
     RefreshControl,
@@ -146,7 +147,13 @@ export default function FeedScreen() {
         />
     );
 
-    const emptyComponent = !loading ? <EmptyFeed filter={filter} message={error?.message} /> : null;
+    const emptyComponent = loading ? (
+        <View style={styles.empty}>
+            <ActivityIndicator color={palette.violet} />
+        </View>
+    ) : (
+        <EmptyFeed filter={filter} message={error?.message} />
+    );
 
     const emptyStyle = filtered.length === 0 ? { flex: 1 } : { paddingBottom: 40 };
 

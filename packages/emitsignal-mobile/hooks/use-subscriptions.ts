@@ -5,6 +5,8 @@ import { useSession } from '@/ctx/session';
 import { api, type SubscriptionSettings } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 
+import { useBoundedPending } from './use-bounded-pending';
+
 interface SubscribeOptions {
     pushEnabled?: boolean;
     settings?: Partial<SubscriptionSettings>;
@@ -18,11 +20,19 @@ export function useSubscriptions() {
     const userId = user?.id;
     const scope = userId ?? deviceId ?? '';
 
-    const { data, error, isFetching, isPending, refetch } = useQuery({
-        enabled: !sessionLoading && Boolean(userId || deviceId),
+    const enabled = !sessionLoading && Boolean(userId || deviceId);
+
+    const { data, error, isFetching, isLoading, refetch } = useQuery({
+        enabled,
         queryFn: () => api.listSubscriptions(userId ? undefined : (deviceId ?? undefined)),
         queryKey: queryKeys.subscriptions(scope),
     });
+
+    // A disabled query reports `status: 'pending'`, so we must not treat it as
+    // loading. While prerequisites (session/device) resolve, show a bounded
+    // pending state; once enabled, defer to the query's real fetch state.
+    const waitingForPrerequisites = useBoundedPending(!enabled);
+    const loading = enabled ? isLoading : waitingForPrerequisites;
 
     const invalidate = () =>
         queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) });
@@ -63,7 +73,7 @@ export function useSubscriptions() {
 
     return {
         error: error instanceof Error ? error : null,
-        loading: isPending,
+        loading,
         refresh: () => refetch(),
         refreshing: isFetching,
         subscribe: (topicName: string, options?: SubscribeOptions) =>

@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     FlatList,
     Pressable,
@@ -21,7 +22,7 @@ import { type Subscription } from '@/lib/api';
 
 export default function ChannelsScreen() {
     const [query, setQuery] = useState('');
-    const { loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
+    const { error, loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
     const { palette, styles } = useThemedStyles(createStyles);
     const insets = useSafeAreaInsets();
 
@@ -83,21 +84,29 @@ export default function ChannelsScreen() {
                 data={filtered}
                 keyExtractor={({ id }) => id}
                 ListEmptyComponent={
-                    !loading ? (
+                    loading ? (
+                        <View style={styles.empty}>
+                            <ActivityIndicator color={palette.violet} />
+                        </View>
+                    ) : (
                         <View style={styles.empty}>
                             <WDot level={2} size={10} />
                             <Text style={styles.emptyTitle}>
-                                {query.trim()
-                                    ? `No results for "${query.trim()}"`
-                                    : 'No channels yet'}
+                                {error
+                                    ? 'Could not load channels'
+                                    : query.trim()
+                                      ? `No results for "${query.trim()}"`
+                                      : 'No channels yet'}
                             </Text>
                             <Text style={styles.emptyBody}>
-                                {query.trim()
-                                    ? 'Try a different search term.'
-                                    : 'Tap the + button to subscribe to a topic.'}
+                                {error
+                                    ? error.message
+                                    : query.trim()
+                                      ? 'Try a different search term.'
+                                      : 'Tap the + button to subscribe to a topic.'}
                             </Text>
                         </View>
-                    ) : null
+                    )
                 }
                 refreshControl={
                     <RefreshControl
