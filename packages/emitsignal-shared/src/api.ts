@@ -1,5 +1,7 @@
 import type { BillingInfo } from './billing.ts';
 
+const REQUEST_TIMEOUT_MS = 15_000;
+
 export interface Action {
     label?: string;
     type: 'acknowledge' | 'view';
@@ -146,22 +148,30 @@ export function createApiClient(baseUrl: string) {
             headers['Authorization'] = `Bearer ${authToken}`;
         }
 
-        const response = await fetch(`${baseUrl}${path}`, {
-            credentials: 'include',
-            ...init,
-            headers,
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-        if (!response.ok) {
-            const text = await response.text().catch(() => response.statusText);
-            throw new Error(`${response.status} ${text}`);
+        try {
+            const response = await fetch(`${baseUrl}${path}`, {
+                credentials: 'include',
+                ...init,
+                headers,
+                signal: controller.signal,
+            });
+
+            if (!response.ok) {
+                const text = await response.text().catch(() => response.statusText);
+                throw new Error(`${response.status} ${text}`);
+            }
+
+            if (response.status === 204) {
+                return undefined as T;
+            }
+
+            return (await response.json()) as T;
+        } finally {
+            clearTimeout(timeout);
         }
-
-        if (response.status === 204) {
-            return undefined as T;
-        }
-
-        return response.json() as Promise<T>;
     }
 
     const api = {
