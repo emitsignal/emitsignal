@@ -75,7 +75,6 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
         }
 
         return actions;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [subscription]);
 
     const handleSaveSettings = async () => {
