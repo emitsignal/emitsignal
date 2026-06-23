@@ -6,11 +6,18 @@ import { prisma } from '../../lib/prisma';
 import { resolveUserId } from '../auth/plugin';
 
 function randomSlug(prefix: string): string {
-    return `${prefix}_${Math.random().toString(36).slice(2, 8)}`;
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let suffix = '';
+
+    for (let index = 0; index < 7; index += 1) {
+        suffix += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+
+    return `${prefix}_${suffix}`;
 }
 
 const SOURCE_PREFIX: Record<string, string> = {
-    custom: 'cu',
+    custom: 'cw',
     github: 'gh',
     grafana: 'gf',
     stripe: 'st',
@@ -36,7 +43,7 @@ export const createWebhook = new Elysia().post(
             });
         }
 
-        const prefix = SOURCE_PREFIX[body.source ?? 'custom'] ?? 'cu';
+        const prefix = SOURCE_PREFIX[body.source ?? 'custom'] ?? 'cw';
         const slug = randomSlug(prefix);
 
         const webhook = await prisma.webhook.create({

@@ -127,7 +127,7 @@ export const prismaMock = {
                 createdAt: new Date(),
                 id: 'wh-1',
                 name: 'custom webhook',
-                slug: 'cu_abc123',
+                slug: 'cw_abc1234',
                 source: 'custom',
                 status: 'active',
                 template: null,
