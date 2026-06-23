@@ -296,6 +296,10 @@ export function createApiClient(baseUrl: string) {
             );
         },
 
+        purgeSignals() {
+            return request<{ status: string }>('/me/signals', { method: 'DELETE' });
+        },
+
         registerPushToken(input: {
             deviceId: string;
             platform: 'android' | 'ios' | 'web';
