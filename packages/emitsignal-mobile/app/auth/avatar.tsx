@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -42,46 +43,61 @@ export default function AuthAvatar() {
         }
     };
 
+    const uploadAvatar = async (): Promise<string | undefined> => {
+        try {
+            const token = getAuthToken();
+
+            if (!token) {
+                return;
+            }
+
+            const form = new FormData();
+            const file = new File(localUri as string);
+
+            form.append('file', file as unknown as Blob, file.name);
+
+            const response = await fetch(`${API_URL}/user/avatar`, {
+                body: form,
+                headers: { Authorization: `Bearer ${token}` },
+                method: 'POST',
+            });
+
+            if (response.ok) {
+                const data = (await response.json()) as { imageUrl: string };
+
+                return data.imageUrl;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+        return undefined;
+    };
+
     const handleContinue = async () => {
         setBusy(true);
+
+        const payload: { image?: string; name?: string } = {};
+
         try {
-            const updates: { image?: string; name?: string } = {};
-
             if (localUri) {
-                const form = new FormData();
-                const filename = localUri.split('/').pop() ?? 'avatar.jpg';
-                const mimeType = filename.endsWith('.png') ? 'image/png' : 'image/jpeg';
-                form.append('file', {
-                    name: filename,
-                    type: mimeType,
-                    uri: localUri,
-                } as unknown as Blob);
+                const imageUrl = await uploadAvatar();
 
-                const token = getAuthToken();
-                const response = await fetch(`${API_URL}/user/avatar`, {
-                    body: form,
-                    headers: token ? { Authorization: `Bearer ${token}` } : {},
-                    method: 'POST',
-                });
-
-                if (response.ok) {
-                    const data = (await response.json()) as { imageUrl: string };
-                    updates.image = data.imageUrl;
+                if (imageUrl) {
+                    payload.image = imageUrl;
                 }
             }
 
             if (name.trim() && name.trim() !== user?.name) {
-                updates.name = name.trim();
+                payload.name = name.trim();
             }
 
-            if (Object.keys(updates).length > 0) {
-                await authClient.updateUser(updates);
+            if (Object.keys(payload).length > 0) {
+                await authClient.updateUser(payload);
             }
-
-            router.replace('/auth/first-channels');
-        } catch {
-            router.replace('/auth/first-channels');
         } finally {
+            router.replace('/auth/first-channels');
+
             setBusy(false);
         }
     };
