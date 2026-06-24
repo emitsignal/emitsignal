@@ -29,7 +29,7 @@ import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
 const stripePlugins = isStripeBillingEnabled()
     ? [
           stripe({
-              createCustomerOnSignUp: true,
+              createCustomerOnSignUp: false,
               schema: { subscription: { modelName: 'planSubscription' } },
               stripeClient: new Stripe(environment.STRIPE_SECRET_KEY as string),
               stripeWebhookSecret: environment.STRIPE_WEBHOOK_SECRET as string,
