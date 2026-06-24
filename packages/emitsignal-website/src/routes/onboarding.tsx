@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 
@@ -9,7 +10,7 @@ import { useSession } from '#/ctx/session';
 import { api, API_URL } from '#/lib/api';
 import { authClient } from '#/lib/auth-client';
 import { isAuthenticated } from '#/lib/auth-guard';
-import { isOnboardingComplete, markOnboardingComplete } from '#/lib/onboarding';
+import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
 export const Route = createFileRoute('/onboarding')({
@@ -46,6 +47,7 @@ function OnboardingPage() {
     const { loading, user } = useSession();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const [busy, setBusy] = useState(false);
     const [name, setName] = useState('');
@@ -65,16 +67,6 @@ function OnboardingPage() {
         if (user?.onboarded) {
             redirected.current = true;
             navigate({ to: '/app' });
-            return;
-        }
-
-        // Backfill: existing users whose completion only lived in localStorage get
-        // their DB flag set once, so other devices/browsers stop re-prompting.
-        if (user && isOnboardingComplete()) {
-            redirected.current = true;
-            authClient.updateUser({ onboarded: true }).finally(() => {
-                navigate({ to: '/app' });
-            });
         }
     }, [loading, user, navigate]);
 
@@ -165,14 +157,16 @@ function OnboardingPage() {
             setBusy(false);
         }
 
-        markOnboardingComplete();
+        await queryClient.invalidateQueries({ queryKey: queryKeys.session });
+
         navigate({ to: '/app' });
     };
 
     const handleSkip = async () => {
         await authClient.updateUser({ onboarded: true }).catch(() => {});
 
-        markOnboardingComplete();
+        await queryClient.invalidateQueries({ queryKey: queryKeys.session });
+
         navigate({ to: '/app' });
     };
 

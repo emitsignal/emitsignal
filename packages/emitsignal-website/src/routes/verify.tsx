@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
-import { isOnboardingComplete } from '#/lib/onboarding';
 import { queryKeys } from '#/lib/query-client';
 
 export const Route = createFileRoute('/verify')({
@@ -47,12 +46,11 @@ function VerifyPage() {
             if (err) {
                 setError(err.message ?? 'Invalid or expired code');
             } else {
-                const onboarded = data?.user?.onboarded || isOnboardingComplete();
-
                 // Drop the cached (signed-out) session so the `/app` guard
                 // fetches the freshly-authenticated one instead of a stale value.
                 queryClient.removeQueries({ queryKey: queryKeys.session });
-                navigate({ to: onboarded ? '/app' : '/onboarding' });
+
+                navigate({ to: data?.user?.onboarded ? '/app' : '/onboarding' });
             }
         },
         [navigate, queryClient],
