@@ -9,6 +9,7 @@ import { useDebugSections } from '#/ctx/debug-sections';
 import { useFeedStyle } from '#/ctx/feed-style';
 import { api, API_URL } from '#/lib/api';
 import { authClient } from '#/lib/auth-client';
+import { queryKeys } from '#/lib/query-client';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
@@ -96,6 +97,9 @@ export function AdvancedPage() {
 
             return;
         }
+
+        queryClient.removeQueries({ queryKey: queryKeys.session });
+        queryClient.removeQueries({ queryKey: queryKeys.billing });
 
         navigate({ replace: true, to: '/' });
     };
