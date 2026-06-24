@@ -1,9 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { ImagePlus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { Avatar } from '#/components/ui/avatar';
 import { useSession } from '#/ctx/session';
 import { authClient } from '#/lib/auth-client';
+import { queryKeys } from '#/lib/query-client';
 
 import { SettingsButton } from './settings-button';
 import { SettingsCard } from './settings-card';
@@ -14,6 +16,7 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 
 export function ProfilePage() {
     const { user } = useSession();
+    const queryClient = useQueryClient();
 
     const [avatarError, setAvatarError] = useState('');
     const [busy, setBusy] = useState(false);
@@ -49,6 +52,8 @@ export function ProfilePage() {
         if (error) {
             setSaveError(error.message ?? 'Failed to save changes');
         } else {
+            await queryClient.invalidateQueries({ queryKey: queryKeys.session });
+
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         }
@@ -88,6 +93,8 @@ export function ProfilePage() {
             await authClient.updateUser({ image: json.imageUrl } as Parameters<
                 typeof authClient.updateUser
             >[0]);
+
+            await queryClient.invalidateQueries({ queryKey: queryKeys.session });
         } catch (error) {
             setAvatarError(error instanceof Error ? error.message : 'Failed to upload image');
         }
@@ -116,6 +123,8 @@ export function ProfilePage() {
             await authClient.updateUser({ image: null } as Parameters<
                 typeof authClient.updateUser
             >[0]);
+
+            await queryClient.invalidateQueries({ queryKey: queryKeys.session });
         } catch {
             setAvatarError('Failed to remove image');
         }
