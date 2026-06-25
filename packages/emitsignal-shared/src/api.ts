@@ -187,6 +187,13 @@ export function createApiClient(baseUrl: string) {
 
         baseUrl,
 
+        claimSubscriptions(deviceId: string) {
+            return request<{ claimed: number }>('/subscriptions/claim', {
+                body: JSON.stringify({ deviceId }),
+                method: 'POST',
+            });
+        },
+
         createWebhook(input: {
             name?: string;
             source?: string;
