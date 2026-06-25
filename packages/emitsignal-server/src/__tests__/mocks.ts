@@ -54,6 +54,7 @@ export const prismaMock = {
     },
     subscription: {
         delete: mock<() => Promise<object>>(() => Promise.resolve({ id: 'sub-1' })),
+        deleteMany: mock<() => Promise<{ count: number }>>(() => Promise.resolve({ count: 0 })),
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
         update: mock<() => Promise<object>>(() =>
@@ -65,6 +66,7 @@ export const prismaMock = {
                 topicId: 'topic-1',
             }),
         ),
+        updateMany: mock<() => Promise<{ count: number }>>(() => Promise.resolve({ count: 0 })),
         upsert: mock<() => Promise<object>>(() =>
             Promise.resolve({
                 deviceId: 'd1',

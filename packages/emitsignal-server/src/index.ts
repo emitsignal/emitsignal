@@ -16,6 +16,7 @@ import { rateLimitPlugin } from './http/plugins/rate-limit-plugin';
 import { listPushTokens } from './http/push-tokens/list';
 import { registerPushToken } from './http/push-tokens/register';
 import { updatePushToken } from './http/push-tokens/update';
+import { claimSubscriptions } from './http/subscriptions/claim';
 import { listSubscriptions } from './http/subscriptions/list';
 import { listSubscriptionMessages } from './http/subscriptions/messages';
 import { subscribe } from './http/subscriptions/subscribe';
@@ -70,6 +71,7 @@ const app = new Elysia()
     .use(getBilling)
     .use(acknowledge)
     .use(attachments)
+    .use(claimSubscriptions)
     .use(getMessage)
     .use(purgeSignals)
     .get('/uploads/*', async ({ params, status }) => {

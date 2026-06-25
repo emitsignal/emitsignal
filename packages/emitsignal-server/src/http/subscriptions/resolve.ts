@@ -33,7 +33,7 @@ export async function resolveSubscriptions({
         const rows = await prisma.subscription.findMany({
             include: { topic: true },
             orderBy: { createdAt: 'desc' },
-            where: { deviceId },
+            where: { deviceId, userId: null },
         });
 
         return { rows, userId: null };

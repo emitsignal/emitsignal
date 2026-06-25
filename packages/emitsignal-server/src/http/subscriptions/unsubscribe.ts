@@ -24,14 +24,11 @@ export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
                 })
                 .catch(() => null);
         } else {
+            // Anonymous caller: only remove the device's own anonymous row, never
+            // an account-owned subscription that happens to share this device.
             await prisma.subscription
-                .delete({
-                    where: {
-                        deviceId_topicId: {
-                            deviceId: body.deviceId,
-                            topicId: topic.id,
-                        },
-                    },
+                .deleteMany({
+                    where: { deviceId: body.deviceId, topicId: topic.id, userId: null },
                 })
                 .catch(() => null);
         }

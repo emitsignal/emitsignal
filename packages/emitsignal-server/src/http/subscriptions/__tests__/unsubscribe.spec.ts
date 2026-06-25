@@ -38,13 +38,24 @@ describe('DELETE /subscriptions', () => {
 
     it('returns ok when delete throws (subscription not found)', async () => {
         prismaMock.topic.findUnique.mockResolvedValueOnce({ id: 't1', name: 'test-topic' });
-        prismaMock.subscription.delete.mockRejectedValueOnce(new Error('not found'));
+        prismaMock.subscription.deleteMany.mockRejectedValueOnce(new Error('not found'));
 
         const res = await app.handle(request({ deviceId: 'dev-1', topicName: 'test-topic' }));
         expect(res.status).toBe(200);
 
         const data = await res.json();
         expect(data).toEqual({ ok: true });
+    });
+
+    it('only removes the device anonymous row, scoped to userId null', async () => {
+        prismaMock.topic.findUnique.mockResolvedValueOnce({ id: 't1', name: 'test-topic' });
+
+        const res = await app.handle(request({ deviceId: 'dev-1', topicName: 'test-topic' }));
+        expect(res.status).toBe(200);
+
+        expect(prismaMock.subscription.deleteMany).toHaveBeenCalledWith({
+            where: { deviceId: 'dev-1', topicId: 't1', userId: null },
+        });
     });
 
     it('returns 422 when missing body fields', async () => {

@@ -47,6 +47,16 @@ describe('GET /subscriptions', () => {
         });
     });
 
+    it('scopes the anonymous device query to userId null', async () => {
+        await app.handle(new Request('http://localhost/subscriptions?deviceId=dev-1'));
+
+        expect(prismaMock.subscription.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { deviceId: 'dev-1', userId: null },
+            }),
+        );
+    });
+
     it('returns empty array when no subscriptions exist', async () => {
         const res = await app.handle(new Request('http://localhost/subscriptions?deviceId=dev-1'));
         expect(res.status).toBe(200);
