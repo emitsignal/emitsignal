@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Platform,
     Pressable,
     ScrollView,
@@ -149,9 +150,18 @@ export default function SettingsScreen() {
                 <View style={styles.group}>
                     {user ? (
                         <Pressable
-                            onPress={async () => {
-                                await signOut();
-                                router.replace('/auth');
+                            onPress={() => {
+                                Alert.alert('Sign out', 'Are you sure you want to sign out?', [
+                                    { style: 'cancel', text: 'Cancel' },
+                                    {
+                                        onPress: async () => {
+                                            await signOut();
+                                            router.replace('/auth');
+                                        },
+                                        style: 'destructive',
+                                        text: 'Sign out',
+                                    },
+                                ]);
                             }}
                             style={styles.row}
                         >

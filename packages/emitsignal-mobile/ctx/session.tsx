@@ -44,24 +44,36 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        const linkToken = async () => {
+        const userId = data.user.id;
+
+        const linkDevice = async () => {
             const [token, deviceId] = await Promise.all([
                 AsyncStorage.getItem(PUSH_TOKEN_KEY),
                 AsyncStorage.getItem(DEVICE_ID_KEY),
             ]);
 
-            if (!token || !deviceId) {
+            if (!deviceId) {
+                return;
+            }
+
+            // Adopt this device's anonymous subscriptions into the account, then
+            // refresh the cached views so the claimed channels render under the
+            // signed-in scope.
+            await api.claimSubscriptions(deviceId).catch(() => {});
+
+            queryClient.invalidateQueries({ queryKey: queryKeys.feed(userId) });
+            queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(userId) });
+
+            if (!token) {
                 return;
             }
 
             const platform =
                 Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';
 
-            api.registerPushToken({ deviceId, platform, token, userId: data.user.id }).catch(
-                () => {},
-            );
+            api.registerPushToken({ deviceId, platform, token, userId }).catch(() => {});
         };
-        linkToken();
+        linkDevice();
     }, [data?.user?.id]);
 
     const value: SessionContextValue = {
@@ -69,6 +81,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         signOut: async () => {
             await authClient.signOut();
             setAuthToken(null);
+
+            // The active identity is gone, so every cached query (user-scoped feed
+            // and subscriptions, plus unscoped billing and push-token records) is
+            // now stale. Drop the whole cache so the anonymous device starts fresh.
+            queryClient.clear();
         },
         user: data?.user
             ? {
