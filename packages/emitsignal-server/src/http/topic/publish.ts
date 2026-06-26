@@ -35,6 +35,16 @@ export const publish = new Elysia().post(
             return { error: 'scheduledAt cannot be more than 1 year in the future', status: 400 };
         }
 
+        const messageBody = (body.body ?? '').trim();
+        const title = (body.title ?? '').trim();
+
+        if (title === '' && messageBody === '') {
+            return status(400, {
+                error: 'missing_content',
+                message: 'at least one of title or body is required',
+            });
+        }
+
         // Anonymous publishers are only throttled by the per-IP rate limiter;
         // daily plan quotas apply to authenticated users.
         const userId = await resolveUserId({ headers });
@@ -100,14 +110,14 @@ export const publish = new Elysia().post(
             data: {
                 actions: JSON.stringify(actions),
                 bannerImage: media.bannerImage ? JSON.stringify(media.bannerImage) : null,
-                body: body.body,
+                body: messageBody,
                 inlineAttachments: JSON.stringify(media.inlineAttachments),
                 inlineImages: JSON.stringify(media.inlineImages),
                 priority: body.priority,
                 scheduledAt: isScheduled ? new Date(scheduledAtUnix * 1000) : null,
                 senderId: userId,
                 tags: serializeTags(body.tags),
-                title: body.title,
+                title,
                 topicId: topic.id,
             },
         });
@@ -128,10 +138,10 @@ export const publish = new Elysia().post(
 
         pushQueue.add('push-message', {
             actions,
-            body: body.body,
+            body: messageBody,
             messageId: message.id,
             priority: message.priority,
-            title: body.title,
+            title,
             topicDisplayName: topic.displayName,
             topicId: topic.id,
             topicName: topic.name,
@@ -153,13 +163,13 @@ export const publish = new Elysia().post(
                 ),
             ),
             bannerImage: t.Optional(mediaItemSchema),
-            body: t.String(),
+            body: t.Optional(t.String()),
             inlineAttachments: t.Optional(mediaInputSchema),
             inlineImages: t.Optional(mediaInputSchema),
-            priority: t.Integer({ maximum: 5, minimum: 1 }),
+            priority: t.Integer({ default: 3, maximum: 5, minimum: 1 }),
             scheduledAt: t.Optional(t.Integer()),
-            tags: t.Array(t.String()),
-            title: t.String(),
+            tags: t.Optional(t.Array(t.String())),
+            title: t.Optional(t.String()),
         }),
         parse: [
             async ({ contentType, request }) => {

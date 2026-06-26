@@ -108,7 +108,54 @@ describe('POST /topic/:name', () => {
 
     it('returns 422 for missing required body fields', async () => {
         const res = await app.handle(request('test-topic', {}));
+
         expect(res.status).toBe(422);
+    });
+
+    it('returns 400 when both title and body are absent', async () => {
+        const res = await app.handle(request('test-topic', { priority: 3, tags: [] }));
+
+        expect(res.status).toBe(400);
+
+        const data = await res.json();
+
+        expect(data.error).toBe('missing_content');
+    });
+
+    it('returns 400 when title and body are whitespace only', async () => {
+        const res = await app.handle(
+            request('test-topic', { body: '  ', priority: 3, tags: [], title: '   ' }),
+        );
+
+        expect(res.status).toBe(400);
+
+        const data = await res.json();
+
+        expect(data.error).toBe('missing_content');
+    });
+
+    it('publishes with title only (no body)', async () => {
+        const res = await app.handle(
+            request('test-topic', { priority: 3, tags: [], title: 'Only title' }),
+        );
+
+        expect(res.status).toBe(200);
+
+        const data = await res.json();
+
+        expect(data.message).toBe('posted');
+    });
+
+    it('publishes with body only (no title)', async () => {
+        const res = await app.handle(
+            request('test-topic', { body: 'Only body', priority: 3, tags: [] }),
+        );
+
+        expect(res.status).toBe(200);
+
+        const data = await res.json();
+
+        expect(data.message).toBe('posted');
     });
 
     it('returns 422 for invalid priority', async () => {
@@ -137,6 +184,16 @@ describe('POST /topic/:name', () => {
                 method: 'POST',
             });
         }
+
+        it('returns 400 when body is empty and no title header is present', async () => {
+            const res = await app.handle(headerRequest('test-topic', ''));
+
+            expect(res.status).toBe(400);
+
+            const data = await res.json();
+
+            expect(data.error).toBe('missing_content');
+        });
 
         it('publishes with plain-text body and X-Title header', async () => {
             const res = await app.handle(
