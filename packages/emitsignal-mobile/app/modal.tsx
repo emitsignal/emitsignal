@@ -1,3 +1,4 @@
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -77,6 +78,7 @@ export default function SubscribeModal() {
                                     autoCapitalize="none"
                                     autoCorrect={false}
                                     autoFocus
+                                    maxLength={TOPIC_NAME_MAX_LENGTH}
                                     onChangeText={setTopic}
                                     placeholder="alerts/prod"
                                     placeholderTextColor={palette.fgDim}

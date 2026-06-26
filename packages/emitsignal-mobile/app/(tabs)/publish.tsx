@@ -1,3 +1,4 @@
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
@@ -91,6 +92,7 @@ export default function PublishScreen() {
                         <TextInput
                             autoCapitalize="none"
                             autoCorrect={false}
+                            maxLength={TOPIC_NAME_MAX_LENGTH}
                             onChangeText={setTopic}
                             placeholder="deploy/prod"
                             placeholderTextColor={palette.fgDim}
