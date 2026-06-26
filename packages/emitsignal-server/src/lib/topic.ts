@@ -1,5 +1,7 @@
 import type { MediaRef } from '@emitsignal/shared';
 
+import { isValidTopicName } from '@emitsignal/shared';
+
 import type { Action } from './actions';
 
 import { getUserPlan } from './billing/get-user-plan';
@@ -8,10 +10,21 @@ import { topicNameCache } from './cache';
 import { prisma } from './prisma';
 import { FileStorageService } from './storage';
 
-export const TOPIC_NAME_REGEX = /^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/i;
+export { isValidTopicName, TOPIC_NAME_MAX_LENGTH, TOPIC_NAME_REGEX } from '@emitsignal/shared';
+
+export class TopicNameError extends Error {
+    constructor(message = 'invalid topic name') {
+        super(message);
+        this.name = 'TopicNameError';
+    }
+}
 
 export async function getOrCreateTopic(topicName: string, ownerId?: string) {
     const name = topicName.toLowerCase();
+
+    if (!isValidTopicName(name)) {
+        throw new TopicNameError();
+    }
 
     const cached = topicNameCache.get(name);
 

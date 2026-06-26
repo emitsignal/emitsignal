@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 
 import { prisma } from '../../lib/prisma';
+import { TOPIC_NAME_MAX_LENGTH } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
 export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
@@ -38,7 +39,7 @@ export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
     {
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
-            topicName: t.String({ minLength: 1 }),
+            topicName: t.String({ maxLength: TOPIC_NAME_MAX_LENGTH, minLength: 1 }),
         }),
     },
 );

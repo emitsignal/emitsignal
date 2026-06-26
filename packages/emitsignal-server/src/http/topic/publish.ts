@@ -12,7 +12,7 @@ import { ANON_INLINE_MAX, validateMessageMedia } from '../../lib/media-refs';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
-import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
+import { getOrCreateTopic, serializeMessage, serializeTags, TopicNameError } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
 const MAX_SCHEDULE_SECONDS = duration.years(1).as('seconds');
@@ -86,6 +86,13 @@ export const publish = new Elysia().post(
         try {
             topic = await getOrCreateTopic(params.name, userId ?? undefined);
         } catch (error) {
+            if (error instanceof TopicNameError) {
+                return status(400, {
+                    error: 'invalid_topic_name',
+                    message: error.message,
+                });
+            }
+
             if (error instanceof PlanLimitError) {
                 return status(403, {
                     error: 'plan_limit_reached',

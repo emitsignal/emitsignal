@@ -3,7 +3,7 @@ import Elysia, { t } from 'elysia';
 import { PlanLimitError } from '../../lib/billing/plans';
 import { prisma } from '../../lib/prisma';
 import { serializeSubscriptionSettings } from '../../lib/subscription-settings';
-import { getOrCreateTopic } from '../../lib/topic';
+import { getOrCreateTopic, TOPIC_NAME_MAX_LENGTH, TopicNameError } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
 export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
@@ -16,6 +16,13 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
         try {
             topic = await getOrCreateTopic(body.topicName, userId ?? undefined);
         } catch (error) {
+            if (error instanceof TopicNameError) {
+                return status(400, {
+                    error: 'invalid_topic_name',
+                    message: error.message,
+                });
+            }
+
             if (error instanceof PlanLimitError) {
                 return status(403, {
                     error: 'plan_limit_reached',
@@ -72,7 +79,7 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
                     ),
                 }),
             ),
-            topicName: t.String({ minLength: 1 }),
+            topicName: t.String({ maxLength: TOPIC_NAME_MAX_LENGTH, minLength: 1 }),
         }),
     },
 );

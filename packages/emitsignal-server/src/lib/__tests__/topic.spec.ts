@@ -9,10 +9,12 @@ import { resetUserPlansForTests, setUserPlanForTests } from '../billing/get-user
 import { PlanLimitError, PLANS } from '../billing/plans';
 import {
     getOrCreateTopic,
+    isValidTopicName,
     parseActions,
     parseTags,
     serializeMessage,
     serializeTags,
+    TOPIC_NAME_MAX_LENGTH,
     TOPIC_NAME_REGEX,
 } from '../topic';
 
@@ -31,6 +33,31 @@ describe('TOPIC_NAME_REGEX', () => {
         it(`rejects "${name}"`, () => {
             expect(TOPIC_NAME_REGEX.test(name)).toBe(false);
         });
+    });
+});
+
+describe('isValidTopicName', () => {
+    it('accepts a well-formed name within the length limit', () => {
+        expect(isValidTopicName('acme/infra-deploys')).toBe(true);
+    });
+
+    it('accepts a name exactly at the max length', () => {
+        const name = 'a'.repeat(TOPIC_NAME_MAX_LENGTH);
+        expect(name.length).toBe(TOPIC_NAME_MAX_LENGTH);
+        expect(isValidTopicName(name)).toBe(true);
+    });
+
+    it('rejects a name one character over the max length', () => {
+        const name = 'a'.repeat(TOPIC_NAME_MAX_LENGTH + 1);
+        expect(isValidTopicName(name)).toBe(false);
+    });
+
+    it('rejects a name with invalid characters', () => {
+        expect(isValidTopicName('has space')).toBe(false);
+    });
+
+    it('rejects an empty name', () => {
+        expect(isValidTopicName('')).toBe(false);
     });
 });
 
