@@ -1,3 +1,4 @@
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { createFileRoute } from '@tanstack/react-router';
 import { AlertCircle, Check, Zap } from 'lucide-react';
 import { useState } from 'react';
@@ -109,6 +110,7 @@ function ComposePage() {
                     <div className="mb-5.5">
                         <input
                             className="w-full rounded-lg border border-accent/40 bg-elev px-3.5 py-2.5 font-mono text-[13px] text-fg outline-none placeholder:text-faint focus:border-accent"
+                            maxLength={TOPIC_NAME_MAX_LENGTH}
                             onChange={(event) => setTopicName(event.target.value)}
                             placeholder="deploy/prod"
                             value={topicName}

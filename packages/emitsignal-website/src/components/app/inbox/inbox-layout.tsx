@@ -1,3 +1,4 @@
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 import { Fragment, type ReactNode, useState } from 'react';
@@ -207,6 +208,7 @@ function SubscribeButton() {
             <input
                 autoFocus
                 className="w-[180px] rounded-md border border-line bg-elev px-2.5 py-1.5 font-mono text-[12px] text-fg outline-none placeholder:text-dim"
+                maxLength={TOPIC_NAME_MAX_LENGTH}
                 onChange={(event) => setTopic(event.target.value)}
                 onKeyDown={(event) => {
                     if (event.key === 'Enter') handleSubscribe();

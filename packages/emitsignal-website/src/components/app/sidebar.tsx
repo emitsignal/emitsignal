@@ -1,6 +1,7 @@
 import type { PlanName } from '@emitsignal/shared/billing';
 
 import { PLANS } from '@emitsignal/shared/billing';
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
     Bell,
@@ -104,6 +105,7 @@ export function Sidebar() {
                         <input
                             autoFocus
                             className="w-[90px] rounded border border-line bg-elev px-1.5 py-0.5 font-mono text-[10px] text-fg outline-none placeholder:text-dim"
+                            maxLength={TOPIC_NAME_MAX_LENGTH}
                             onChange={(event) => setNewTopic(event.target.value)}
                             onKeyDown={(event) => {
                                 if (event.key === 'Enter') handleSubscribe();
