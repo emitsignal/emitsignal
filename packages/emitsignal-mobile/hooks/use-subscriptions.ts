@@ -31,11 +31,18 @@ export function useSubscriptions() {
     // A disabled query reports `status: 'pending'`, so we must not treat it as
     // loading. While prerequisites (session/device) resolve, show a bounded
     // pending state; once enabled, defer to the query's real fetch state.
+
     const waitingForPrerequisites = useBoundedPending(!enabled);
     const loading = enabled ? isLoading : waitingForPrerequisites;
 
-    const invalidate = () =>
-        queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) });
+    // Subscribing/unsubscribing changes which topics feed the user, so the feed
+    // must refetch to add or drop a channel's messages without a manual swipe-down refresh.
+    const invalidateSubscriptionsAndFeed = async () => {
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) }),
+            queryClient.invalidateQueries({ queryKey: queryKeys.feed(scope) }),
+        ]);
+    };
 
     const subscribeMutation = useMutation({
         mutationFn: ({ options, topicName }: { options?: SubscribeOptions; topicName: string }) =>
@@ -45,7 +52,7 @@ export function useSubscriptions() {
                 options?.pushEnabled ?? true,
                 options?.settings,
             ),
-        onSuccess: invalidate,
+        onSuccess: invalidateSubscriptionsAndFeed,
     });
 
     const updateSubscriptionMutation = useMutation({
@@ -63,12 +70,12 @@ export function useSubscriptions() {
                 pushEnabled,
                 settings,
             }),
-        onSuccess: invalidate,
+        onSuccess: invalidateSubscriptionsAndFeed,
     });
 
     const unsubscribeMutation = useMutation({
         mutationFn: (topicName: string) => api.unsubscribe(deviceId ?? '', topicName),
-        onSuccess: invalidate,
+        onSuccess: invalidateSubscriptionsAndFeed,
     });
 
     return {
