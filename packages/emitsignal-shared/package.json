@@ -5,6 +5,7 @@
         "./billing": "./src/billing.ts",
         "./format": "./src/format.ts",
         "./priority": "./src/priority.ts",
+        "./topic": "./src/topic.ts",
         "./webhook-template": "./src/webhook-template.ts"
     },
     "main": "src/index.ts",
