@@ -46,25 +46,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
         const userId = data.user.id;
 
-        const linkDevice = async () => {
+        const linkToken = async () => {
             const [token, deviceId] = await Promise.all([
                 AsyncStorage.getItem(PUSH_TOKEN_KEY),
                 AsyncStorage.getItem(DEVICE_ID_KEY),
             ]);
 
-            if (!deviceId) {
-                return;
-            }
-
-            // Adopt this device's anonymous subscriptions into the account, then
-            // refresh the cached views so the claimed channels render under the
-            // signed-in scope.
-            await api.claimSubscriptions(deviceId).catch(() => {});
-
-            queryClient.invalidateQueries({ queryKey: queryKeys.feed(userId) });
-            queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(userId) });
-
-            if (!token) {
+            if (!token || !deviceId) {
                 return;
             }
 
@@ -73,7 +61,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             api.registerPushToken({ deviceId, platform, token, userId }).catch(() => {});
         };
-        linkDevice();
+        linkToken();
     }, [data?.user?.id]);
 
     const value: SessionContextValue = {

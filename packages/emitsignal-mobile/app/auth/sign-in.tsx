@@ -17,8 +17,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { authClient } from '@/lib/auth-client';
+import { claimDeviceSubscriptions } from '@/lib/claim-device-subscriptions';
 
 const WEBSITE_URL = 'https://emitsignal.com';
 const TERMS_URL = `${WEBSITE_URL}/terms`;
@@ -43,17 +45,21 @@ export default function AuthSignIn() {
     const [email, setEmail] = useState('');
     const [pendingProvider, setPendingProvider] = useState<null | SocialProvider>(null);
     const { palette, styles } = useThemedStyles(createStyles);
+    const { deviceId } = useDevice();
 
     const handleSend = async () => {
         if (!email.trim()) {
             return;
         }
+
         setBusy(true);
+
         const { error } = await authClient.emailOtp.sendVerificationOtp({
             email: email.trim(),
             type: 'sign-in',
         });
         setBusy(false);
+
         if (error) {
             Alert.alert('Sign-in failed', error.message ?? 'Failed to send sign-in code');
         } else {
@@ -84,6 +90,12 @@ export default function AuthSignIn() {
         setPendingProvider(null);
 
         if (session?.user) {
+            // Adopt any subscriptions made on this device while anonymous into the account.
+            await claimDeviceSubscriptions(deviceId, {
+                token: session.session.token,
+                userId: session.user.id,
+            });
+
             router.replace('/');
         }
     };

@@ -15,11 +15,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WLogo } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
+import { useDevice } from '@/ctx/device';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { authClient } from '@/lib/auth-client';
+import { claimDeviceSubscriptions } from '@/lib/claim-device-subscriptions';
 
 export default function AuthVerify() {
     const { palette, styles } = useThemedStyles(createStyles);
+    const { deviceId } = useDevice();
     const [busy, setBusy] = useState(false);
     const [otp, setOtp] = useState('');
     const inputRef = useRef<TextInput>(null);
@@ -41,6 +44,9 @@ export default function AuthVerify() {
         if (error) {
             return Alert.alert('Sign-in failed', error.message ?? 'Invalid or expired code');
         }
+
+        // Adopt any subscriptions made on this device while anonymous into the account.
+        await claimDeviceSubscriptions(deviceId, { token: data?.token, userId: data?.user.id });
 
         if (data?.user.onboarded) {
             router.replace('/(tabs)');
