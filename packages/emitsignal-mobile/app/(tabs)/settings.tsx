@@ -26,7 +26,7 @@ import type { ThemePreference } from '@/storage/theme';
 import { WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { NativeSwitch } from '@/components/ui/native-switch';
-import { Fonts, type Palette, palettes } from '@/constants/theme';
+import { Fonts, type Palette, palettes, UI } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
 import { useFeedStyle } from '@/ctx/feed-style';
@@ -55,6 +55,13 @@ const FEED_STYLE_OPTIONS: { description: string; label: string; value: FeedStyle
         label: 'Priority-first',
         value: 'priority',
     },
+];
+
+const DEBUG_ITEMS = [
+    { key: 'showPayload' as const, label: 'Show payload' },
+    { key: 'showCurl' as const, label: 'Show curl command' },
+    { key: 'showDelivery' as const, label: 'Show delivery' },
+    { key: 'showSubscriptionMetrics' as const, label: 'Show subscription metrics' },
 ];
 
 export default function SettingsScreen() {
@@ -107,28 +114,35 @@ export default function SettingsScreen() {
                 )}
             </View>
 
-            <ScrollView contentContainerStyle={{ paddingBottom: bottomInset }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: bottomInset, paddingTop: 8 }}>
                 <SectionLabel>APPEARANCE</SectionLabel>
                 <View style={styles.group}>
-                    <SegmentedControl
-                        appearance={currentScheme}
-                        onChange={(event) =>
-                            setTheme(THEME_OPTIONS[event.nativeEvent.selectedSegmentIndex].value)
-                        }
-                        selectedIndex={THEME_OPTIONS.findIndex((opt) => opt.value === theme)}
-                        tintColor={palette.violetBg}
-                        values={THEME_OPTIONS.map((opt) => opt.label)}
-                    />
+                    <View style={styles.segmentedRow}>
+                        <SegmentedControl
+                            appearance={currentScheme}
+                            onChange={(event) =>
+                                setTheme(
+                                    THEME_OPTIONS[event.nativeEvent.selectedSegmentIndex].value,
+                                )
+                            }
+                            selectedIndex={THEME_OPTIONS.findIndex((opt) => opt.value === theme)}
+                            tintColor={palette.violetBg}
+                            values={THEME_OPTIONS.map((opt) => opt.label)}
+                        />
+                    </View>
                 </View>
 
                 <SectionLabel>FEED</SectionLabel>
-
                 <View style={styles.group}>
-                    {FEED_STYLE_OPTIONS.map((opt) => (
+                    {FEED_STYLE_OPTIONS.map((opt, index) => (
                         <Pressable
                             key={opt.value}
                             onPress={() => setFeedStyle(opt.value)}
-                            style={[styles.row, opt.value === feedStyle && styles.rowActive]}
+                            style={[
+                                styles.row,
+                                index === FEED_STYLE_OPTIONS.length - 1 && styles.rowLast,
+                                opt.value === feedStyle && styles.rowActive,
+                            ]}
                         >
                             <View style={{ flex: 1 }}>
                                 <Text style={styles.rowLabel}>{opt.label}</Text>
@@ -165,35 +179,34 @@ export default function SettingsScreen() {
                                     },
                                 ]);
                             }}
-                            style={styles.row}
+                            style={[styles.row, styles.rowLast]}
                         >
                             <Text style={[styles.rowLabel, { color: palette.red }]}>Sign out</Text>
                         </Pressable>
                     ) : (
-                        <Pressable onPress={() => router.push('/auth')} style={styles.row}>
+                        <Pressable
+                            onPress={() => router.push('/auth')}
+                            style={[styles.row, styles.rowLast]}
+                        >
                             <Text style={[styles.rowLabel, { color: palette.violet }]}>
                                 Sign in
                             </Text>
-                            <IconSymbol color={palette.violet} name="arrow.right" size={14} />
+                            <IconSymbol color={palette.fgDim} name="chevron.right" size={14} />
                         </Pressable>
                     )}
                 </View>
 
                 <SectionLabel>DEBUG</SectionLabel>
                 <View style={styles.group}>
-                    {[
-                        { key: 'showPayload' as const, label: 'Show payload' },
-                        { key: 'showCurl' as const, label: 'Show curl command' },
-                        { key: 'showDelivery' as const, label: 'Show delivery' },
-                        {
-                            key: 'showSubscriptionMetrics' as const,
-                            label: 'Show subscription metrics',
-                        },
-                    ].map(({ key, label }) => (
+                    {DEBUG_ITEMS.map(({ key, label }, index) => (
                         <Pressable
                             key={key}
                             onPress={() => setSection(key, !sections[key])}
-                            style={[styles.row, sections[key] && styles.rowActive]}
+                            style={[
+                                styles.row,
+                                index === DEBUG_ITEMS.length - 1 && styles.rowLast,
+                                sections[key] && styles.rowActive,
+                            ]}
                         >
                             <Text style={styles.rowLabel}>{label}</Text>
                             {sections[key] ? (
@@ -208,9 +221,8 @@ export default function SettingsScreen() {
                 </View>
 
                 <SectionLabel>ABOUT</SectionLabel>
-
                 <View style={styles.group}>
-                    <View style={styles.row}>
+                    <View style={[styles.row, styles.rowLast]}>
                         <Text style={styles.rowLabel}>Version</Text>
                         <Text style={styles.rowValue}>{Constants.expoConfig?.version ?? '—'}</Text>
                     </View>
@@ -289,7 +301,7 @@ function NotificationsSection() {
     if (isLoading) {
         return (
             <View style={styles.group}>
-                <View style={styles.row}>
+                <View style={[styles.row, styles.rowLast]}>
                     <ActivityIndicator color={palette.violet} size="small" />
                 </View>
             </View>
@@ -299,12 +311,12 @@ function NotificationsSection() {
     if (!pushToken) {
         return (
             <View style={styles.group}>
-                <Pressable onPress={handleEnable} style={styles.row}>
+                <Pressable onPress={handleEnable} style={[styles.row, styles.rowLast]}>
                     <Text style={styles.rowLabel}>Enable notifications</Text>
                     {enabling ? (
                         <ActivityIndicator color={palette.violet} size="small" />
                     ) : (
-                        <IconSymbol color={palette.violet} name="arrow.right" size={14} />
+                        <IconSymbol color={palette.fgDim} name="chevron.right" size={14} />
                     )}
                 </Pressable>
             </View>
@@ -314,7 +326,7 @@ function NotificationsSection() {
     if (!user) {
         return (
             <View style={styles.group}>
-                <View style={styles.row}>
+                <View style={[styles.row, styles.rowLast]}>
                     <Text style={styles.rowLabel}>Push</Text>
                     <Text style={styles.rowValue}>on</Text>
                 </View>
@@ -325,11 +337,11 @@ function NotificationsSection() {
     return (
         <View style={styles.group}>
             {loadingRecord ? (
-                <View style={styles.row}>
+                <View style={[styles.row, styles.rowLast]}>
                     <ActivityIndicator color={palette.violet} size="small" />
                 </View>
             ) : (
-                <View style={styles.row}>
+                <View style={[styles.row, styles.rowLast]}>
                     <Text style={styles.rowLabel}>Push</Text>
                     <NativeSwitch
                         onValueChange={handleToggle}
@@ -364,7 +376,6 @@ function SectionLabel({ children }: { children: string }) {
     return (
         <View style={styles.sectionLabelRow}>
             <Text style={styles.sectionLabelText}>{children}</Text>
-            <View style={styles.sectionLabelLine} />
         </View>
     );
 }
@@ -396,12 +407,13 @@ const createStyles = (palette: Palette) =>
         },
         group: {
             backgroundColor: palette.bgElev,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            borderColor: palette.bgLine,
-            borderTopWidth: StyleSheet.hairlineWidth,
+            borderRadius: UI.borderRadius.large,
+            marginBottom: 8,
+            marginHorizontal: 16,
+            overflow: 'hidden',
         },
         header: { paddingBottom: 16, paddingHorizontal: 20, paddingTop: 12 },
-        headerTop: { alignItems: 'center', flexDirection: 'row', marginBottom: 16 },
+        headerTop: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 },
         planBadge: {
             borderRadius: 4,
             paddingHorizontal: 7,
@@ -426,18 +438,11 @@ const createStyles = (palette: Palette) =>
         rowActive: { backgroundColor: palette.violetBg, paddingVertical: 13 },
         rowHint: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 10.5, marginTop: 2 },
         rowLabel: { color: palette.fg, flex: 1, fontSize: 14 },
+        rowLast: { borderBottomWidth: 0 },
         rowValue: { color: palette.fgMuted, fontFamily: Fonts.mono, fontSize: 12 },
-        sectionLabelLine: {
-            backgroundColor: palette.bgLine,
-            flex: 1,
-            height: 1,
-            marginLeft: 10,
-        },
         sectionLabelRow: {
-            alignItems: 'center',
-            flexDirection: 'row',
             paddingBottom: 6,
-            paddingHorizontal: 20,
+            paddingHorizontal: 36,
             paddingTop: 14,
         },
         sectionLabelText: {
@@ -447,6 +452,7 @@ const createStyles = (palette: Palette) =>
             fontWeight: '500',
             letterSpacing: 1.5,
         },
+        segmentedRow: { paddingHorizontal: 20, paddingVertical: 14 },
         subtitle: {
             color: palette.fgMuted,
             fontFamily: Fonts.mono,
