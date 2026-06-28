@@ -17,158 +17,167 @@ interface ChangeEntry {
 const RELEASES: ChangeEntry[] = [
     {
         added: [
-            'Webhook delivery receipts — see exactly when each webhook fired and its HTTP response',
-            'Signal replay from the web dashboard and mobile app',
-            'idempotency_key field on publish — deduplicates within a 24h window',
-            'emitsignal doctor command — prints connectivity diagnostics and API health',
+            'GDPR/LGPD privacy policy and terms-of-service pages',
+            'Account deletion with cascading data erasure, plus DELETE /me/signals purge (async purge queue + worker)',
+            'Apple and GitHub social sign-in',
+            'Email allowlist for OTP sign-in and cross-subdomain cookie support',
+            'Separate public/private S3 buckets and database backup/restore to Cloudflare R2',
+            'Topic-name validation (length + format) across server, web, and mobile',
+            'Anonymous-subscription claiming on sign-in',
+            'Webhook template engine with wildcard array iteration',
         ],
-        date: '2026-05-20',
+        date: '2026-06-26',
         fixed: [
-            'SSE reconnect could drop the first signal after coming back online',
-            'TUI: long messages truncated incorrectly on narrow terminals',
-            'API key created_at field was returning UTC offset incorrectly in some regions',
+            'Publishing now requires at least a title or body',
+            'Hanging loading states on Inbox and Channels',
+            'Theme-aware webhook JSON viewer',
         ],
         improved: [
-            'p99 end-to-end latency reduced from 420ms to 290ms',
-            'Mobile app: feed now renders from cache before the live fetch completes',
-            'Routing rule evaluation is now 3× faster for channels with >20 rules',
+            'Stopped collecting and storing session IP addresses',
+            'OTP send/verify rate limiting',
+            'Replaced the hand-rolled Expo push client with the official expo-server-sdk',
         ],
-        version: '0.7.2',
+        note: 'First stable release — privacy-compliant by default, with full data-erasure support.',
+        version: '1.0.0',
     },
     {
         added: [
-            'Delivery windows in routing rules — suppress delivery during quiet hours and batch into a digest',
-            'emitsignal run --only-failures flag — publish only on non-zero exit',
-            'Topics API: GET /topics/:topic/signals for paginated signal history per topic',
-            'Signal metadata field (meta) — arbitrary JSON stored with each signal',
+            'Light/dark theme on mobile (render-time palette + useThemedStyles) and the web dashboard',
+            'Native mobile UI on Expo SDK 56 — native bottom tabs, @expo/ui Switch, segmented control, and action menus',
+            'Animated splash screen',
+            'Inline media and banner images on publish, with image gallery and external-link warning',
+            'Per-subscription settings (delivery + listenSince) and topic-scoped history',
+            'Feed styles (comfy / timeline / priority-first) with persisted preferences',
         ],
-        date: '2026-04-30',
-        fixed: [
-            'emitsignal listen --count 1 could hang if the connection was interrupted',
-            'Dashboard: filtering by tag with special characters broke the query',
-            'Mobile: badge count was off by one after dismissing the last signal',
-        ],
+        date: '2026-06-20',
         improved: [
-            'emitsignal tui now supports vim keybindings (j/k navigation)',
-            'CLI --format json now includes all metadata fields',
-            'API error responses include a machine-readable code field',
+            'Database indexes and DB-aggregated topic metrics',
+            'Webhook delivery N+1 queries collapsed into grouped lookups',
+            'Expo push requests batched in chunks of 100',
+            'Email notification when a new API key is created',
         ],
-        version: '0.7.1',
+        version: '0.9.0',
     },
     {
         added: [
-            'Routing rules engine — per-channel rules with priority filters, tag matchers, and delivery targets',
-            'Batch digest delivery — accumulate signals during quiet hours and deliver as one summary',
-            'Priority override in routing rules — a rollback tag can auto-escalate to p5',
-            'emitsignal history command — print last N signals without opening the TUI',
-            'Windows support — binary available for x86_64 and arm64',
+            'Stripe subscription billing via Better Auth — Free, Pulse, and Beam plans',
+            'Plan-based daily quotas (messages, emails) and per-plan limits (topics, webhooks, attachment size)',
+            'GET /billing endpoint and billing settings page',
+            'API-key authentication from request headers (x-api-key / Bearer)',
         ],
-        date: '2026-04-10',
-        fixed: [
-            'Publishing with --wait timed out even on successful delivery in high-latency regions',
-            'Channel create from the CLI did not apply the default routing rules',
-            'TUI: pressing d on an empty inbox caused a panic',
-        ],
+        date: '2026-06-14',
         improved: [
-            'SSE connections now use HTTP/2 multiplexing, reducing per-connection overhead',
-            'Mobile app: push notification grouping by channel (iOS 15+ Notification Summary)',
-            'Web dashboard loads 40% faster — route data prefetched on hover',
+            'TanStack Query across web and mobile with live SSE cache updates',
+            'Current-plan badge in the sidebar and settings',
         ],
-        note: 'This release introduces breaking changes to the routing rules config format. See the migration guide.',
+        version: '0.8.0',
+    },
+    {
+        added: [
+            'Better Auth — email OTP, passkeys, API keys, and bearer sessions',
+            'Avatar upload/remove (2 MB, deterministic storage path)',
+            'User-scoped subscriptions that follow your account, not just a device',
+            'API-key management UI — create, revoke, roll',
+            'First-sign-in onboarding with avatar and topic suggestions',
+        ],
+        date: '2026-06-09',
+        fixed: ['OTP encoded in the verification URL; verification flow hardened'],
+        improved: ['Issued API-key prefix shortened to es_'],
+        note: 'Authentication re-platformed onto Better Auth — adds passkeys and a unified session model.',
         version: '0.7.0',
     },
     {
         added: [
-            'emitsignal run command — wrap any shell command and signal its outcome',
-            'Tag filtering in listen and subscribe — --tag flag supports multiple values',
-            'Web dashboard: bulk dismiss — mark all as read, or dismiss entire filtered views',
-            'Mobile: share sheet integration — share any text from any app as a signal',
+            'Webhooks — CRUD endpoints, inbound receiver (/h/:slug), and delivery history',
+            '@emitsignal/shared package (typed API client + helpers)',
+            'Header-based publishing (title, x-priority, x-tags, x-delay) for non-JSON publishers',
+            'Topic metrics endpoint (24h message volume) and dashboard stats',
+            'Settings section with profile / account / billing / advanced sub-nav',
         ],
-        date: '2026-03-18',
-        fixed: [
-            'Glob patterns with multiple wildcards (alerts/**) were not matching correctly',
-            'Mobile: DND bypass for p5 signals did not work on Android 13',
-            'emitsignal login --token was silently failing if the token had extra whitespace',
-        ],
+        date: '2026-06-05',
         improved: [
-            'API key scopes: topic-level restrictions now supported (restrict key to deploy/*, ci/*)',
-            'TUI: signal detail view now shows the full delivery timeline with timestamps',
-            'CLI install script now detects ARM vs x86 automatically on all platforms',
-        ],
-        version: '0.6.3',
-    },
-    {
-        added: [
-            'Signal search in web dashboard — full-text search across message, title, and metadata',
-            'CSV and JSON export for filtered signal history',
-            'emitsignal config command — read/write CLI config from the terminal',
-            'Webhook signature verification with HMAC-SHA256',
-        ],
-        date: '2026-03-01',
-        fixed: [
-            'Race condition in SSE reconnect could result in duplicate signals appearing',
-            'Web dashboard: routing rule editor did not save changes on Safari',
-            'emitsignal whoami was not printing workspace when using a token-scoped key',
-        ],
-        improved: [
-            'Mobile: offline queue now retries failed publishes with exponential backoff',
-            'API rate limit headers added to all responses (X-RateLimit-*)',
-            'TUI startup is now instant — config loaded lazily',
-        ],
-        version: '0.6.2',
-    },
-    {
-        added: [
-            'TUI (Terminal UI) — full-screen inbox with j/k navigation, filter, and publish',
-            'emitsignal subscribe alias for emitsignal listen',
-            'Anonymous device mode — use the CLI and mobile app without an account',
-            'GET /signals endpoint with full filter support (topic, priority, tag, date)',
-        ],
-        date: '2026-02-14',
-        fixed: [
-            'emitsignal publish could silently drop messages larger than 8KB',
-            'Mobile: channels list did not refresh after subscribing from another device',
-            'Web dashboard: sign-in redirect loop on Safari private browsing',
-        ],
-        improved: [
-            'TUI renders at 60fps using a custom diff engine (no more flickering)',
-            'API response times improved across all endpoints (p50: 18ms, p99: 95ms)',
-            'Documentation fully rewritten with examples for every endpoint',
+            'Per-endpoint rate limiting (anonymous vs authenticated) with composable factories',
+            'SSE concurrency via slot acquisition and heartbeat-frame filtering',
+            'OpenTelemetry + Jaeger tracing and Sentry error tracking',
+            'LRU cache for topic-name lookups',
         ],
         version: '0.6.0',
     },
     {
         added: [
-            'Channels — named namespaces with topic prefixes',
-            'API key management — create, list, revoke with scopes',
-            'Web dashboard: publisher with topic autocomplete',
-            'Signal priority levels 1–5 with color-coded display',
-            'Replay signal — re-deliver to all current subscribers',
+            'Web app on TanStack Start — landing page, dashboard, inbox, channels, publish, and API keys',
+            'Magic-link auth pages and route guards on the web',
+            'Topic suggestions in subscription and onboarding flows',
+            'Dynamic feed filters with persisted unread state',
+            'Image preview modal with zoom and share (mobile)',
+            'Design-system specification',
         ],
-        date: '2026-01-20',
-        fixed: [
-            'Initial release cleanup — auth redirect edge cases resolved',
-            'emitsignal listen was not filtering by topic correctly when using a glob',
-        ],
+        date: '2026-05-27',
         improved: [
-            'Magic link auth flow is now faster — OTP auto-fills from the link in the email',
-            'Mobile feed performance improved on low-end Android devices',
+            'Responsive website layout',
+            'PostgreSQL + Docker for development and production',
         ],
+        note: 'Database migrated from SQLite to PostgreSQL; full Docker dev/prod stack (Traefik) added.',
         version: '0.5.0',
     },
     {
         added: [
-            'Initial public release',
-            'emitsignal publish and listen commands',
-            'Magic link authentication',
-            'iOS and Android mobile apps',
-            'Web dashboard with inbox and publish',
-            'SSE-based real-time signal delivery',
-            'REST API: publish, subscribe, topics',
+            'Push notifications via a BullMQ push queue/worker (iOS / Android / Web)',
+            'Scheduled message delivery (x-delay: unix timestamp or relative like 5m, 2h)',
+            'Message actions — interactive buttons (acknowledge / view) threaded through publish → SSE → push',
+            'File attachments with a storage abstraction (local or S3) and mobile previews',
+            'GET /messages/:id direct fetch',
+            'Per-device delivery toggles',
         ],
-        date: '2026-01-01',
-        note: 'v0.1 was a private beta. v0.4 is the first public release.',
+        date: '2026-05-21',
+        fixed: ['Push notification title formatting'],
+        improved: [
+            'Deep-link push taps open the message detail',
+            'HTTP route and unit tests for the Elysia API',
+        ],
+        note: 'Session tokens migrated to JWT.',
         version: '0.4.0',
+    },
+    {
+        added: [
+            '@emitsignal/emails package with React Email templates (welcome, magic link, message alerts, weekly digest, API-key created)',
+            'BullMQ + Redis queue-based email delivery',
+            'Magic-link emails wired end-to-end',
+        ],
+        date: '2026-05-15',
+        fixed: [
+            'Auth token parsing and OTP code verification',
+            'Branding standardized to "EmitSignal"',
+        ],
+        improved: ['Structured logging with pino', 'READMEs rewritten with accurate architecture'],
+        version: '0.3.0',
+    },
+    {
+        added: [
+            'New API server on Elysia + Bun with a Prisma data layer',
+            'Server-Sent Events real-time delivery (GET /topics/:name/listen)',
+            'Magic-link / email authentication',
+            'Mobile API client, SSE hook, session context, and full auth flow (sign-in, verify, permissions)',
+            'Channels, publish, and message-detail screens on mobile',
+            'OpenAPI documentation via @elysia/openapi',
+            'Onboarding flow with persistent completion state',
+        ],
+        date: '2026-05-03',
+        improved: [
+            'Monorepo restructure into packages/; ESLint + Prettier with perfectionist sorting',
+        ],
+        note: 'Backend re-platformed from Convex to Prisma + Elysia; real-time delivery now runs over SSE.',
+        version: '0.2.0',
+    },
+    {
+        added: [
+            'Topic-based pub/sub — create a topic, subscribe, receive messages',
+            'iOS and Android mobile app (Expo) with subscribe modal and message view',
+            'Theme settings and topic-subscriber screens',
+        ],
+        date: '2026-02-15',
+        note: 'Private beta on a Convex backend — the foundation the platform was later rebuilt on.',
+        version: '0.1.0',
     },
 ];
 
@@ -182,13 +191,13 @@ export default function ChangelogPage() {
                 <div className="mx-auto max-w-[760px]">
                     <div className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-line px-3 py-1.5 font-mono text-[11.5px] text-muted">
                         <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_8px_var(--color-success)]" />
-                        Latest: v0.7.2 · 2026-05-20
+                        Latest: v1.0.0 · 2026-06-26
                     </div>
                     <h1 className="m-0 mb-5 text-[52px] font-semibold leading-[1.0] tracking-[-1.8px] text-fg sm:text-[64px]">
                         Changelog
                     </h1>
                     <p className="mb-2 text-[18px] leading-[1.6] text-muted">
-                        Every release, every change. We ship every two weeks.
+                        Every release, every change. From private beta to general availability.
                     </p>
                     <p className="font-mono text-[12px] text-dim">
                         Subscribe to updates:{' '}
@@ -200,6 +209,39 @@ export default function ChangelogPage() {
                             email digest →
                         </a>
                     </p>
+                </div>
+            </div>
+
+            {/* Coming next */}
+            <div className="px-5 pb-4 sm:px-8 md:px-16">
+                <div className="mx-auto max-w-[760px]">
+                    <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/[0.04] px-5 py-4">
+                        <div className="mb-3 flex flex-wrap items-baseline gap-3">
+                            <span className="rounded px-1.5 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[1.2px] text-accent">
+                                Coming next
+                            </span>
+                            <span className="font-mono text-[12px] text-dim">targeting v1.1.0</span>
+                        </div>
+                        <ul className="m-0 list-none space-y-2 p-0">
+                            <li className="flex items-start gap-2.5 text-[13.5px] leading-[1.55] text-muted">
+                                <span className="mt-0.5 font-mono text-[12px] text-accent">→</span>
+                                <span>
+                                    <span className="text-fg">emitsignal CLI</span> — publish,
+                                    listen, and subscribe from the terminal{' '}
+                                    <a className="text-accent no-underline" href="/cli">
+                                        (docs preview)
+                                    </a>
+                                </span>
+                            </li>
+                            <li className="flex items-start gap-2.5 text-[13.5px] leading-[1.55] text-muted">
+                                <span className="mt-0.5 font-mono text-[12px] text-accent">→</span>
+                                <span>
+                                    <span className="text-fg">Terminal UI (TUI)</span> — full-screen
+                                    inbox
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
