@@ -74,6 +74,7 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
             pushEnabled: t.Optional(t.Boolean()),
             settings: t.Optional(
                 t.Object({
+                    description: t.Optional(t.String({ maxLength: 280 })),
                     listenSince: t.Optional(
                         t.Union([t.Literal('always'), t.Literal('subscription_date')]),
                     ),

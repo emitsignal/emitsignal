@@ -19,6 +19,7 @@ import { updatePushToken } from './http/push-tokens/update';
 import { claimSubscriptions } from './http/subscriptions/claim';
 import { listSubscriptions } from './http/subscriptions/list';
 import { listSubscriptionMessages } from './http/subscriptions/messages';
+import { subscriptionMetrics } from './http/subscriptions/metrics';
 import { subscribe } from './http/subscriptions/subscribe';
 import { unsubscribe } from './http/subscriptions/unsubscribe';
 import { updateSubscription } from './http/subscriptions/update';
@@ -94,6 +95,7 @@ const app = new Elysia()
     .use(listPushTokens)
     .use(listSubscriptionMessages)
     .use(listSubscriptions)
+    .use(subscriptionMetrics)
     .use(listTopics)
     .use(messages)
     .use(topicMetrics)

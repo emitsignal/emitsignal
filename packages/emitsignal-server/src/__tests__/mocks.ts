@@ -1,6 +1,7 @@
 import { mock } from 'bun:test';
 
 export const prismaMock = {
+    $queryRaw: mock<() => Promise<unknown[]>>(() => Promise.resolve([])),
     acknowledgment: {
         count: mock<() => Promise<number>>(() => Promise.resolve(0)),
         upsert: mock<() => Promise<object>>(() => Promise.resolve({ id: 'ack-1' })),

@@ -59,7 +59,15 @@ export interface Subscription {
     topic: Topic;
 }
 
+export interface SubscriptionMetrics {
+    messageCount24h: number;
+    volume: number[];
+}
+
+export type SubscriptionMetricsMap = Record<string, SubscriptionMetrics>;
+
 export interface SubscriptionSettings {
+    description?: string;
     listenSince: ListenSince;
 }
 
@@ -263,6 +271,11 @@ export function createApiClient(baseUrl: string) {
             const query = params.toString();
 
             return request<Message[]>(`/subscriptions/messages${query ? `?${query}` : ''}`);
+        },
+
+        listSubscriptionMetrics(deviceId?: string) {
+            const query = deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : '';
+            return request<SubscriptionMetricsMap>(`/subscriptions/metrics${query}`);
         },
 
         listSubscriptions(deviceId?: string) {

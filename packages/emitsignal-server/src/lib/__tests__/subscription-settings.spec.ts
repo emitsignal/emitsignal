@@ -31,6 +31,21 @@ describe('parseSubscriptionSettings', () => {
         expect(parseSubscriptionSettings('null')).toEqual(DEFAULT_SUBSCRIPTION_SETTINGS);
         expect(parseSubscriptionSettings('42')).toEqual(DEFAULT_SUBSCRIPTION_SETTINGS);
     });
+
+    it('parses a non-empty description override', () => {
+        expect(
+            parseSubscriptionSettings('{"listenSince":"always","description":"  My alerts  "}'),
+        ).toEqual({ description: 'My alerts', listenSince: 'always' });
+    });
+
+    it('omits a blank or non-string description', () => {
+        expect(parseSubscriptionSettings('{"description":"   "}')).toEqual(
+            DEFAULT_SUBSCRIPTION_SETTINGS,
+        );
+        expect(parseSubscriptionSettings('{"description":123}')).toEqual(
+            DEFAULT_SUBSCRIPTION_SETTINGS,
+        );
+    });
 });
 
 describe('serializeSubscriptionSettings', () => {
@@ -50,5 +65,17 @@ describe('serializeSubscriptionSettings', () => {
                 listenSince: 'whenever' as never,
             }),
         ).toBe('{"listenSince":"subscription_date"}');
+    });
+
+    it('persists a trimmed description', () => {
+        expect(serializeSubscriptionSettings({ description: '  My alerts  ' })).toBe(
+            '{"listenSince":"subscription_date","description":"My alerts"}',
+        );
+    });
+
+    it('drops a blank description', () => {
+        expect(serializeSubscriptionSettings({ description: '   ' })).toBe(
+            '{"listenSince":"subscription_date"}',
+        );
     });
 });
