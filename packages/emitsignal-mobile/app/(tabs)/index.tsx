@@ -19,6 +19,7 @@ import { WChip, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useFeedStyle } from '@/ctx/feed-style';
 import { useFeed } from '@/hooks/use-emit-signal';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { addReadId, getReadIds } from '@/storage/read-messages';
 
@@ -42,6 +43,7 @@ export default function FeedScreen() {
     const { palette, styles } = useThemedStyles(createStyles);
     const { error, loading, messages, refresh, refreshing, subscriptions } = useFeed();
     const { feedStyle } = useFeedStyle();
+    const bottomInset = useTabBarInset();
     const [filter, setFilter] = useState<string>('all');
     const [readIds, setReadIds] = useState<Set<string>>(new Set());
 
@@ -155,7 +157,7 @@ export default function FeedScreen() {
         <EmptyFeed filter={filter} message={error?.message} />
     );
 
-    const emptyStyle = filtered.length === 0 ? { flex: 1 } : { paddingBottom: 40 };
+    const emptyStyle = filtered.length === 0 ? { flex: 1 } : { paddingBottom: bottomInset };
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>

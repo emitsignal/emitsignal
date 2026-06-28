@@ -17,12 +17,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivitySparkline, WCode, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 
 export default function PublishScreen() {
     const { palette, styles } = useThemedStyles(createStyles);
+    const bottomInset = useTabBarInset();
     const [topic, setTopic] = useState('alerts/prod');
     const [title, setTitle] = useState('Deploy succeeded');
     const [body, setBody] = useState('api-gateway shipped to prod');
@@ -69,7 +71,7 @@ export default function PublishScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
-                <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+                <ScrollView contentContainerStyle={{ paddingBottom: bottomInset }}>
                     <View style={styles.header}>
                         <View style={styles.headerTop}>
                             <WLogo pulse size={12} />
@@ -165,33 +167,38 @@ export default function PublishScreen() {
                         </Pressable>
                     </View>
 
-                    <SectionLabel>OWNED TOPICS</SectionLabel>
-                    {topics.map((topic) => {
-                        const seed = topic.id.charCodeAt(topic.id.length - 1);
-                        const chart = Array.from(
-                            { length: 12 },
-                            (_, index) => Math.abs(Math.sin((seed + index) * 0.5)) * 5,
-                        );
-                        return (
-                            <View key={topic.id} style={styles.topicRow}>
-                                <WTopicAvatar name={topic.name} rounded={6} size={32} />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.topicName}>{topic.name}</Text>
-                                    <Text style={styles.topicMeta}>
-                                        {topic.isPublic ? 'public' : 'private'}
-                                    </Text>
-                                </View>
-                                <View style={{ width: 70 }}>
-                                    <ActivitySparkline
-                                        color={palette.violet}
-                                        data={chart}
-                                        height={20}
-                                        showTotal={false}
-                                    />
-                                </View>
-                            </View>
-                        );
-                    })}
+                    {topics.length > 0 && (
+                        <>
+                            <SectionLabel>OWNED TOPICS</SectionLabel>
+
+                            {topics.map((topic) => {
+                                const seed = topic.id.charCodeAt(topic.id.length - 1);
+                                const chart = Array.from(
+                                    { length: 12 },
+                                    (_, index) => Math.abs(Math.sin((seed + index) * 0.5)) * 5,
+                                );
+                                return (
+                                    <View key={topic.id} style={styles.topicRow}>
+                                        <WTopicAvatar name={topic.name} rounded={6} size={32} />
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.topicName}>{topic.name}</Text>
+                                            <Text style={styles.topicMeta}>
+                                                {topic.isPublic ? 'public' : 'private'}
+                                            </Text>
+                                        </View>
+                                        <View style={{ width: 70 }}>
+                                            <ActivitySparkline
+                                                color={palette.violet}
+                                                data={chart}
+                                                height={20}
+                                                showTotal={false}
+                                            />
+                                        </View>
+                                    </View>
+                                );
+                            })}
+                        </>
+                    )}
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
