@@ -43,22 +43,50 @@ export function StatsStrip({ metrics, subscription }: Props) {
                     viewBox={`0 0 ${volume.length * 8} 56`}
                     width="100%"
                 >
-                    {volume.map((value, index) => (
-                        <rect
-                            fill={
-                                index >= volume.length - 4
-                                    ? 'var(--color-danger)'
-                                    : 'var(--color-accent)'
-                            }
-                            height={(value / max) * 52}
-                            key={index}
-                            opacity={index >= volume.length - 4 ? 0.9 : 0.55}
-                            rx="1"
-                            width="6"
-                            x={index * 8}
-                            y={56 - (value / max) * 52}
-                        />
-                    ))}
+                    {volume.map((value, index) => {
+                        const isRecent = index >= volume.length - 4;
+                        const color = isRecent
+                            ? 'var(--color-danger)'
+                            : 'var(--color-accent)';
+                        const opacity = isRecent ? 0.9 : 0.55;
+                        const hoursAgo = volume.length - 1 - index;
+                        const label =
+                            hoursAgo === 0 ? 'this hour' : `${hoursAgo}h ago`;
+
+                        return (
+                            <g key={index} style={{ cursor: 'default' }}>
+                                <title>{`${value} message${value !== 1 ? 's' : ''} · ${label}`}</title>
+                                <rect
+                                    fill="transparent"
+                                    height={56}
+                                    width={8}
+                                    x={index * 8}
+                                    y={0}
+                                />
+                                {value === 0 ? (
+                                    <rect
+                                        fill={color}
+                                        height={2}
+                                        opacity={opacity * 0.35}
+                                        rx="1"
+                                        width="6"
+                                        x={index * 8}
+                                        y={54}
+                                    />
+                                ) : (
+                                    <rect
+                                        fill={color}
+                                        height={(value / max) * 52}
+                                        opacity={opacity}
+                                        rx="1"
+                                        width="6"
+                                        x={index * 8}
+                                        y={56 - (value / max) * 52}
+                                    />
+                                )}
+                            </g>
+                        );
+                    })}
                 </svg>
             </div>
         </div>
