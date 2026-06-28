@@ -2,7 +2,8 @@
 # docker build -f packages/emitsignal-docker/website.Dockerfile .
 
 # ── Stage 1: Build the TanStack Start / Nitro SSR bundle ──────────────────────
-FROM oven/bun:1 AS build
+# Pinned + slim: avoids cache-busting digest changes on rolling `oven/bun:1`.
+FROM oven/bun:1.3.14-slim AS build
 
 WORKDIR /app
 
@@ -40,7 +41,7 @@ ENV VITE_API_URL=${VITE_API_URL}
 RUN bun run build
 
 # ── Stage 2: Run the Nitro SSR server ────────────────────────────────────────
-FROM oven/bun:1
+FROM oven/bun:1.3.14-slim
 
 WORKDIR /app
 

@@ -1,34 +1,46 @@
 # Build context must be the monorepo root.
 # docker build -f packages/emitsignal-docker/server.Dockerfile .
 
-# ── Stage 1: Install dependencies ────────────────────────────────────────────
-FROM oven/bun:1 AS deps
+# ── Stage 1: Install the server's production dependencies only ─────────────────
+# Pinned + slim: a rolling `oven/bun:1` tag changes digest on every upstream 1.x
+# release, busting the whole build cache; pin to a known-good version.
+FROM oven/bun:1.3.14-slim AS deps
 
 WORKDIR /app
 
-# Copy workspace manifest and lockfile first to maximise layer cache hits
+# Copy the root manifest + lockfile, then ONLY the manifests for the server's
+# own workspace graph: server + shared + emails. The other workspaces (mobile,
+# website, e2e, docs) are deliberately absent, so bun never resolves their deps
+# (Expo/React Native, Vite, Playwright) into this image.
 COPY package.json bun.lock ./
+COPY packages/emitsignal-server/package.json  ./packages/emitsignal-server/
+COPY packages/emitsignal-emails/package.json  ./packages/emitsignal-emails/
+COPY packages/emitsignal-shared/package.json  ./packages/emitsignal-shared/
 
-# Copy all workspace package manifests so bun can validate the lockfile
-COPY packages/emitsignal-docker/package.json    ./packages/emitsignal-docker/
-COPY packages/emitsignal-docs/package.json      ./packages/emitsignal-docs/
-COPY packages/emitsignal-e2e-testing/package.json ./packages/emitsignal-e2e-testing/
-COPY packages/emitsignal-emails/package.json    ./packages/emitsignal-emails/
-COPY packages/emitsignal-mobile/package.json    ./packages/emitsignal-mobile/
-COPY packages/emitsignal-server/package.json    ./packages/emitsignal-server/
-COPY packages/emitsignal-shared/package.json    ./packages/emitsignal-shared/
-COPY packages/emitsignal-website/package.json   ./packages/emitsignal-website/
+# Strip devDependencies from every remaining manifest — bun installs workspace
+# devDependencies even with --production, and emails' devDep `@react-email/ui`
+# pulls Next.js (~240 MB). Also drop the root's mobile-only patchedDependencies
+# (expo-router / react-native-screens), which would fail to resolve once mobile
+# is excluded.
+RUN bun pm pkg delete devDependencies patchedDependencies \
+ && (cd packages/emitsignal-server && bun pm pkg delete devDependencies) \
+ && (cd packages/emitsignal-emails  && bun pm pkg delete devDependencies) \
+ && (cd packages/emitsignal-shared  && bun pm pkg delete devDependencies)
 
-# Copy patch files referenced by patchedDependencies in package.json
-COPY patches ./patches/
-
-# Install all workspace dependencies (hoisted to /app/node_modules by Bun)
-RUN bun install --frozen-lockfile
+# Install the pruned production graph. The lockfile is removed first: the
+# workspace set and manifests were trimmed above so it no longer matches, and the
+# base image forces --frozen-lockfile; resolving fresh sidesteps that.
+RUN rm -f bun.lock && bun install --production
 
 # ── Stage 2: Production image ─────────────────────────────────────────────────
-FROM oven/bun:1
+FROM oven/bun:1.3.14-slim
 
 WORKDIR /app
+
+# The -slim base omits OpenSSL/CA certs that Prisma's schema-engine needs for
+# `prisma generate` and the `prisma migrate deploy` that runs at container start.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/app/packages/emitsignal-server/node_modules/.bin:/app/node_modules/.bin:${PATH}"
 

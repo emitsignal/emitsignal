@@ -1,0 +1,46 @@
+# Docker build context = monorepo root (compose build context is `../..`).
+#
+# What MUST stay in context (do not ignore): the root package.json, bun.lock,
+# patches/, every packages/*/package.json (copied for frozen-lockfile
+# validation), and the server/shared/emails/website sources the Dockerfiles COPY.
+
+# Dependencies — reinstalled inside the image
+**/node_modules
+
+# VCS & editor
+.git
+.gitignore
+.idea
+.vscode
+**/.DS_Store
+
+# Secrets / local env — never ship into the build context
+!**/.env.example
+**/.env
+**/.env.*
+
+# Build outputs & caches
+**/.cache
+**/.eslintcache
+**/.output
+**/.tanstack
+**/.vite
+**/*.tsbuildinfo
+**/dist
+**/out
+
+# Mobile native build dirs — not used by the server/website images (1.2 GB ios/)
+packages/emitsignal-mobile/.expo
+packages/emitsignal-mobile/android
+packages/emitsignal-mobile/ios
+
+# E2E artifacts
+packages/emitsignal-e2e-testing/playwright-report
+packages/emitsignal-e2e-testing/test-results
+
+# Logs & tooling scratch
+.claude
+.docs
+**/.claude
+**/*.log
+scripts
