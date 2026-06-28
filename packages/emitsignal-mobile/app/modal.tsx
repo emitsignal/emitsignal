@@ -131,7 +131,7 @@ export default function SubscribeModal() {
                                 {`# from your shell
 curl -d "hello" ${api.baseUrl}/topic/${topic}
 
-# from a script
+# from EmitSignal cli
 emitsignal publish ${topic} "deploy ok"`}
                             </WCode>
                         </View>
@@ -144,12 +144,10 @@ emitsignal publish ${topic} "deploy ok"`}
                             style={[styles.submit, (busy || !topic.trim()) && { opacity: 0.5 }]}
                         >
                             <Text style={styles.submitText}>
-                                {busy ? 'subscribing…' : `subscribe`}
+                                {busy ? 'Subscribing…' : `Subscribe`}
                             </Text>
 
                             <IconSymbol color={palette.bg} name="arrow.right" size={14} />
-
-                            <Text style={styles.submitText}>{topic}</Text>
                         </Pressable>
                     </View>
                 </KeyboardAvoidingView>
@@ -182,7 +180,7 @@ const createStyles = (palette: Palette) =>
             fontSize: 10.5,
             marginTop: 8,
         },
-        prefix: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 13 },
+        prefix: { color: palette.fgDim, fontFamily: Fonts.mono, fontSize: 12 },
         root: { backgroundColor: palette.bg, flex: 1 },
         section: { paddingHorizontal: 20, paddingVertical: 12 },
         sectionLabel: {

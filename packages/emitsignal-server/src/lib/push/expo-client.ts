@@ -29,8 +29,8 @@ export function buildExpoMessages(tokens: string[], job: PushJob): ExpoPushMessa
                 topicName: job.topicName,
             },
             priority: job.priority >= 4 ? 'high' : 'normal',
-            subtitle: job.topicDisplayName,
-            title: job.title,
+            subtitle: job.title,
+            title: job.topicDisplayName,
             to: token,
         }));
 }
