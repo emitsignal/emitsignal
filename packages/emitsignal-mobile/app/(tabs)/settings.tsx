@@ -32,6 +32,7 @@ import { useDevice } from '@/ctx/device';
 import { useFeedStyle } from '@/ctx/feed-style';
 import { useSession } from '@/ctx/session';
 import { useTheme } from '@/ctx/theme';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
@@ -57,12 +58,13 @@ const FEED_STYLE_OPTIONS: { description: string; label: string; value: FeedStyle
 ];
 
 export default function SettingsScreen() {
-    const { sections, setSection } = useDebugSections();
     const { currentScheme, setTheme, theme } = useTheme();
+    const { feedStyle, setFeedStyle } = useFeedStyle();
+    const { sections, setSection } = useDebugSections();
+    const { signOut, user } = useSession();
     const palette = palettes[currentScheme];
     const styles = useMemo(() => createStyles(palette), [palette]);
-    const { feedStyle, setFeedStyle } = useFeedStyle();
-    const { signOut, user } = useSession();
+    const bottomInset = useTabBarInset();
 
     const { data: billing } = useQuery({
         enabled: Boolean(user),
@@ -105,7 +107,7 @@ export default function SettingsScreen() {
                 )}
             </View>
 
-            <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: bottomInset }}>
                 <SectionLabel>APPEARANCE</SectionLabel>
                 <View style={styles.group}>
                     <SegmentedControl
@@ -183,6 +185,10 @@ export default function SettingsScreen() {
                         { key: 'showPayload' as const, label: 'Show payload' },
                         { key: 'showCurl' as const, label: 'Show curl command' },
                         { key: 'showDelivery' as const, label: 'Show delivery' },
+                        {
+                            key: 'showSubscriptionMetrics' as const,
+                            label: 'Show subscription metrics',
+                        },
                     ].map(({ key, label }) => (
                         <Pressable
                             key={key}

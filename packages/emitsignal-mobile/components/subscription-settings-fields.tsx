@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { NativeSwitch } from '@/components/ui/native-switch';
@@ -6,8 +6,13 @@ import { Fonts, type Palette } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { type ListenSince } from '@/lib/api';
 
+const DESCRIPTION_MAX_LENGTH = 280;
+
 interface Props {
+    description: string;
+    descriptionPlaceholder?: string;
     listenSince: ListenSince;
+    onChangeDescription: (value: string) => void;
     onChangeListenSince: (value: ListenSince) => void;
     onChangePushEnabled: (value: boolean) => void;
     pushEnabled: boolean;
@@ -31,7 +36,10 @@ const LISTEN_SINCE_OPTIONS: {
 ];
 
 export function SubscriptionSettingsFields({
+    description,
+    descriptionPlaceholder,
     listenSince,
+    onChangeDescription,
     onChangeListenSince,
     onChangePushEnabled,
     pushEnabled,
@@ -40,6 +48,16 @@ export function SubscriptionSettingsFields({
 
     return (
         <View style={styles.group}>
+            <Text style={styles.sectionLabel}>DESCRIPTION</Text>
+            <TextInput
+                maxLength={DESCRIPTION_MAX_LENGTH}
+                onChangeText={onChangeDescription}
+                placeholder={descriptionPlaceholder ?? 'Add a personal note for this channel'}
+                placeholderTextColor={palette.fgDim}
+                style={styles.descriptionInput}
+                value={description}
+            />
+
             <View style={styles.switchRow}>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.rowLabel}>Push notifications</Text>
@@ -62,6 +80,7 @@ export function SubscriptionSettingsFields({
                             <Text style={styles.rowLabel}>{option.label}</Text>
                             <Text style={styles.rowHint}>{option.description}</Text>
                         </View>
+
                         {selected ? (
                             <IconSymbol
                                 color={palette.violet}
@@ -80,6 +99,16 @@ export function SubscriptionSettingsFields({
 
 const createStyles = (palette: Palette) =>
     StyleSheet.create({
+        descriptionInput: {
+            backgroundColor: palette.bgElev,
+            borderColor: palette.bgLine,
+            borderRadius: 10,
+            borderWidth: StyleSheet.hairlineWidth,
+            color: palette.fg,
+            fontSize: 14,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+        },
         group: { gap: 8 },
         optionRow: {
             alignItems: 'center',

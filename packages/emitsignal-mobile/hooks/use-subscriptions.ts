@@ -35,12 +35,11 @@ export function useSubscriptions() {
     const waitingForPrerequisites = useBoundedPending(!enabled);
     const loading = enabled ? isLoading : waitingForPrerequisites;
 
-    // Subscribing/unsubscribing changes which topics feed the user, so the feed
-    // must refetch to add or drop a channel's messages without a manual swipe-down refresh.
     const invalidateSubscriptionsAndFeed = async () => {
         await Promise.all([
             queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) }),
             queryClient.invalidateQueries({ queryKey: queryKeys.feed(scope) }),
+            queryClient.invalidateQueries({ queryKey: queryKeys.subscriptionMetrics(scope) }),
         ]);
     };
 

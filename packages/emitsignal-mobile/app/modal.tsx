@@ -27,6 +27,7 @@ export default function SubscribeModal() {
     const [busy, setBusy] = useState(false);
     const [listenSince, setListenSince] = useState<ListenSince>('subscription_date');
     const [pushEnabled, setPushEnabled] = useState(true);
+    const [description, setDescription] = useState('');
     const [topic, setTopic] = useState('');
     const { palette, styles } = useThemedStyles(createStyles);
 
@@ -40,7 +41,10 @@ export default function SubscribeModal() {
         }
         setBusy(true);
         try {
-            await subscribe(topic.trim(), { pushEnabled, settings: { listenSince } });
+            await subscribe(topic.trim(), {
+                pushEnabled,
+                settings: { description: description.trim(), listenSince },
+            });
 
             router.back();
         } catch (error) {
@@ -118,7 +122,9 @@ export default function SubscribeModal() {
                         <View style={styles.section}>
                             <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
                             <SubscriptionSettingsFields
+                                description={description}
                                 listenSince={listenSince}
+                                onChangeDescription={setDescription}
                                 onChangeListenSince={setListenSince}
                                 onChangePushEnabled={setPushEnabled}
                                 pushEnabled={pushEnabled}

@@ -17,6 +17,7 @@ export function DebugSectionsProvider({ children }: { children: React.ReactNode 
         showCurl: false,
         showDelivery: false,
         showPayload: false,
+        showSubscriptionMetrics: false,
     });
 
     useEffect(() => {

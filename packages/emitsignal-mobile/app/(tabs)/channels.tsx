@@ -16,14 +16,30 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
+import { useDebugSections } from '@/ctx/debug-sections';
+import { useSubscriptionMetrics } from '@/hooks/use-subscription-metrics';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
+import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { type Subscription } from '@/lib/api';
+import { type Subscription, type SubscriptionMetrics } from '@/lib/api';
 
 export default function ChannelsScreen() {
     const [query, setQuery] = useState('');
     const { error, loading, refresh, refreshing, subscriptions, unsubscribe } = useSubscriptions();
     const { palette, styles } = useThemedStyles(createStyles);
+    const { sections } = useDebugSections();
+    const bottomInset = useTabBarInset(24);
+    const showMetrics = sections.showSubscriptionMetrics;
+
+    const { metrics, refresh: refreshMetrics } = useSubscriptionMetrics(showMetrics);
+
+    const handleRefresh = () => {
+        void refresh();
+
+        if (showMetrics) {
+            void refreshMetrics();
+        }
+    };
     const insets = useSafeAreaInsets();
 
     const filtered = useMemo(() => {
@@ -80,7 +96,9 @@ export default function ChannelsScreen() {
             </View>
 
             <FlatList
-                contentContainerStyle={filtered.length === 0 ? { flex: 1 } : { paddingBottom: 100 }}
+                contentContainerStyle={
+                    filtered.length === 0 ? { flex: 1 } : { paddingBottom: bottomInset }
+                }
                 data={filtered}
                 keyExtractor={({ id }) => id}
                 ListEmptyComponent={
@@ -111,17 +129,19 @@ export default function ChannelsScreen() {
                 refreshControl={
                     <RefreshControl
                         colors={[palette.violet]}
-                        onRefresh={refresh}
+                        onRefresh={handleRefresh}
                         refreshing={refreshing}
                         tintColor={palette.violet}
                     />
                 }
                 renderItem={({ item }) => (
                     <ChannelRow
+                        metrics={metrics[item.topic.id]}
                         onLongPress={() => handleUnsubscribe(item)}
                         onPress={() =>
                             router.push(`/topics/${encodeURIComponent(item.topic.name)}`)
                         }
+                        showMetrics={showMetrics}
                         sub={item}
                     />
                 )}
@@ -139,20 +159,27 @@ export default function ChannelsScreen() {
 }
 
 function ChannelRow({
+    metrics,
     onLongPress,
     onPress,
+    showMetrics,
     sub,
 }: {
+    metrics?: SubscriptionMetrics;
     onLongPress: () => void;
     onPress: () => void;
+    showMetrics: boolean;
     sub: Subscription;
 }) {
     const { styles } = useThemedStyles(createStyles);
-    // Stable activity-sparkline placeholder — once we have message-time
-    // history this can be derived from real data.
     const seed = sub.topic.id.charCodeAt(sub.topic.id.length - 1);
-    const data = Array.from({ length: 12 }, (_, i) => Math.abs(Math.sin((seed + i) * 0.7)) * 5);
     const priority = ((seed % 5) + 1 || 3) as 1 | 2 | 3 | 4 | 5;
+    // Use real 24h volume once metrics have loaded; until then show a stable
+    // deterministic placeholder so the row never renders an empty sparkline.
+    const data =
+        metrics?.volume ??
+        Array.from({ length: 12 }, (_, index) => Math.abs(Math.sin((seed + index) * 0.7)) * 5);
+    const description = sub.settings.description ?? sub.topic.description;
 
     return (
         <Pressable onLongPress={onLongPress} onPress={onPress} style={styles.channelRow}>
@@ -164,15 +191,21 @@ function ChannelRow({
                     <Text style={styles.channelName}>{sub.topic.name}</Text>
                 </View>
 
-                {sub.topic.description && (
+                {description && (
                     <Text numberOfLines={1} style={styles.channelDesc}>
-                        {sub.topic.description}
+                        {description}
                     </Text>
                 )}
 
-                <View style={{ marginTop: 6 }}>
-                    <ActivitySparkline color={PriorityColors[priority]} data={data} height={14} />
-                </View>
+                {showMetrics && (
+                    <View style={{ marginTop: 6 }}>
+                        <ActivitySparkline
+                            color={PriorityColors[priority]}
+                            data={data}
+                            height={14}
+                        />
+                    </View>
+                )}
             </View>
         </Pressable>
     );

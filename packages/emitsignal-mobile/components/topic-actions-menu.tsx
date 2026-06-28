@@ -14,10 +14,11 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
     const { subscriptions, unsubscribe, updateSubscription } = useSubscriptions();
     const subscription = subscriptions.find((item) => item.topic.name === topicName);
 
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    const [pushEnabled, setPushEnabled] = useState(true);
+    const [description, setDescription] = useState('');
     const [listenSince, setListenSince] = useState<ListenSince>('subscription_date');
+    const [pushEnabled, setPushEnabled] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const handleSendTest = async () => {
         try {
@@ -54,6 +55,7 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
 
         setPushEnabled(subscription.pushEnabled);
         setListenSince(subscription.settings.listenSince);
+        setDescription(subscription.settings.description ?? '');
         setSettingsOpen(true);
     };
 
@@ -88,7 +90,7 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
             await updateSubscription({
                 id: subscription.id,
                 pushEnabled,
-                settings: { listenSince },
+                settings: { description: description.trim(), listenSince },
             });
 
             setSettingsOpen(false);
@@ -113,7 +115,13 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
                     <Pressable onPress={() => {}} style={styles.sheetCard}>
                         <Text style={styles.sheetTitle}>{topicName}</Text>
                         <SubscriptionSettingsFields
+                            description={description}
+                            descriptionPlaceholder={
+                                subscription?.topic.description ??
+                                'Add a personal note for this channel'
+                            }
                             listenSince={listenSince}
+                            onChangeDescription={setDescription}
                             onChangeListenSince={setListenSince}
                             onChangePushEnabled={setPushEnabled}
                             pushEnabled={pushEnabled}

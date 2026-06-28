@@ -6,12 +6,14 @@ export interface DebugSections {
     showCurl: boolean;
     showDelivery: boolean;
     showPayload: boolean;
+    showSubscriptionMetrics: boolean;
 }
 
 const DEFAULTS: DebugSections = {
     showCurl: false,
     showDelivery: false,
     showPayload: false,
+    showSubscriptionMetrics: false,
 };
 
 export const saveDebugSections = async (sections: DebugSections) => {
