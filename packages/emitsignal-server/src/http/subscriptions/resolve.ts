@@ -14,7 +14,7 @@ export async function resolveSubscriptions({
     if (userId) {
         const subscriptions = await prisma.subscription.findMany({
             include: { topic: true },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { topic: { name: 'asc' } },
             where: { userId },
         });
 
@@ -32,7 +32,7 @@ export async function resolveSubscriptions({
     if (deviceId) {
         const rows = await prisma.subscription.findMany({
             include: { topic: true },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { topic: { name: 'asc' } },
             where: { deviceId, userId: null },
         });
 
