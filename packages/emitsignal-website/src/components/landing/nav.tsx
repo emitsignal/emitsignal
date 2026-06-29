@@ -5,24 +5,16 @@ import { Link } from '@tanstack/react-router';
 import { Logo } from '#/components/ui/logo';
 
 interface NavLink {
-    href: string;
+    href?: string;
     label: ReactNode;
+    to?: string;
 }
 
 const LINKS: NavLink[] = [
+    { label: 'Blog', to: '/blog' },
     { href: '#how', label: 'Docs' },
-    { href: '#surfaces', label: 'CLI' },
     { href: '#pricing', label: 'Pricing' },
-    {
-        href: '#',
-        label: (
-            <span className="inline-flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
-                Status
-            </span>
-        ),
-    },
-    { href: '#', label: 'Changelog' },
+    { href: '/changelog', label: 'Changelog' },
 ];
 
 export function Nav() {
@@ -32,16 +24,27 @@ export function Nav() {
                 <Logo pulse />
             </Link>
             <div className="ml-4 hidden gap-[22px] md:flex">
-                {LINKS.map((link, index) => (
-                    <a
-                        className="text-muted no-underline hover:text-fg"
-                        href={link.href}
-                        key={index}
-                    >
-                        {link.label}
-                    </a>
-                ))}
+                {LINKS.map((link, index) =>
+                    link.to ? (
+                        <Link
+                            className="text-muted no-underline hover:text-fg"
+                            key={index}
+                            to={link.to}
+                        >
+                            {link.label}
+                        </Link>
+                    ) : (
+                        <a
+                            className="text-muted no-underline hover:text-fg"
+                            href={link.href}
+                            key={index}
+                        >
+                            {link.label}
+                        </a>
+                    ),
+                )}
             </div>
+
             <div className="ml-auto flex items-center gap-3">
                 <Link
                     className="hidden text-muted no-underline hover:text-fg sm:inline"
@@ -49,6 +52,7 @@ export function Nav() {
                 >
                     Sign in
                 </Link>
+
                 <Link
                     className="rounded-md bg-accent px-3.5 py-1.5 font-semibold text-bg no-underline hover:bg-accent-dim"
                     to="/sign-in"

@@ -22,12 +22,13 @@ const COLUMNS: FooterColumn[] = [
             { label: 'Mobile', to: '/mobile' },
             { label: 'API', to: '/api' },
             { label: 'Changelog', to: '/changelog' },
+            { label: 'Blog', to: '/blog' },
         ],
     },
     {
         heading: 'developers',
         links: [
-            { href: '#how', label: 'Docs' },
+            { href: 'https://docs.emitsignal.com', label: 'Docs' },
             { href: '#how', label: 'Quickstart' },
             { href: '#', label: 'Reference' },
             { href: '#use-cases', label: 'Examples' },
@@ -78,6 +79,7 @@ export function Footer() {
                             <p className="mb-3.5 font-mono text-[10.5px] uppercase tracking-[1.6px] text-dim">
                                 {col.heading}
                             </p>
+
                             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
                                 {col.links.map((link) => (
                                     <li key={link.label}>
@@ -92,6 +94,7 @@ export function Footer() {
                                             <a
                                                 className="text-[13px] text-muted no-underline hover:text-fg"
                                                 href={link.href}
+                                                target="_blank"
                                             >
                                                 {link.label}
                                             </a>
@@ -104,10 +107,13 @@ export function Footer() {
                 </div>
 
                 <div className="flex flex-col gap-2 border-t border-line pt-5.5 font-mono text-[11px] text-dim sm:flex-row sm:items-center sm:gap-4">
-                    <span>© 2026 EmitSignal Labs · made by humans, paged by computers</span>
+                    <span>© {new Date().getFullYear()} EmitSignal</span>
                     <span className="flex items-center gap-1.5 sm:ml-auto">
                         <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
-                        all systems normal · status.emitsignal.com
+                        all systems normal ·{' '}
+                        <a href="https://status.emitsignal.com" target="_blank">
+                            status.emitsignal.com
+                        </a>
                     </span>
                 </div>
             </div>
