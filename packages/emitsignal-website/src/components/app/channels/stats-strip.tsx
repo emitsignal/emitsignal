@@ -16,16 +16,19 @@ export function StatsStrip({ metrics, subscription }: Props) {
                 subtitle="total messages"
                 value={metrics ? String(metrics.messageCount24h) : '—'}
             />
+
             <StatItem
                 label="p5 events"
                 subtitle="max priority"
                 value={metrics ? String(metrics.p5Count24h) : '—'}
             />
+
             <StatItem
                 label="subscribers"
                 subtitle="devices"
                 value={metrics ? String(metrics.subscriberCount) : '—'}
             />
+
             <StatItem
                 label="topic"
                 subtitle={subscription?.topic.isPublic ? 'public' : 'private'}
@@ -45,13 +48,10 @@ export function StatsStrip({ metrics, subscription }: Props) {
                 >
                     {volume.map((value, index) => {
                         const isRecent = index >= volume.length - 4;
-                        const color = isRecent
-                            ? 'var(--color-danger)'
-                            : 'var(--color-accent)';
+                        const color = isRecent ? 'var(--color-danger)' : 'var(--color-accent)';
                         const opacity = isRecent ? 0.9 : 0.55;
                         const hoursAgo = volume.length - 1 - index;
-                        const label =
-                            hoursAgo === 0 ? 'this hour' : `${hoursAgo}h ago`;
+                        const label = hoursAgo === 0 ? 'this hour' : `${hoursAgo}h ago`;
 
                         return (
                             <g key={index} style={{ cursor: 'default' }}>
@@ -99,6 +99,7 @@ function StatItem({ label, subtitle, value }: { label: string; subtitle: string;
             <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
                 {label}
             </p>
+
             <p className="m-0 truncate text-[24px] font-semibold tracking-[-0.6px]">{value}</p>
             <p className="m-0 mt-0.5 font-mono text-[10.5px] text-faint">{subtitle}</p>
         </div>

@@ -74,7 +74,8 @@ function CLIPreview() {
     return (
         <div className="mt-4.5 rounded-xl bg-deep px-4 py-3.5 font-mono text-[12.5px] leading-[1.7] text-fg">
             <div>
-                <span className="text-success">$</span> wsp listen 'priority&gt;=4 AND tag:prod'
+                <span className="text-success">$</span> emitsignal listen 'priority&gt;=4 AND
+                tag:prod'
             </div>
             <div className="mt-0.5 text-dim">→ connected · 4 channels match · ws</div>
             <div className="mt-1.5">

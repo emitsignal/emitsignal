@@ -30,6 +30,7 @@ function HeroBackground() {
                         'radial-gradient(ellipse at 30% 40%, black 0%, transparent 70%)',
                 }}
             />
+
             <div
                 className="pointer-events-none absolute left-[-10%] top-[20%] h-[600px] w-[600px] blur-3xl"
                 style={{
@@ -43,11 +44,6 @@ function HeroBackground() {
 function HeroCopy() {
     return (
         <div>
-            <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-line px-3 py-1.5 font-mono text-[11.5px] text-muted">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />
-                v0.7.2 · the dev-native pubsub layer
-            </div>
-
             <h1 className="m-0 font-sans text-[44px] font-semibold leading-[0.98] tracking-[-1.6px] text-fg sm:text-[56px] sm:tracking-[-2px] md:text-[76px] md:tracking-[-2.6px]">
                 Push&nbsp;notifications
                 <br />
@@ -93,15 +89,12 @@ function TryItNowCurl() {
             <p className="mb-2 text-[10px] tracking-[1.4px] text-dim">
                 TRY IT NOW · NO ACCOUNT NEEDED
             </p>
+
             <div className="text-fg">
                 <span className="text-success">$</span> <span className="text-dim">curl -d</span>{' '}
                 <span className="text-warn">"hi from the marketing site"</span>{' '}
                 <span className="text-accent">emitsignal.com/me-tryout</span>
             </div>
-            <p className="mt-1.5 text-[12.5px] text-accent">
-                ✓ delivered · open this URL on your phone to read it →{' '}
-                <span className="underline">emitsignal.com/r/me-tryout</span>
-            </p>
         </div>
     );
 }
