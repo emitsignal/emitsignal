@@ -1,0 +1,33 @@
+---
+author: team
+category: changelog
+date: '2026-06-11'
+excerpt: 'The fan-out rewrite ships to everyone, Routing Rules 2.0 lands in the dashboard, and emitsignal gets a quieter --quiet.'
+featured: false
+readTime: 3
+tags: [release, v0.7.2]
+title: 'v0.7.2 — faster fan-out, rule preview, CLI fixes'
+views: 5300
+---
+
+## Added
+
+- Parallel fan-out delivery — p99 end-to-end latency down from 1.4s to 280ms.
+- Routing Rules 2.0: expression editor with autocomplete and live match preview.
+- `emitsignal listen --quiet` suppresses the connection banner for clean piping.
+
+## Changed
+
+- Subscription changes now propagate over the realtime layer (no more 30s cache lag).
+- Default digest window moved to 08:00 local time.
+
+## Fixed
+
+- `emitsignal tui` no longer drops the last line on resize.
+- Webhook sinks correctly retry on 5xx with exponential backoff.
+- Fixed a race where a resubscribe could miss one in-flight signal.
+
+<Callout tone="green">
+    No action needed. The fan-out change is server-side; update the CLI with `brew upgrade
+    emitsignal` to get --quiet.
+</Callout>

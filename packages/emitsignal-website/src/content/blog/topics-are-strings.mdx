@@ -1,0 +1,45 @@
+---
+author: keven
+category: engineering
+date: '2026-05-19'
+excerpt: 'No schema, no registry, no "create topic" call. You publish to a string and it exists. Here is the design argument for radical simplicity at the core.'
+featured: false
+readTime: 8
+tags: [design, philosophy, architecture]
+title: 'Why topics are just strings'
+views: 11800
+---
+
+Most pubsub systems make you declare a topic before you can use it. Create it, configure retention, set a schema, grant access. We do none of that. You publish to `alerts/prod` and `alerts/prod` exists. Delete every subscriber and it stops existing. That is on purpose.
+
+## The cost of a registry
+
+A topic registry feels responsible. In practice it is a second source of truth that drifts from the first one — the signals actually flowing. It adds a create step to every integration, a permissions matrix to every onboarding, and a migration to every rename.
+
+<Quote cite="Rhea">
+    Every "create the thing before you use the thing" step is a place where a 2am script gives up
+    and logs to /dev/null instead.
+</Quote>
+
+## Strings compose
+
+Because topics are opaque strings, hierarchy is a convention, not a feature we had to build:
+
+```text
+alerts/prod/api
+alerts/prod/db
+alerts/staging
+me/personal
+home/sensors/freezer
+```
+
+Subscriptions match by prefix and expression, so `alerts/prod` catches both `api` and `db` without anyone registering a tree. The structure lives in the names, where your team already put it.
+
+## What we give up
+
+You cannot autocomplete a topic that has never been published. You can typo `alerts/prdo` and create a ghost. We think that trade is correct: the system never stands between you and a signal, and a ghost topic with no subscribers costs nothing and disappears on its own.
+
+<Callout tone="violet">
+    Constraints you can add later. Constraints baked into the core you live with forever. We chose
+    to ship the smallest possible core.
+</Callout>

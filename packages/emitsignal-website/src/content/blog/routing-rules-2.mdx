@@ -1,0 +1,41 @@
+---
+author: keven
+category: product
+date: '2026-06-04'
+excerpt: 'Rules used to be a wall of dropdowns. Now they are one expression box with autocomplete, a live match preview against your recent signals, and dry-run before you ship.'
+featured: false
+readTime: 7
+tags: [routing, rules, dashboard]
+title: 'Routing Rules 2.0: plain expressions, live preview'
+views: 9610
+---
+
+Routing is the heart of EmitSignal: a topic is just a string, and a rule decides where each signal on it actually goes. The old editor made you assemble that from four dropdowns and a priority slider. It worked, and nobody liked it.
+
+## One box, plain expressions
+
+Rules 2.0 is a single expression field. Write what you mean:
+
+```text
+priority >= 4 AND tag:prod        → push, slack #oncall
+priority = 5                       → push, sms, slack #oncall
+tag:resolved                       → silence
+hour between 0 and 7               → digest at 08:00
+```
+
+Autocomplete knows your tags, channels, and the fields a signal carries. It will not let you reference a sink you have not connected.
+
+## Live preview against real signals
+
+As you type, the right pane re-runs your expression against the last 500 signals on the topic and shows exactly which would have matched — and where each would have been delivered.
+
+<Callout tone="violet">
+    Dry-run is the default. A new rule shows you its matches for as long as you want before you flip
+    it live. No more "deploy the rule and watch prod".
+</Callout>
+
+## Migrating
+
+Every existing rule was translated to the new syntax automatically. Open any channel and you will see your old dropdowns rendered as an expression — edit it or leave it, both work.
+
+Rules 2.0 is live for all Team and Enterprise workspaces today, and on the free tier next week.

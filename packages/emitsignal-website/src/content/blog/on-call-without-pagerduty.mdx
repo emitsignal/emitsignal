@@ -1,0 +1,56 @@
+---
+title: 'Build an on-call rotation without PagerDuty'
+date: '2026-05-09'
+author: keven
+category: tutorial
+tags: [on-call, paging, sms, rules]
+excerpt: 'A rotation, escalation, and acknowledgement flow built from topics, rules, and a 20-line schedule. For small teams who page rarely but seriously.'
+readTime: 9
+views: 8700
+featured: false
+---
+
+You do not need a six-figure incident platform to wake the right person at 3am. For a team of five who pages a few times a month, EmitSignal plus a small schedule file is enough. Here is the whole thing.
+
+## The topic
+
+Everything pages through one topic. Severity rides on priority and tags:
+
+```bash
+curl emitsignal.com/alerts/prod \
+  -d "api-02 mem > 92%" -d priority=5 -d tag=sev1
+```
+
+## The rotation
+
+Who is on call is just a subscription that you rewrite weekly. A tiny cron job points the on-call alias at this week's human:
+
+```bash
+# rotate.sh — run by cron every Monday 09:00
+ONCALL=$(./whose-turn.sh)        # -> "maya"
+emitsignal route set alerts/oncall --to "user:$ONCALL"
+```
+
+## Escalation
+
+If the page is not acknowledged in five minutes, widen the blast radius. Rules 2.0 makes this a two-liner:
+
+```text
+priority:5 AND NOT acked within 5m  → sms backup + slack #incident
+priority:5 AND NOT acked within 15m → call everyone
+```
+
+## Acknowledge from anywhere
+
+```bash
+# from the terminal
+emitsignal ack alerts/prod
+# or tap the notification on your phone
+```
+
+<Callout tone="amber">
+    This is deliberately lightweight. If you page daily, buy the real thing. If you page monthly,
+    this is fewer moving parts and one fewer bill.
+</Callout>
+
+The full schedule script and rules export are in the examples repo.

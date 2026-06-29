@@ -1,0 +1,48 @@
+---
+title: 'GitHub → EmitSignal: reviews, issues, and deploys'
+date: '2026-04-30'
+author: keven
+category: tutorial
+tags: [github, webhooks, integrations]
+excerpt: 'Go past build status. Turn the GitHub events you actually care about — review requests, new issues, deploy statuses — into routed, filterable signals.'
+readTime: 7
+views: 7400
+featured: false
+---
+
+GitHub will happily email you about everything, which means you read none of it. The fix is not another inbox filter — it is turning GitHub events into signals you route the same way you route everything else.
+
+## Connect the source
+
+Add EmitSignal as a webhook on your repo (or org). One endpoint, the events you choose:
+
+```text
+Payload URL:  emitsignal.com/github/acme
+Content type: application/json
+Events:       pull_request, issues, deployment_status
+```
+
+## What you get
+
+Each event becomes a signal on `github/acme` with structured tags you can route on:
+
+```text
+event:review_requested  reviewer:you
+event:issue_opened      label:bug
+event:deploy            status:failure
+```
+
+## Route the noise out
+
+```text
+event:review_requested AND reviewer:me  → push
+event:issue_opened AND label:bug         → slack #triage
+event:deploy AND status:failure          → push + sms
+```
+
+Review requests for you specifically buzz your phone. Everything else stays in the inbox where you can sweep it on your own schedule. That is the difference between notifications and noise.
+
+<Callout tone="violet">
+    The same webhook shape works for Sentry, Stripe, Vercel, and Linear. Connect once, route
+    forever.
+</Callout>

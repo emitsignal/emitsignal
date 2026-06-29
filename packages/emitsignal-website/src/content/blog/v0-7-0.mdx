@@ -1,0 +1,27 @@
+---
+author: team
+category: changelog
+date: '2026-04-15'
+excerpt: 'A full-screen terminal UI, regex in routing expressions, and SMS as a first-class sink. Plus a faster cold-start for emitsignal listen.'
+featured: false
+readTime: 4
+tags: [release, v0.7.0, cli]
+title: 'v0.7.0 — the TUI, regex filters, SMS routing'
+views: 6100
+---
+
+## Added
+
+- `emitsignal tui` — a full-screen terminal UI with panes per channel, keyboard nav, and live filtering.
+- Regex in routing expressions: `message ~ /timeout|refused/ → push`.
+- SMS as a first-class sink (Team and up), with per-rule rate caps.
+
+## Changed
+
+- `emitsignal listen` cold-start is ~3x faster thanks to snapshot replay.
+- Priority colors unified across CLI, web, and mobile.
+
+## Fixed
+
+- Long topic names no longer overflow the mobile inbox row.
+- Fixed duplicate delivery when a webhook sink and push targeted the same rule.

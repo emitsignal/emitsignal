@@ -1,0 +1,42 @@
+---
+author: keven
+category: engineering
+date: '2026-04-02'
+excerpt: 'We dogfood hard. Every EmitSignal deploy announces itself through EmitSignal, with canary status, rollback buttons, and a p99 widget — all from topics.'
+featured: false
+readTime: 6
+tags: [dogfooding, deploys, culture]
+title: 'How we ship: deploy notifications for the team that builds them'
+views: 5900
+---
+
+There is a particular vertigo in using your own product to tell you your own product is broken. We lean into it. Every deploy, canary, and rollback at EmitSignal flows through EmitSignal, and it has caught more than one bad ship before customers noticed.
+
+## The deploy topic
+
+```bash
+# our deploy script, abbreviated
+emitsignal publish deploy/prod "rollout v$VERSION started" -p4
+deploy && emitsignal publish deploy/prod "v$VERSION live ✓" -p4 \
+       || emitsignal publish deploy/prod "v$VERSION FAILED" -p5 -t rollback
+```
+
+## Canary as signals
+
+Each traffic-shift step publishes its own signal, so the whole rollout reads like a timeline in the inbox:
+
+```text
+21:52 deploy/prod p4  canary 10% · error rate nominal
+21:55 deploy/prod p4  canary 50% · error rate nominal
+21:58 deploy/prod p4  canary 100% · v2.14.3 live ✓
+```
+
+## Why this works
+
+<Callout tone="green">
+    A failed health check publishes a p5 tagged rollback, which our own routing turns into a push
+    and a one-tap rollback action. We page ourselves with the thing that is broken — and it works,
+    which is the test.
+</Callout>
+
+Dogfooding is not a virtue, it is a forcing function. If the fan-out is slow, we feel it first, at the worst possible time. That is exactly when you want to feel it.

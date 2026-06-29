@@ -18,10 +18,13 @@ import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CliRouteImport } from './routes/cli'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppKeysRouteImport } from './routes/app/keys'
@@ -83,6 +86,11 @@ const ChangelogRoute = ChangelogRouteImport.update({
   path: '/changelog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -98,10 +106,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
@@ -184,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api': typeof ApiRoute
   '/app': typeof AppRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
@@ -197,7 +216,9 @@ export interface FileRoutesByFullPath {
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
   '/app/settings': typeof AppSettingsRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/app/': typeof AppIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
   '/app/settings/account': typeof AppSettingsAccountRoute
   '/app/settings/advanced': typeof AppSettingsAdvancedRoute
@@ -225,7 +246,9 @@ export interface FileRoutesByTo {
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/app': typeof AppIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
   '/app/settings/account': typeof AppSettingsAccountRoute
   '/app/settings/advanced': typeof AppSettingsAdvancedRoute
@@ -243,6 +266,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api': typeof ApiRoute
   '/app': typeof AppRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
@@ -256,7 +280,9 @@ export interface FileRoutesById {
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
   '/app/settings': typeof AppSettingsRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/app/': typeof AppIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
   '/app/settings/account': typeof AppSettingsAccountRoute
   '/app/settings/advanced': typeof AppSettingsAdvancedRoute
@@ -275,6 +301,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/app'
+    | '/blog'
     | '/changelog'
     | '/cli'
     | '/dashboard'
@@ -288,7 +315,9 @@ export interface FileRouteTypes {
     | '/app/keys'
     | '/app/publish'
     | '/app/settings'
+    | '/blog/$slug'
     | '/app/'
+    | '/blog/'
     | '/app/inbox/$messageId'
     | '/app/settings/account'
     | '/app/settings/advanced'
@@ -316,7 +345,9 @@ export interface FileRouteTypes {
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
+    | '/blog/$slug'
     | '/app'
+    | '/blog'
     | '/app/inbox/$messageId'
     | '/app/settings/account'
     | '/app/settings/advanced'
@@ -333,6 +364,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/app'
+    | '/blog'
     | '/changelog'
     | '/cli'
     | '/dashboard'
@@ -346,7 +378,9 @@ export interface FileRouteTypes {
     | '/app/keys'
     | '/app/publish'
     | '/app/settings'
+    | '/blog/$slug'
     | '/app/'
+    | '/blog/'
     | '/app/inbox/$messageId'
     | '/app/settings/account'
     | '/app/settings/advanced'
@@ -364,6 +398,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiRoute: typeof ApiRoute
   AppRoute: typeof AppRouteWithChildren
+  BlogRoute: typeof BlogRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
   CliRoute: typeof CliRoute
   DashboardRoute: typeof DashboardRoute
@@ -440,6 +475,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChangelogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -461,12 +503,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/app/settings': {
       id: '/app/settings'
@@ -635,10 +691,23 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiRoute: ApiRoute,
   AppRoute: AppRouteWithChildren,
+  BlogRoute: BlogRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
   CliRoute: CliRoute,
   DashboardRoute: DashboardRoute,

@@ -1,0 +1,68 @@
+---
+title: 'Pipe your CI into EmitSignal in five minutes'
+date: '2026-05-28'
+author: keven
+category: tutorial
+tags: [ci, github-actions, curl, integrations]
+excerpt: 'Get a phone push the moment a build goes green or red, from any CI, with one line and no SDK. GitHub Actions, GitLab, and a raw shell example included.'
+readTime: 6
+views: 14200
+featured: false
+---
+
+The whole integration is one HTTP call, so "five minutes" is generous. The trick is putting it in the right place in your pipeline and tagging it so routing can do something useful.
+
+## The one-liner
+
+Any CI that can run a shell step can publish. This is the entire integration:
+
+```bash
+curl emitsignal.com/ci/web \
+  -H "Authorization: Bearer $ES_TOKEN" \
+  -d "build #$CI_BUILD passed · $GIT_BRANCH" \
+  -d priority=3 -d tag=ci -d tag=passed
+```
+
+<Callout tone="amber">
+    Store ES_TOKEN as a CI secret. A token is scoped to the topics you grant it — a CI token that
+    can only publish to ci/* cannot page your on-call.
+</Callout>
+
+## GitHub Actions
+
+Drop this as the last step of your workflow. It fires on both success and failure thanks to `if: always()`:
+
+```yaml
+- name: Notify EmitSignal
+  if: always()
+  run: |
+      STATUS="${{ job.status }}"
+      PRIO=$([ "$STATUS" = success ] && echo 3 || echo 5)
+      curl emitsignal.com/ci/web \
+        -H "Authorization: Bearer ${{ secrets.ES_TOKEN }}" \
+        -d "CI $STATUS · ${{ github.ref_name }}" \
+        -d priority=$PRIO -d tag=ci -d tag=$STATUS
+```
+
+## Route it
+
+Now the signals exist — decide where they go. A reasonable starting rule for `ci/web`:
+
+```text
+tag:failed   → push + slack #builds
+tag:passed   → inbox only
+```
+
+Green builds stay quiet in your inbox; red builds buzz your phone and the team channel. That is the whole point — you choose the noise.
+
+## Read it from the terminal too
+
+```bash
+# tail your builds while you work
+emitsignal listen ci/web
+
+# only the failures
+emitsignal listen 'ci/web AND tag:failed'
+```
+
+Same signal, every surface. Next up: wiring Sentry and Stripe webhooks — both follow the exact same shape.

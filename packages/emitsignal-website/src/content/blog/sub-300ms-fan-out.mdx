@@ -1,0 +1,79 @@
+---
+author: keven
+category: engineering
+date: '2026-06-11'
+excerpt: 'A single published signal can land on a phone, a terminal, Slack, and an inbox at once. Here is how we got the p99 of that whole fan-out under 300ms — and what we broke on the way.'
+featured: true
+readTime: 11
+tags: [fan-out, websockets, latency, rust]
+title: 'Sub-300ms everywhere: rebuilding the fan-out pipeline'
+views: 18420
+---
+
+When you `curl` a message into a topic, the easy part is accepting it. The hard part is everything after the 200 OK: that one signal might need to reach a phone via APNs, three terminals over a websocket, a Slack channel, two webhooks, and an email digest — and a human is watching at least one of those, tapping their foot.
+
+For most of last year that fan-out had a p99 of 1.4 seconds. That is fine for a deploy notice and completely unacceptable for a page. This is the story of getting it to 280ms.
+
+## The old path
+
+The original design was the obvious one: accept the publish, write it to Postgres, and let a worker pool pick it up and deliver to each subscriber. Durable, simple, and slow — every delivery waited behind a database round-trip and a queue hop.
+
+```text
+publish → http api → postgres (insert)
+                  → notify worker
+   worker poll  → fetch subscribers
+                → deliver one at a time
+   p99: ~1,400ms
+```
+
+<Callout tone="amber">
+    The queue was not the bottleneck. The fan-out being serial was. We delivered to subscribers in a
+    loop, awaiting each sink.
+</Callout>
+
+## Fan-out as a first-class step
+
+We split delivery into two planes. The control plane still writes durably to Postgres so nothing is ever lost. The data plane fans out in parallel from an in-memory subscriber index, keyed by topic, kept warm on every node.
+
+```rust
+// deliver to every matching sink, concurrently
+let sinks = index.match(&topic, &signal);
+let delivered = futures::stream::iter(sinks)
+    .map(|sink| sink.deliver(&signal))
+    .buffer_unordered(256)   // <- the whole trick
+    .collect::<Vec<_>>()
+    .await;
+
+metrics::record_fanout(topic, delivered.len());
+```
+
+`buffer_unordered(256)` means a topic with 200 subscribers delivers to all of them at once, not one after another. The slowest sink sets the latency, not the sum of all of them.
+
+## Keeping the index warm
+
+An in-memory index is only fast if it is actually in memory on the node taking the request. We replicate subscription changes over the same websocket layer we use for delivery — a subscription is just another signal on an internal topic.
+
+- Subscribe / unsubscribe publishes to `_sys/subs`.
+- Every node listens and patches its local index.
+- Cold start replays the last snapshot, then tails the log.
+
+## What we broke
+
+Parallelism is a great way to turn one slow sink into a thundering herd. The first version happily opened 4,000 concurrent APNs connections during a traffic spike and got us rate-limited into next week.
+
+<Quote cite="Maya, in the postmortem">
+    Concurrency without a ceiling is just an outage you scheduled for your busiest minute.
+</Quote>
+
+The `buffer_unordered` cap plus a per-sink token bucket fixed it. Now a hot topic degrades gracefully — deliveries queue per sink instead of stampeding the provider.
+
+## Where we landed
+
+```text
+p50   41ms
+p95  190ms
+p99  280ms   (was 1,400ms)
+max  prod-cap at 2s, then async retry
+```
+
+Sub-300ms from `curl` to lock screen, for the 99th percentile, including the slow sinks. The next target is the long tail of mobile push providers — but that is a different post.
