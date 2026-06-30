@@ -44,6 +44,11 @@ export interface Message {
     topicName?: string;
 }
 
+export interface PaginatedResponse<T> {
+    data: T[];
+    nextCursor: null | string;
+}
+
 export interface PushToken {
     deviceId: string;
     id: string;
@@ -243,9 +248,13 @@ export function createApiClient(baseUrl: string) {
             return request<Webhook>(`/webhooks/${encodeURIComponent(id)}`);
         },
 
-        listMessages(topicName: string, limit = 50) {
-            return request<Message[]>(
-                `/topics/${encodeURIComponent(topicName)}/messages?limit=${limit}`,
+        listMessages(topicName: string, limit = 50, cursor?: string) {
+            const params = new URLSearchParams({ limit: String(limit) });
+            if (cursor) {
+                params.set('cursor', cursor);
+            }
+            return request<PaginatedResponse<Message>>(
+                `/topics/${encodeURIComponent(topicName)}/messages?${params.toString()}`,
             );
         },
 
@@ -253,24 +262,33 @@ export function createApiClient(baseUrl: string) {
             return request<PushToken[]>('/push-tokens');
         },
 
-        listSubscriptionMessages(deviceId?: string, limit?: number, topicName?: string) {
+        listSubscriptionMessages(
+            deviceId?: string,
+            options?: { cursor?: string; limit?: number; topicName?: string },
+        ) {
             const params = new URLSearchParams();
 
             if (deviceId) {
                 params.set('deviceId', deviceId);
             }
 
-            if (limit !== undefined) {
-                params.set('limit', String(limit));
+            if (options?.cursor) {
+                params.set('cursor', options.cursor);
             }
 
-            if (topicName) {
-                params.set('topicName', topicName);
+            if (options?.limit !== undefined) {
+                params.set('limit', String(options.limit));
+            }
+
+            if (options?.topicName) {
+                params.set('topicName', options.topicName);
             }
 
             const query = params.toString();
 
-            return request<Message[]>(`/subscriptions/messages${query ? `?${query}` : ''}`);
+            return request<PaginatedResponse<Message>>(
+                `/subscriptions/messages${query ? `?${query}` : ''}`,
+            );
         },
 
         listSubscriptionMetrics(deviceId?: string) {
