@@ -15,20 +15,29 @@ export const messages = new Elysia().get(
             return status(404, { error: 'topic_not_found' });
         }
 
+        const limit = query.limit ?? 50;
+
         const messages = await prisma.message.findMany({
             include: { _count: { select: { acknowledgments: true } } },
             orderBy: { createdAt: 'desc' },
-            take: query.limit ?? 50,
+            take: limit,
+            ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
             where: { topicId: topic.id },
         });
 
-        return Promise.all(
+        const data = await Promise.all(
             messages.map((message) => serializeMessage(message, message._count.acknowledgments)),
         );
+
+        const nextCursor =
+            messages.length === limit ? (messages[messages.length - 1]?.id ?? null) : null;
+
+        return { data, nextCursor };
     },
     {
         beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
         query: t.Object({
+            cursor: t.Optional(t.String({ minLength: 1 })),
             limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
         }),
     },

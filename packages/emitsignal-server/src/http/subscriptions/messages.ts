@@ -17,10 +17,11 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
             : rows;
 
         if (subscriptions.length === 0) {
-            return [];
+            return { data: [], nextCursor: null };
         }
 
         const messages = await prisma.message.findMany({
+            ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
             include: {
                 _count: { select: { acknowledgments: true } },
                 topic: { select: { name: true } },
@@ -43,7 +44,7 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
             },
         });
 
-        return Promise.all(
+        const data = await Promise.all(
             messages.map(async (message) => {
                 const serialized = await serializeMessage(
                     message,
@@ -54,10 +55,16 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
                 return { ...serialized, topicName: message.topic.name };
             }),
         );
+
+        const nextCursor =
+            messages.length === query.limit ? (messages[messages.length - 1]?.id ?? null) : null;
+
+        return { data, nextCursor };
     },
     {
         beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
         query: t.Object({
+            cursor: t.Optional(t.String({ minLength: 1 })),
             deviceId: t.Optional(t.String({ minLength: 1 })),
             limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
             topicName: t.Optional(t.String({ minLength: 1 })),
