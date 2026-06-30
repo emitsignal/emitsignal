@@ -199,6 +199,7 @@
         "@types/react": "^19.2.0",
         "@types/react-dom": "^19.2.0",
         "@vitejs/plugin-react": "^6.0.1",
+        "acorn": "^8.0.0",
         "eslint": "^10.4.0",
         "eslint-plugin-unicorn": "^64.0.0",
         "jsdom": "^28.1.0",
