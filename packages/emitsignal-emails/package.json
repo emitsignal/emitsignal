@@ -16,6 +16,7 @@
         ".": "./src/index.tsx",
         "./*": "./src/*"
     },
+    "license": "AGPL-3.0-only",
     "main": "src/index.tsx",
     "name": "@emitsignal/emails",
     "private": true,

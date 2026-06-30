@@ -2,6 +2,7 @@
     "devDependencies": {
         "mintlify": "^4.2.587"
     },
+    "license": "AGPL-3.0-only",
     "name": "@emitsignal/docs",
     "private": true,
     "scripts": {

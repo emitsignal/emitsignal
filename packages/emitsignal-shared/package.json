@@ -8,6 +8,7 @@
         "./topic": "./src/topic.ts",
         "./webhook-template": "./src/webhook-template.ts"
     },
+    "license": "AGPL-3.0-only",
     "main": "src/index.ts",
     "name": "@emitsignal/shared",
     "private": true,

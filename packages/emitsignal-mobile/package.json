@@ -47,6 +47,7 @@
         "eslint-config-expo": "~56.0.4",
         "typescript": "~6.0.3"
     },
+    "license": "AGPL-3.0-only",
     "main": "expo-router/entry",
     "name": "@emitsignal/mobile",
     "private": true,

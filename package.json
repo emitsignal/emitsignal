@@ -11,6 +11,7 @@
         "prettier-plugin-sort-json": "^4.2.0",
         "typescript-eslint": "^8.59.1"
     },
+    "license": "AGPL-3.0-only",
     "module": "index.ts",
     "name": "@emitsignal",
     "overrides": {
