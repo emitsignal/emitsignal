@@ -1,5 +1,6 @@
 import { relativeTime } from '@emitsignal/shared';
 import {
+    ActivityIndicator,
     FlatList,
     Pressable,
     type RefreshControlProps,
@@ -22,7 +23,9 @@ interface FeedPriorityProps {
     error?: Error;
     filter: string;
     getTopicName: (message: Message) => string;
+    isFetchingNextPage?: boolean;
     loading: boolean;
+    onEndReached?: () => void;
     onPress: (message: Message) => void;
     refreshControl: React.ReactElement<RefreshControlProps>;
 }
@@ -33,7 +36,9 @@ export function FeedPriority({
     error,
     filter,
     getTopicName,
+    isFetchingNextPage,
     loading,
+    onEndReached,
     onPress,
     refreshControl,
 }: FeedPriorityProps) {
@@ -48,6 +53,11 @@ export function FeedPriority({
                 item.kind === 'priority-header' ? `ph-${item.level}-${index}` : item.message.id
             }
             ListEmptyComponent={emptyComponent}
+            ListFooterComponent={
+                isFetchingNextPage ? <ActivityIndicator style={{ padding: 16 }} /> : null
+            }
+            onEndReached={onEndReached}
+            onEndReachedThreshold={0.3}
             refreshControl={refreshControl}
             renderItem={({ item }) =>
                 item.kind === 'priority-header' ? (

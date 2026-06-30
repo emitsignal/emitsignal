@@ -1,5 +1,6 @@
 import { relativeTime } from '@emitsignal/shared';
 import {
+    ActivityIndicator,
     FlatList,
     Pressable,
     type RefreshControlProps,
@@ -22,7 +23,9 @@ interface FeedTimelineProps {
     error?: Error;
     filter: string;
     getTopicName: (message: Message) => string;
+    isFetchingNextPage?: boolean;
     loading: boolean;
+    onEndReached?: () => void;
     onPress: (message: Message) => void;
     refreshControl: React.ReactElement<RefreshControlProps>;
 }
@@ -33,7 +36,9 @@ export function FeedTimeline({
     error,
     filter,
     getTopicName,
+    isFetchingNextPage,
     loading,
+    onEndReached,
     onPress,
     refreshControl,
 }: FeedTimelineProps) {
@@ -49,6 +54,11 @@ export function FeedTimeline({
             ListEmptyComponent={
                 <EmptyFeed filter={filter} loading={loading} message={error?.message} />
             }
+            ListFooterComponent={
+                isFetchingNextPage ? <ActivityIndicator style={{ padding: 16 }} /> : null
+            }
+            onEndReached={onEndReached}
+            onEndReachedThreshold={0.3}
             refreshControl={refreshControl}
             renderItem={({ item }) =>
                 item.kind === 'date' ? (

@@ -27,7 +27,18 @@ const FIXED_FILTERS = ['all', 'p4+', 'unread'] as const;
 
 export default function FeedScreen() {
     const { palette, styles } = useThemedStyles(createStyles);
-    const { error, loading, messages, refresh, refreshing, subscriptions } = useFeed();
+    const {
+        error,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        loading,
+        messages,
+        refresh,
+        refreshing,
+        subscriptions,
+    } = useFeed();
+
     const { feedStyle } = useFeedStyle();
     const bottomInset = useTabBarInset();
     const [filter, setFilter] = useState<string>('all');
@@ -137,7 +148,9 @@ export default function FeedScreen() {
         error: error ?? undefined,
         filter,
         getTopicName,
+        isFetchingNextPage,
         loading,
+        onEndReached: hasNextPage ? () => fetchNextPage() : undefined,
         onPress: handlePress,
         refreshControl,
     };
@@ -151,8 +164,10 @@ export default function FeedScreen() {
                 </View>
                 <Text style={styles.title}>Inbox</Text>
                 <Text style={styles.subtitle}>
-                    {messages.length} message{messages.length === 1 ? '' : 's'} ·{' '}
-                    {subscriptions.length} channel{subscriptions.length === 1 ? '' : 's'}
+                    {messages.length}
+                    {hasNextPage ? '+' : ''} message
+                    {messages.length === 1 && !hasNextPage ? '' : 's'} · {subscriptions.length}{' '}
+                    channel{subscriptions.length === 1 ? '' : 's'}
                 </Text>
             </View>
 

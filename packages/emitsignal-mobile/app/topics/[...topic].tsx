@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WChip } from '@/components/base-theme';
@@ -15,7 +15,8 @@ export default function TopicScreen() {
     const params = useLocalSearchParams<{ topic: string | string[] }>();
     const topic = Array.isArray(params.topic) ? params.topic.join('/') : (params.topic ?? '');
 
-    const { loading, messages } = useTopicMessages(topic);
+    const { fetchNextPage, hasNextPage, isFetchingNextPage, loading, messages } =
+        useTopicMessages(topic);
 
     if (!topic) {
         return null;
@@ -25,14 +26,14 @@ export default function TopicScreen() {
         <SafeAreaView edges={['top']} style={styles.root}>
             <ScreenHeader
                 right={<TopicActionsMenu topicName={topic} />}
-                subtitle={`${messages.length} message${messages.length === 1 ? '' : 's'}`}
+                subtitle={`${messages.length}${hasNextPage ? '+' : ''} message${messages.length === 1 && !hasNextPage ? '' : 's'}`}
                 title={topic}
             />
 
             <FlatList
                 contentContainerStyle={messages.length === 0 ? { flex: 1 } : { paddingBottom: 40 }}
                 data={messages}
-                keyExtractor={(m) => m.id}
+                keyExtractor={(message) => message.id}
                 ListEmptyComponent={
                     loading ? null : (
                         <View style={styles.empty}>
@@ -43,6 +44,11 @@ export default function TopicScreen() {
                         </View>
                     )
                 }
+                ListFooterComponent={
+                    isFetchingNextPage ? <ActivityIndicator style={{ padding: 16 }} /> : null
+                }
+                onEndReached={hasNextPage ? () => fetchNextPage() : undefined}
+                onEndReachedThreshold={0.3}
                 renderItem={({ item }) => (
                     <MessageRow
                         message={item}

@@ -1,10 +1,12 @@
+import { type InfiniteData } from '@tanstack/react-query';
+
 import { useDevice } from '@/ctx/device';
 import { useSession } from '@/ctx/session';
-import { api, type Message, sseMultiUrl, sseUrl } from '@/lib/api';
+import { api, type Message, type PaginatedResponse, sseMultiUrl, sseUrl } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 
 import { useBoundedPending } from './use-bounded-pending';
-import { useLiveQuery } from './use-live-query';
+import { useLiveInfiniteQuery } from './use-live-infinite-query';
 import { useSubscriptions } from './use-subscriptions';
 
 export function useFeed() {
@@ -18,21 +20,39 @@ export function useFeed() {
 
     const enabled = !sessionLoading && Boolean(userId || deviceId);
 
-    const query = useLiveQuery<Message[]>({
+    const query = useLiveInfiniteQuery<Message>({
         enabled,
-        onMessage: (queryClient, data) => {
+        onMessage: (queryClient, data, queryKey) => {
             const incoming = data as { topicName?: string } & Message;
 
-            queryClient.setQueryData<Message[]>(queryKeys.feed(scope), (previous = []) => {
-                if (previous.some((message) => message.id === incoming.id)) {
-                    return previous;
-                }
+            queryClient.setQueryData<InfiniteData<PaginatedResponse<Message>>>(
+                queryKey,
+                (previous) => {
+                    if (!previous) {
+                        return previous;
+                    }
 
-                return [incoming, ...previous].slice(0, 200);
-            });
+                    const firstPage = previous.pages[0];
+
+                    if (
+                        !firstPage ||
+                        firstPage.data.some((message) => message.id === incoming.id)
+                    ) {
+                        return previous;
+                    }
+
+                    return {
+                        ...previous,
+                        pages: [
+                            { ...firstPage, data: [incoming, ...firstPage.data] },
+                            ...previous.pages.slice(1),
+                        ],
+                    };
+                },
+            );
         },
-        queryFn: () =>
-            api.listSubscriptionMessages(userId ? undefined : (deviceId ?? undefined), 50),
+        queryFn: (cursor) =>
+            api.listSubscriptionMessages(deviceId ?? undefined, { cursor, limit: 50 }),
         queryKey: queryKeys.feed(scope),
         sseUrl: () => (topicNames.length ? sseMultiUrl(topicNames) : null),
     });
@@ -44,43 +64,63 @@ export function useFeed() {
 
     return {
         error: query.error instanceof Error ? query.error : null,
+        fetchNextPage: query.fetchNextPage,
+        hasNextPage: query.hasNextPage,
+        isFetchingNextPage: query.isFetchingNextPage,
         loading,
-        messages: query.data ?? [],
+        messages: query.data?.pages.flatMap((page) => page.data) ?? [],
         refresh: () => query.refetch(),
-        refreshing: query.isFetching,
+        refreshing: query.isFetching && !query.isFetchingNextPage,
         subscriptions,
     };
 }
 
 export function useTopicMessages(topicName: null | string) {
     const { deviceId } = useDevice();
-    const { user } = useSession();
 
     const enabled = Boolean(topicName);
 
-    const query = useLiveQuery<Message[]>({
+    const query = useLiveInfiniteQuery<Message>({
         enabled,
-        onMessage: (queryClient, data) => {
+        onMessage: (queryClient, data, queryKey) => {
             if (!topicName) {
                 return;
             }
 
             const incoming = data as Message;
-            const key = queryKeys.topicMessages(topicName);
-            const current = queryClient.getQueryData<Message[]>(key) ?? [];
 
-            if (current.some((message) => message.id === incoming.id)) {
-                return;
-            }
+            queryClient.setQueryData<InfiniteData<PaginatedResponse<Message>>>(
+                queryKey,
+                (previous) => {
+                    if (!previous) {
+                        return previous;
+                    }
 
-            queryClient.setQueryData<Message[]>(key, [incoming, ...current]);
+                    const firstPage = previous.pages[0];
+
+                    if (
+                        !firstPage ||
+                        firstPage.data.some((message) => message.id === incoming.id)
+                    ) {
+                        return previous;
+                    }
+
+                    return {
+                        ...previous,
+                        pages: [
+                            { ...firstPage, data: [incoming, ...firstPage.data] },
+                            ...previous.pages.slice(1),
+                        ],
+                    };
+                },
+            );
         },
-        queryFn: () =>
-            api.listSubscriptionMessages(
-                user?.id ? undefined : (deviceId ?? undefined),
-                50,
-                topicName as string,
-            ),
+        queryFn: (cursor) =>
+            api.listSubscriptionMessages(deviceId ?? undefined, {
+                cursor,
+                limit: 50,
+                topicName: topicName as string,
+            }),
         queryKey: queryKeys.topicMessages(topicName ?? ''),
         sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
@@ -88,5 +128,11 @@ export function useTopicMessages(topicName: null | string) {
     const waitingForPrerequisites = useBoundedPending(!enabled);
     const loading = enabled ? query.isLoading : waitingForPrerequisites;
 
-    return { loading, messages: query.data ?? [] };
+    return {
+        fetchNextPage: query.fetchNextPage,
+        hasNextPage: query.hasNextPage,
+        isFetchingNextPage: query.isFetchingNextPage,
+        loading,
+        messages: query.data?.pages.flatMap((page) => page.data) ?? [],
+    };
 }
