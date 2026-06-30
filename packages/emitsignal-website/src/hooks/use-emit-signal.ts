@@ -33,7 +33,11 @@ export function useFeed() {
                 return [incoming, ...previous].slice(0, 200);
             });
         },
-        queryFn: () => api.listSubscriptionMessages(userId ? undefined : deviceId, 50),
+        queryFn: async () => {
+            const result = await api.listSubscriptionMessages(deviceId, { limit: 50 });
+
+            return result.data;
+        },
         queryKey: queryKeys.feed(scope),
         sseUrl: () => (topicNames.length ? sseMultiUrl(topicNames) : null),
     });
@@ -75,8 +79,13 @@ export function useTopicMessages(
             queryClient.setQueryData<Message[]>(key, [incoming, ...current]);
             onNewMessageRef.current?.(incoming);
         },
-        queryFn: () =>
-            api.listSubscriptionMessages(user?.id ? undefined : deviceId, 50, topicName as string),
+        queryFn: async () => {
+            const result = await api.listSubscriptionMessages(deviceId, {
+                limit: 50,
+                topicName: topicName as string,
+            });
+            return result.data;
+        },
         queryKey: queryKeys.topicMessages(topicName ?? ''),
         sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
