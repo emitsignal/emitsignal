@@ -36,11 +36,12 @@ describe('GET /topics/:name/messages', () => {
 
         expect(res.status).toBe(200);
 
-        const data = await res.json();
+        const body = await res.json();
 
-        expect(data).toBeArray();
-        expect(data[0]).toHaveProperty('id', 'msg-1');
-        expect(data[0]).toHaveProperty('acknowledgmentCount', 2);
+        expect(body.data).toBeArray();
+        expect(body.data[0]).toHaveProperty('acknowledgmentCount', 2);
+        expect(body.data[0]).toHaveProperty('id', 'msg-1');
+        expect(body).toHaveProperty('nextCursor', null);
     });
 
     it('returns 404 for non-existent topic', async () => {

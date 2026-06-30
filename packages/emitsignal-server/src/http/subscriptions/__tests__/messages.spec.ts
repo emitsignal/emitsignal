@@ -10,6 +10,14 @@ import { listSubscriptionMessages } from '../../subscriptions/messages';
 
 const subscribedAt = new Date(1700000000000);
 
+function lastFindManyWhere() {
+    const call = prismaMock.message.findMany.mock.calls.at(-1) as unknown as
+        | [args: { where?: unknown }]
+        | undefined;
+
+    return call?.[0]?.where;
+}
+
 function subscription(overrides: Record<string, unknown>) {
     return {
         createdAt: subscribedAt,
@@ -35,7 +43,7 @@ describe('GET /subscriptions/messages', () => {
         );
 
         expect(res.status).toBe(200);
-        expect(await res.json()).toEqual([]);
+        expect(await res.json()).toEqual({ data: [], nextCursor: null });
     });
 
     it('defaults to subscription_date, filtering messages by the subscription createdAt', async () => {
@@ -44,7 +52,7 @@ describe('GET /subscriptions/messages', () => {
 
         await app.handle(new Request('http://localhost/subscriptions/messages?deviceId=dev-1'));
 
-        const where = prismaMock.message.findMany.mock.calls.at(-1)?.[0].where;
+        const where = lastFindManyWhere();
         expect(where).toEqual({
             OR: [{ createdAt: { gte: subscribedAt }, topicId: 't1' }],
         });
@@ -58,7 +66,7 @@ describe('GET /subscriptions/messages', () => {
 
         await app.handle(new Request('http://localhost/subscriptions/messages?deviceId=dev-1'));
 
-        const where = prismaMock.message.findMany.mock.calls.at(-1)?.[0].where;
+        const where = lastFindManyWhere();
         expect(where).toEqual({ OR: [{ topicId: 't1' }] });
     });
 
@@ -86,7 +94,8 @@ describe('GET /subscriptions/messages', () => {
 
         expect(callsAfter - callsBefore).toBe(1);
 
-        const where = prismaMock.message.findMany.mock.calls.at(-1)?.[0].where;
+        const where = lastFindManyWhere();
+
         expect(where).toEqual({
             OR: [{ createdAt: { gte: subscribedAt }, topicId: 't1' }, { topicId: 't2' }],
         });
@@ -108,13 +117,15 @@ describe('GET /subscriptions/messages', () => {
                 topicId: 't2',
             }),
         ]);
+
         prismaMock.message.findMany.mockResolvedValueOnce([]);
 
         await app.handle(
             new Request('http://localhost/subscriptions/messages?deviceId=dev-1&topicName=topic-2'),
         );
 
-        const where = prismaMock.message.findMany.mock.calls.at(-1)?.[0].where;
+        const where = lastFindManyWhere();
+
         expect(where).toEqual({ OR: [{ topicId: 't2' }] });
     });
 
@@ -129,8 +140,8 @@ describe('GET /subscriptions/messages', () => {
         );
         const callsAfter = prismaMock.message.findMany.mock.calls.length;
 
-        expect(res.status).toBe(200);
-        expect(await res.json()).toEqual([]);
+        expect(await res.json()).toEqual({ data: [], nextCursor: null });
         expect(callsAfter - callsBefore).toBe(0);
+        expect(res.status).toBe(200);
     });
 });
