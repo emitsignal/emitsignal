@@ -10,8 +10,24 @@ type BlogSearch = {
     layout: 'grid' | 'list';
 };
 
+const BLOG_DESCRIPTION =
+    'Engineering deep-dives, product updates, tutorials, and changelog from the EmitSignal team.';
+
 export const Route = createFileRoute('/blog/')({
     component: BlogPage,
+    head: () => ({
+        meta: [
+            { title: 'Blog — EmitSignal' },
+            { content: BLOG_DESCRIPTION, name: 'description' },
+            { content: 'Blog — EmitSignal', property: 'og:title' },
+            { content: BLOG_DESCRIPTION, property: 'og:description' },
+            { content: 'https://emitsignal.com/blog', property: 'og:url' },
+            { content: 'website', property: 'og:type' },
+            { content: 'summary', name: 'twitter:card' },
+            { content: 'Blog — EmitSignal', name: 'twitter:title' },
+            { content: BLOG_DESCRIPTION, name: 'twitter:description' },
+        ],
+    }),
     loader: async () => {
         const posts = await fetchAllPosts();
         return { posts };

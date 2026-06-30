@@ -12,9 +12,12 @@ import { defineConfig } from 'vite';
 import { remarkExtractHeadings } from './src/lib/remark-extract-headings';
 
 const config = defineConfig({
+    optimizeDeps: {
+        exclude: ['@resvg/resvg-js'],
+    },
     plugins: [
         devtools(),
-        nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+        nitro({ rollupConfig: { external: [/^@sentry\//, /^@resvg\//] } }),
         tailwindcss(),
         {
             enforce: 'pre',
@@ -29,6 +32,10 @@ const config = defineConfig({
     resolve: {
         dedupe: ['@tanstack/react-query', 'react', 'react-dom'],
         tsconfigPaths: true,
+    },
+    ssr: {
+        external: ['@resvg/resvg-js'],
+        noExternal: [],
     },
 });
 

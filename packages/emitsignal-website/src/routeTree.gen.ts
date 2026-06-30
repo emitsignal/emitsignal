@@ -29,6 +29,7 @@ import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppKeysRouteImport } from './routes/app/keys'
 import { Route as AppChannelsRouteImport } from './routes/app/channels'
+import { Route as ApiOgRouteImport } from './routes/api/og'
 import { Route as AppWebhooksIndexRouteImport } from './routes/app/webhooks/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
 import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index'
@@ -141,6 +142,11 @@ const AppChannelsRoute = AppChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiOgRoute = ApiOgRouteImport.update({
+  id: '/og',
+  path: '/og',
+  getParentRoute: () => ApiRoute,
+} as any)
 const AppWebhooksIndexRoute = AppWebhooksIndexRouteImport.update({
   id: '/webhooks/',
   path: '/webhooks/',
@@ -200,7 +206,7 @@ const AppWebhooksWebhookIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api': typeof ApiRoute
+  '/api': typeof ApiRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
+  '/api/og': typeof ApiOgRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
@@ -233,7 +240,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api': typeof ApiRoute
+  '/api': typeof ApiRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/cli': typeof CliRoute
   '/dashboard': typeof DashboardRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
+  '/api/og': typeof ApiOgRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
@@ -264,7 +272,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api': typeof ApiRoute
+  '/api': typeof ApiRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
@@ -276,6 +284,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
+  '/api/og': typeof ApiOgRoute
   '/app/channels': typeof AppChannelsRoute
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/terms'
     | '/verify'
+    | '/api/og'
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/terms'
     | '/verify'
+    | '/api/og'
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/terms'
     | '/verify'
+    | '/api/og'
     | '/app/channels'
     | '/app/keys'
     | '/app/publish'
@@ -396,7 +408,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiRoute: typeof ApiRoute
+  ApiRoute: typeof ApiRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
@@ -552,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppChannelsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/og': {
+      id: '/api/og'
+      path: '/og'
+      fullPath: '/api/og'
+      preLoaderRoute: typeof ApiOgRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/app/webhooks/': {
       id: '/app/webhooks/'
       path: '/webhooks'
@@ -632,6 +651,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiRouteChildren {
+  ApiOgRoute: typeof ApiOgRoute
+}
+
+const ApiRouteChildren: ApiRouteChildren = {
+  ApiOgRoute: ApiOgRoute,
+}
+
+const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
+
 interface AppSettingsRouteChildren {
   AppSettingsAccountRoute: typeof AppSettingsAccountRoute
   AppSettingsAdvancedRoute: typeof AppSettingsAdvancedRoute
@@ -705,7 +734,7 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiRoute: ApiRoute,
+  ApiRoute: ApiRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
