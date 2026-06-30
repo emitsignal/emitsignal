@@ -17,13 +17,13 @@ export const Route = createFileRoute('/app/channels')({
 
 function ChannelView() {
     const { topic } = Route.useSearch();
-
-    const { addMessage, metrics } = useTopicMetrics(topic || null);
-    const { loading, messages } = useTopicMessages(topic || null, addMessage);
     const { subscriptions, unsubscribe } = useSubscriptions();
     const navigate = useNavigate();
 
     const selectedTopic = topic || subscriptions[0]?.topic.name || '';
+
+    const { addMessage, metrics } = useTopicMetrics(selectedTopic || null);
+    const { loading, messages } = useTopicMessages(selectedTopic || null, addMessage);
 
     const subscription = subscriptions.find(
         (subscription) => subscription.topic.name === selectedTopic,
