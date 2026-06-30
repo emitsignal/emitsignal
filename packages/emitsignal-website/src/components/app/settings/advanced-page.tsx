@@ -16,7 +16,6 @@ import { SettingsCard } from './settings-card';
 import { SettingsField } from './settings-field';
 import { SettingsGroup, SettingsRow } from './settings-group';
 import { SettingsInput } from './settings-input';
-import { SettingsPill } from './settings-pill';
 import { SettingsToggle } from './settings-toggle';
 
 const FEED_STYLE_OPTIONS: { description: string; label: string; value: FeedStyle }[] = [
@@ -110,7 +109,7 @@ export function AdvancedPage() {
                 <h1 className="text-[22px] font-semibold tracking-[-0.4px]">Advanced</h1>
                 <p className="mt-1 max-w-[620px] text-[13px] leading-[1.55] text-muted">
                     Developer controls, experimental features, data residency, and irreversible
-                    actions. Most teams never need to touch this page.
+                    actions. Most users never need to touch this page.
                 </p>
             </div>
 
@@ -127,6 +126,7 @@ export function AdvancedPage() {
                             <SettingsInput monospace suffix="req/min" value="600" />
                         </SettingsField>
                     </div>
+
                     <SettingsField
                         hint="Used to verify the X-Signal-Signature HMAC on every outbound webhook"
                         label="Webhook signing secret"
@@ -185,26 +185,6 @@ export function AdvancedPage() {
                             onChange={(next) => setSection(option.key, next)}
                         />
                     ))}
-                </SettingsCard>
-
-                <SettingsCard
-                    action={<SettingsPill tone="warn">PREVIEW</SettingsPill>}
-                    description="Opt into features still in preview. They can change or disappear without notice."
-                    title="Experimental features"
-                >
-                    <SettingsToggle
-                        defaultOn
-                        description="ML-driven grouping of cascading alerts. Replaces the 60s window rule."
-                        label="Smart batching v2"
-                    />
-                    <SettingsToggle
-                        description="Reply to a signal from the notification — routes back to the publisher"
-                        label="Inline signal replies"
-                    />
-                    <SettingsToggle
-                        description="Write channel rules in plain English instead of expressions"
-                        label="Natural-language filters"
-                    />
                 </SettingsCard>
 
                 <SettingsCard
@@ -281,6 +261,7 @@ export function AdvancedPage() {
                                         <div className="mt-0.5 font-mono text-[11px] text-dim">
                                             This will permanently delete your account.
                                         </div>
+
                                         {deleteError && (
                                             <div className="mt-1 font-mono text-[11px] text-danger">
                                                 {deleteError}
