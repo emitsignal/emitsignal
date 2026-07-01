@@ -4,7 +4,7 @@ import Elysia, { t } from 'elysia';
 import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue } from '../../lib/queue';
-import { getOrCreateTopic, serializeMessage, serializeTags } from '../../lib/topic';
+import { getOrCreateTopic, serializeMessage } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
 export const receiveWebhook = new Elysia().post(
@@ -62,7 +62,7 @@ export const receiveWebhook = new Elysia().post(
                 body: messageBody,
                 priority,
                 senderId,
-                tags: serializeTags(tags),
+                tags,
                 title,
                 topicId: topic.id,
             },

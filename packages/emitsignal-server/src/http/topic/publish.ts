@@ -12,7 +12,7 @@ import { ANON_INLINE_MAX, validateMessageMedia } from '../../lib/media-refs';
 import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
-import { getOrCreateTopic, serializeMessage, serializeTags, TopicNameError } from '../../lib/topic';
+import { getOrCreateTopic, serializeMessage, TopicNameError } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
 
 const MAX_SCHEDULE_SECONDS = duration.years(1).as('seconds');
@@ -123,7 +123,7 @@ export const publish = new Elysia().post(
                 priority: body.priority,
                 scheduledAt: isScheduled ? new Date(scheduledAtUnix * 1000) : null,
                 senderId: userId,
-                tags: serializeTags(body.tags),
+                tags: body.tags ?? [],
                 title,
                 topicId: topic.id,
             },

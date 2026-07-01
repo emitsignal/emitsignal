@@ -137,18 +137,19 @@ export function parseMediaRefs(raw: string): MediaRef[] {
     }
 }
 
-export function parseTags(raw: string): string[] {
+export function parseTagsQueryParam(raw: string | undefined): string[] {
     if (!raw) {
         return [];
     }
 
-    try {
-        const parsed = JSON.parse(raw);
-
-        return Array.isArray(parsed) ? parsed.map(String) : [];
-    } catch {
-        return [];
-    }
+    return Array.from(
+        new Set(
+            raw
+                .split(',')
+                .map((tag) => tag.trim())
+                .filter(Boolean),
+        ),
+    );
 }
 
 export async function serializeMessage(
@@ -161,7 +162,7 @@ export async function serializeMessage(
         inlineAttachments?: string;
         inlineImages?: string;
         priority: number;
-        tags: string;
+        tags: string[];
         title: string;
         topicId: string;
     },
@@ -210,12 +211,8 @@ export async function serializeMessage(
         inlineAttachments: parseMediaRefs(message.inlineAttachments ?? ''),
         inlineImages: parseMediaRefs(message.inlineImages ?? ''),
         priority: message.priority,
-        tags: parseTags(message.tags),
+        tags: message.tags,
         title: message.title,
         topicId: message.topicId,
     };
-}
-
-export function serializeTags(tags: string[] | undefined): string {
-    return JSON.stringify(tags ?? []);
 }

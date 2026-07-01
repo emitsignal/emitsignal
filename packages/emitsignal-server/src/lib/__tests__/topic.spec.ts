@@ -11,9 +11,8 @@ import {
     getOrCreateTopic,
     isValidTopicName,
     parseActions,
-    parseTags,
+    parseTagsQueryParam,
     serializeMessage,
-    serializeTags,
     TOPIC_NAME_MAX_LENGTH,
     TOPIC_NAME_REGEX,
 } from '../topic';
@@ -140,31 +139,25 @@ describe('parseActions', () => {
     });
 });
 
-describe('parseTags', () => {
-    it('parses valid JSON array of tags', () => {
-        expect(parseTags(JSON.stringify(['urgent', 'news']))).toEqual(['urgent', 'news']);
+describe('parseTagsQueryParam', () => {
+    it('splits a comma-separated string into trimmed tags', () => {
+        expect(parseTagsQueryParam('urgent, news ,sev2')).toEqual(['urgent', 'news', 'sev2']);
     });
 
-    it('returns empty array for invalid JSON', () => {
-        expect(parseTags('not-json')).toEqual([]);
+    it('deduplicates tags', () => {
+        expect(parseTagsQueryParam('a,a,b')).toEqual(['a', 'b']);
+    });
+
+    it('drops empty segments', () => {
+        expect(parseTagsQueryParam('a,,b,')).toEqual(['a', 'b']);
+    });
+
+    it('returns empty array for undefined', () => {
+        expect(parseTagsQueryParam(undefined)).toEqual([]);
     });
 
     it('returns empty array for empty string', () => {
-        expect(parseTags('')).toEqual([]);
-    });
-});
-
-describe('serializeTags', () => {
-    it('serializes a tags array', () => {
-        expect(serializeTags(['a', 'b'])).toBe('["a","b"]');
-    });
-
-    it('returns "[]" for undefined', () => {
-        expect(serializeTags(undefined)).toBe('[]');
-    });
-
-    it('returns "[]" for null', () => {
-        expect(serializeTags(null as unknown as undefined)).toBe('[]');
+        expect(parseTagsQueryParam('')).toEqual([]);
     });
 });
 
@@ -175,7 +168,7 @@ describe('serializeMessage', () => {
         createdAt: new Date(1000000000000),
         id: 'msg-1',
         priority: 3,
-        tags: JSON.stringify(['test']),
+        tags: ['test'],
         title: 'Test',
         topicId: 'topic-1',
     };
@@ -232,7 +225,7 @@ describe('serializeMessage', () => {
             createdAt: new Date(0),
             id: 'msg-1',
             priority: 1,
-            tags: '[]',
+            tags: [],
             title: '',
             topicId: 't1',
         });

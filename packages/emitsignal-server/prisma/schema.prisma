@@ -219,7 +219,7 @@ model Message {
     priority          Int      @default(3) // 1=min..5=max
     scheduledAt       DateTime?
     senderId          String?
-    tags              String // JSON array string for sqlite
+    tags              String[] @default([])
     title             String
     topicId           String
 
@@ -229,6 +229,8 @@ model Message {
     topic           Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
     @@index([topicId, createdAt])
+    @@index([topicId, priority, createdAt])
+    @@index([tags], type: Gin)
     @@index([topicId])
     @@index([scheduledAt])
     @@index([senderId])

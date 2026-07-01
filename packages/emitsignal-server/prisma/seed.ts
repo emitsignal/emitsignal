@@ -1,5 +1,4 @@
 import { prisma } from '../src/lib/prisma';
-import { serializeTags } from '../src/lib/topic';
 
 const SAMPLE_TOPICS = [
     { description: 'Production deployments', displayName: 'Deploy · Prod', name: 'deploy/prod' },
@@ -79,7 +78,7 @@ async function main() {
             data: {
                 body: m.body,
                 priority: m.priority,
-                tags: serializeTags(m.tags),
+                tags: m.tags,
                 title: m.title,
                 topicId: topic.id,
             },
