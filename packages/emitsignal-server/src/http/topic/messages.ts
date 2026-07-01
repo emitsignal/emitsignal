@@ -3,7 +3,7 @@ import Elysia, { t } from 'elysia';
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { prisma } from '../../lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
-import { serializeMessage } from '../../lib/topic';
+import { parseTagsQueryParam, serializeMessage } from '../../lib/topic';
 
 export const messages = new Elysia().get(
     '/topics/:name/messages',
@@ -16,13 +16,20 @@ export const messages = new Elysia().get(
         }
 
         const limit = query.limit ?? 50;
+        const tagsFilter = parseTagsQueryParam(query.tags);
 
         const messages = await prisma.message.findMany({
             include: { _count: { select: { acknowledgments: true } } },
             orderBy: { createdAt: 'desc' },
             take: limit,
             ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
-            where: { topicId: topic.id },
+            where: {
+                topicId: topic.id,
+                ...(query.minPriority !== undefined
+                    ? { priority: { gte: query.minPriority } }
+                    : {}),
+                ...(tagsFilter.length > 0 ? { tags: { hasSome: tagsFilter } } : {}),
+            },
         });
 
         const data = await Promise.all(
@@ -39,6 +46,8 @@ export const messages = new Elysia().get(
         query: t.Object({
             cursor: t.Optional(t.String({ minLength: 1 })),
             limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
+            minPriority: t.Optional(t.Integer({ maximum: 5, minimum: 1 })),
+            tags: t.Optional(t.String({ minLength: 1 })),
         }),
     },
 );

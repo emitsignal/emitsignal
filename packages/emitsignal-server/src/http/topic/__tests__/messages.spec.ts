@@ -26,7 +26,7 @@ describe('GET /topics/:name/messages', () => {
                 id: 'msg-1',
                 priority: 3,
                 scheduledAt: null,
-                tags: '[]',
+                tags: [],
                 title: 'Test',
                 topicId: 't1',
             },
@@ -86,5 +86,47 @@ describe('GET /topics/:name/messages', () => {
         ] as unknown as [{ take: number }];
 
         expect(callArgs[0].take).toBe(50);
+    });
+
+    it('applies minPriority and tags filters to the where clause', async () => {
+        prismaMock.topic.findUnique.mockResolvedValueOnce({
+            id: 't1',
+            name: 'test-topic',
+        });
+
+        const res = await app.handle(
+            new Request(
+                'http://localhost/topics/test-topic/messages?minPriority=4&tags=sev2,infra',
+            ),
+        );
+
+        expect(res.status).toBe(200);
+
+        const callArgs = prismaMock.message.findMany.mock.calls[
+            prismaMock.message.findMany.mock.calls.length - 1
+        ] as unknown as [{ where: Record<string, unknown> }];
+
+        expect(callArgs[0].where).toEqual({
+            priority: { gte: 4 },
+            tags: { hasSome: ['sev2', 'infra'] },
+            topicId: 't1',
+        });
+    });
+
+    it('omits priority/tags filters from the where clause when not provided', async () => {
+        prismaMock.topic.findUnique.mockResolvedValueOnce({
+            id: 't1',
+            name: 'test-topic',
+        });
+
+        const res = await app.handle(new Request('http://localhost/topics/test-topic/messages'));
+
+        expect(res.status).toBe(200);
+
+        const callArgs = prismaMock.message.findMany.mock.calls[
+            prismaMock.message.findMany.mock.calls.length - 1
+        ] as unknown as [{ where: Record<string, unknown> }];
+
+        expect(callArgs[0].where).toEqual({ topicId: 't1' });
     });
 });

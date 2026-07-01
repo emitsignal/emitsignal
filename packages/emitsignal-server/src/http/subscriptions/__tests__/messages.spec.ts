@@ -144,4 +144,38 @@ describe('GET /subscriptions/messages', () => {
         expect(callsAfter - callsBefore).toBe(0);
         expect(res.status).toBe(200);
     });
+
+    it('adds a priority filter as a sibling of OR when minPriority is provided', async () => {
+        prismaMock.subscription.findMany.mockResolvedValueOnce([
+            subscription({ settings: '{"listenSince":"always"}' }),
+        ]);
+        prismaMock.message.findMany.mockResolvedValueOnce([]);
+
+        await app.handle(
+            new Request('http://localhost/subscriptions/messages?deviceId=dev-1&minPriority=4'),
+        );
+
+        const where = lastFindManyWhere();
+        expect(where).toEqual({
+            OR: [{ topicId: 't1' }],
+            priority: { gte: 4 },
+        });
+    });
+
+    it('adds a tags hasSome filter as a sibling of OR when tags is provided', async () => {
+        prismaMock.subscription.findMany.mockResolvedValueOnce([
+            subscription({ settings: '{"listenSince":"always"}' }),
+        ]);
+        prismaMock.message.findMany.mockResolvedValueOnce([]);
+
+        await app.handle(
+            new Request('http://localhost/subscriptions/messages?deviceId=dev-1&tags=sev2,infra'),
+        );
+
+        const where = lastFindManyWhere();
+        expect(where).toEqual({
+            OR: [{ topicId: 't1' }],
+            tags: { hasSome: ['sev2', 'infra'] },
+        });
+    });
 });

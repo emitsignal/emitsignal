@@ -3,7 +3,7 @@ import Elysia, { t } from 'elysia';
 import { prisma } from '../../lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
 import { parseSubscriptionSettings } from '../../lib/subscription-settings';
-import { serializeMessage } from '../../lib/topic';
+import { parseTagsQueryParam, serializeMessage } from '../../lib/topic';
 import { authAwareBeforeHandle } from '../plugins/rate-limit-plugin';
 import { resolveSubscriptions } from './resolve';
 
@@ -19,6 +19,8 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
         if (subscriptions.length === 0) {
             return { data: [], nextCursor: null };
         }
+
+        const tagsFilter = parseTagsQueryParam(query.tags);
 
         const messages = await prisma.message.findMany({
             ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
@@ -41,6 +43,10 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
                         topicId: subscription.topicId,
                     };
                 }),
+                ...(query.minPriority !== undefined
+                    ? { priority: { gte: query.minPriority } }
+                    : {}),
+                ...(tagsFilter.length > 0 ? { tags: { hasSome: tagsFilter } } : {}),
             },
         });
 
@@ -67,6 +73,8 @@ export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
             cursor: t.Optional(t.String({ minLength: 1 })),
             deviceId: t.Optional(t.String({ minLength: 1 })),
             limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
+            minPriority: t.Optional(t.Integer({ maximum: 5, minimum: 1 })),
+            tags: t.Optional(t.String({ minLength: 1 })),
             topicName: t.Optional(t.String({ minLength: 1 })),
         }),
     },
