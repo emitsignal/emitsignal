@@ -4,6 +4,7 @@
         "./api": "./src/api.ts",
         "./billing": "./src/billing.ts",
         "./format": "./src/format.ts",
+        "./message-filters": "./src/message-filters.ts",
         "./priority": "./src/priority.ts",
         "./topic": "./src/topic.ts",
         "./webhook-template": "./src/webhook-template.ts"

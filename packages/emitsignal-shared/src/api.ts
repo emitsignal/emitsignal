@@ -1,4 +1,5 @@
 import type { BillingInfo } from './billing.ts';
+import type { MessageFilterParams } from './message-filters.ts';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -248,11 +249,24 @@ export function createApiClient(baseUrl: string) {
             return request<Webhook>(`/webhooks/${encodeURIComponent(id)}`);
         },
 
-        listMessages(topicName: string, limit = 50, cursor?: string) {
-            const params = new URLSearchParams({ limit: String(limit) });
-            if (cursor) {
-                params.set('cursor', cursor);
+        listMessages(
+            topicName: string,
+            options?: { cursor?: string; limit?: number } & MessageFilterParams,
+        ) {
+            const params = new URLSearchParams({ limit: String(options?.limit ?? 50) });
+
+            if (options?.cursor) {
+                params.set('cursor', options.cursor);
             }
+
+            if (options?.minPriority !== undefined) {
+                params.set('minPriority', String(options.minPriority));
+            }
+
+            if (options?.tags && options.tags.length > 0) {
+                params.set('tags', options.tags.join(','));
+            }
+
             return request<PaginatedResponse<Message>>(
                 `/topics/${encodeURIComponent(topicName)}/messages?${params.toString()}`,
             );
@@ -264,7 +278,7 @@ export function createApiClient(baseUrl: string) {
 
         listSubscriptionMessages(
             deviceId?: string,
-            options?: { cursor?: string; limit?: number; topicName?: string },
+            options?: { cursor?: string; limit?: number; topicName?: string } & MessageFilterParams,
         ) {
             const params = new URLSearchParams();
 
@@ -282,6 +296,14 @@ export function createApiClient(baseUrl: string) {
 
             if (options?.topicName) {
                 params.set('topicName', options.topicName);
+            }
+
+            if (options?.minPriority !== undefined) {
+                params.set('minPriority', String(options.minPriority));
+            }
+
+            if (options?.tags && options.tags.length > 0) {
+                params.set('tags', options.tags.join(','));
             }
 
             const query = params.toString();
