@@ -47,13 +47,11 @@ export const loggerPlugin = new Elysia({ name: 'logger' })
 
         logger.info(`${request.method} ${path} ${status} ${durationMs} ms - ${length}`);
     })
-    .onError(({ code, error, request, set }) => {
+    .onError(({ code, error, request }) => {
         const path = new URL(request.url).pathname;
 
         if (code === 'NOT_FOUND') {
-            set.status = 404;
-
-            return { error: 'Not Found', path, status: 404 };
+            return;
         }
 
         if (code === 'VALIDATION') {

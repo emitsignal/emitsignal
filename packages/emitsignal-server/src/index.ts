@@ -11,6 +11,7 @@ import { acknowledge } from './http/messages/acknowledge';
 import { attachments } from './http/messages/attachments';
 import { getMessage } from './http/messages/get';
 import { purgeSignals } from './http/messages/purge';
+import { errorResponsePlugin } from './http/plugins/error-response-plugin';
 import { loggerPlugin } from './http/plugins/logger-plugin';
 import { rateLimitPlugin } from './http/plugins/rate-limit-plugin';
 import { listPushTokens } from './http/push-tokens/list';
@@ -57,6 +58,7 @@ const isProduction = Bun.env.NODE_ENV === 'production';
 const app = new Elysia()
     .use(opentelemetry())
     .use(loggerPlugin)
+    .use(errorResponsePlugin)
     .use(rateLimitPlugin)
     .use(openapi({ enabled: !isProduction, references: fromTypes() }))
     .use(
