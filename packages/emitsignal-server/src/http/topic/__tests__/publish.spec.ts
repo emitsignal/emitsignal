@@ -106,10 +106,14 @@ describe('POST /topic/:name', () => {
         expect(data.status).toBe(400);
     });
 
-    it('returns 422 for missing required body fields', async () => {
+    it('returns 400 for a fully empty body (missing title and body)', async () => {
         const res = await app.handle(request('test-topic', {}));
 
-        expect(res.status).toBe(422);
+        expect(res.status).toBe(400);
+
+        const data = await res.json();
+
+        expect(data.error).toBe('missing_content');
     });
 
     it('returns 400 when both title and body are absent', async () => {
