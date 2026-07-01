@@ -152,6 +152,7 @@ function ChannelView() {
                     tagOptions={tagOptions}
                     tags={tags}
                 />
+
                 <RoutingRail subscription={subscription ?? null} />
             </div>
         </>
