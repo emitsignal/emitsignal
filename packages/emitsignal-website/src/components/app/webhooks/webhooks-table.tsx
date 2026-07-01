@@ -124,19 +124,25 @@ function WebhookRow({
     update: (id: string, input: { status?: string }) => Promise<unknown>;
     webhook: Webhook;
 }) {
-    const navigate = useNavigate();
     const [copied, setCopied] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
+
     const lastLabel = webhook.lastDeliveryAt ? relativeTime(webhook.lastDeliveryAt * 1000) : '—';
 
     // Close menu on outside click
     useEffect(() => {
-        if (!menuOpen) return;
+        if (!menuOpen) {
+            return;
+        }
+
         function onDoc(e: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
         }
+
         document.addEventListener('mousedown', onDoc);
+
         return () => document.removeEventListener('mousedown', onDoc);
     }, [menuOpen]);
 
@@ -144,8 +150,9 @@ function WebhookRow({
         void navigate({ params: { webhookId: webhook.id }, to: '/app/webhooks/$webhookId' });
     }
 
-    function handleCopy(e: React.MouseEvent) {
-        e.stopPropagation();
+    function handleCopy(event: React.MouseEvent) {
+        event.stopPropagation();
+
         void navigator.clipboard.writeText(`${API_URL}/h/${webhook.slug}`).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
@@ -154,20 +161,29 @@ function WebhookRow({
 
     function handleEdit(e: React.MouseEvent) {
         e.stopPropagation();
+
         setMenuOpen(false);
+
         void navigate({ params: { webhookId: webhook.id }, to: '/app/webhooks/$webhookId/edit' });
     }
 
-    async function handleToggleStatus(e: React.MouseEvent) {
-        e.stopPropagation();
+    async function handleToggleStatus(event: React.MouseEvent) {
+        event.stopPropagation();
+
         setMenuOpen(false);
+
         await update(webhook.id, { status: webhook.status === 'active' ? 'paused' : 'active' });
     }
 
-    async function handleDelete(e: React.MouseEvent) {
-        e.stopPropagation();
+    async function handleDelete(event: React.MouseEvent) {
+        event.stopPropagation();
+
         setMenuOpen(false);
-        if (!window.confirm(`Delete "${webhook.name}"? This cannot be undone.`)) return;
+
+        if (!window.confirm(`Delete "${webhook.name}"? This cannot be undone.`)) {
+            return;
+        }
+
         await remove(webhook.id);
     }
 
@@ -190,7 +206,7 @@ function WebhookRow({
             {/* Endpoint + copy */}
             <div
                 className="flex min-w-0 items-center gap-1.5 font-mono text-[11px] text-muted"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
             >
                 <span className="truncate">/h/{webhook.slug}</span>
                 <button
