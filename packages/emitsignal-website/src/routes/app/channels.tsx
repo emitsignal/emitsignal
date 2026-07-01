@@ -47,7 +47,11 @@ function ChannelView() {
     const filters = { minPriority: priority, tags };
 
     const { addMessage, metrics } = useTopicMetrics(selectedTopic || null);
-    const { loading, messages } = useTopicMessages(selectedTopic || null, addMessage, filters);
+    const { fetchNextPage, hasNextPage, isFetchingNextPage, loading, messages } = useTopicMessages(
+        selectedTopic || null,
+        addMessage,
+        filters,
+    );
 
     const [tagOptions, setTagOptions] = useState<string[]>([]);
 
@@ -87,7 +91,7 @@ function ChannelView() {
                         </button>
                     ) : null
                 }
-                subtitle={`${messages.length} messages · ${matchingSubscriptions.length} subscriber${matchingSubscriptions.length !== 1 ? 's' : ''}`}
+                subtitle={`${messages.length}${hasNextPage ? '+' : ''} messages · ${matchingSubscriptions.length} subscriber${matchingSubscriptions.length !== 1 ? 's' : ''}`}
                 title={
                     <span className="flex items-center gap-2.5">
                         <span className="font-normal text-dim">Channels /</span>
@@ -122,6 +126,9 @@ function ChannelView() {
 
             <div className="flex min-h-0 flex-1">
                 <EventList
+                    fetchNextPage={fetchNextPage}
+                    hasNextPage={hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
                     loading={loading}
                     messages={messages}
                     onClear={() =>

@@ -1,7 +1,7 @@
 import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
-import { Fragment, type ReactNode, useState } from 'react';
+import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import type { Message } from '#/lib/api';
 import type { Priority } from '#/lib/priority';
@@ -15,20 +15,27 @@ import { useFeedStyle } from '#/ctx/feed-style';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useFeed } from '#/hooks/use-emit-signal';
 
-interface ListProps {
+interface SubListProps {
     messages: Message[];
     onSelect: (id: string) => void;
     selectedId: null | string;
 }
 
+interface ListProps extends SubListProps {
+    fetchNextPage: () => void;
+    hasNextPage: boolean;
+    isFetchingNextPage: boolean;
+}
+
 export function InboxLayout({ selectedId }: { selectedId: null | string }) {
-    const { loading, messages, subscriptions } = useFeed();
+    const { fetchNextPage, hasNextPage, isFetchingNextPage, loading, messages, subscriptions } =
+        useFeed();
     const navigate = useNavigate();
 
     const channelCount = subscriptions.length;
     const subtitle = loading
         ? 'loading…'
-        : `${messages.length} messages · ${channelCount} channels active`;
+        : `${messages.length}${hasNextPage ? '+' : ''} messages · ${channelCount} channels active`;
 
     const selected = selectedId
         ? (messages.find((message) => message.id === selectedId) ?? null)
@@ -44,6 +51,9 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
 
             <div className="flex min-h-0 flex-1">
                 <NotificationList
+                    fetchNextPage={fetchNextPage}
+                    hasNextPage={hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
                     messages={messages}
                     onSelect={handleSelect}
                     selectedId={selectedId}
@@ -54,7 +64,7 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
     );
 }
 
-function ComfyList({ messages, onSelect, selectedId }: ListProps) {
+function ComfyList({ messages, onSelect, selectedId }: SubListProps) {
     const now = messages.slice(0, 2);
     const earlier = messages.slice(2);
 
@@ -109,8 +119,35 @@ function dayLabel(createdAt: number): string {
     return new Date(createdAt).toLocaleDateString();
 }
 
-function NotificationList({ messages, onSelect, selectedId }: ListProps) {
+function NotificationList({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    messages,
+    onSelect,
+    selectedId,
+}: ListProps) {
     const { feedStyle } = useFeedStyle();
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!hasNextPage || !sentinelRef.current) {
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !isFetchingNextPage) {
+                    fetchNextPage();
+                }
+            },
+            { threshold: 0.1 },
+        );
+
+        observer.observe(sentinelRef.current);
+
+        return () => observer.disconnect();
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     if (messages.length === 0) {
         return (
@@ -131,11 +168,15 @@ function NotificationList({ messages, onSelect, selectedId }: ListProps) {
             {feedStyle === 'priority' ? (
                 <PriorityList messages={messages} onSelect={onSelect} selectedId={selectedId} />
             ) : null}
+            <div ref={sentinelRef} className="h-px" />
+            {isFetchingNextPage && (
+                <div className="py-3 text-center font-mono text-[11px] text-dim">loading…</div>
+            )}
         </div>
     );
 }
 
-function PriorityList({ messages, onSelect, selectedId }: ListProps) {
+function PriorityList({ messages, onSelect, selectedId }: SubListProps) {
     const levels: Priority[] = [5, 4, 3, 2, 1];
 
     return (
@@ -234,7 +275,7 @@ function SubscribeButton() {
     );
 }
 
-function TimelineList({ messages, onSelect, selectedId }: ListProps) {
+function TimelineList({ messages, onSelect, selectedId }: SubListProps) {
     const nodes: ReactNode[] = [];
     let currentDay = '';
 

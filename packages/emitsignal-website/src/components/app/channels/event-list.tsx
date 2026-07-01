@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 import type { Message } from '#/lib/api';
 
 import { Dot } from '#/components/ui/dot';
@@ -8,6 +10,9 @@ import { priorityHex, priorityLabel } from '#/lib/priority';
 const PRIORITY_THRESHOLDS = [3, 4, 5];
 
 interface Props {
+    fetchNextPage: () => void;
+    hasNextPage: boolean;
+    isFetchingNextPage: boolean;
     loading: boolean;
     messages: Message[];
     onClear: () => void;
@@ -20,6 +25,9 @@ interface Props {
 }
 
 export function EventList({
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     loading,
     messages,
     onClear,
@@ -30,10 +38,32 @@ export function EventList({
     tagOptions,
     tags,
 }: Props) {
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!hasNextPage || !sentinelRef.current) {
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !isFetchingNextPage) {
+                    fetchNextPage();
+                }
+            },
+            { threshold: 0.1 },
+        );
+
+        observer.observe(sentinelRef.current);
+
+        return () => observer.disconnect();
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
     return (
         <div className="min-w-0 flex-1 overflow-auto border-r border-line">
             <FilterRow
                 count={messages.length}
+                hasNextPage={hasNextPage}
                 onClear={onClear}
                 onPriorityChange={onPriorityChange}
                 onTagsChange={onTagsChange}
@@ -52,6 +82,11 @@ export function EventList({
                 messages.map((message) => (
                     <EventRow event={message} key={message.id} onTagClick={onTagClick} />
                 ))
+            )}
+
+            <div ref={sentinelRef} className="h-px" />
+            {isFetchingNextPage && (
+                <div className="py-3 text-center font-mono text-[11px] text-dim">loading…</div>
             )}
         </div>
     );
@@ -95,6 +130,7 @@ function EventRow({ event, onTagClick }: { event: Message; onTagClick: (tag: str
 
 function FilterRow({
     count,
+    hasNextPage,
     onClear,
     onPriorityChange,
     onTagsChange,
@@ -103,6 +139,7 @@ function FilterRow({
     tags,
 }: {
     count: number;
+    hasNextPage: boolean;
     onClear: () => void;
     onPriorityChange: (priority: number | undefined) => void;
     onTagsChange: (tags: string[]) => void;
@@ -172,7 +209,10 @@ function FilterRow({
                 </button>
             )}
 
-            <span className="ml-auto">{count} messages</span>
+            <span className="ml-auto">
+                {count}
+                {hasNextPage ? '+' : ''} messages
+            </span>
         </div>
     );
 }
