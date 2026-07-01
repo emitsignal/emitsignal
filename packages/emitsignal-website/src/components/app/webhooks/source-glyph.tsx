@@ -1,11 +1,11 @@
 export type WebhookSource = 'custom' | 'github' | 'grafana' | 'stripe' | 'vercel';
 
 const SOURCE_CONFIG: Record<WebhookSource, { color: string; glyph: string; label: string }> = {
-    custom: { color: '#67e8f9', glyph: '{}', label: 'Custom' },
-    github: { color: '#f5f0ff', glyph: 'GH', label: 'GitHub' },
-    grafana: { color: '#fbbf24', glyph: 'GF', label: 'Grafana' },
-    stripe: { color: '#a78bfa', glyph: 'ST', label: 'Stripe' },
-    vercel: { color: '#f5f0ff', glyph: 'VC', label: 'Vercel' },
+    custom: { color: 'var(--color-info)', glyph: '{}', label: 'Custom' },
+    github: { color: 'var(--color-fg)', glyph: 'GH', label: 'GitHub' },
+    grafana: { color: 'var(--color-warn)', glyph: 'GF', label: 'Grafana' },
+    stripe: { color: 'var(--color-accent)', glyph: 'ST', label: 'Stripe' },
+    vercel: { color: 'var(--color-fg)', glyph: 'VC', label: 'Vercel' },
 };
 
 interface SourceGlyphProps {
