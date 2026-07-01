@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 
-import type { Message, TopicMetrics } from '#/lib/api';
+import type { Message, MessageFilterParams, TopicMetrics } from '#/lib/api';
 
 import { useSession } from '#/ctx/session';
 import { useSubscriptions } from '#/ctx/subscriptions';
-import { api, sseMultiUrl, sseUrl } from '#/lib/api';
+import { api, matchesMessageFilter, sseMultiUrl, sseUrl } from '#/lib/api';
 import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
@@ -54,12 +54,15 @@ export function useFeed() {
 export function useTopicMessages(
     topicName: null | string,
     onNewMessage?: (message: Message) => void,
+    filters?: MessageFilterParams,
 ) {
     const onNewMessageRef = useRef(onNewMessage);
     onNewMessageRef.current = onNewMessage;
 
+    const filtersRef = useRef(filters);
+    filtersRef.current = filters;
+
     const deviceId = getDeviceId();
-    const { user } = useSession();
 
     const query = useLiveQuery<Message[]>({
         enabled: Boolean(topicName),
@@ -69,7 +72,15 @@ export function useTopicMessages(
             }
 
             const incoming = data as Message;
-            const key = queryKeys.topicMessages(topicName);
+
+            // Metrics stay global/unfiltered — they reflect the whole topic.
+            onNewMessageRef.current?.(incoming);
+
+            if (!matchesMessageFilter(incoming, filtersRef.current)) {
+                return;
+            }
+
+            const key = queryKeys.topicMessages(topicName, filtersRef.current);
             const current = queryClient.getQueryData<Message[]>(key) ?? [];
 
             if (current.some((message) => message.id === incoming.id)) {
@@ -77,16 +88,17 @@ export function useTopicMessages(
             }
 
             queryClient.setQueryData<Message[]>(key, [incoming, ...current]);
-            onNewMessageRef.current?.(incoming);
         },
         queryFn: async () => {
             const result = await api.listSubscriptionMessages(deviceId, {
                 limit: 50,
+                minPriority: filters?.minPriority,
+                tags: filters?.tags,
                 topicName: topicName as string,
             });
             return result.data;
         },
-        queryKey: queryKeys.topicMessages(topicName ?? ''),
+        queryKey: queryKeys.topicMessages(topicName ?? '', filters),
         sseUrl: () => (topicName ? sseUrl(topicName) : null),
     });
 

@@ -3,16 +3,44 @@ import type { Message } from '#/lib/api';
 import { Dot } from '#/components/ui/dot';
 import { cn } from '#/lib/cn';
 import { relativeTime } from '#/lib/format';
+import { priorityHex, priorityLabel } from '#/lib/priority';
+
+const PRIORITY_THRESHOLDS = [3, 4, 5];
 
 interface Props {
     loading: boolean;
     messages: Message[];
+    onClear: () => void;
+    onPriorityChange: (priority: number | undefined) => void;
+    onTagClick: (tag: string) => void;
+    onTagsChange: (tags: string[]) => void;
+    priority?: number;
+    tagOptions: string[];
+    tags: string[];
 }
 
-export function EventList({ loading, messages }: Props) {
+export function EventList({
+    loading,
+    messages,
+    onClear,
+    onPriorityChange,
+    onTagClick,
+    onTagsChange,
+    priority,
+    tagOptions,
+    tags,
+}: Props) {
     return (
         <div className="min-w-0 flex-1 overflow-auto border-r border-line">
-            <FilterRow count={messages.length} />
+            <FilterRow
+                count={messages.length}
+                onClear={onClear}
+                onPriorityChange={onPriorityChange}
+                onTagsChange={onTagsChange}
+                priority={priority}
+                tagOptions={tagOptions}
+                tags={tags}
+            />
 
             {loading ? (
                 <div className="p-5.5 font-mono text-[12px] text-dim">loading…</div>
@@ -21,13 +49,15 @@ export function EventList({ loading, messages }: Props) {
                     no messages in this channel
                 </div>
             ) : (
-                messages.map((message) => <EventRow event={message} key={message.id} />)
+                messages.map((message) => (
+                    <EventRow event={message} key={message.id} onTagClick={onTagClick} />
+                ))
             )}
         </div>
     );
 }
 
-function EventRow({ event }: { event: Message }) {
+function EventRow({ event, onTagClick }: { event: Message; onTagClick: (tag: string) => void }) {
     return (
         <div
             className={cn(
@@ -48,12 +78,14 @@ function EventRow({ event }: { event: Message }) {
                 <p className="m-0 mb-1.5 text-[12.5px] text-muted">{event.body}</p>
                 <div className="flex gap-1.5">
                     {event.tags?.map((tag) => (
-                        <span
-                            className="rounded border border-line bg-chip px-1.5 py-0.5 font-mono text-[10px] text-muted"
+                        <button
+                            className="rounded border border-line bg-chip px-1.5 py-0.5 font-mono text-[10px] text-muted transition-colors hover:border-accent hover:text-accent"
                             key={tag}
+                            onClick={() => onTagClick(tag)}
+                            type="button"
                         >
                             {tag}
-                        </span>
+                        </button>
                     ))}
                 </div>
             </div>
@@ -61,16 +93,85 @@ function EventRow({ event }: { event: Message }) {
     );
 }
 
-function FilterRow({ count }: { count: number }) {
+function FilterRow({
+    count,
+    onClear,
+    onPriorityChange,
+    onTagsChange,
+    priority,
+    tagOptions,
+    tags,
+}: {
+    count: number;
+    onClear: () => void;
+    onPriorityChange: (priority: number | undefined) => void;
+    onTagsChange: (tags: string[]) => void;
+    priority?: number;
+    tagOptions: string[];
+    tags: string[];
+}) {
+    function toggleTag(tag: string) {
+        onTagsChange(tags.includes(tag) ? tags.filter((t) => t !== tag) : [...tags, tag]);
+    }
+
+    const hasActiveFilter = priority !== undefined || tags.length > 0;
+
     return (
-        <div className="flex items-center gap-3 px-5.5 py-2.5 font-mono text-[10px] tracking-[1.4px] text-dim">
+        <div className="flex flex-wrap items-center gap-3 px-5.5 py-2.5 font-mono text-[10px] tracking-[1.4px] text-dim">
             <span>RECENT</span>
             <span className="text-faint">·</span>
             <span className="text-muted">filter:</span>
-            <span className="rounded border border-line bg-chip px-1.5 py-0.5 text-accent">
-                priority:&gt;=4
-            </span>
-            <span className="rounded border border-line bg-chip px-1.5 py-0.5">tag:sev2</span>
+
+            {PRIORITY_THRESHOLDS.map((threshold) => {
+                const active = priority === threshold;
+                const color = priorityHex(threshold);
+
+                return (
+                    <button
+                        className="rounded border px-1.5 py-0.5 transition-colors"
+                        key={threshold}
+                        onClick={() => onPriorityChange(active ? undefined : threshold)}
+                        style={{
+                            background: active ? `${color}1c` : 'transparent',
+                            borderColor: active ? color : 'var(--color-line)',
+                            color: active ? color : undefined,
+                        }}
+                        title={`${priorityLabel(threshold)} and above`}
+                        type="button"
+                    >
+                        priority:&gt;={threshold}
+                    </button>
+                );
+            })}
+
+            {tagOptions.map((tag) => {
+                const active = tags.includes(tag);
+
+                return (
+                    <button
+                        className={cn(
+                            'rounded border border-line px-1.5 py-0.5 transition-colors',
+                            active ? 'bg-accent/10 text-accent' : 'bg-chip',
+                        )}
+                        key={tag}
+                        onClick={() => toggleTag(tag)}
+                        type="button"
+                    >
+                        tag:{tag}
+                    </button>
+                );
+            })}
+
+            {hasActiveFilter && (
+                <button
+                    className="text-muted transition-colors hover:text-fg"
+                    onClick={onClear}
+                    type="button"
+                >
+                    clear
+                </button>
+            )}
+
             <span className="ml-auto">{count} messages</span>
         </div>
     );

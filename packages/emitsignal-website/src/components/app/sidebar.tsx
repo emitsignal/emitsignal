@@ -80,7 +80,10 @@ export function Sidebar() {
 
             setNewTopic('');
             setAdding(false);
-            navigate({ search: { topic: trimmed }, to: '/app/channels' });
+            navigate({
+                search: { priority: undefined, tags: [], topic: trimmed },
+                to: '/app/channels',
+            });
         } catch {
             // ignore
         } finally {
@@ -140,7 +143,7 @@ export function Sidebar() {
                 <Link
                     className="flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60"
                     key={subscription.id}
-                    search={{ topic: subscription.topic.name }}
+                    search={{ priority: undefined, tags: [], topic: subscription.topic.name }}
                     to="/app/channels"
                 >
                     <Dot level={hashTopicLevel(subscription.topic.name)} size={5} />

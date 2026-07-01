@@ -1,5 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 
+import type { MessageFilterParams } from '#/lib/api';
+
 import { authClient } from '#/lib/auth-client';
 
 /**
@@ -17,7 +19,7 @@ import { authClient } from '#/lib/auth-client';
  *   ['feed', scope]               → api.listSubscriptionMessages()
  *   ['session']                   → authClient.getSession()
  *   ['subscriptions', scope]      → api.listSubscriptions()    (scope = userId ?? deviceId)
- *   ['topic-messages', name]      → api.listMessages(name)
+ *   ['topic-messages', name, filters] → api.listSubscriptionMessages(deviceId, { topicName, ...filters })
  *   ['topic-metrics', name]       → api.getTopicMetrics(name)
  *   ['topic-suggestions', device] → api.getSuggestions(device)
  *   ['topics', query]             → api.listTopics(query)
@@ -34,7 +36,13 @@ export const queryKeys = {
     feed: (scope: string) => ['feed', scope] as const,
     session: ['session'] as const,
     subscriptions: (scope: string) => ['subscriptions', scope] as const,
-    topicMessages: (topicName: string) => ['topic-messages', topicName] as const,
+    topicMessages: (topicName: string, filters?: MessageFilterParams) =>
+        [
+            'topic-messages',
+            topicName,
+            filters?.minPriority ?? null,
+            [...(filters?.tags ?? [])].sort(),
+        ] as const,
     topicMetrics: (topicName: string) => ['topic-metrics', topicName] as const,
     topics: (query: string) => ['topics', query] as const,
     topicSuggestions: (deviceId: string) => ['topic-suggestions', deviceId] as const,
