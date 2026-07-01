@@ -27,7 +27,8 @@ export function FinalCTA() {
                         <Button icon={<ArrowRight size={13} />} to="/app" variant="primary">
                             Get started · free
                         </Button>
-                        <Button href="#how" icon={<Terminal size={13} />}>
+
+                        <Button href="https://docs.emitsignal.com" icon={<Terminal size={13} />}>
                             read the docs
                         </Button>
                     </div>

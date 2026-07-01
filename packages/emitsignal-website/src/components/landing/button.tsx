@@ -46,12 +46,14 @@ export function Button({
         monospace ? 'font-mono' : 'font-sans',
         props.className,
     );
+
     const inner = (
         <>
             {children}
             {icon}
         </>
     );
+
     if ('to' in props && props.to) {
         return (
             <Link className={className} to={props.to as never}>
@@ -60,7 +62,7 @@ export function Button({
         );
     }
     return (
-        <a className={className} href={props.href ?? '#'}>
+        <a className={className} href={props.href ?? '#'} target="_blank">
             {inner}
         </a>
     );
