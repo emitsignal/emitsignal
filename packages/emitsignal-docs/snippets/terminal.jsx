@@ -106,6 +106,14 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
         return '';
     };
 
+    // Mintlify's MDX pipeline runs remark-smartypants over plain markdown text
+    // (which is what <Cmd>...</Cmd> children are, unless authored as a JS expression),
+    // rewriting straight quotes/dashes into typographic ones. That breaks copy-paste
+    // into a shell, so undo it here — every substitution smartypants makes is
+    // unambiguous to reverse in a shell-command context.
+    const deSmarten = (str) =>
+        str.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '--').replace(/…/g, '...');
+
     const tokenizeCmd = (str) => {
         const SUBCMDS = [
             'publish',
@@ -125,7 +133,7 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
             'help',
         ];
 
-        const parts = str.match(/("[^"]_"|'[^']_'|`[^`]\*`|\S+)/g) ?? [];
+        const parts = str.match(/("[^"]*"|'[^']*'|`[^`]*`|\S+)/g) ?? [];
         let sawBinary = false;
         let sawSub = false;
         return parts.map((p) => {
@@ -153,7 +161,7 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
         sub: { color: '#67e8f9' },
     };
 
-    const str = extractText(children);
+    const str = deSmarten(extractText(children));
     const toks = tokenizeCmd(str);
 
     return (
