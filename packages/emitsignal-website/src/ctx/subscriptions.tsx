@@ -9,12 +9,6 @@ import { api } from '#/lib/api';
 import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
-interface UpdateSubscriptionInput {
-    id: string;
-    pushEnabled?: boolean;
-    settings?: Partial<SubscriptionSettings>;
-}
-
 interface SubscriptionsContextValue {
     error: Error | null;
     loading: boolean;
@@ -22,6 +16,12 @@ interface SubscriptionsContextValue {
     subscriptions: Subscription[];
     unsubscribe: (topicName: string) => Promise<void>;
     updateSubscription: (input: UpdateSubscriptionInput) => Promise<void>;
+}
+
+interface UpdateSubscriptionInput {
+    id: string;
+    pushEnabled?: boolean;
+    settings?: Partial<SubscriptionSettings>;
 }
 
 const SubscriptionsContext = createContext<SubscriptionsContextValue | undefined>(undefined);
@@ -41,6 +41,16 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
     const invalidate = () =>
         queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) });
 
+    // Settings like `listenSince` change which messages the server returns for a
+    // subscription, so the cached message/feed queries must be refetched too.
+    const invalidateSubscriptionsAndFeed = async () => {
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(scope) }),
+            queryClient.invalidateQueries({ queryKey: queryKeys.feed(scope) }),
+            queryClient.invalidateQueries({ queryKey: ['topic-messages'] }),
+        ]);
+    };
+
     const subscribeMutation = useMutation({
         mutationFn: (topicName: string) => api.subscribe(deviceId, topicName),
         onSuccess: invalidate,
@@ -54,7 +64,7 @@ export function SubscriptionsProvider({ children }: { children: ReactNode }) {
     const updateSubscriptionMutation = useMutation({
         mutationFn: ({ id, pushEnabled, settings }: UpdateSubscriptionInput) =>
             api.updateSubscription(id, { deviceId, pushEnabled, settings }),
-        onSuccess: invalidate,
+        onSuccess: invalidateSubscriptionsAndFeed,
     });
 
     const value: SubscriptionsContextValue = {
