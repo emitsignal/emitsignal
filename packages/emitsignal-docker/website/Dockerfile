@@ -11,6 +11,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 
 # Copy all workspace package manifests so bun can validate the lockfile
+COPY packages/emitsignal-cli/package.json       ./packages/emitsignal-cli/
 COPY packages/emitsignal-docker/package.json    ./packages/emitsignal-docker/
 COPY packages/emitsignal-docs/package.json      ./packages/emitsignal-docs/
 COPY packages/emitsignal-e2e-testing/package.json ./packages/emitsignal-e2e-testing/
