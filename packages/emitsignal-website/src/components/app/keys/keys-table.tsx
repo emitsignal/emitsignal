@@ -70,6 +70,7 @@ const COL_TEMPLATE = '1.4fr 1.85fr 0.75fr 0.75fr 0.95fr 50px';
 interface KeysTableProps {
     apiKeys: ApiKey[];
     loading: boolean;
+    onCreate: () => void;
     onDelete: (id: string) => void;
     onFlash: (msg: string, kind?: 'danger' | 'ok' | 'warn') => void;
     onRevoke: (key: ApiKey) => void;
@@ -79,6 +80,7 @@ interface KeysTableProps {
 export function KeysTable({
     apiKeys,
     loading,
+    onCreate,
     onDelete,
     onFlash,
     onRevoke,
@@ -107,9 +109,12 @@ export function KeysTable({
             <div className="mb-7 overflow-hidden rounded-[10px] border border-line bg-elev">
                 <div className="py-9 text-center text-[13px] text-dim">
                     No keys yet.{' '}
-                    <span className="cursor-pointer text-accent hover:underline">
+                    <button
+                        className="cursor-pointer text-accent hover:underline"
+                        onClick={onCreate}
+                    >
                         Create your first key →
-                    </span>
+                    </button>
                 </div>
             </div>
         );

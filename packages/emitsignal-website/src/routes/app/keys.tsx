@@ -126,6 +126,7 @@ function KeysPage() {
                 <KeysTable
                     apiKeys={apiKeys}
                     loading={loading}
+                    onCreate={() => setShowCreate(true)}
                     onDelete={(id) => void handleDelete(id)}
                     onFlash={flash}
                     onRevoke={setRevokeTarget}
