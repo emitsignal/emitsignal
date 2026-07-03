@@ -22,7 +22,7 @@
     },
     "packages/emitsignal-cli": {
       "name": "@emitsignal/cli",
-      "version": "1.1.0",
+      "version": "1.0.0",
       "bin": {
         "emitsignal": "./dist/index.js",
         "es": "./dist/index.js",
@@ -59,7 +59,7 @@
     },
     "packages/emitsignal-emails": {
       "name": "@emitsignal/emails",
-      "version": "1.1.0",
+      "version": "1.0.0",
       "dependencies": {
         "@emitsignal/shared": "workspace:*",
         "@react-email/render": "^2.0.8",
