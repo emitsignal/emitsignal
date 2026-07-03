@@ -39,7 +39,7 @@ They map to bumps as follows:
 ## What's next
 
 Shipping the `emitsignal` CLI and the Terminal UI (TUI) is **additive**, so it lands as
-**`1.1.0`**, not a major bump. Their docs already live at `/cli`.
+**`1.0.0`**, not a major bump. Their docs already live at `/cli`.
 
 ## Release flow
 

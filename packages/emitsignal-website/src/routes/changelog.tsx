@@ -220,7 +220,7 @@ export default function ChangelogPage() {
                             <span className="rounded px-1.5 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[1.2px] text-accent">
                                 Coming next
                             </span>
-                            <span className="font-mono text-[12px] text-dim">targeting v1.1.0</span>
+                            <span className="font-mono text-[12px] text-dim">targeting v1.0.0</span>
                         </div>
                         <ul className="m-0 list-none space-y-2 p-0">
                             <li className="flex items-start gap-2.5 text-[13.5px] leading-[1.55] text-muted">
