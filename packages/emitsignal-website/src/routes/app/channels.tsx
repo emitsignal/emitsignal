@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+import { ChannelActionsMenu } from '#/components/app/channels/channel-actions-menu';
 import { EventList } from '#/components/app/channels/event-list';
 import { RoutingRail } from '#/components/app/channels/routing-rail';
 import { StatsStrip } from '#/components/app/channels/stats-strip';
@@ -38,10 +39,60 @@ export const Route = createFileRoute('/app/channels')({
     },
 });
 
+interface Toast {
+    kind: 'danger' | 'ok' | 'warn';
+    msg: string;
+}
+
+function ChannelToast({ toast }: { toast: Toast }) {
+    const color =
+        toast.kind === 'danger'
+            ? 'var(--color-danger)'
+            : toast.kind === 'warn'
+              ? 'var(--color-warn)'
+              : 'var(--color-success)';
+
+    return (
+        <div
+            className="fixed bottom-5 left-1/2 z-[60] -translate-x-1/2"
+            style={{ animation: 'ktoast .2s ease-out' }}
+        >
+            <div
+                className="flex items-center gap-2.5 rounded-[10px] border px-4 py-2.5 shadow-2xl"
+                style={{
+                    background: 'var(--color-elev-2)',
+                    borderColor: color + '55',
+                }}
+            >
+                <span
+                    className="h-[7px] w-[7px] flex-shrink-0 rounded-full"
+                    style={{ background: color, boxShadow: `0 0 10px ${color}` }}
+                />
+                <span className="text-[13px] text-fg">{toast.msg}</span>
+            </div>
+
+            <style>{`@keyframes ktoast{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}`}</style>
+        </div>
+    );
+}
+
 function ChannelView() {
     const { priority, tags, topic } = Route.useSearch();
-    const { subscriptions, unsubscribe } = useSubscriptions();
+    const { subscriptions } = useSubscriptions();
     const navigate = useNavigate();
+
+    const [toast, setToast] = useState<null | Toast>(null);
+    const toastTimer = useRef<null | ReturnType<typeof setTimeout>>(null);
+
+    const flash = (message: string, kind: Toast['kind'] = 'ok') => {
+        if (toastTimer.current) {
+            clearTimeout(toastTimer.current);
+        }
+
+        setToast({ kind, msg: message });
+
+        toastTimer.current = setTimeout(() => setToast(null), 2400);
+    };
 
     const selectedTopic = topic || subscriptions[0]?.topic.name || '';
     const filters = { minPriority: priority, tags };
@@ -83,12 +134,11 @@ function ChannelView() {
             <Toolbar
                 actions={
                     subscription ? (
-                        <button
-                            className="rounded-md border border-line px-2.5 py-1 font-mono text-[12px] text-muted hover:bg-elev"
-                            onClick={() => unsubscribe(selectedTopic)}
-                        >
-                            unsubscribe
-                        </button>
+                        <ChannelActionsMenu
+                            onFlash={flash}
+                            subscription={subscription}
+                            topicName={selectedTopic}
+                        />
                     ) : null
                 }
                 subtitle={`${messages.length}${hasNextPage ? '+' : ''} messages · ${matchingSubscriptions.length} subscriber${matchingSubscriptions.length !== 1 ? 's' : ''}`}
@@ -162,6 +212,8 @@ function ChannelView() {
 
                 <RoutingRail subscription={subscription ?? null} />
             </div>
+
+            {toast && <ChannelToast toast={toast} />}
         </>
     );
 }
