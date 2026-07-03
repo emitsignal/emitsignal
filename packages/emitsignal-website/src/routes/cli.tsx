@@ -27,11 +27,15 @@ export default function CLIPage() {
                     </p>
                     <div className="mb-3 rounded-xl border border-line bg-deep px-5 py-4 font-mono text-[13.5px]">
                         <span className="text-dim">$</span>{' '}
-                        <span className="text-success">brew install emitsignal</span>
+                        <span className="text-success">brew install emitsignal/tap/emitsignal</span>
                     </div>
                     <p className="font-mono text-[12px] text-dim">
                         or:{' '}
-                        <span className="text-muted">curl -sSL emitsignal.com/install | sh</span>
+                        <span className="text-muted">
+                            curl -fsSL
+                            https://github.com/emitsignal/emitsignal/releases/latest/download/install.sh
+                            | sh
+                        </span>
                     </p>
                 </div>
             </div>
@@ -50,37 +54,34 @@ export default function CLIPage() {
                         <div className="space-y-3">
                             <div>
                                 <H3>Homebrew (macOS / Linux)</H3>
-                                <Block>{`$ brew install emitsignal`}</Block>
+                                <Block>{`$ brew install emitsignal/tap/emitsignal`}</Block>
                             </div>
                             <div>
                                 <H3>Shell installer (Linux / macOS / WSL)</H3>
-                                <Block>{`$ curl -sSL https://emitsignal.com/install | sh`}</Block>
+                                <Block>{`$ curl -fsSL https://github.com/emitsignal/emitsignal/releases/latest/download/install.sh | sh`}</Block>
                             </div>
                             <div>
                                 <H3>npm / npx (no install)</H3>
-                                <Block>{`$ npx emitsignal listen alerts/prod
+                                <Block>{`$ npx @emitsignal/cli listen alerts/prod
 # or install globally
-$ npm install -g emitsignal`}</Block>
+$ npm install -g @emitsignal/cli`}</Block>
                             </div>
                             <div>
                                 <H3>Direct binary (GitHub Releases)</H3>
                                 <Block>{`# macOS (arm64)
-$ curl -Lo emitsignal https://github.com/kevenleone/emitsignal/cli/releases/latest/download/emitsignal-darwin-arm64
-$ chmod +x emitsignal && sudo mv emitsignal /usr/local/bin
+$ curl -Lo emitsignal.tar.gz https://github.com/emitsignal/emitsignal/releases/latest/download/emitsignal-darwin-arm64.tar.gz
+$ tar -xzf emitsignal.tar.gz && chmod +x emitsignal && sudo mv emitsignal /usr/local/bin
 
-# Linux (amd64)
-$ curl -Lo emitsignal https://github.com/kevenleone/emitsignal/cli/releases/latest/download/emitsignal-linux-amd64
-$ chmod +x emitsignal && sudo mv emitsignal /usr/local/bin`}</Block>
+# Linux (x64)
+$ curl -Lo emitsignal.tar.gz https://github.com/emitsignal/emitsignal/releases/latest/download/emitsignal-linux-x64.tar.gz
+$ tar -xzf emitsignal.tar.gz && chmod +x emitsignal && sudo mv emitsignal /usr/local/bin`}</Block>
                             </div>
                             <div>
-                                <H3>Windows (PowerShell)</H3>
-                                <Block>{`> winget install emitsignal
-# or
-> scoop install emitsignal`}</Block>
-                            </div>
-                            <div>
-                                <H3>Docker</H3>
-                                <Block>{`$ docker run --rm ghcr.io/emitsignal/cli:latest listen alerts/prod`}</Block>
+                                <H3>Windows &amp; Docker</H3>
+                                <P>
+                                    Coming soon. For now, run the CLI on Windows via WSL using the
+                                    shell installer above.
+                                </P>
                             </div>
                         </div>
 
@@ -679,14 +680,14 @@ requests.post("https://api.emitsignal.com/publish/deploy/prod",
 $ brew upgrade emitsignal
 
 # Shell installer (re-runs the install script, keeps your config)
-$ curl -sSL https://emitsignal.com/install | sh
+$ curl -fsSL https://github.com/emitsignal/emitsignal/releases/latest/download/install.sh | sh
 
 # npm
-$ npm update -g emitsignal
+$ npm update -g @emitsignal/cli
 
 # Check current version
-$ emitsignal version
-emitsignal 0.7.2 (latest)`}</Block>
+$ emitsignal --version
+1.0.0`}</Block>
                         <div className="mt-4 rounded-xl border border-dashed border-line px-4 py-3.5 font-mono text-[12px] text-muted">
                             <span className="text-accent">→</span> The CLI checks for updates once
                             per day and prints a notice when one is available. Disable with{' '}
