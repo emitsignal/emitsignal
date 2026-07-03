@@ -9,6 +9,7 @@
 *.tgz
 *.tsbuildinfo
 dist
+dist-bin
 node_modules
 out
 
