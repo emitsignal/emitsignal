@@ -22,10 +22,19 @@ interface Props {
 }
 
 export function RoutingRail({ subscription }: Props) {
+    const description = subscription?.settings.description?.trim();
     const topicName = subscription?.topic.name ?? '';
 
     return (
         <aside className="w-[320px] shrink-0 overflow-auto p-5.5">
+            {description && (
+                <div className="mb-4.5">
+                    <SubHeading>DESCRIPTION</SubHeading>
+
+                    <p className="text-[12.5px] leading-[1.55] text-muted">{description}</p>
+                </div>
+            )}
+
             <SubHeading>ROUTING</SubHeading>
 
             <div className="mb-4.5">
