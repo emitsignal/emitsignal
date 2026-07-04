@@ -33,6 +33,19 @@ export function arrow(msg: string): void {
     console.log(`${color.fgDim('→')} ${msg}`);
 }
 
+/**
+ * Render a friendly empty-state notice with an optional hint on how to create
+ * the first item. Meant for the human-readable path only — callers should
+ * handle `--json` (returning `[]`) before invoking this.
+ */
+export function emptyState(message: string, hint?: string): void {
+    console.log(`${color.fgDim('—')} ${color.fgMuted(message)}`);
+
+    if (hint) {
+        console.log(`  ${color.fgDim(hint)}`);
+    }
+}
+
 export function err(msg: string): void {
     console.error(`${color.red('✗')} ${msg}`);
 }
@@ -44,6 +57,9 @@ export function formatCompact(msg: Message): string {
 export function formatJson(msg: Message): string {
     return JSON.stringify(msg);
 }
+
+const JSON_TOKEN =
+    /"(?:\\.|[^"\\])*"(\s*:)?|\b(?:true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
 
 export function formatMessage(message: Message, format: string): string {
     switch (format) {
@@ -84,6 +100,41 @@ export function formatTime(ts: number): string {
 
 export function formatTsv(msg: Message): string {
     return [msg.createdAt, msg.topicName ?? '', msg.priority, msg.title].join('\t');
+}
+
+/**
+ * Pretty-print a value as syntax-highlighted JSON. Colors are automatically
+ * dropped when `NO_COLOR` is set or stdout is not a TTY, so piping the output
+ * (e.g. into `jq`) still yields clean, machine-readable JSON.
+ */
+export function highlightJson(value: unknown, indent = 2): string {
+    const json = JSON.stringify(value, null, indent);
+
+    if (noColor) {
+        return json;
+    }
+
+    return json.replace(JSON_TOKEN, (match) => {
+        if (match.startsWith('"')) {
+            if (match.endsWith(':')) {
+                const key = match.slice(0, match.lastIndexOf('"') + 1);
+
+                return `${color.cyan(key)}:`;
+            }
+
+            return color.green(match);
+        }
+
+        if (match === 'true' || match === 'false') {
+            return color.violet(match);
+        }
+
+        if (match === 'null') {
+            return color.fgFaint(match);
+        }
+
+        return color.amber(match);
+    });
 }
 
 export function ok(msg: string): void {
