@@ -296,20 +296,6 @@ function inlineJson(obj: Record<string, unknown>): string {
     return color.fgDim(JSON.stringify(obj).slice(0, 120));
 }
 
-function readTemplateFile(path: string): string {
-    const template = readFileSync(path, 'utf-8');
-
-    try {
-        JSON.parse(template);
-    } catch {
-        throw new Error(
-            `template file ${path} must be valid JSON — see the webhooks template format`,
-        );
-    }
-
-    return template;
-}
-
 function printDelivery(delivery: Delivery, asJson: boolean): void {
     if (asJson) {
         console.log(highlightJson(delivery));
@@ -333,6 +319,20 @@ function printDelivery(delivery: Delivery, asJson: boolean): void {
             `${time}  ${dot}  ${ch}  ${status}  ${ms}  ${color.fgMuted('raw →')} ${inlineJson(delivery.payload)}`,
         );
     }
+}
+
+function readTemplateFile(path: string): string {
+    const template = readFileSync(path, 'utf-8');
+
+    try {
+        JSON.parse(template);
+    } catch {
+        throw new Error(
+            `template file ${path} must be valid JSON — see the webhooks template format`,
+        );
+    }
+
+    return template;
 }
 
 async function webhookRequest<T>(path: string, init: RequestInit = {}): Promise<T> {

@@ -15,7 +15,7 @@ export default function CLIPage() {
                 <div className="mx-auto max-w-[860px]">
                     <div className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-line px-3 py-1.5 font-mono text-[11.5px] text-muted">
                         <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />
-                        emitsignal-cli · v0.7.2
+                        emitsignal-cli · v1.0.0
                     </div>
                     <h1 className="m-0 mb-5 text-[52px] font-semibold leading-[1.0] tracking-[-1.8px] text-fg sm:text-[64px]">
                         The emitsignal CLI
@@ -89,7 +89,7 @@ $ tar -xzf emitsignal.tar.gz && chmod +x emitsignal && sudo mv emitsignal /usr/l
                             <p className="m-0 font-mono text-[11.5px] text-muted">
                                 <span className="text-success">✓</span> Verify the install:{' '}
                                 <span className="font-mono text-fg">emitsignal --version</span>
-                                <span className="ml-3 text-dim">→ emitsignal 0.7.2</span>
+                                <span className="ml-3 text-dim">→ emitsignal 1.0.0</span>
                             </p>
                         </div>
                     </Section>
@@ -545,7 +545,7 @@ only_failures = false`}</Block>
                         <Block>{`$ emitsignal tui`}</Block>
                         <div className="mt-4 overflow-hidden rounded-xl border border-line bg-deep font-mono text-[12px]">
                             <div className="border-b border-line px-3 py-2 text-dim">
-                                EmitSignal TUI · v0.7.2 · you@example.com · 3 unread
+                                EmitSignal TUI · v1.0.0 · you@example.com · 3 unread
                             </div>
                             <div className="grid grid-cols-[220px_1fr]">
                                 <div className="border-r border-line p-2.5">
