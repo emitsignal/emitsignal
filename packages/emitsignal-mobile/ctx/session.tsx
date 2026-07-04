@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, type ReactNode, useContext, useEffect } from 'react';
 import { Platform } from 'react-native';
 
+import { clearOnboardingComplete } from '@/hooks/use-onboarding';
 import { api, setAuthToken } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import { queryClient, queryKeys } from '@/lib/query-client';
@@ -69,6 +70,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         signOut: async () => {
             await authClient.signOut();
             setAuthToken(null);
+
+            await clearOnboardingComplete();
 
             // The active identity is gone, so every cached query (user-scoped feed
             // and subscriptions, plus unscoped billing and push-token records) is

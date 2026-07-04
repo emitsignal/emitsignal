@@ -5,6 +5,10 @@ import { authClient } from '@/lib/auth-client';
 
 const KEY = '@emitsignal/onboarding_complete';
 
+export async function clearOnboardingComplete() {
+    await AsyncStorage.removeItem(KEY);
+}
+
 export function useOnboarding() {
     const [isLoading, setIsLoading] = useState(true);
     const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
