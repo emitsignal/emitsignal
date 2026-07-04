@@ -177,7 +177,13 @@ function SignInPage() {
                     <Link className="text-accent no-underline hover:underline" to="/privacy">
                         privacy
                     </Link>{' '}
-                    · <span className="text-accent">acceptable use</span>
+                    ·{' '}
+                    <Link
+                        className="text-accent no-underline hover:underline"
+                        to="/code-of-conduct"
+                    >
+                        code of conduct
+                    </Link>
                 </p>
             </div>
         </div>

@@ -40,6 +40,7 @@ const COLUMNS: FooterColumn[] = [
         links: [
             { label: 'Privacy', to: '/privacy' },
             { label: 'Terms', to: '/terms' },
+            { label: 'Code of conduct', to: '/code-of-conduct' },
             { href: '#', label: 'Security' },
             { href: '#', label: 'SOC2' },
             { href: '#', label: 'DPA' },
