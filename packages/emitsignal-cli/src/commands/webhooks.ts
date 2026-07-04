@@ -20,15 +20,15 @@ interface Delivery {
 }
 
 interface Webhook {
-    channel: string;
     count24h: number;
     id: string;
-    lastDeliveryAt?: number;
+    lastDeliveryAt?: null | number;
     name: string;
     slug: string;
     source: string;
     status: 'active' | 'error' | 'paused';
     templated: boolean;
+    topicName: string;
 }
 
 export function registerWebhooksCommand(program: Command): void {
@@ -48,13 +48,16 @@ export function registerWebhooksCommand(program: Command): void {
         )
         .action(async (opts) => {
             try {
+                if (!opts.channel) {
+                    err('pass -c, --channel <topic> — deliveries must publish to a topic');
+
+                    process.exit(1);
+                }
+
                 const body: Record<string, string> = {
                     source: (opts.source as string) ?? 'custom',
+                    topicName: opts.channel as string,
                 };
-
-                if (opts.channel) {
-                    body['channel'] = opts.channel as string;
-                }
 
                 if (opts.name) {
                     body['name'] = opts.name as string;
@@ -78,7 +81,7 @@ export function registerWebhooksCommand(program: Command): void {
 
                 console.log(`  name      ${color.fg(webhook.name)}`);
                 console.log(`  source    ${color.fgMuted(webhook.source)}`);
-                console.log(`  channel   ${color.fgMuted(webhook.channel)}`);
+                console.log(`  channel   ${color.fgMuted(webhook.topicName)}`);
                 console.log(
                     `  endpoint  ${color.amber(webhook.endpointUrl ?? `/h/${webhook.slug}`)}`,
                 );
@@ -102,6 +105,10 @@ export function registerWebhooksCommand(program: Command): void {
             try {
                 const webhooks = await webhookRequest<Webhook[]>('/webhooks');
 
+                if (!webhooks.length) {
+                    return console.log(`Oops... ${color.red('No webhooks available')}`);
+                }
+
                 if (opts.json) {
                     return console.log(JSON.stringify(webhooks, null, 2));
                 }
@@ -119,11 +126,11 @@ export function registerWebhooksCommand(program: Command): void {
                         : color.fgDim('raw      ');
 
                     const last = webhook.lastDeliveryAt
-                        ? relativeTime(webhook.lastDeliveryAt)
+                        ? relativeTime(webhook.lastDeliveryAt * 1000)
                         : 'never';
 
                     console.log(
-                        `${color.fg(webhook.name.padEnd(20))}  ${color.fgMuted(`/h/${webhook.slug}`.padEnd(14))}  ${color.fgDim(webhook.channel.padEnd(18))}  ${tpl}  ${color.fgFaint(last.padEnd(8))}  ${status}`,
+                        `${color.fg((webhook.name ?? '').padEnd(20))}  ${color.fgMuted(`/h/${webhook.slug}`.padEnd(14))}  ${color.fgDim((webhook.topicName ?? '').padEnd(18))}  ${tpl}  ${color.fgFaint(last.padEnd(8))}  ${status}`,
                     );
                 }
             } catch (error) {
@@ -170,6 +177,7 @@ export function registerWebhooksCommand(program: Command): void {
                 }
 
                 const res = await fetch(url, { headers, signal: controller.signal });
+
                 if (!res.ok) {
                     throw new Error(`${res.status} ${res.statusText}`);
                 }
@@ -180,6 +188,7 @@ export function registerWebhooksCommand(program: Command): void {
 
                 const reader = res.body.getReader();
                 const decoder = new TextDecoder();
+
                 let buffer = '';
 
                 while (true) {
@@ -260,6 +269,7 @@ export function registerWebhooksCommand(program: Command): void {
 
                 const url = `${getBaseUrl()}/webhooks/stream?source=${encodeURIComponent(source)}`;
                 const res = await fetch(url, { headers, signal: controller.signal });
+
                 if (!res.ok) {
                     throw new Error(`${res.status} ${res.statusText}`);
                 }
@@ -369,7 +379,8 @@ function inlineJson(obj: Record<string, unknown>): string {
 
 function printDelivery(d: Delivery, asJson: boolean): void {
     if (asJson) {
-        console.log(JSON.stringify(d));
+        console.log(JSON.stringify(d, null, 4));
+
         return;
     }
 
