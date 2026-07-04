@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { openUrl } from '../browser.ts';
 import { formatTime } from '../output.ts';
+import { streamSse } from '../sse.ts';
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -137,33 +138,12 @@ function App({
             const qs =
                 topics.length > 0 ? `?topics=${topics.map(encodeURIComponent).join(',')}` : '';
             try {
-                const res = await fetch(`${baseUrl}/listen${qs}`, {
-                    headers: { Accept: 'text/event-stream', Authorization: `Bearer ${token}` },
+                await streamSse<Message>(`${baseUrl}/listen${qs}`, {
+                    onEvent: (message) =>
+                        setEvents((prevEvents) => [message, ...prevEvents].slice(0, 100)),
                     signal: controller.signal,
+                    token,
                 });
-                if (!res.ok || !res.body) return;
-                const reader = res.body.getReader();
-                const dec = new TextDecoder();
-                let buf = '';
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    buf += dec.decode(value, { stream: true });
-                    const parts = buf.split('\n\n');
-                    buf = parts.pop() ?? '';
-                    for (const part of parts) {
-                        for (const line of part.split('\n')) {
-                            if (line.startsWith('data: ')) {
-                                try {
-                                    const msg = JSON.parse(line.slice(6)) as Message;
-                                    setEvents((prev) => [msg, ...prev].slice(0, 100));
-                                } catch {
-                                    // malformed SSE frame — ignore
-                                }
-                            }
-                        }
-                    }
-                }
             } catch (e) {
                 if ((e as Error).name !== 'AbortError') setTimeout(connect, 2000);
             }

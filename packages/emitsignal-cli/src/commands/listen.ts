@@ -6,6 +6,7 @@ import { spawn } from 'node:child_process';
 import { createClient } from '../client.ts';
 import { getBaseUrl, getDeviceId, getToken } from '../config.ts';
 import { arrow, err, formatMessage } from '../output.ts';
+import { streamSse } from '../sse.ts';
 
 export function registerListenCommand(program: Command): void {
     program
@@ -67,47 +68,51 @@ export function registerListenCommand(program: Command): void {
             });
 
             try {
-                await streamSse(url, token, controller.signal, (msg) => {
-                    if (priorityFilter && !priorityFilter(msg.priority)) {
-                        return;
-                    }
-
-                    if (tagFilter && !tagFilter.some((tag) => msg.tags.includes(tag))) {
-                        return;
-                    }
-
-                    if (opts.channel) {
-                        const topic = msg.topicName ?? '';
-                        const pattern = (opts.channel as string).replace(/\*/g, '.*');
-
-                        if (!new RegExp(`^${pattern}$`).test(topic)) {
+                await streamSse<Message>(url, {
+                    onEvent: (message) => {
+                        if (priorityFilter && !priorityFilter(message.priority)) {
                             return;
                         }
-                    }
 
-                    if (opts.sound) {
-                        announce(
-                            `New message received from: ${msg.topicName}, ${msg.title} - ${msg.body}. Priority: ${msg.priority}`,
-                        );
-                    }
+                        if (tagFilter && !tagFilter.some((tag) => message.tags.includes(tag))) {
+                            return;
+                        }
 
-                    console.log(formatMessage(msg, opts.format as string));
+                        if (opts.channel) {
+                            const topic = message.topicName ?? '';
+                            const pattern = (opts.channel as string).replace(/\*/g, '.*');
 
-                    if (opts.exec) {
-                        spawn(opts.exec as string, {
-                            env: {
-                                ...process.env,
-                                ES_BODY: msg.body,
-                                ES_ID: msg.id,
-                                ES_PRIORITY: String(msg.priority),
-                                ES_TAGS: msg.tags.join(','),
-                                ES_TITLE: msg.title,
-                                ES_TOPIC: msg.topicName ?? '',
-                            },
-                            shell: true,
-                            stdio: 'inherit',
-                        });
-                    }
+                            if (!new RegExp(`^${pattern}$`).test(topic)) {
+                                return;
+                            }
+                        }
+
+                        if (opts.sound) {
+                            announce(
+                                `New message received from: ${message.topicName}, ${message.title} - ${message.body}. Priority: ${message.priority}`,
+                            );
+                        }
+
+                        console.log(formatMessage(message, opts.format as string));
+
+                        if (opts.exec) {
+                            spawn(opts.exec as string, {
+                                env: {
+                                    ...process.env,
+                                    ES_BODY: message.body,
+                                    ES_ID: message.id,
+                                    ES_PRIORITY: String(message.priority),
+                                    ES_TAGS: message.tags.join(','),
+                                    ES_TITLE: message.title,
+                                    ES_TOPIC: message.topicName ?? '',
+                                },
+                                shell: true,
+                                stdio: 'inherit',
+                            });
+                        }
+                    },
+                    signal: controller.signal,
+                    token,
                 });
             } catch (error) {
                 if ((error as Error).name !== 'AbortError') {
@@ -198,49 +203,5 @@ function parsePriorityFilter(expr: string): (p: number) => boolean {
             return (p) => p >= n;
         default:
             return () => true;
-    }
-}
-
-async function streamSse(
-    url: string,
-    token: string | undefined,
-    signal: AbortSignal,
-    onEvent: (msg: Message) => void,
-): Promise<void> {
-    const headers: Record<string, string> = { Accept: 'text/event-stream' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const response = await fetch(url, { headers, signal });
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-    if (!response.body) throw new Error('no response body');
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-            break;
-        }
-
-        buffer += decoder.decode(value, { stream: true });
-
-        const parts = buffer.split('\n\n');
-
-        buffer = parts.pop() ?? '';
-
-        for (const part of parts) {
-            for (const line of part.split('\n')) {
-                if (line.startsWith('data: ')) {
-                    try {
-                        onEvent(JSON.parse(line.slice(6)) as Message);
-                    } finally {
-                        //
-                    }
-                }
-            }
-        }
     }
 }

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 
 import { getBaseUrl, getToken } from '../config.ts';
 import { arrow, color, err, formatTime, ok } from '../output.ts';
+import { streamSse } from '../sse.ts';
 
 interface Delivery {
     channel: string;
@@ -164,60 +165,16 @@ export function registerWebhooksCommand(program: Command): void {
                     process.exit(130);
                 });
 
-                const token = getToken();
                 const baseUrl = getBaseUrl();
                 const url = source
                     ? `${baseUrl}/webhooks/stream?source=${encodeURIComponent(source)}`
                     : `${baseUrl}/webhooks/stream`;
 
-                const headers: Record<string, string> = { Accept: 'text/event-stream' };
-
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-
-                const res = await fetch(url, { headers, signal: controller.signal });
-
-                if (!res.ok) {
-                    throw new Error(`${res.status} ${res.statusText}`);
-                }
-
-                if (!res.body) {
-                    throw new Error('no response body');
-                }
-
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder();
-
-                let buffer = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-
-                    if (done) {
-                        break;
-                    }
-
-                    buffer += decoder.decode(value, { stream: true });
-
-                    const parts = buffer.split('\n\n');
-
-                    buffer = parts.pop() ?? '';
-
-                    for (const part of parts) {
-                        for (const line of part.split('\n')) {
-                            if (line.startsWith('data: ')) {
-                                try {
-                                    const delivery = JSON.parse(line.slice(6)) as Delivery;
-
-                                    printDelivery(delivery, opts.json as boolean);
-                                } catch {
-                                    //
-                                }
-                            }
-                        }
-                    }
-                }
+                await streamSse<Delivery>(url, {
+                    onEvent: (delivery) => printDelivery(delivery, opts.json as boolean),
+                    signal: controller.signal,
+                    token: getToken(),
+                });
             } catch (error) {
                 if ((error as Error).name !== 'AbortError') {
                     err(error instanceof Error ? error.message : String(error));
@@ -260,54 +217,13 @@ export function registerWebhooksCommand(program: Command): void {
                     process.exit(130);
                 });
 
-                const token = getToken();
-                const headers: Record<string, string> = { Accept: 'text/event-stream' };
-
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-
                 const url = `${getBaseUrl()}/webhooks/stream?source=${encodeURIComponent(source)}`;
-                const res = await fetch(url, { headers, signal: controller.signal });
 
-                if (!res.ok) {
-                    throw new Error(`${res.status} ${res.statusText}`);
-                }
-
-                if (!res.body) {
-                    throw new Error('no response body');
-                }
-
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder();
-
-                let buffer = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-
-                    if (done) {
-                        break;
-                    }
-
-                    buffer += decoder.decode(value, { stream: true });
-
-                    const parts = buffer.split('\n\n');
-
-                    buffer = parts.pop() ?? '';
-
-                    for (const part of parts) {
-                        for (const line of part.split('\n')) {
-                            if (line.startsWith('data: ')) {
-                                try {
-                                    printDelivery(JSON.parse(line.slice(6)) as Delivery, false);
-                                } catch {
-                                    //
-                                }
-                            }
-                        }
-                    }
-                }
+                await streamSse<Delivery>(url, {
+                    onEvent: (delivery) => printDelivery(delivery, false),
+                    signal: controller.signal,
+                    token: getToken(),
+                });
             } catch (error) {
                 if ((error as Error).name !== 'AbortError') {
                     err(error instanceof Error ? error.message : String(error));
