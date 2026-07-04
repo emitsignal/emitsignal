@@ -25,6 +25,7 @@ import { claimDeviceSubscriptions } from '@/lib/claim-device-subscriptions';
 const WEBSITE_URL = 'https://emitsignal.com';
 const TERMS_URL = `${WEBSITE_URL}/terms`;
 const PRIVACY_URL = `${WEBSITE_URL}/privacy`;
+const CODE_OF_CONDUCT_URL = `${WEBSITE_URL}/code-of-conduct`;
 
 const openLink = (url: string) => {
     Linking.openURL(url).catch(() => {});
@@ -199,7 +200,13 @@ export default function AuthSignIn() {
                             >
                                 privacy
                             </Text>{' '}
-                            · <Text style={{ color: palette.violet }}>acceptable use</Text>
+                            ·{' '}
+                            <Text
+                                onPress={() => openLink(CODE_OF_CONDUCT_URL)}
+                                style={{ color: palette.violet }}
+                            >
+                                code of conduct
+                            </Text>
                         </Text>
                     </View>
                 </ScrollView>
