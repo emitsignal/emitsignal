@@ -66,6 +66,11 @@ services:
         environment:
             API_URL: '${API_URL:-http://localhost:5100}'
             APP_URL: '${APP_URL:-http://localhost:5200}'
+            APPLE_APP_BUNDLE_IDENTIFIER: '${APPLE_APP_BUNDLE_IDENTIFIER:-}'
+            APPLE_CLIENT_ID: '${APPLE_CLIENT_ID:-}'
+            APPLE_KEY_ID: '${APPLE_KEY_ID:-}'
+            APPLE_PRIVATE_KEY: '${APPLE_PRIVATE_KEY:-}'
+            APPLE_TEAM_ID: '${APPLE_TEAM_ID:-}'
             AUTH_ALLOWED_EMAILS: '${AUTH_ALLOWED_EMAILS:-}'
             BETTER_AUTH_SECRET: '${BETTER_AUTH_SECRET}'
             DATABASE_URL: 'postgresql://emitsignal:${POSTGRES_PASSWORD}@postgres:5432/emitsignal'

@@ -5,6 +5,16 @@ const environmentSchema = Type.Object({
     API_URL: Type.String({ default: 'http://localhost:5001' }),
     APP_URL: Type.String({ default: 'http://localhost:5002' }),
 
+    // Apple Sign In (optional — all four are required to enable). APPLE_CLIENT_ID
+    // is the Service ID (web) reverse-domain identifier; APPLE_PRIVATE_KEY is the
+    // full PKCS#8 `.p8` contents. APPLE_APP_BUNDLE_IDENTIFIER is the native iOS
+    // App ID, required only for native ID-token sign-in from the mobile app.
+    APPLE_APP_BUNDLE_IDENTIFIER: Type.Optional(Type.String()),
+    APPLE_CLIENT_ID: Type.Optional(Type.String()),
+    APPLE_KEY_ID: Type.Optional(Type.String()),
+    APPLE_PRIVATE_KEY: Type.Optional(Type.String()),
+    APPLE_TEAM_ID: Type.Optional(Type.String()),
+
     // Comma-separated allowlist of emails permitted to sign in via email OTP.
     // Empty = allowlist disabled (anyone may sign in).
     AUTH_ALLOWED_EMAILS: Type.String({ default: '' }),

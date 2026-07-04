@@ -7,6 +7,7 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
 import { bearer, emailOTP } from 'better-auth/plugins';
+import { importPKCS8, SignJWT } from 'jose';
 import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
@@ -52,6 +53,33 @@ const stripePlugins = isStripeBillingEnabled()
           }),
       ]
     : [];
+
+// Apple Sign In is enabled only when all four credentials are present. The
+// Service ID (clientId), Team ID, Key ID, and PKCS#8 private key together let us
+// mint the client-secret JWT Apple requires in place of a static secret.
+const isAppleAuthEnabled = Boolean(
+    environment.APPLE_CLIENT_ID &&
+    environment.APPLE_TEAM_ID &&
+    environment.APPLE_KEY_ID &&
+    environment.APPLE_PRIVATE_KEY,
+);
+
+// Apple rejects client-secret JWTs that expire more than six months out; we use
+// 180 days. Better Auth calls this each time it configures the provider, so the
+// token is regenerated on boot rather than baked in as a static string.
+const generateAppleClientSecret = async (): Promise<string> => {
+    const key = await importPKCS8(environment.APPLE_PRIVATE_KEY as string, 'ES256');
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+
+    return new SignJWT({})
+        .setProtectedHeader({ alg: 'ES256', kid: environment.APPLE_KEY_ID })
+        .setIssuer(environment.APPLE_TEAM_ID as string)
+        .setSubject(environment.APPLE_CLIENT_ID as string)
+        .setAudience('https://appleid.apple.com')
+        .setIssuedAt(nowInSeconds)
+        .setExpirationTime(nowInSeconds + duration.days(180).as('seconds'))
+        .sign(key);
+};
 
 const rpHostname = (() => {
     try {
@@ -195,6 +223,17 @@ export const auth = betterAuth({
         },
     },
     socialProviders: {
+        ...(isAppleAuthEnabled
+            ? {
+                  // Async provider form: Better Auth awaits this to mint the
+                  // client-secret JWT from the private key on each configuration.
+                  apple: async () => ({
+                      appBundleIdentifier: environment.APPLE_APP_BUNDLE_IDENTIFIER,
+                      clientId: environment.APPLE_CLIENT_ID as string,
+                      clientSecret: await generateAppleClientSecret(),
+                  }),
+              }
+            : {}),
         ...(environment.GITHUB_CLIENT_ID && environment.GITHUB_CLIENT_SECRET
             ? {
                   github: {
@@ -208,6 +247,8 @@ export const auth = betterAuth({
         environment.APP_URL, // website browser origin (cookie-based web auth)
         'emitsignal://', // mobile app deep-link scheme (app.config.ts `scheme`)
         'exp://', // Expo Go / dev client
+        // Apple's auth servers post back to the callback via this origin.
+        ...(isAppleAuthEnabled ? ['https://appleid.apple.com'] : []),
         ...(process.env.NODE_ENV === 'production' ? [] : ['*']),
     ],
     user: {
