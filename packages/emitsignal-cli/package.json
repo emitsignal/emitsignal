@@ -31,7 +31,8 @@
         "dev": "bun run src/index.ts",
         "prepublishOnly": "bun run build",
         "render:formula": "bun run scripts/render-formula.ts",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "watch-dist": "bun run scripts/watch-dist.ts"
     },
     "type": "module",
     "version": "1.0.0"
