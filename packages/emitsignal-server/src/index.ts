@@ -39,6 +39,7 @@ import { listDeliveries } from './http/webhooks/deliveries';
 import { getWebhook } from './http/webhooks/get';
 import { listWebhooks } from './http/webhooks/list';
 import { receiveWebhook } from './http/webhooks/receive';
+import { streamWebhookDeliveries } from './http/webhooks/stream';
 import { updateWebhook } from './http/webhooks/update';
 import { auth } from './lib/auth';
 import { Email } from './lib/email';
@@ -110,6 +111,7 @@ const app = new Elysia()
     .use(updateSubscription)
     .use(userAvatar)
     .use(listWebhooks)
+    .use(streamWebhookDeliveries)
     .use(getWebhook)
     .use(createWebhook)
     .use(updateWebhook)

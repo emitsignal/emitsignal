@@ -33,6 +33,19 @@ export interface MessageEvent {
     topicName: string;
 }
 
+export interface WebhookDeliveryEvent {
+    channel: string;
+    id: string;
+    ms: number;
+    payload: Record<string, unknown>;
+    renderedBody?: string;
+    renderedTitle?: string;
+    source: string;
+    status: number;
+    t: number;
+    templated: boolean;
+}
+
 class EmitSignalBus extends EventEmitter {
     constructor() {
         super();
@@ -44,8 +57,23 @@ class EmitSignalBus extends EventEmitter {
         this.emit('topic:*', event);
     }
 
+    publishWebhookDelivery(userId: string, event: WebhookDeliveryEvent) {
+        this.emit(`webhook:${userId}`, event);
+    }
+
     subscribe(topicName: string, handler: (e: MessageEvent) => void): () => void {
         const channel = topicName === '*' ? 'topic:*' : `topic:${topicName}`;
+
+        this.on(channel, handler);
+
+        return () => this.off(channel, handler);
+    }
+
+    subscribeWebhookDeliveries(
+        userId: string,
+        handler: (e: WebhookDeliveryEvent) => void,
+    ): () => void {
+        const channel = `webhook:${userId}`;
 
         this.on(channel, handler);
 

@@ -13,7 +13,14 @@ export const receiveWebhook = new Elysia().post(
         const start = Date.now();
 
         const webhook = await prisma.webhook.findUnique({
-            select: { id: true, source: true, status: true, template: true, topicName: true },
+            select: {
+                id: true,
+                source: true,
+                status: true,
+                template: true,
+                topicName: true,
+                userId: true,
+            },
             where: { slug: params.slug },
         });
 
@@ -83,15 +90,31 @@ export const receiveWebhook = new Elysia().post(
             topicName: topic.name,
         });
 
-        await prisma.webhookDelivery.create({
+        const ms = Date.now() - start;
+
+        const delivery = await prisma.webhookDelivery.create({
             data: {
                 messageId: message.id,
-                ms: Date.now() - start,
+                ms,
                 payload: JSON.stringify(payload),
                 status: 200,
                 templated,
                 webhookId: webhook.id,
             },
+            select: { createdAt: true, id: true },
+        });
+
+        bus.publishWebhookDelivery(webhook.userId, {
+            channel: webhook.topicName,
+            id: delivery.id,
+            ms,
+            payload,
+            renderedBody: templated ? messageBody : undefined,
+            renderedTitle: templated ? title : undefined,
+            source: webhook.source,
+            status: 200,
+            t: Math.floor(delivery.createdAt.getTime() / 1000),
+            templated,
         });
 
         return { messageId: message.id, ok: true };
