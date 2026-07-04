@@ -1,13 +1,14 @@
-import type { ListenSince, Subscription } from '#/lib/api';
-
 import { Check, LogOut, Send, Settings2 } from 'lucide-react';
 import { useState } from 'react';
+
+import type { ListenSince, Subscription } from '#/lib/api';
 
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { api } from '#/lib/api';
 
 interface ChannelActionsMenuProps {
     onFlash: (message: string, kind?: 'danger' | 'ok' | 'warn') => void;
+    onUnsubscribed: () => void;
     subscription: Subscription;
     topicName: string;
 }
@@ -29,7 +30,24 @@ const LISTEN_SINCE_OPTIONS: {
     },
 ];
 
-export function ChannelActionsMenu({ onFlash, subscription, topicName }: ChannelActionsMenuProps) {
+interface ChannelSettingsDialogProps {
+    onClose: () => void;
+    onFlash: (message: string, kind?: 'danger' | 'ok' | 'warn') => void;
+    onSave: (input: {
+        id: string;
+        pushEnabled?: boolean;
+        settings?: { description?: string; listenSince?: ListenSince };
+    }) => Promise<void>;
+    subscription: Subscription;
+    topicName: string;
+}
+
+export function ChannelActionsMenu({
+    onFlash,
+    onUnsubscribed,
+    subscription,
+    topicName,
+}: ChannelActionsMenuProps) {
     const { unsubscribe, updateSubscription } = useSubscriptions();
     const [menuOpen, setMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -58,6 +76,7 @@ export function ChannelActionsMenu({ onFlash, subscription, topicName }: Channel
             await unsubscribe(topicName);
 
             onFlash(`Unsubscribed from ${topicName}`, 'warn');
+            onUnsubscribed();
         } catch (error) {
             onFlash(error instanceof Error ? error.message : 'Failed to unsubscribe', 'danger');
         }
@@ -118,18 +137,6 @@ export function ChannelActionsMenu({ onFlash, subscription, topicName }: Channel
             )}
         </div>
     );
-}
-
-interface ChannelSettingsDialogProps {
-    onClose: () => void;
-    onFlash: (message: string, kind?: 'danger' | 'ok' | 'warn') => void;
-    onSave: (input: {
-        id: string;
-        pushEnabled?: boolean;
-        settings?: { description?: string; listenSince?: ListenSince };
-    }) => Promise<void>;
-    subscription: Subscription;
-    topicName: string;
 }
 
 function ChannelSettingsDialog({
@@ -286,20 +293,6 @@ function ChannelSettingsDialog({
     );
 }
 
-function Toggle({ enabled }: { enabled: boolean }) {
-    return (
-        <span
-            className="relative flex h-[22px] w-[38px] flex-shrink-0 items-center rounded-full transition-colors"
-            style={{ background: enabled ? 'var(--color-accent)' : 'var(--color-line)' }}
-        >
-            <span
-                className="absolute h-[16px] w-[16px] rounded-full bg-bg transition-transform"
-                style={{ transform: enabled ? 'translateX(19px)' : 'translateX(3px)' }}
-            />
-        </span>
-    );
-}
-
 function MenuItem({
     children,
     danger,
@@ -332,5 +325,19 @@ function MenuItem({
 
             {children}
         </button>
+    );
+}
+
+function Toggle({ enabled }: { enabled: boolean }) {
+    return (
+        <span
+            className="relative flex h-[22px] w-[38px] flex-shrink-0 items-center rounded-full transition-colors"
+            style={{ background: enabled ? 'var(--color-accent)' : 'var(--color-line)' }}
+        >
+            <span
+                className="absolute h-[16px] w-[16px] rounded-full bg-bg transition-transform"
+                style={{ transform: enabled ? 'translateX(19px)' : 'translateX(3px)' }}
+            />
+        </span>
     );
 }

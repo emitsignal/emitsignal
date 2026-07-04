@@ -133,13 +133,19 @@ function ChannelView() {
         <>
             <Toolbar
                 actions={
-                    subscription ? (
+                    subscription && (
                         <ChannelActionsMenu
                             onFlash={flash}
+                            onUnsubscribed={() =>
+                                navigate({
+                                    search: { priority, tags, topic: '' },
+                                    to: '/app/channels',
+                                })
+                            }
                             subscription={subscription}
                             topicName={selectedTopic}
                         />
-                    ) : null
+                    )
                 }
                 subtitle={`${messages.length}${hasNextPage ? '+' : ''} messages · ${matchingSubscriptions.length} subscriber${matchingSubscriptions.length !== 1 ? 's' : ''}`}
                 title={
