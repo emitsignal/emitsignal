@@ -123,6 +123,7 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
             'sub',
             'unsub',
             'keys',
+            'webhooks',
             'config',
             'tui',
             'login',

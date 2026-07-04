@@ -1,0 +1,197 @@
+---
+title: 'webhooks'
+description: 'Turn inbound HTTP webhooks from GitHub, Stripe, Grafana, and more into live signals.'
+---
+
+import { Arrow, Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+```
+emitsignal webhooks <create | list | listen | tail | set-template | delete> [flags]
+```
+
+Every webhook endpoint gets a public URL — `https://api.emitsignal.com/h/<slug>`.
+Point any service that speaks webhooks at it, and each inbound `POST` is published
+to a topic (channel) and fans out to your subscribers in real time. Attach an
+optional template to turn a provider's raw payload into a clean title and body,
+or leave it off to forward the payload untouched.
+
+## Subcommands
+
+| Subcommand          | What it does                                           |
+| ------------------- | ------------------------------------------------------ |
+| `create`            | Mint an endpoint and print its public URL              |
+| `list`              | Show every endpoint with its slug, channel, and status |
+| `listen`            | Tail deliveries across all endpoints in real time      |
+| `tail <source>`     | Tail deliveries for one source (`listen --source`)     |
+| `set-template <id>` | Attach, replace, or clear an endpoint's template       |
+| `delete <id>`       | Remove an endpoint                                     |
+
+<Note>
+    `set-template` and `delete` take the endpoint **id** (the first column of
+    `webhooks list`, also shown by `create`), not its `/h/<slug>` URL.
+</Note>
+
+## Create an endpoint
+
+<ParamField body="--channel, -c" type="topic" required>
+    Topic that inbound deliveries are published to. Required — deliveries must have somewhere to go.
+</ParamField>
+
+<ParamField body="--source, -s" type="github | grafana | stripe | vercel | custom" default="custom">
+    Source type. Used to label deliveries and to pick the slug prefix (`gh_`, `st_`, `gf_`, `vc_`,
+    `cw_`).
+</ParamField>
+
+<ParamField body="--name, -n" type="string">
+    Human label for the endpoint, shown in `webhooks list`.
+</ParamField>
+
+<ParamField body="--template, -t" type="file">
+    Path to a [template file](#templates). Omit for raw passthrough.
+</ParamField>
+
+<ParamField body="--json" type="flag">
+    Machine-readable output — includes the endpoint `id` and full URL.
+</ParamField>
+
+<Term title="emitsignal — zsh">
+    <Cmt># create an endpoint for GitHub, publishing to ci/deploys</Cmt>
+    <Cmd wrap>emitsignal webhooks create -n deploy-hook -s github -c ci/deploys</Cmd>
+    <Out color="#f5f0ff">
+        &nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clx8f2a0b00deploy01
+    </Out>
+    <Out color="#f5f0ff">&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; deploy-hook</Out>
+    <Out color="#f5f0ff">&nbsp;&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp; github</Out>
+    <Out color="#f5f0ff">&nbsp;&nbsp;channel&nbsp;&nbsp; ci/deploys</Out>
+    <Out>
+        &nbsp;&nbsp;endpoint&nbsp;&nbsp;
+        <span style={{ color: '#fbbf24' }}>/h/gh_a1b2c3d</span>
+    </Out>
+    <Out color="#7a6d99">&nbsp;&nbsp;template&nbsp; no (raw passthrough)</Out>
+    <Ok>webhook created — point your service at the endpoint above</Ok>
+</Term>
+
+## List endpoints
+
+The first column is the endpoint `id` — pass it to `set-template` and `delete`.
+
+<ParamField body="--json" type="flag">
+    Machine-readable output.
+</ParamField>
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal webhooks list</Cmd>
+    <Out color="#f5f0ff">
+        {
+            'clx8f2a0b00deploy01  deploy-hook           /h/gh_a1b2c3d   ci/deploys          raw        2m       active'
+        }
+    </Out>
+    <Out color="#f5f0ff">
+        {
+            'clx9k3b1c11stripe22  stripe-events         /h/st_9f8e7d6   billing/stripe      templated  just now active'
+        }
+    </Out>
+    <Out color="#b8a9d9">
+        {
+            'clxa4l5d22grafana33  old-grafana           /h/gf_44a1c0b   alerts/infra        raw        never    paused'
+        }
+    </Out>
+</Term>
+
+## Tail deliveries
+
+`listen` streams every delivery across all your endpoints over SSE; `tail <source>`
+is a shorthand that filters to a single source. Templated deliveries render with a
+filled dot (●) and their rendered title; raw deliveries show a hollow dot (○) and an
+inline snippet of the payload.
+
+<ParamField body="--source, -s" type="github | grafana | stripe | vercel | custom">
+    (`listen` only) Filter the stream to one source.
+</ParamField>
+
+<ParamField body="--format" type="pretty | json" default="pretty">
+    (`tail` only) Output format for each delivery.
+</ParamField>
+
+<ParamField body="--last" type="flag">
+    (`tail` only) Print the most recent delivery for the source and exit.
+</ParamField>
+
+<ParamField body="--json" type="flag">
+    (`listen` only) Emit each delivery as a JSON object instead of a formatted line.
+</ParamField>
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal webhooks listen</Cmd>
+    <Arrow>tailing webhooks · ● templated · ○ raw · filter:all sources · ctrl-c to quit</Arrow>
+    <Sp />
+    <Out color="#f5f0ff">
+        {'21:03:11  ○  ci/deploys        200  42ms    raw → {"ref":"refs/heads/main",…}'}
+    </Out>
+    <Out color="#f5f0ff">
+        {'21:04:02  ●  billing/stripe    200  18ms    Payment succeeded · inv_8842 · $42.00'}
+    </Out>
+    <Sp />
+    <Cmt># or follow a single source</Cmt>
+    <Cmd>emitsignal webhooks tail github</Cmd>
+    <Arrow>tailing github deliveries · ctrl-c to quit</Arrow>
+</Term>
+
+<Tip>
+    Piping either command (`| jq`, `> file`) drops all color automatically, so JSON
+    output stays clean for machines. Use `webhooks tail <source> --last` for a quick,
+    one-shot look at the latest delivery without holding a stream open.
+</Tip>
+
+## Templates
+
+A template turns a provider's raw JSON payload into a formatted signal. It is a
+small JSON document whose string fields are interpolated with `{{ path.to.value }}`
+placeholders resolved against the incoming payload.
+
+```json template.json
+{
+    "body": "{{ head_commit.message }}",
+    "priority": "4",
+    "tags": "github, {{ ref }}",
+    "title": "{{ repository.full_name }} — {{ pusher.name }} pushed"
+}
+```
+
+| Field      | Notes                                                         |
+| ---------- | ------------------------------------------------------------- |
+| `title`    | Signal title. Defaults to `Webhook delivery` when omitted.    |
+| `body`     | Signal body. Optional.                                        |
+| `priority` | String `"1"`–`"5"`, clamped into range. Defaults to `"3"`.    |
+| `tags`     | Comma-separated list; each entry is interpolated and trimmed. |
+
+Dot paths walk nested objects (`repository.owner.login`); a `*` segment maps over
+an array (`commits.*.message`). Missing paths render as an empty string.
+
+<ParamField body="--file, -f" type="path">
+    Path to the template file to attach or replace.
+</ParamField>
+
+<ParamField body="--clear" type="flag">
+    Remove the template and revert the endpoint to raw passthrough.
+</ParamField>
+
+<Term title="emitsignal — zsh">
+    <Cmt># attach a template — applied to new deliveries going forward</Cmt>
+    <Cmd wrap>emitsignal webhooks set-template clx8f2a0b00deploy01 --file template.json</Cmd>
+    <Ok>template saved — new deliveries to clx8f2a0b00deploy01 will render with it</Ok>
+    <Sp />
+    <Cmt># revert to forwarding the raw payload</Cmt>
+    <Cmd>emitsignal webhooks set-template clx8f2a0b00deploy01 --clear</Cmd>
+    <Ok>template cleared — clx8f2a0b00deploy01 now forwards raw payloads</Ok>
+</Term>
+
+## Delete an endpoint
+
+Removes the endpoint and its delivery history. The `/h/<slug>` URL immediately
+starts returning `404`.
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal webhooks delete clx8f2a0b00deploy01</Cmd>
+    <Ok>deleted webhook clx8f2a0b00deploy01</Ok>
+</Term>

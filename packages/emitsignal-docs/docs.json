@@ -66,6 +66,7 @@
                             "cli/listen",
                             "cli/subscribe",
                             "cli/keys",
+                            "cli/webhooks",
                             "cli/config",
                             "cli/tui"
                         ]
