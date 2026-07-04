@@ -4,7 +4,7 @@ import { relativeTime } from '@emitsignal/shared';
 import { readFileSync } from 'node:fs';
 
 import { getBaseUrl, getToken } from '../config.ts';
-import { arrow, color, err, formatTime, ok } from '../output.ts';
+import { arrow, color, emptyState, err, formatTime, highlightJson, ok } from '../output.ts';
 import { streamSse } from '../sse.ts';
 
 interface Delivery {
@@ -65,7 +65,7 @@ export function registerWebhooksCommand(program: Command): void {
                 }
 
                 if (opts.template) {
-                    body['template'] = readFileSync(opts.template as string, 'utf-8');
+                    body['template'] = readTemplateFile(opts.template as string);
                 }
 
                 const webhook = await webhookRequest<{ endpointUrl: string } & Webhook>(
@@ -77,9 +77,10 @@ export function registerWebhooksCommand(program: Command): void {
                 );
 
                 if (opts.json) {
-                    return console.log(JSON.stringify(webhook, null, 2));
+                    return console.log(highlightJson(webhook));
                 }
 
+                console.log(`  id        ${color.fgMuted(webhook.id)}`);
                 console.log(`  name      ${color.fg(webhook.name)}`);
                 console.log(`  source    ${color.fgMuted(webhook.source)}`);
                 console.log(`  channel   ${color.fgMuted(webhook.topicName)}`);
@@ -106,12 +107,15 @@ export function registerWebhooksCommand(program: Command): void {
             try {
                 const webhooks = await webhookRequest<Webhook[]>('/webhooks');
 
-                if (!webhooks.length) {
-                    return console.log(`Oops... ${color.red('No webhooks available')}`);
+                if (opts.json) {
+                    return console.log(highlightJson(webhooks));
                 }
 
-                if (opts.json) {
-                    return console.log(JSON.stringify(webhooks, null, 2));
+                if (!webhooks.length) {
+                    return emptyState(
+                        'no webhook endpoints yet',
+                        'create one with: es webhooks create -c <topic>',
+                    );
                 }
 
                 for (const webhook of webhooks) {
@@ -131,7 +135,7 @@ export function registerWebhooksCommand(program: Command): void {
                         : 'never';
 
                     console.log(
-                        `${color.fg((webhook.name ?? '').padEnd(20))}  ${color.fgMuted(`/h/${webhook.slug}`.padEnd(14))}  ${color.fgDim((webhook.topicName ?? '').padEnd(18))}  ${tpl}  ${color.fgFaint(last.padEnd(8))}  ${status}`,
+                        `${color.fgFaint(webhook.id.padEnd(26))}  ${color.fg((webhook.name ?? '').padEnd(20))}  ${color.fgMuted(`/h/${webhook.slug}`.padEnd(14))}  ${color.fgDim((webhook.topicName ?? '').padEnd(18))}  ${tpl}  ${color.fgFaint(last.padEnd(8))}  ${status}`,
                     );
                 }
             } catch (error) {
@@ -197,7 +201,7 @@ export function registerWebhooksCommand(program: Command): void {
                     );
 
                     if (opts.format === 'json') {
-                        console.log(JSON.stringify(delivery, null, 2));
+                        console.log(highlightJson(delivery));
                     } else {
                         printDelivery(delivery as unknown as Delivery, false);
                     }
@@ -241,7 +245,10 @@ export function registerWebhooksCommand(program: Command): void {
         .action(async (id: string, opts) => {
             try {
                 if (opts.clear) {
-                    await webhookRequest<void>(`/webhooks/${id}/template`, { method: 'DELETE' });
+                    await webhookRequest<Webhook>(`/webhooks/${id}`, {
+                        body: JSON.stringify({ template: null }),
+                        method: 'PATCH',
+                    });
 
                     return ok(`template cleared — ${color.fgDim(id)} now forwards raw payloads`);
                 }
@@ -252,18 +259,14 @@ export function registerWebhooksCommand(program: Command): void {
                     process.exit(1);
                 }
 
-                const template = readFileSync(opts.file as string, 'utf-8');
-                const result = await webhookRequest<{ rerenderedCount: number }>(
-                    `/webhooks/${id}/template`,
-                    {
-                        body: JSON.stringify({ template }),
-                        method: 'PUT',
-                    },
-                );
+                const template = readTemplateFile(opts.file as string);
 
-                ok(
-                    `template saved · ${color.fgMuted(String(result.rerenderedCount))} deliveries now pretty-print on replay`,
-                );
+                await webhookRequest<Webhook>(`/webhooks/${id}`, {
+                    body: JSON.stringify({ template }),
+                    method: 'PATCH',
+                });
+
+                ok(`template saved — new deliveries to ${color.fgDim(id)} will render with it`);
             } catch (error) {
                 err(error instanceof Error ? error.message : String(error));
 
@@ -293,27 +296,41 @@ function inlineJson(obj: Record<string, unknown>): string {
     return color.fgDim(JSON.stringify(obj).slice(0, 120));
 }
 
-function printDelivery(d: Delivery, asJson: boolean): void {
+function readTemplateFile(path: string): string {
+    const template = readFileSync(path, 'utf-8');
+
+    try {
+        JSON.parse(template);
+    } catch {
+        throw new Error(
+            `template file ${path} must be valid JSON — see the webhooks template format`,
+        );
+    }
+
+    return template;
+}
+
+function printDelivery(delivery: Delivery, asJson: boolean): void {
     if (asJson) {
-        console.log(JSON.stringify(d, null, 4));
+        console.log(highlightJson(delivery));
 
         return;
     }
 
-    const ch = color.fgDim((d.channel ?? '').padEnd(18));
-    const dot = d.templated ? color.violet('●') : color.fgDim('○');
-    const ms = color.fgFaint(`${d.ms}ms`.padEnd(8));
-    const status = color.green(String(d.status));
-    const time = color.fgFaint(formatTime(d.t * 1000));
+    const ch = color.fgDim((delivery.channel ?? '').padEnd(18));
+    const dot = delivery.templated ? color.violet('●') : color.fgDim('○');
+    const ms = color.fgFaint(`${delivery.ms}ms`.padEnd(8));
+    const status = color.green(String(delivery.status));
+    const time = color.fgFaint(formatTime(delivery.t * 1000));
 
-    if (d.templated && d.renderedTitle) {
-        const msg = color.fg(d.renderedTitle);
-        const body = d.renderedBody ? color.fgMuted(` · ${d.renderedBody}`) : '';
+    if (delivery.templated && delivery.renderedTitle) {
+        const message = color.fg(delivery.renderedTitle);
+        const body = delivery.renderedBody ? color.fgMuted(` · ${delivery.renderedBody}`) : '';
 
-        console.log(`${time}  ${dot}  ${ch}  ${status}  ${ms}  ${msg}${body}`);
+        console.log(`${time}  ${dot}  ${ch}  ${status}  ${ms}  ${message}${body}`);
     } else {
         console.log(
-            `${time}  ${dot}  ${ch}  ${status}  ${ms}  ${color.fgMuted('raw →')} ${inlineJson(d.payload)}`,
+            `${time}  ${dot}  ${ch}  ${status}  ${ms}  ${color.fgMuted('raw →')} ${inlineJson(delivery.payload)}`,
         );
     }
 }
