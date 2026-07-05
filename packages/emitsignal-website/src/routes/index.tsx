@@ -5,8 +5,8 @@ import { Footer } from '#/components/landing/footer';
 import { Hero } from '#/components/landing/hero';
 import { HowItWorks } from '#/components/landing/how-it-works';
 import { Nav } from '#/components/landing/nav';
+import { OpenSource } from '#/components/landing/open-source';
 import { Pricing } from '#/components/landing/pricing';
-import { Surfaces } from '#/components/landing/surfaces';
 import { UseCases } from '#/components/landing/use-cases';
 
 export const Route = createFileRoute('/')({ component: LandingPage });
@@ -17,7 +17,7 @@ function LandingPage() {
             <Nav />
             <Hero />
             <HowItWorks />
-            <Surfaces />
+            <OpenSource />
             <UseCases />
             <Pricing />
             <FinalCTA />
