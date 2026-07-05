@@ -7,6 +7,14 @@ import { getBaseUrl, getToken } from '../config.ts';
 import { arrow, color, emptyState, err, formatTime, highlightJson, ok } from '../output.ts';
 import { streamSse } from '../sse.ts';
 
+interface ApiError {
+    error?: string;
+    limit?: number;
+    message?: string;
+    metric?: string;
+    plan?: string;
+}
+
 interface Delivery {
     channel: string;
     id: string;
@@ -290,7 +298,34 @@ export function registerWebhooksCommand(program: Command): void {
         });
 }
 
-// ── helpers ───────────────────────────────────────────────────────────────────
+async function describeError(res: Response): Promise<string> {
+    const fallback = `${res.status} ${res.statusText}`;
+
+    let payload: ApiError;
+
+    try {
+        payload = (await res.json()) as ApiError;
+    } catch {
+        return fallback;
+    }
+
+    if (!payload || typeof payload !== 'object') {
+        return fallback;
+    }
+
+    if (payload.error === 'plan_limit_reached') {
+        const metric = payload.metric ?? 'resources';
+        const plan = payload.plan ?? 'current';
+        const limit = payload.limit;
+        const cap = typeof limit === 'number' ? ` (limit: ${limit})` : '';
+
+        return `plan limit reached — the ${plan} plan allows no more ${metric}${cap}. Upgrade your plan or delete an existing one.`;
+    }
+
+    const detail = payload.message ?? payload.error;
+
+    return detail ? `${fallback} — ${detail}` : fallback;
+}
 
 function inlineJson(obj: Record<string, unknown>): string {
     return color.fgDim(JSON.stringify(obj).slice(0, 120));
@@ -346,7 +381,7 @@ async function webhookRequest<T>(path: string, init: RequestInit = {}): Promise<
     const res = await fetch(`${getBaseUrl()}${path}`, { ...init, headers });
 
     if (!res.ok) {
-        throw new Error(`${res.status} ${res.statusText}`);
+        throw new Error(await describeError(res));
     }
 
     if (res.status === 204) {
