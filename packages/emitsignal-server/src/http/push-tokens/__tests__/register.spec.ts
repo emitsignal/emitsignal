@@ -1,9 +1,12 @@
-import { describe, expect, it, mock } from 'bun:test';
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
 import { prismaMock } from '../../../__tests__/mocks';
 
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+
+const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
+mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { registerPushToken } from '../../push-tokens/register';
 
@@ -18,6 +21,18 @@ describe('POST /push-tokens', () => {
         });
     }
 
+    function lastUpsertCreate() {
+        const calls = prismaMock.pushToken.upsert.mock.calls;
+        const callArgs = calls[calls.length - 1] as unknown as [
+            { create: { userId: null | string } },
+        ];
+        return callArgs[0].create;
+    }
+
+    beforeEach(() => {
+        resolveUserIdMock.mockResolvedValue(null);
+    });
+
     it('registers a push token', async () => {
         const res = await app.handle(
             request({ deviceId: 'dev-1', platform: 'ios', token: 'expo-token-1' }),
@@ -28,29 +43,27 @@ describe('POST /push-tokens', () => {
         expect(data).toEqual({ id: 'pt-1' });
     });
 
-    it('stores userId when provided', async () => {
+    it('derives userId from the session and ignores a body userId', async () => {
+        // The caller is authenticated as user-1 but tries to bind the token to
+        // victim-2 via the body. The body value must be ignored.
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
+
         await app.handle(
             request({
                 deviceId: 'dev-1',
                 platform: 'android',
                 token: 'token-2',
-                userId: 'user-1',
+                userId: 'victim-2',
             }),
         );
 
-        const callArgs = prismaMock.pushToken.upsert.mock.calls[
-            prismaMock.pushToken.upsert.mock.calls.length - 1
-        ] as unknown as [{ create: { userId: string | undefined } }];
-        expect(callArgs[0].create.userId).toBe('user-1');
+        expect(lastUpsertCreate().userId).toBe('user-1');
     });
 
-    it('omits userId from create when not provided', async () => {
+    it('stores a null userId for an unauthenticated caller', async () => {
         await app.handle(request({ deviceId: 'dev-1', platform: 'web', token: 'token-3' }));
 
-        const callArgs = prismaMock.pushToken.upsert.mock.calls[
-            prismaMock.pushToken.upsert.mock.calls.length - 1
-        ] as unknown as [{ create: Record<string, unknown> }];
-        expect(callArgs[0].create).not.toHaveProperty('userId');
+        expect(lastUpsertCreate().userId).toBeNull();
     });
 
     it('returns 422 for missing required fields', async () => {
