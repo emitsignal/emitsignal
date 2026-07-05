@@ -64,7 +64,6 @@ export default function AuthPerms() {
                 deviceId,
                 platform,
                 token: pushToken,
-                userId: userId ?? null,
             })
                 .then(() => queryClient.invalidateQueries({ queryKey: queryKeys.pushTokens }))
                 .catch((error) => console.warn('push-token register failed', error));

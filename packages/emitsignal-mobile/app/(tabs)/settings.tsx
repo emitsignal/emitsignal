@@ -265,7 +265,6 @@ function NotificationsSection() {
                     deviceId,
                     platform,
                     token,
-                    userId: user?.id ?? null,
                 });
 
                 void queryClient.invalidateQueries({ queryKey: queryKeys.pushTokens });

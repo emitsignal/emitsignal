@@ -45,8 +45,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             return;
         }
 
-        const userId = data.user.id;
-
         const linkToken = async () => {
             const [token, deviceId] = await Promise.all([
                 AsyncStorage.getItem(PUSH_TOKEN_KEY),
@@ -60,7 +58,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             const platform =
                 Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';
 
-            api.registerPushToken({ deviceId, platform, token, userId }).catch(() => {});
+            api.registerPushToken({ deviceId, platform, token }).catch(() => {});
         };
         linkToken();
     }, [data?.user?.id]);
