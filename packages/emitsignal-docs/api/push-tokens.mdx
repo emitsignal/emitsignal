@@ -12,17 +12,21 @@ are under `/push-tokens`.
 POST /push-tokens
 ```
 
-Upserts a push token for a device. The `userId`, if any, is taken from the request
-body.
+Upserts a push token for a device. **Auth optional** — the owning user is derived
+from the auth token (bearer or session cookie), so an authenticated call links the
+token to your account and an unauthenticated call registers it anonymously. Sign in
+and re-register the same device to link an existing anonymous token.
 
 <ParamField body="deviceId" type="string" required />
 <ParamField body="platform" type='"ios" | "android" | "web"' required />
 <ParamField body="token" type="string" required>
     The platform push token.
 </ParamField>
-<ParamField body="userId" type="string | null">
-    Associates the token with a user.
-</ParamField>
+
+<Note>
+    You cannot set the owning user from the body — it always comes from the authenticated session.
+    This prevents a caller from binding their device to someone else's account.
+</Note>
 
 ```json
 { "id": "..." }
