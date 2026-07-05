@@ -76,7 +76,7 @@ curl -X POST https://emitsignal.com/topic/reminders \
 - **Scheduling** — `X-Delay` accepts relative durations (`5m`, `2h`, `1d`, `1w`) or a unix timestamp, up to a year out.
 - **Webhooks** — receive from external services at `POST /h/:slug` with built-in templates for `github`, `grafana`, `stripe`, `vercel`, and `custom`.
 - **Attachments** — upload files alongside a message, stored locally or on S3.
-- **Flexible auth** — magic link, passkey (WebAuthn), API keys (`es_…`), and optional GitHub OAuth, via [Better Auth](https://better-auth.com).
+- **Flexible auth** — magic link, passkey (WebAuthn), API keys (`es_…`), and optional GitHub and Apple sign-in, via [Better Auth](https://better-auth.com).
 - **Rate limiting** — per-IP and per-user limits, backed by Redis, fail-open if Redis is down.
 - **Email digests** — transactional emails through a pluggable provider (`log`, `smtp`, or [Resend](https://resend.com)).
 
@@ -84,12 +84,17 @@ curl -X POST https://emitsignal.com/topic/reminders \
 
 This is a [Bun](https://bun.com) workspace monorepo.
 
-| Package                                                | Description                                     |
-| ------------------------------------------------------ | ----------------------------------------------- |
-| [`@emitsignal/server`](./packages/emitsignal-server)   | Elysia API — topics, auth, SSE, queued delivery |
-| [`@emitsignal/website`](./packages/emitsignal-website) | TanStack Start web dashboard                    |
-| [`@emitsignal/mobile`](./packages/emitsignal-mobile)   | Expo React Native app (iOS, Android, Web)       |
-| [`@emitsignal/emails`](./packages/emitsignal-emails)   | React Email templates                           |
+| Package                                                        | Description                                          |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| [`@emitsignal/server`](./packages/emitsignal-server)           | Elysia API — topics, auth, SSE, queued delivery      |
+| [`@emitsignal/website`](./packages/emitsignal-website)         | TanStack Start web dashboard                         |
+| [`@emitsignal/mobile`](./packages/emitsignal-mobile)           | Expo React Native app (iOS, Android, Web)            |
+| [`@emitsignal/cli`](./packages/emitsignal-cli)                 | Terminal client — publish and stream from your shell |
+| [`@emitsignal/shared`](./packages/emitsignal-shared)           | Shared TypeScript types and API client               |
+| [`@emitsignal/emails`](./packages/emitsignal-emails)           | React Email templates                                |
+| [`@emitsignal/docs`](./packages/emitsignal-docs)               | Mintlify documentation site (CLI & API reference)    |
+| [`@emitsignal/docker`](./packages/emitsignal-docker)           | Docker Compose stack for local dev and deployment    |
+| [`@emitsignal/e2e-testing`](./packages/emitsignal-e2e-testing) | Playwright end-to-end tests                          |
 
 <br />
 
