@@ -41,9 +41,10 @@ const COLUMNS: FooterColumn[] = [
             { label: 'Privacy', to: '/privacy' },
             { label: 'Terms', to: '/terms' },
             { label: 'Code of conduct', to: '/code-of-conduct' },
-            { href: '#', label: 'Security' },
-            { href: '#', label: 'SOC2' },
-            { href: '#', label: 'DPA' },
+            {
+                href: 'https://github.com/kevenleone/emitsignal/tree/main?tab=AGPL-3.0-1-ov-file',
+                label: 'GPLv3 License',
+            },
         ],
     },
 ];
