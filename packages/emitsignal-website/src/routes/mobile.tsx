@@ -385,24 +385,14 @@ export default function MobilePage() {
                         <div className="overflow-hidden rounded-xl border border-line">
                             {[
                                 {
-                                    note: 'iPhone and iPad. Widget coming in v0.8.',
+                                    note: 'iPhone and iPad.',
                                     platform: 'iOS',
                                     req: 'iOS 16.0+',
                                 },
                                 {
-                                    note: 'Phone and tablet. Wear OS companion coming later.',
+                                    note: 'Phone and tablet.',
                                     platform: 'Android',
                                     req: 'Android 10+',
-                                },
-                                {
-                                    note: 'Via Mac Catalyst (iPhone app on Mac). Native macOS app on roadmap.',
-                                    platform: 'macOS',
-                                    req: 'macOS 13+',
-                                },
-                                {
-                                    note: 'Glance view for high-priority signals.',
-                                    platform: 'watchOS',
-                                    req: 'Coming in v0.9',
                                 },
                             ].map((row) => (
                                 <div
