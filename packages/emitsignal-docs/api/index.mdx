@@ -1,0 +1,53 @@
+---
+title: 'API Reference'
+description: 'A simple HTTP API. No SDK required — if it can make an HTTP request, it can publish a signal.'
+---
+
+The EmitSignal REST API is JSON over HTTPS. There is no SDK to install: curl works,
+and every language works.
+
+<CardGroup cols={2}>
+    <Card title="Authentication" icon="key" href="/api/authentication">
+        Bearer tokens, key scopes, and unauthenticated access.
+    </Card>
+    <Card title="Publish" icon="paper-plane" href="/api/publish">
+        Send a signal to a topic over HTTP.
+    </Card>
+    <Card title="Subscribe" icon="radio" href="/api/subscribe">
+        Stream signals in real time with Server-Sent Events.
+    </Card>
+    <Card title="Errors" icon="triangle-exclamation" href="/api/errors">
+        Consistent error shapes and HTTP status codes.
+    </Card>
+</CardGroup>
+
+## Base URL
+
+All requests are made to a single host, versioned by the `v1` prefix at the
+account level (currently implicit).
+
+```
+https://api.emitsignal.com
+```
+
+## Quickstart
+
+<CodeGroup>
+
+```bash No auth — public demo topic
+# Publish a signal — no account needed on /welcome
+curl -d "hello" https://api.emitsignal.com/welcome
+```
+
+```bash Authenticated publish
+curl https://api.emitsignal.com/publish/deploy/prod \
+  -H "Authorization: Bearer es_xxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "v2.14.3 shipped", "priority": 4}'
+```
+
+</CodeGroup>
+
+<Note>
+    Prefer the terminal? The [CLI](/cli/index) wraps every endpoint below in a single static binary.
+</Note>

@@ -1,0 +1,30 @@
+---
+title: 'Errors'
+description: 'Consistent JSON error shapes and standard HTTP status codes.'
+---
+
+All errors return JSON with a consistent shape. HTTP status codes follow standard
+conventions.
+
+```json
+{
+    "error": {
+        "code": "topic_not_found",
+        "message": "Topic 'deploy/staging' does not exist",
+        "status": 404
+    }
+}
+```
+
+## Status codes
+
+| Status | Code             | Meaning                                             |
+| ------ | ---------------- | --------------------------------------------------- |
+| `400`  | `bad_request`    | Invalid request body or missing required fields.    |
+| `401`  | `unauthorized`   | Missing or invalid `Authorization` header.          |
+| `403`  | `forbidden`      | Valid token but insufficient scope or topic access. |
+| `404`  | `not_found`      | Topic, signal, or resource does not exist.          |
+| `409`  | `conflict`       | Duplicate `idempotency_key` within 24h window.      |
+| `422`  | `unprocessable`  | Request is well-formed but semantically invalid.    |
+| `429`  | `rate_limited`   | Too many requests. See `Retry-After` header.        |
+| `500`  | `internal_error` | Something went wrong on our end. Report it.         |

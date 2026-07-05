@@ -1,0 +1,79 @@
+---
+title: 'Publish'
+description: 'Send a signal to a topic over HTTP. Creates the topic on first publish.'
+---
+
+| Method | Path              | Auth | Description                                                         |
+| ------ | ----------------- | ---- | ------------------------------------------------------------------- |
+| `POST` | `/publish/:topic` | ✅   | Publish a signal to a topic. Creates the topic if it doesn't exist. |
+| `POST` | `/:topic`         | —    | Publish to the public demo topic. No auth required.                 |
+
+## Request body
+
+<ParamField body="message" type="string" required>
+    The signal body. Max 64 KB.
+</ParamField>
+
+<ParamField body="title" type="string">
+    Shown in push notifications. Defaults to the first line of the body.
+</ParamField>
+
+<ParamField body="priority" type="1–5" default="3">
+    Severity level. Drives routing and delivery targets — see below.
+</ParamField>
+
+<ParamField body="tags" type="string[]">
+    Used in routing rules.
+</ParamField>
+
+<ParamField body="meta" type="object">
+    Arbitrary JSON metadata.
+</ParamField>
+
+<ParamField body="idempotency_key" type="string">
+    Deduplicate publishes within a 24h window.
+</ParamField>
+
+```json
+{
+  "message": "string",          // required — the signal body (max 64 KB)
+  "title":   "string",          // optional — shown in push notifications
+  "priority": 1-5,              // optional, default 3
+  "tags":    ["string"],        // optional — used in routing rules
+  "meta":    { ... },           // optional — arbitrary JSON metadata
+  "idempotency_key": "string"   // optional — deduplicate within 24h
+}
+```
+
+## Plaintext shorthand
+
+Set `Content-Type: text/plain` to publish with just the body as the message. This is
+what `curl -d` uses by default.
+
+```bash
+curl -d "disk full on api-01" \
+  -H "Authorization: Bearer es_xxx" \
+  https://api.emitsignal.com/publish/alerts/prod
+```
+
+## Response
+
+```json
+{
+    "delivered_at": "2026-05-28T21:52:01Z",
+    "id": "sig_01j9xz3p4q5r6s7t8u9v0w1x2y",
+    "status": "delivered",
+    "subscriber_count": 3,
+    "topic": "deploy/prod"
+}
+```
+
+## Priority semantics
+
+| Priority | Level    | Delivery                                             |
+| -------- | -------- | ---------------------------------------------------- |
+| `5`      | critical | Push + SMS + Slack + email. Wakes you up.            |
+| `4`      | high     | Push + Slack. Important but not an emergency.        |
+| `3`      | normal   | Push only (default). Most signals live here.         |
+| `2`      | low      | Inbox only. No push.                                 |
+| `1`      | debug    | Inbox only. Suppressed unless explicitly subscribed. |

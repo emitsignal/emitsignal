@@ -1,0 +1,39 @@
+---
+title: 'API Keys'
+description: 'Create, inspect, and revoke API keys. Secrets are shown only once.'
+---
+
+| Method   | Path        | Auth | Description                                                        |
+| -------- | ----------- | ---- | ------------------------------------------------------------------ |
+| `GET`    | `/keys`     | ✅   | List all API keys for the workspace.                               |
+| `POST`   | `/keys`     | ✅   | Create a new API key. The secret is only shown once.               |
+| `GET`    | `/keys/:id` | ✅   | Get key metadata (never returns the secret).                       |
+| `DELETE` | `/keys/:id` | ✅   | Revoke a key immediately. All requests using it fail from then on. |
+
+## Create key request
+
+```json
+POST /keys
+{
+  "label":  "ci-prod",
+  "scopes": ["publish"],        // publish | subscribe | admin
+  "topics": ["deploy/*", "ci/*"],  // optional — restrict to specific topics
+  "expires_at": "2027-01-01T00:00:00Z"  // optional
+}
+```
+
+```json
+// Response — secret shown only once
+{
+    "created_at": "2026-05-28T09:00:00Z",
+    "id": "key_01j9xz3p4q5r",
+    "label": "ci-prod",
+    "scopes": ["publish"],
+    "secret": "es_xxxxxxxxxxxxxxxxxxxxxxxx"
+}
+```
+
+<Warning>
+    The `secret` is returned only in the create response. Store it securely — it cannot be retrieved
+    again.
+</Warning>

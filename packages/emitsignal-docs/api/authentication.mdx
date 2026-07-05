@@ -1,0 +1,36 @@
+---
+title: 'Authentication'
+description: 'Bearer token authentication, key scopes, and the handful of endpoints that work without auth.'
+---
+
+Include your API key in the `Authorization` header. Keys are prefixed with `es_`
+for production and `es_test_` for test/sandbox environments.
+
+```http
+# In a request header
+Authorization: Bearer es_xxxxxxxxxxxxxxxxxxxxxxxx
+
+# Or via query param (not recommended for production)
+?token=es_xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+## Key scopes
+
+Keys carry scopes that limit what they can do. Create scoped keys per service to
+limit blast radius.
+
+| Scope       | Grants                                      |
+| ----------- | ------------------------------------------- |
+| `publish`   | Send signals to topics                      |
+| `subscribe` | Open SSE streams and read signals           |
+| `admin`     | Manage topics, channels, keys, and webhooks |
+
+<Note>
+    Manage keys from the [dashboard](https://emitsignal.com/app) or the [`keys`](/cli/keys) CLI
+    command.
+</Note>
+
+## Unauthenticated access
+
+A handful of endpoints work without auth — primarily the `/welcome` demo topic and
+anonymous device registration. All other endpoints require a valid token.

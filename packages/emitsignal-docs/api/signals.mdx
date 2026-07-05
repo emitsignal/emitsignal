@@ -1,0 +1,63 @@
+---
+title: 'Signals'
+description: 'Read, manage, and replay signal history.'
+---
+
+| Method   | Path                  | Auth | Description                                                      |
+| -------- | --------------------- | ---- | ---------------------------------------------------------------- |
+| `GET`    | `/signals`            | ✅   | List received signals. Filterable by topic, priority, tag, date. |
+| `GET`    | `/signals/:id`        | ✅   | Get a single signal by ID.                                       |
+| `POST`   | `/signals/:id/read`   | ✅   | Mark a signal as read.                                           |
+| `POST`   | `/signals/read-all`   | ✅   | Mark all signals as read.                                        |
+| `DELETE` | `/signals/:id`        | ✅   | Delete a signal from your inbox.                                 |
+| `POST`   | `/signals/:id/replay` | ✅   | Replay a signal — re-deliver to all current subscribers.         |
+
+## Signal object
+
+```json
+{
+    "id": "sig_01j9xz3p4q5r6s7t8u9v0w1x2y",
+    "message": "api-gateway deployed successfully · 1m 42s",
+    "meta": { "commit": "a3f82bc", "duration_s": 102 },
+    "priority": 4,
+    "published_at": "2026-05-28T21:52:01Z",
+    "publisher": {
+        "label": "ci-prod",
+        "type": "api_key"
+    },
+    "read": false,
+    "tags": ["deploy", "production"],
+    "title": "v2.14.3 shipped",
+    "topic": "deploy/prod"
+}
+```
+
+## List query parameters
+
+<ParamField query="topic" type="string">
+    Filter by topic (exact or glob: `deploy/*`).
+</ParamField>
+
+<ParamField query="priority" type="string">
+    Filter expression: `>=3`, `=5`, `1-3`.
+</ParamField>
+
+<ParamField query="tag" type="string">
+    Filter by tag. Repeatable.
+</ParamField>
+
+<ParamField query="read" type="boolean">
+    `true` or `false` — filter by read status.
+</ParamField>
+
+<ParamField query="since / until" type="string">
+    ISO 8601 date range.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+    Page size, max 500.
+</ParamField>
+
+<ParamField query="cursor" type="string">
+    Pagination cursor from the previous response.
+</ParamField>

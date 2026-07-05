@@ -1,0 +1,52 @@
+---
+title: 'Webhooks'
+description: 'Deliver signals to your own HTTP endpoint with signed payloads.'
+---
+
+Register a webhook endpoint and EmitSignal will POST a JSON payload to it for every
+matching signal. Useful for integrating with Slack, PagerDuty, or your own services.
+
+| Method   | Path                                           | Auth | Description               |
+| -------- | ---------------------------------------------- | ---- | ------------------------- |
+| `GET`    | `/webhooks`                                    | ✅   | List webhooks.            |
+| `POST`   | `/webhooks`                                    | ✅   | Create a webhook.         |
+| `PUT`    | `/webhooks/:id`                                | ✅   | Update a webhook.         |
+| `DELETE` | `/webhooks/:id`                                | ✅   | Delete a webhook.         |
+| `GET`    | `/webhooks/:id/deliveries`                     | ✅   | List recent deliveries.   |
+| `POST`   | `/webhooks/:id/deliveries/:delivery_id/replay` | ✅   | Replay a failed delivery. |
+
+## Webhook payload
+
+```http
+POST https://your-server.example.com/emitsignal-hook
+Content-Type: application/json
+X-EmitSignal-Signature: sha256=xxxxxxxxxxxxxxxx
+X-EmitSignal-Delivery: del_01j9xz3p4q5r
+
+{
+  "event": "signal.published",
+  "signal": {
+    "id":       "sig_01j9xz3p4q5r6s7t8u9v0w1x2y",
+    "topic":    "deploy/prod",
+    "title":    "v2.14.3 shipped",
+    "message":  "api-gateway deployed · 1m 42s",
+    "priority": 4,
+    "tags":     ["deploy", "production"],
+    "published_at": "2026-05-28T21:52:01Z"
+  }
+}
+```
+
+## Signature verification
+
+Every delivery is signed with your webhook secret. Verify the `X-EmitSignal-Signature`
+header before trusting a payload.
+
+```js
+import crypto from 'crypto';
+
+function verifySignature(payload, signature, secret) {
+    const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+}
+```

@@ -81,6 +81,31 @@
                     }
                 ],
                 "tab": "CLI Reference"
+            },
+            {
+                "groups": [
+                    {
+                        "group": "Overview",
+                        "pages": ["api/index", "api/authentication"]
+                    },
+                    {
+                        "group": "Endpoints",
+                        "pages": [
+                            "api/publish",
+                            "api/subscribe",
+                            "api/topics",
+                            "api/channels",
+                            "api/signals",
+                            "api/keys",
+                            "api/webhooks"
+                        ]
+                    },
+                    {
+                        "group": "Reference",
+                        "pages": ["api/errors", "api/rate-limits"]
+                    }
+                ],
+                "tab": "API Reference"
             }
         ]
     },

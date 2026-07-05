@@ -1,0 +1,23 @@
+---
+title: 'Rate Limits'
+description: 'Per-tier limits, quotas, and the rate-limit headers on every response.'
+---
+
+| Tier       | Publish   | Subscribe     | Signals    |
+| ---------- | --------- | ------------- | ---------- |
+| Free       | 10 req/s  | 5 concurrent  | 10k/mo     |
+| Team       | 100 req/s | 50 concurrent | 1M/user/mo |
+| Enterprise | custom    | unlimited     | unlimited  |
+
+## Headers
+
+Rate-limit headers are included in every response:
+
+| Header                  | Meaning                                   |
+| ----------------------- | ----------------------------------------- |
+| `X-RateLimit-Limit`     | Maximum requests in the current window.   |
+| `X-RateLimit-Remaining` | Requests remaining in the current window. |
+| `X-RateLimit-Reset`     | When the window resets (epoch seconds).   |
+
+When limited, you receive a `429` with a `Retry-After` header indicating how long to
+wait before retrying.

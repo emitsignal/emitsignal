@@ -1,0 +1,35 @@
+---
+title: 'Topics'
+description: 'Create, read, update, and delete topics.'
+---
+
+| Method   | Path                     | Auth | Description                                        |
+| -------- | ------------------------ | ---- | -------------------------------------------------- |
+| `GET`    | `/topics`                | ✅   | List all topics the authenticated user can access. |
+| `GET`    | `/topics/:topic`         | ✅   | Get metadata and recent signal stats for a topic.  |
+| `PUT`    | `/topics/:topic`         | ✅   | Create or update a topic with routing rules.       |
+| `DELETE` | `/topics/:topic`         | ✅   | Delete a topic and all its signals.                |
+| `GET`    | `/topics/:topic/signals` | ✅   | Get recent signals for a topic.                    |
+
+## Topic naming rules
+
+```bash
+# Topics are slash-delimited strings
+deploy/prod
+alerts/prod
+cron/nightly-backup
+github/acme/pr-reviews
+
+# Rules:
+# - Lowercase letters, numbers, hyphens, underscores, slashes
+# - Max 5 segments, max 128 chars total
+# - No leading/trailing slashes
+# - Wildcards only in subscribe patterns (alerts/*), not in publish
+
+# Examples of valid topics
+alerts/prod
+deploy/api-gateway
+me/personal
+sensors/home/garage-door
+ci/web-app/main
+```
