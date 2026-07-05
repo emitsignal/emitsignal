@@ -228,8 +228,12 @@ export default function ChangelogPage() {
                                 <span>
                                     <span className="text-fg">emitsignal CLI</span> — publish,
                                     listen, and subscribe from the terminal{' '}
-                                    <a className="text-accent no-underline" href="/cli">
-                                        (docs preview)
+                                    <a
+                                        className="text-accent no-underline"
+                                        href="https://docs.emitsignal.com/cli"
+                                        target="_blank"
+                                    >
+                                        (docs)
                                     </a>
                                 </span>
                             </li>

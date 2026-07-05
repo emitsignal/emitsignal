@@ -17,7 +17,6 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CodeOfConductRouteImport } from './routes/code-of-conduct'
-import { Route as CliRouteImport } from './routes/cli'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AppRouteImport } from './routes/app'
@@ -81,11 +80,6 @@ const DashboardRoute = DashboardRouteImport.update({
 const CodeOfConductRoute = CodeOfConductRouteImport.update({
   id: '/code-of-conduct',
   path: '/code-of-conduct',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CliRoute = CliRouteImport.update({
-  id: '/cli',
-  path: '/cli',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChangelogRoute = ChangelogRouteImport.update({
@@ -216,7 +210,6 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
-  '/cli': typeof CliRoute
   '/code-of-conduct': typeof CodeOfConductRoute
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
@@ -249,7 +242,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api': typeof ApiRouteWithChildren
   '/changelog': typeof ChangelogRoute
-  '/cli': typeof CliRoute
   '/code-of-conduct': typeof CodeOfConductRoute
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
@@ -284,7 +276,6 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
-  '/cli': typeof CliRoute
   '/code-of-conduct': typeof CodeOfConductRoute
   '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
@@ -321,7 +312,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/blog'
     | '/changelog'
-    | '/cli'
     | '/code-of-conduct'
     | '/dashboard'
     | '/mobile'
@@ -354,7 +344,6 @@ export interface FileRouteTypes {
     | '/'
     | '/api'
     | '/changelog'
-    | '/cli'
     | '/code-of-conduct'
     | '/dashboard'
     | '/mobile'
@@ -388,7 +377,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/blog'
     | '/changelog'
-    | '/cli'
     | '/code-of-conduct'
     | '/dashboard'
     | '/mobile'
@@ -424,7 +412,6 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
-  CliRoute: typeof CliRoute
   CodeOfConductRoute: typeof CodeOfConductRoute
   DashboardRoute: typeof DashboardRoute
   MobileRoute: typeof MobileRoute
@@ -491,13 +478,6 @@ declare module '@tanstack/react-router' {
       path: '/code-of-conduct'
       fullPath: '/code-of-conduct'
       preLoaderRoute: typeof CodeOfConductRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cli': {
-      id: '/cli'
-      path: '/cli'
-      fullPath: '/cli'
-      preLoaderRoute: typeof CliRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/changelog': {
@@ -758,7 +738,6 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
-  CliRoute: CliRoute,
   CodeOfConductRoute: CodeOfConductRoute,
   DashboardRoute: DashboardRoute,
   MobileRoute: MobileRoute,
