@@ -17,21 +17,16 @@ const COLUMNS: FooterColumn[] = [
     {
         heading: 'product',
         links: [
-            { label: 'CLI', to: '/cli' },
-            { label: 'Web dashboard', to: '/dashboard' },
             { label: 'Mobile', to: '/mobile' },
-            { label: 'API', to: '/api' },
+            { href: 'https://docs.emitsignal.com/api', label: 'API' },
             { label: 'Changelog', to: '/changelog' },
-            { label: 'Blog', to: '/blog' },
         ],
     },
     {
         heading: 'developers',
         links: [
             { href: 'https://docs.emitsignal.com', label: 'Docs' },
-            { href: '#how', label: 'Quickstart' },
-            { href: '#', label: 'Reference' },
-            { href: '#use-cases', label: 'Examples' },
+            { label: 'Blog', to: '/blog' },
             { href: '#', label: 'Open source' },
         ],
     },
@@ -109,7 +104,16 @@ export function Footer() {
                 </div>
 
                 <div className="flex flex-col gap-2 border-t border-line pt-5.5 font-mono text-[11px] text-dim sm:flex-row sm:items-center sm:gap-4">
-                    <span>© {new Date().getFullYear()} EmitSignal</span>
+                    <span>
+                        © {new Date().getFullYear()} EmitSignal · Built by{' '}
+                        <a
+                            className="text-muted hover:text-fg"
+                            href="https://github.com/kevenleone"
+                            target="_blank"
+                        >
+                            Keven Leone
+                        </a>
+                    </span>
                     <span className="flex items-center gap-1.5 sm:ml-auto">
                         <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
                         all systems normal ·{' '}
