@@ -1,30 +1,42 @@
 ---
 title: 'Errors'
-description: 'Consistent JSON error shapes and standard HTTP status codes.'
+description: 'Error response shapes and the status codes you can expect.'
 ---
 
-All errors return JSON with a consistent shape. HTTP status codes follow standard
-conventions.
+Framework-level errors return a consistent envelope:
 
 ```json
-{
-    "error": {
-        "code": "topic_not_found",
-        "message": "Topic 'deploy/staging' does not exist",
-        "status": 404
-    }
-}
+{ "error": "Not Found", "path": "/topics/unknown", "status": 404 }
 ```
 
-## Status codes
+- `404` → `{ "error": "Not Found", "status": 404, "path": "..." }`
+- `422` → `{ "error": "Validation Error", "status": 422 }` (request failed schema validation)
+- `400` → `{ "error": "Bad Request", "status": 400 }` (malformed body/cookie)
+- `500` → `{ "error": "Internal Server Error", "status": 500 }`
 
-| Status | Code             | Meaning                                             |
-| ------ | ---------------- | --------------------------------------------------- |
-| `400`  | `bad_request`    | Invalid request body or missing required fields.    |
-| `401`  | `unauthorized`   | Missing or invalid `Authorization` header.          |
-| `403`  | `forbidden`      | Valid token but insufficient scope or topic access. |
-| `404`  | `not_found`      | Topic, signal, or resource does not exist.          |
-| `409`  | `conflict`       | Duplicate `idempotency_key` within 24h window.      |
-| `422`  | `unprocessable`  | Request is well-formed but semantically invalid.    |
-| `429`  | `rate_limited`   | Too many requests. See `Retry-After` header.        |
-| `500`  | `internal_error` | Something went wrong on our end. Report it.         |
+Individual endpoints return their own machine-readable `error` codes (usually
+`{ "error": "<code>" }`, sometimes with extra fields). The ones you'll meet:
+
+| Status | Code                         | Where                                                  |
+| ------ | ---------------------------- | ------------------------------------------------------ |
+| `400`  | `missing_content`            | Publish with neither title nor body.                   |
+| `400`  | `invalid_topic_name`         | Publish/subscribe with an invalid topic name.          |
+| `400`  | `invalid_media`              | Publish with a malformed media reference.              |
+| `400`  | `invalid_mime_type`          | Attachment/avatar of a disallowed type.                |
+| `400`  | `file_too_large`             | Attachment exceeds the plan's size limit.              |
+| `400`  | `too_many_files`             | More than one file in an attachment upload.            |
+| `400`  | `at_least_one_file_required` | Attachment upload with no file.                        |
+| `400`  | `payload_too_large`          | Avatar exceeds the size limit.                         |
+| `401`  | `missing_token`              | Endpoint requires auth and none was resolved.          |
+| `401`  | `unauthorized`               | Avatar endpoints without auth.                         |
+| `403`  | `forbidden`                  | Authenticated but not the owner of the resource.       |
+| `403`  | `plan_limit_reached`         | `{ error, limit, metric, plan }` — topics or webhooks. |
+| `404`  | `topic_not_found`            | Topic doesn't exist.                                   |
+| `404`  | `message_not_found`          | Message doesn't exist.                                 |
+| `404`  | `not_found`                  | Subscription / push token / webhook doesn't exist.     |
+| `409`  | `attachment_already_exists`  | Message already has an attachment.                     |
+| `429`  | `daily_quota_exceeded`       | `{ error, limit, metric: "messages", resetAt }`.       |
+| `429`  | `too_many_sse_connections`   | `{ error, max, retryAfter: 60 }` — SSE connection cap. |
+| `503`  | `webhook_paused`             | Posting to a paused webhook receiver.                  |
+
+See [Rate limits](/api/rate-limits) for the `429` cases.

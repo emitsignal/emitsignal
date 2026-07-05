@@ -1,79 +1,126 @@
 ---
 title: 'Publish'
-description: 'Send a signal to a topic over HTTP. Creates the topic on first publish.'
+description: 'Send a signal to a topic. JSON body or header-based format. Topic is created on first publish.'
 ---
 
-| Method | Path              | Auth | Description                                                         |
-| ------ | ----------------- | ---- | ------------------------------------------------------------------- |
-| `POST` | `/publish/:topic` | ✅   | Publish a signal to a topic. Creates the topic if it doesn't exist. |
-| `POST` | `/:topic`         | —    | Publish to the public demo topic. No auth required.                 |
+```
+POST /topic/:name
+```
 
-## Request body
+Publishes a message to a topic. The topic is created automatically on first publish.
+**Auth is optional** — anonymous publishes are allowed (per-IP rate limited); an
+authenticated publish applies your plan's daily message quota and attributes the
+sender.
 
-<ParamField body="message" type="string" required>
-    The signal body. Max 64 KB.
-</ParamField>
+## JSON body
+
+Send `Content-Type: application/json` with any of these fields. At least one of
+`title` or `body` must be non-empty.
 
 <ParamField body="title" type="string">
-    Shown in push notifications. Defaults to the first line of the body.
+    Headline. Shown in push notifications.
 </ParamField>
 
-<ParamField body="priority" type="1–5" default="3">
-    Severity level. Drives routing and delivery targets — see below.
+<ParamField body="body" type="string">
+    Message body. Markdown is allowed.
+</ParamField>
+
+<ParamField body="priority" type="integer (1–5)" default="3">
+    Severity. Drives routing and delivery. See [priority](#priority).
 </ParamField>
 
 <ParamField body="tags" type="string[]">
-    Used in routing rules.
+    Free-form tags, used by filters and webhook routing.
 </ParamField>
 
-<ParamField body="meta" type="object">
-    Arbitrary JSON metadata.
+<ParamField body="scheduledAt" type="integer (unix seconds)">
+    Deliver later. Must be in the future and no more than one year out. Scheduled messages skip the
+    live bus and go to the schedule queue.
 </ParamField>
 
-<ParamField body="idempotency_key" type="string">
-    Deduplicate publishes within a 24h window.
+<ParamField body="actions" type="array (max 2)">
+    Interactive actions: `{ "type": "acknowledge" | "view", "label"?: string, "url"?: string }`.
 </ParamField>
 
-```json
-{
-  "message": "string",          // required — the signal body (max 64 KB)
-  "title":   "string",          // optional — shown in push notifications
-  "priority": 1-5,              // optional, default 3
-  "tags":    ["string"],        // optional — used in routing rules
-  "meta":    { ... },           // optional — arbitrary JSON metadata
-  "idempotency_key": "string"   // optional — deduplicate within 24h
-}
-```
+<ParamField body="bannerImage" type="string | { href, title? }">
+    A single banner image — a URL string or an object.
+</ParamField>
 
-## Plaintext shorthand
+<ParamField body="inlineImages" type="media | media[]">
+    One or more inline images. Each is a URL string or `{ href, title? }`.
+</ParamField>
 
-Set `Content-Type: text/plain` to publish with just the body as the message. This is
-what `curl -d` uses by default.
+<ParamField body="inlineAttachments" type="media | media[]">
+    One or more inline attachments, same shape as `inlineImages`.
+</ParamField>
 
 ```bash
-curl -d "disk full on api-01" \
+curl https://api.emitsignal.com/topic/deploy/prod \
   -H "Authorization: Bearer es_xxx" \
-  https://api.emitsignal.com/publish/alerts/prod
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "v2.14.3 shipped",
+    "body": "api-gateway deployed successfully",
+    "priority": 4,
+    "tags": ["deploy", "production"]
+  }'
 ```
 
-## Response
+## Header-based format
+
+If the request `Content-Type` is **not** `application/json`, the raw body becomes the
+message and metadata is read from headers. This is what `curl -d` uses by default.
+
+```bash
+curl https://api.emitsignal.com/topic/alerts/prod \
+  -H "Authorization: Bearer es_xxx" \
+  -H "title: High memory on api-02" \
+  -H "x-priority: urgent" \
+  -H "x-tags: sev2,oncall" \
+  -d "mem.used > 92% for 5m"
+```
+
+| Field       | Headers (first non-empty wins)                          |
+| ----------- | ------------------------------------------------------- |
+| Title       | `x-title`, `title`, `t`                                 |
+| Body        | `x-message`, `message`, `m` (else the raw request body) |
+| Priority    | `x-priority`, `priority`, `prio`, `p`                   |
+| Tags        | `x-tags`, `tags`, `ta` (comma-separated)                |
+| Schedule    | `x-delay`, `delay`, `x-at`, `at`, `x-in`, `in`          |
+| Actions     | `x-actions`, `actions` (JSON)                           |
+| Banner      | `x-banner`, `banner`                                    |
+| Inline imgs | `x-inline-images`, `inline-images`                      |
+| Attachments | `x-inline-attachments`, `inline-attachments`            |
+
+**Priority values** accept names or numbers: `min`/`1`, `low`/`2`,
+`none`/`default`/`3`, `high`/`4`, `urgent`/`max`/`5`.
+
+**Delay/schedule values** accept a duration string — `30s`, `5m`, `2h`, `1d`, `1w`
+— or an integer (a unix timestamp if it's `>= now`, otherwise seconds from now).
+
+## Priority
+
+| Priority | Name    |
+| -------- | ------- |
+| `5`      | urgent  |
+| `4`      | high    |
+| `3`      | default |
+| `2`      | low     |
+| `1`      | min     |
+
+## Responses
 
 ```json
-{
-    "delivered_at": "2026-05-28T21:52:01Z",
-    "id": "sig_01j9xz3p4q5r6s7t8u9v0w1x2y",
-    "status": "delivered",
-    "subscriber_count": 3,
-    "topic": "deploy/prod"
-}
+// Immediate publish — 200
+{ "message": "posted", "messageId": "..." }
 ```
 
-## Priority semantics
+```json
+// Scheduled publish — 200
+{ "message": "scheduled", "messageId": "...", "scheduledAt": 1790000000 }
+```
 
-| Priority | Level    | Delivery                                             |
-| -------- | -------- | ---------------------------------------------------- |
-| `5`      | critical | Push + SMS + Slack + email. Wakes you up.            |
-| `4`      | high     | Push + Slack. Important but not an emergency.        |
-| `3`      | normal   | Push only (default). Most signals live here.         |
-| `2`      | low      | Inbox only. No push.                                 |
-| `1`      | debug    | Inbox only. Suppressed unless explicitly subscribed. |
+Common errors: `400 missing_content` (no title or body), `400 invalid_media`,
+`400 invalid_topic_name`, `403 plan_limit_reached` (topic count), and
+`429 daily_quota_exceeded` (authenticated users over the daily message limit — see
+[Rate limits](/api/rate-limits)).

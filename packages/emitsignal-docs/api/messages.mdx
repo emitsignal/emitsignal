@@ -1,0 +1,102 @@
+---
+title: 'Messages'
+description: 'Read a message, acknowledge it, attach files, and purge your signals.'
+---
+
+## Message object
+
+The list and get endpoints across the API return this serialized shape:
+
+```json
+{
+    "acknowledgmentCount": 0,
+    "actions": [{ "label": "Open", "type": "view", "url": "https://..." }],
+    "attachments": [],
+    "bannerImage": null,
+    "body": "api-gateway deployed successfully",
+    "createdAt": 1790000000000,
+    "id": "...",
+    "inlineAttachments": [],
+    "inlineImages": [],
+    "priority": 4,
+    "tags": ["deploy", "production"],
+    "title": "v2.14.3 shipped",
+    "topicId": "..."
+}
+```
+
+`attachments` is populated only on the single-message endpoint. Message-list
+endpoints (topic and subscription) also include a `topicName` field.
+
+## Get a message
+
+```
+GET /messages/:id
+```
+
+Public. Returns the message object above (with `attachments` resolved) plus
+`topicName`. `404 message_not_found` if it doesn't exist.
+
+## Acknowledge a message
+
+```
+POST /messages/:id/acknowledge
+```
+
+Public — identity comes from the body.
+
+<ParamField body="deviceId" type="string" required />
+<ParamField body="userId" type="string" />
+
+```json
+{ "acknowledged": true, "count": 2 }
+```
+
+## Upload an attachment
+
+```
+POST /messages/:id/attachments
+```
+
+Multipart upload of a **single** file. Auth optional — anonymous uploads are allowed
+with free-tier size limits and a shorter retention (3 hours vs. 15 days for
+authenticated).
+
+<ParamField body="files" type="file (multipart)" required>
+    Exactly one file. More than one returns `400 too_many_files`.
+</ParamField>
+
+Constraints: MIME must be an image or `text/plain` (`400 invalid_mime_type`); size
+must be within your plan's attachment limit (`400 file_too_large`); a message may
+have only one attachment (`409 attachment_already_exists`). `404 message_not_found`
+if the message is missing.
+
+```json
+{
+    "attachments": [
+        {
+            "createdAt": 1790000000000,
+            "expiresAt": 1791000000000,
+            "filename": "graph.png",
+            "id": "...",
+            "mimeType": "image/png",
+            "size": 20481,
+            "storageKey": "..."
+        }
+    ]
+}
+```
+
+## Purge your signals
+
+```
+DELETE /me/signals
+```
+
+**Auth required** (`401 missing_token`). Asynchronously deletes messages in the topics
+you own and messages you've sent elsewhere. Returns immediately:
+
+```json
+// 202
+{ "status": "queued" }
+```

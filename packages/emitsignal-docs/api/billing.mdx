@@ -1,0 +1,47 @@
+---
+title: 'Billing'
+description: 'Read the current plan, usage, and limits for the authenticated account.'
+---
+
+```
+GET /billing
+```
+
+**Auth required** (`401 missing_token`). Returns the current plan, today's usage, and
+the plan's limits.
+
+```json
+{
+    "billingEnabled": true,
+    "limits": {
+        "attachmentMaxBytes": 5242880,
+        "emailsPerDay": 5,
+        "inlineMaxPerArray": 3,
+        "maxOwnedTopics": 5,
+        "maxWebhooks": 2,
+        "messagesPerDay": 100
+    },
+    "plan": "free",
+    "subscription": null,
+    "usage": {
+        "emailsToday": 0,
+        "messagesToday": 12,
+        "ownedTopics": 3,
+        "webhooks": 1
+    }
+}
+```
+
+`subscription` is `null` on the free plan. On a paid plan it is:
+
+```json
+{
+    "cancelAtPeriodEnd": false,
+    "interval": "month",
+    "periodEnd": 1793000000,
+    "status": "active",
+    "stripeSubscriptionId": "sub_..."
+}
+```
+
+See [Rate limits](/api/rate-limits) for how these limits are enforced.

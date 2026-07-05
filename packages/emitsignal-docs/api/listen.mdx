@@ -1,0 +1,54 @@
+---
+title: 'Listen'
+description: 'Stream signals in real time over Server-Sent Events.'
+---
+
+EmitSignal delivers live signals over [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events).
+Both endpoints are **public**, but your identity sets the concurrent-connection cap:
+**3** for anonymous callers, **10** for authenticated ones (keyed by user or IP).
+
+The stream emits named `message` events and a `: ping` heartbeat every 25 seconds.
+
+## One topic
+
+```
+GET /topics/:name/listen
+```
+
+<ParamField query="since" type="integer (unix ms)">
+    Replay backlog first. Streams up to 200 messages with `createdAt` greater than this timestamp,
+    then continues live.
+</ParamField>
+
+```bash
+curl -N \
+  -H "Authorization: Bearer es_xxx" \
+  "https://api.emitsignal.com/topics/alerts/prod/listen"
+
+# event: message
+# data: {"id":"...","title":"High memory","priority":5,"createdAt":1790000000000, ...}
+```
+
+## Many topics
+
+```
+GET /listen
+```
+
+<ParamField query="topics" type="string">
+    Comma-separated topic names. If omitted, subscribes to the wildcard `*` (every topic).
+</ParamField>
+
+```bash
+curl -N \
+  -H "Authorization: Bearer es_xxx" \
+  "https://api.emitsignal.com/listen?topics=alerts/prod,deploy/prod"
+```
+
+<Warning>
+    When the connection cap is hit you get `429 too_many_sse_connections` with
+    `{ max, retryAfter: 60 }`. Reuse a single multi-topic stream instead of opening
+    one per topic.
+</Warning>
+
+Each event's `data` is a serialized message — see the [message object](/api/messages#message-object).

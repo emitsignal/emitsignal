@@ -1,35 +1,123 @@
 ---
 title: 'Topics'
-description: 'Create, read, update, and delete topics.'
+description: 'Read topics, their messages, and their activity metrics.'
 ---
 
-| Method   | Path                     | Auth | Description                                        |
-| -------- | ------------------------ | ---- | -------------------------------------------------- |
-| `GET`    | `/topics`                | ✅   | List all topics the authenticated user can access. |
-| `GET`    | `/topics/:topic`         | ✅   | Get metadata and recent signal stats for a topic.  |
-| `PUT`    | `/topics/:topic`         | ✅   | Create or update a topic with routing rules.       |
-| `DELETE` | `/topics/:topic`         | ✅   | Delete a topic and all its signals.                |
-| `GET`    | `/topics/:topic/signals` | ✅   | Get recent signals for a topic.                    |
+Topics are slash-delimited names (e.g. `deploy/prod`). They are created implicitly on
+first [publish](/api/publish) or [subscribe](/api/subscriptions) — there is no
+create/delete endpoint. The endpoints below are for reading.
 
-## Topic naming rules
+## Get a topic
 
-```bash
-# Topics are slash-delimited strings
-deploy/prod
-alerts/prod
-cron/nightly-backup
-github/acme/pr-reviews
+```
+GET /topics/:name
+```
 
-# Rules:
-# - Lowercase letters, numbers, hyphens, underscores, slashes
-# - Max 5 segments, max 128 chars total
-# - No leading/trailing slashes
-# - Wildcards only in subscribe patterns (alerts/*), not in publish
+Public. Returns `404 topic_not_found` if the topic doesn't exist.
 
-# Examples of valid topics
-alerts/prod
-deploy/api-gateway
-me/personal
-sensors/home/garage-door
-ci/web-app/main
+```json
+{
+    "createdAt": 1790000000000,
+    "description": null,
+    "displayName": "deploy/prod",
+    "id": "...",
+    "isPublic": true,
+    "messageCount": 1420,
+    "name": "deploy/prod",
+    "subscriberCount": 3
+}
+```
+
+## List your topics
+
+```
+GET /topics
+```
+
+Lists topics **you own**. Returns `[]` for anonymous callers (no error). Newest
+first, up to 100.
+
+<ParamField query="q" type="string">
+    Optional search over `name` and `displayName`.
+</ParamField>
+
+```json
+[
+    {
+        "createdAt": 1790000000000,
+        "description": null,
+        "displayName": "deploy/prod",
+        "id": "...",
+        "isPublic": true,
+        "name": "deploy/prod"
+    }
+]
+```
+
+## List messages in a topic
+
+```
+GET /topics/:name/messages
+```
+
+Public. Cursor-paginated.
+
+<ParamField query="cursor" type="string">
+    Pagination cursor from the previous response's `nextCursor`.
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+    Page size, 1–200.
+</ParamField>
+
+<ParamField query="minPriority" type="integer (1–5)">
+    Only messages at or above this priority.
+</ParamField>
+
+<ParamField query="tags" type="string">
+    Comma-separated tags to filter by.
+</ParamField>
+
+```json
+{
+    "data": [
+        /* message objects */
+    ],
+    "nextCursor": "..."
+}
+```
+
+## Topic metrics
+
+```
+GET /topics/:name/metrics
+```
+
+Public. 24-hour activity for a topic.
+
+```json
+{
+    "messageCount24h": 128,
+    "p5Count24h": 4,
+    "subscriberCount": 3,
+    "volume": [
+        /* 24 hourly buckets, oldest → newest */
+    ]
+}
+```
+
+## Topic suggestions
+
+```
+GET /suggestions
+```
+
+Public. A short curated list of topics to get started with.
+
+<ParamField query="deviceId" type="string">
+    If provided, curated topics the device already subscribes to are filtered out.
+</ParamField>
+
+```json
+[{ "description": "...", "displayName": "emitsignal/news", "name": "emitsignal/news" }]
 ```

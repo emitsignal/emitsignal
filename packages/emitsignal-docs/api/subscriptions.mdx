@@ -1,0 +1,176 @@
+---
+title: 'Subscriptions'
+description: 'Subscribe devices to topics, manage settings, and read across subscribed topics.'
+---
+
+A subscription links a **device** (and optionally a signed-in **user**) to a topic.
+Most endpoints work anonymously using a client-generated `deviceId`; signing in lets
+you [claim](#claim-device-subscriptions) device subscriptions and sync across devices.
+
+All routes are under `/subscriptions`.
+
+## Subscribe
+
+```
+POST /subscriptions
+```
+
+Upserts a subscription. Auth optional — an authenticated call records your `userId` on
+the row.
+
+<ParamField body="topicName" type="string" required>
+    Topic to subscribe to. Created if it doesn't exist.
+</ParamField>
+
+<ParamField body="deviceId" type="string" required>
+    Client-generated device identifier.
+</ParamField>
+
+<ParamField body="pushEnabled" type="boolean" default="true">
+    Whether push notifications are on for this subscription.
+</ParamField>
+
+<ParamField body="settings" type="object">
+    `{ "description"?: string (≤280), "listenSince"?: "always" | "subscription_date" }`.
+</ParamField>
+
+```json
+// 200
+{
+    "id": "...",
+    "topic": {
+        "description": null,
+        "displayName": "deploy/prod",
+        "id": "...",
+        "name": "deploy/prod"
+    }
+}
+```
+
+Returns `400 invalid_topic_name` or `403 plan_limit_reached`.
+
+## Unsubscribe
+
+```
+DELETE /subscriptions
+```
+
+<ParamField body="topicName" type="string" required />
+<ParamField body="deviceId" type="string" required />
+
+If a user is authenticated, the subscription is removed across **all** their devices;
+otherwise only this device's anonymous row is removed. Always returns `{ "ok": true }`
+(even if the topic doesn't exist).
+
+## List subscriptions
+
+```
+GET /subscriptions
+```
+
+Returns the authenticated user's subscriptions, or — when anonymous — the device's
+subscriptions, or `[]`.
+
+<ParamField query="deviceId" type="string" />
+
+```json
+[
+    {
+        "createdAt": 1790000000000,
+        "id": "...",
+        "pushEnabled": true,
+        "settings": { "description": null, "listenSince": "subscription_date" },
+        "topic": {
+            "description": null,
+            "displayName": "deploy/prod",
+            "id": "...",
+            "isPublic": true,
+            "name": "deploy/prod"
+        }
+    }
+]
+```
+
+## Update a subscription
+
+```
+PATCH /subscriptions/:id
+```
+
+Ownership-gated: must belong to the authenticated user, or — when anonymous — the
+body's `deviceId` must match the row. Otherwise `403 forbidden`.
+
+<ParamField body="pushEnabled" type="boolean" />
+<ParamField body="settings" type="object">
+    Merged over existing settings.
+</ParamField>
+<ParamField body="deviceId" type="string">
+    Required for anonymous ownership checks.
+</ParamField>
+
+## Claim device subscriptions
+
+```
+POST /subscriptions/claim
+```
+
+Reassigns a device's anonymous subscriptions to the signed-in user — call this right
+after sign-in. Returns `{ "claimed": 0 }` (no error) if unauthenticated.
+
+<ParamField body="deviceId" type="string" required />
+
+```json
+{ "claimed": 3 }
+```
+
+## Messages across subscriptions
+
+```
+GET /subscriptions/messages
+```
+
+Merges messages from every subscribed topic, respecting each subscription's
+`listenSince`. Cursor-paginated.
+
+<ParamField query="deviceId" type="string" />
+<ParamField query="topicName" type="string">
+    Restrict to one subscribed topic.
+</ParamField>
+<ParamField query="cursor" type="string" />
+<ParamField query="limit" type="integer" default="50">
+    1–200.
+</ParamField>
+<ParamField query="minPriority" type="integer (1–5)" />
+<ParamField query="tags" type="string">
+    Comma-separated.
+</ParamField>
+
+```json
+{
+    "data": [
+        /* message objects, each with a topicName */
+    ],
+    "nextCursor": null
+}
+```
+
+## Metrics across subscriptions
+
+```
+GET /subscriptions/metrics
+```
+
+<ParamField query="deviceId" type="string" />
+
+Returns an object keyed by `topicId`:
+
+```json
+{
+    "<topicId>": {
+        "messageCount24h": 12,
+        "volume": [
+            /* 24 hourly buckets */
+        ]
+    }
+}
+```

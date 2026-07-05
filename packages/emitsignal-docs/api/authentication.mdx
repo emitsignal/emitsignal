@@ -1,36 +1,51 @@
 ---
 title: 'Authentication'
-description: 'Bearer token authentication, key scopes, and the handful of endpoints that work without auth.'
+description: 'How the API resolves your identity: session tokens, API keys, and cookies.'
 ---
 
-Include your API key in the `Authorization` header. Keys are prefixed with `es_`
-for production and `es_test_` for test/sandbox environments.
+Every endpoint that needs a caller identity resolves it from one of three sources, in
+order:
+
+1. **`Authorization: Bearer <token>`** — a session token (mobile/CLI) **or** an
+   `es_`-prefixed API key.
+2. **`x-api-key: <key>`** — an API key as a dedicated header.
+3. **Session cookie** — set automatically for the web dashboard.
 
 ```http
-# In a request header
 Authorization: Bearer es_xxxxxxxxxxxxxxxxxxxxxxxx
-
-# Or via query param (not recommended for production)
-?token=es_xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-## Key scopes
-
-Keys carry scopes that limit what they can do. Create scoped keys per service to
-limit blast radius.
-
-| Scope       | Grants                                      |
-| ----------- | ------------------------------------------- |
-| `publish`   | Send signals to topics                      |
-| `subscribe` | Open SSE streams and read signals           |
-| `admin`     | Manage topics, channels, keys, and webhooks |
-
 <Note>
-    Manage keys from the [dashboard](https://emitsignal.com/app) or the [`keys`](/cli/keys) CLI
-    command.
+    Many endpoints work **without** any credential — publishing, subscribing, and listening all
+    support anonymous, device-scoped use. Authentication raises your rate limits and syncs
+    subscriptions across devices. Endpoints that strictly require a token return [`401
+    missing_token`](/api/errors).
 </Note>
 
-## Unauthenticated access
+## API keys
 
-A handful of endpoints work without auth — primarily the `/welcome` demo topic and
-anonymous device registration. All other endpoints require a valid token.
+API keys are managed by [Better Auth](https://www.better-auth.com) under
+`/api/auth/api-key/*`. The easiest way to create and revoke them is the CLI:
+
+```bash
+emitsignal keys create --name ci-prod
+emitsignal keys list
+emitsignal keys revoke <id>
+```
+
+See the [`keys` command](/cli/keys) for the full reference. A newly created key's
+secret is shown **once** — store it immediately.
+
+## Sign-in flow
+
+The interactive sign-in used by the CLI and apps is an email one-time code, also
+served by Better Auth:
+
+```http
+POST /api/auth/email-otp/send-verification-otp   { "email": "you@example.com", "type": "sign-in" }
+POST /api/auth/sign-in/email-otp                 { "email": "you@example.com", "otp": "123456" }
+GET  /api/auth/get-session                       Authorization: Bearer <token>
+```
+
+The full set of auth sub-routes (magic link, passkey, OAuth, API keys) is defined by
+Better Auth, mounted at `/api/auth/*`.

@@ -89,15 +89,18 @@
                         "pages": ["api/index", "api/authentication"]
                     },
                     {
-                        "group": "Endpoints",
+                        "group": "Publish & stream",
+                        "pages": ["api/publish", "api/listen"]
+                    },
+                    {
+                        "group": "Resources",
                         "pages": [
-                            "api/publish",
-                            "api/subscribe",
                             "api/topics",
-                            "api/channels",
-                            "api/signals",
-                            "api/keys",
-                            "api/webhooks"
+                            "api/subscriptions",
+                            "api/messages",
+                            "api/push-tokens",
+                            "api/webhooks",
+                            "api/billing"
                         ]
                     },
                     {

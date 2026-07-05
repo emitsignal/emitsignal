@@ -1,52 +1,143 @@
 ---
 title: 'Webhooks'
-description: 'Deliver signals to your own HTTP endpoint with signed payloads.'
+description: 'Turn inbound HTTP from third parties into signals, and stream deliveries live.'
 ---
 
-Register a webhook endpoint and EmitSignal will POST a JSON payload to it for every
-matching signal. Useful for integrating with Slack, PagerDuty, or your own services.
+A webhook gives you a public URL (`/h/:slug`) that turns an inbound HTTP POST — from
+Slack, GitHub, Grafana, Stripe, Vercel, or anything custom — into a signal on a topic.
+Management endpoints require authentication; the receiver is public.
 
-| Method   | Path                                           | Auth | Description               |
-| -------- | ---------------------------------------------- | ---- | ------------------------- |
-| `GET`    | `/webhooks`                                    | ✅   | List webhooks.            |
-| `POST`   | `/webhooks`                                    | ✅   | Create a webhook.         |
-| `PUT`    | `/webhooks/:id`                                | ✅   | Update a webhook.         |
-| `DELETE` | `/webhooks/:id`                                | ✅   | Delete a webhook.         |
-| `GET`    | `/webhooks/:id/deliveries`                     | ✅   | List recent deliveries.   |
-| `POST`   | `/webhooks/:id/deliveries/:delivery_id/replay` | ✅   | Replay a failed delivery. |
+## Create a webhook
 
-## Webhook payload
+```
+POST /webhooks
+```
 
-```http
-POST https://your-server.example.com/emitsignal-hook
-Content-Type: application/json
-X-EmitSignal-Signature: sha256=xxxxxxxxxxxxxxxx
-X-EmitSignal-Delivery: del_01j9xz3p4q5r
+**Auth required** (`401 missing_token`).
 
+<ParamField body="topicName" type="string" required>
+    Topic that received payloads publish to.
+</ParamField>
+<ParamField body="source" type="string" default='"custom"'>
+    One of `custom`, `github`, `grafana`, `stripe`, `vercel`. Determines the slug prefix and default
+    parsing.
+</ParamField>
+<ParamField body="name" type="string" />
+<ParamField body="template" type="string | null">
+    Optional template used to render incoming payloads into a message.
+</ParamField>
+
+Enforces your plan's `maxWebhooks` limit (`403 plan_limit_reached`).
+
+```json
 {
-  "event": "signal.published",
-  "signal": {
-    "id":       "sig_01j9xz3p4q5r6s7t8u9v0w1x2y",
-    "topic":    "deploy/prod",
-    "title":    "v2.14.3 shipped",
-    "message":  "api-gateway deployed · 1m 42s",
-    "priority": 4,
-    "tags":     ["deploy", "production"],
-    "published_at": "2026-05-28T21:52:01Z"
-  }
+    "createdAt": 1790000000,
+    "endpointUrl": "/h/cw_ab12cd",
+    "id": "...",
+    "name": "ci hook",
+    "slug": "cw_ab12cd",
+    "source": "custom",
+    "status": "active",
+    "template": null,
+    "templated": false,
+    "topicName": "ci/web"
 }
 ```
 
-## Signature verification
+## List webhooks
 
-Every delivery is signed with your webhook secret. Verify the `X-EmitSignal-Signature`
-header before trusting a payload.
+```
+GET /webhooks
+```
 
-```js
-import crypto from 'crypto';
+**Auth required.** Each entry includes 24h delivery stats.
 
-function verifySignature(payload, signature, secret) {
-    const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
-}
+```json
+[
+    {
+        "count24h": 12,
+        "createdAt": 1790000000,
+        "id": "...",
+        "lastDeliveryAt": 1790000000,
+        "name": "ci hook",
+        "slug": "cw_ab12cd",
+        "source": "custom",
+        "status": "active",
+        "templated": false,
+        "topicName": "ci/web",
+        "updatedAt": 1790000000
+    }
+]
+```
+
+## Get / update / delete
+
+```
+GET    /webhooks/:id
+PATCH  /webhooks/:id
+DELETE /webhooks/:id
+```
+
+All **auth required** and ownership-gated (`404 not_found`, `403 forbidden`). `PATCH`
+accepts any of `name`, `status`, `template`, `topicName`. `DELETE` returns `204`.
+
+## List deliveries
+
+```
+GET /webhooks/:id/deliveries
+```
+
+**Auth required** and ownership-gated.
+
+<ParamField query="limit" type="integer" default="50">
+    Capped at 200.
+</ParamField>
+
+```json
+[
+    {
+        "channel": "ci/web",
+        "createdAt": 1790000000,
+        "durationMs": 42,
+        "id": "...",
+        "messageId": "...",
+        "payload": {},
+        "source": "custom",
+        "status": 200,
+        "templated": false,
+        "time": "21:52:01",
+        "webhookId": "..."
+    }
+]
+```
+
+## Stream deliveries live
+
+```
+GET /webhooks/stream
+```
+
+**Auth required.** An SSE stream of deliveries as they happen (heartbeat every 25s,
+auth connection cap 10).
+
+<ParamField query="source" type="string">
+    Filter deliveries by source.
+</ParamField>
+
+## Receive (public)
+
+```
+POST /h/:slug
+```
+
+**Public** — anyone with the slug can post any JSON body. The payload is turned into a
+message on the webhook's topic: if a `template` is set it renders title/body/priority/
+tags, otherwise a default message is built (title `"<source> delivery"`, body = pretty
+JSON, priority 3, tag `[source]`). The message fires the live bus and enqueues push.
+
+- `404 not_found` — unknown slug
+- `503 webhook_paused` — the webhook's `status` is `paused`
+
+```json
+{ "messageId": "...", "ok": true }
 ```

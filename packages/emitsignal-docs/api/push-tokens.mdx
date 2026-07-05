@@ -1,0 +1,55 @@
+---
+title: 'Push Tokens'
+description: 'Register device push tokens and toggle push per device.'
+---
+
+Push tokens let EmitSignal deliver native push notifications to a device. All routes
+are under `/push-tokens`.
+
+## Register a token
+
+```
+POST /push-tokens
+```
+
+Upserts a push token for a device. The `userId`, if any, is taken from the request
+body.
+
+<ParamField body="deviceId" type="string" required />
+<ParamField body="platform" type='"ios" | "android" | "web"' required />
+<ParamField body="token" type="string" required>
+    The platform push token.
+</ParamField>
+<ParamField body="userId" type="string | null">
+    Associates the token with a user.
+</ParamField>
+
+```json
+{ "id": "..." }
+```
+
+## List your tokens
+
+```
+GET /push-tokens
+```
+
+**Auth required** (`401 missing_token`). Newest first.
+
+```json
+[{ "deviceId": "...", "id": "...", "platform": "ios", "pushEnabled": true }]
+```
+
+## Toggle push for a token
+
+```
+PATCH /push-tokens/:id
+```
+
+**Auth required** and ownership-gated (`404 not_found`, `403 forbidden`).
+
+<ParamField body="pushEnabled" type="boolean" required />
+
+```json
+{ "deviceId": "...", "id": "...", "platform": "ios", "pushEnabled": false }
+```

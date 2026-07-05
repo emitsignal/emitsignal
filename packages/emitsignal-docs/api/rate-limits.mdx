@@ -1,23 +1,47 @@
 ---
 title: 'Rate Limits'
-description: 'Per-tier limits, quotas, and the rate-limit headers on every response.'
+description: 'Per-endpoint request limits, SSE connection caps, and daily plan quotas.'
 ---
 
-| Tier       | Publish   | Subscribe     | Signals    |
-| ---------- | --------- | ------------- | ---------- |
-| Free       | 10 req/s  | 5 concurrent  | 10k/mo     |
-| Team       | 100 req/s | 50 concurrent | 1M/user/mo |
-| Enterprise | custom    | unlimited     | unlimited  |
+EmitSignal applies three independent kinds of limiting.
 
-## Headers
+## Request rate limits
 
-Rate-limit headers are included in every response:
+Applied per endpoint group, keyed by user (when authenticated) or IP. Anonymous
+callers get the lower limit.
 
-| Header                  | Meaning                                   |
-| ----------------------- | ----------------------------------------- |
-| `X-RateLimit-Limit`     | Maximum requests in the current window.   |
-| `X-RateLimit-Remaining` | Requests remaining in the current window. |
-| `X-RateLimit-Reset`     | When the window resets (epoch seconds).   |
+| Endpoint group                        | Anonymous            | Authenticated |
+| ------------------------------------- | -------------------- | ------------- |
+| Global (catch-all)                    | 100 / min            | 500 / min     |
+| Publish (`POST /topic/:name`)         | 10 / min             | 60 / min      |
+| Reads (topics, messages, suggestions) | 30 / min             | 120 / min     |
+| Attachment upload                     | 5 / hour             | 20 / hour     |
+| Webhook receiver (`POST /h/:slug`)    | 120 / min (per slug) |
 
-When limited, you receive a `429` with a `Retry-After` header indicating how long to
-wait before retrying.
+Exceeding a limit returns `429`. When Redis is unavailable, rate limiting **fails
+open** (requests are allowed).
+
+## SSE connection caps
+
+Live streams ([Listen](/api/listen), [webhook stream](/api/webhooks#stream-deliveries-live))
+cap concurrent connections per user or IP:
+
+- **Anonymous:** 3 concurrent connections
+- **Authenticated:** 10 concurrent connections
+
+Over the cap returns `429 too_many_sse_connections` with `{ max, retryAfter: 60 }`.
+Reuse one multi-topic stream rather than many single-topic ones.
+
+## Daily plan quotas
+
+Authenticated publishing counts against a per-day message quota that depends on your
+[plan](/api/billing). Exceeding it returns `429 daily_quota_exceeded` with `resetAt`.
+
+| Plan  | Messages / day | Owned topics | Webhooks | Max attachment | Emails / day |
+| ----- | -------------- | ------------ | -------- | -------------- | ------------ |
+| Free  | 100            | 5            | 2        | 5 MB           | 5            |
+| Pulse | 2,500          | 15           | 10       | 25 MB          | 50           |
+| Beam  | 20,000         | 50           | 30       | 100 MB         | 250          |
+
+Topic-count and webhook-count limits are enforced at create time with
+`403 plan_limit_reached`. Read current usage from [`GET /billing`](/api/billing).

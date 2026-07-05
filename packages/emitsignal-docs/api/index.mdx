@@ -3,17 +3,17 @@ title: 'API Reference'
 description: 'A simple HTTP API. No SDK required — if it can make an HTTP request, it can publish a signal.'
 ---
 
-The EmitSignal REST API is JSON over HTTPS. There is no SDK to install: curl works,
+The EmitSignal HTTP API is JSON over HTTPS. There is no SDK to install: curl works,
 and every language works.
 
 <CardGroup cols={2}>
     <Card title="Authentication" icon="key" href="/api/authentication">
-        Bearer tokens, key scopes, and unauthenticated access.
+        Session tokens and API keys via the `Authorization` header.
     </Card>
     <Card title="Publish" icon="paper-plane" href="/api/publish">
-        Send a signal to a topic over HTTP.
+        Send a signal to a topic — JSON body or header-based format.
     </Card>
-    <Card title="Subscribe" icon="radio" href="/api/subscribe">
+    <Card title="Listen" icon="radio" href="/api/listen">
         Stream signals in real time with Server-Sent Events.
     </Card>
     <Card title="Errors" icon="triangle-exclamation" href="/api/errors">
@@ -23,31 +23,41 @@ and every language works.
 
 ## Base URL
 
-All requests are made to a single host, versioned by the `v1` prefix at the
-account level (currently implicit).
-
 ```
 https://api.emitsignal.com
 ```
+
+Self-hosting? Point the CLI at your own instance with `emitsignal config set-url`, or
+set `ES_BASE_URL`. Auth routes live under `/api/auth/*`; everything else is at the
+root.
 
 ## Quickstart
 
 <CodeGroup>
 
-```bash No auth — public demo topic
-# Publish a signal — no account needed on /welcome
-curl -d "hello" https://api.emitsignal.com/welcome
+```bash No auth — public publish
+# Publish to any topic. The topic is created on first publish.
+curl -d "hello from curl" https://api.emitsignal.com/topic/welcome
 ```
 
 ```bash Authenticated publish
-curl https://api.emitsignal.com/publish/deploy/prod \
+curl https://api.emitsignal.com/topic/deploy/prod \
   -H "Authorization: Bearer es_xxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
-  -d '{"message": "v2.14.3 shipped", "priority": 4}'
+  -d '{"title": "v2.14.3 shipped", "body": "api-gateway deployed", "priority": 4}'
 ```
 
 </CodeGroup>
 
 <Note>
-    Prefer the terminal? The [CLI](/cli/index) wraps every endpoint below in a single static binary.
+    Prefer the terminal? The [CLI](/cli/index) wraps these endpoints in a single static binary.
 </Note>
+
+## Conventions
+
+- **Timestamps** are returned as numbers. Most resources (topics, subscriptions,
+  messages) use **milliseconds** since the epoch; webhooks and billing use
+  **seconds**. Each field is noted where it appears.
+- **Auth is optional on many endpoints.** Publishing, subscribing, and listening all
+  work anonymously (device-scoped, with free-tier limits). Signing in unlocks higher
+  limits and cross-device sync. Endpoints that strictly require a token say so.
