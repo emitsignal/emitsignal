@@ -31,7 +31,7 @@
     "logo": {
         "dark": "/logo/dark.svg",
         "href": "/cli/index",
-        "light": "/logo/dark.svg"
+        "light": "/logo/light.svg"
     },
     "name": "EmitSignal",
     "navbar": {

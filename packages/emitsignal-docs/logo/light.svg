@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 32" fill="none">
+  <!-- Pulse mark: outer ring, inner ring, center dot -->
+  <circle cx="16" cy="16" r="13.6" stroke="#7c3aed" stroke-width="0.64" stroke-opacity="0.25"/>
+  <circle cx="16" cy="16" r="8.8"  stroke="#7c3aed" stroke-width="0.8"  stroke-opacity="0.5"/>
+  <circle cx="16" cy="16" r="4.8"  fill="#7c3aed"/>
+  <!-- Wordmark -->
+  <text
+    x="38" y="21"
+    font-family="'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace"
+    font-size="14"
+    font-weight="500"
+    letter-spacing="-0.5"
+    fill="#1a1523"
+  >emitsignal</text>
+</svg>
