@@ -66,7 +66,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             attachmentMaxBytes: 5 * MEGABYTE,
             emailsPerDay: 5,
             inlineMaxPerArray: 3,
-            maxOwnedTopics: 5,
+            maxOwnedTopics: 0,
             maxWebhooks: 2,
             messagesPerDay: 100,
         },
