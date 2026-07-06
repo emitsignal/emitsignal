@@ -13,18 +13,20 @@ import { TimelineDateLabel, TimelineRow } from '#/components/app/inbox/timeline-
 import { Toolbar } from '#/components/app/toolbar';
 import { useFeedStyle } from '#/ctx/feed-style';
 import { useSubscriptions } from '#/ctx/subscriptions';
+import { useToast } from '#/ctx/toast';
 import { useFeed } from '#/hooks/use-emit-signal';
-
-interface SubListProps {
-    messages: Message[];
-    onSelect: (id: string) => void;
-    selectedId: null | string;
-}
+import { apiErrorMessage } from '#/lib/api-error';
 
 interface ListProps extends SubListProps {
     fetchNextPage: () => void;
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
+}
+
+interface SubListProps {
+    messages: Message[];
+    onSelect: (id: string) => void;
+    selectedId: null | string;
 }
 
 export function InboxLayout({ selectedId }: { selectedId: null | string }) {
@@ -168,7 +170,7 @@ function NotificationList({
             {feedStyle === 'priority' ? (
                 <PriorityList messages={messages} onSelect={onSelect} selectedId={selectedId} />
             ) : null}
-            <div ref={sentinelRef} className="h-px" />
+            <div className="h-px" ref={sentinelRef} />
             {isFetchingNextPage && (
                 <div className="py-3 text-center font-mono text-[11px] text-dim">loading…</div>
             )}
@@ -213,10 +215,11 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 function SubscribeButton() {
-    const { subscribe } = useSubscriptions();
+    const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [topic, setTopic] = useState('');
-    const [loading, setLoading] = useState(false);
+    const { subscribe } = useSubscriptions();
+    const toast = useToast();
 
     const handleSubscribe = async () => {
         const trimmed = topic.trim();
@@ -226,8 +229,8 @@ function SubscribeButton() {
             await subscribe(trimmed);
             setTopic('');
             setOpen(false);
-        } catch {
-            // ignore
+        } catch (error) {
+            toast(apiErrorMessage(error, 'Could not subscribe to this topic'), 'danger');
         } finally {
             setLoading(false);
         }
