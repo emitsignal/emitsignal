@@ -22,6 +22,7 @@ import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
 import { api, type ListenSince } from '@/lib/api';
+import { apiErrorMessage } from '@/lib/api-error';
 
 export default function SubscribeModal() {
     const [busy, setBusy] = useState(false);
@@ -29,6 +30,7 @@ export default function SubscribeModal() {
     const [pushEnabled, setPushEnabled] = useState(true);
     const [description, setDescription] = useState('');
     const [topic, setTopic] = useState('');
+    const [error, setError] = useState<null | string>(null);
     const { palette, styles } = useThemedStyles(createStyles);
 
     const { deviceId } = useDevice();
@@ -40,6 +42,7 @@ export default function SubscribeModal() {
             return;
         }
         setBusy(true);
+        setError(null);
         try {
             await subscribe(topic.trim(), {
                 pushEnabled,
@@ -47,8 +50,8 @@ export default function SubscribeModal() {
             });
 
             router.back();
-        } catch (error) {
-            console.error('Subscribe failed', error);
+        } catch (subscribeError) {
+            setError(apiErrorMessage(subscribeError, 'Could not subscribe to this topic'));
         } finally {
             setBusy(false);
         }
@@ -83,7 +86,10 @@ export default function SubscribeModal() {
                                     autoCorrect={false}
                                     autoFocus
                                     maxLength={TOPIC_NAME_MAX_LENGTH}
-                                    onChangeText={setTopic}
+                                    onChangeText={(value) => {
+                                        setTopic(value);
+                                        setError(null);
+                                    }}
                                     placeholder="alerts/prod"
                                     placeholderTextColor={palette.fgDim}
                                     style={styles.topicInput}
@@ -91,10 +97,21 @@ export default function SubscribeModal() {
                                 />
                             </View>
 
-                            <Text style={styles.hint}>
-                                a-z, 0-9, / and - · e.g.{' '}
-                                <Text style={{ color: palette.violet }}>acme/infra</Text>
-                            </Text>
+                            {error ? (
+                                <View style={styles.errorBox}>
+                                    <IconSymbol
+                                        color={palette.red}
+                                        name="exclamationmark.triangle"
+                                        size={13}
+                                    />
+                                    <Text style={styles.errorText}>{error}</Text>
+                                </View>
+                            ) : (
+                                <Text style={styles.hint}>
+                                    a-z, 0-9, / and - · e.g.{' '}
+                                    <Text style={{ color: palette.violet }}>acme/infra</Text>
+                                </Text>
+                            )}
                         </View>
 
                         {suggestions && suggestions.length > 0 && (
@@ -172,6 +189,23 @@ const createStyles = (palette: Palette) =>
             height: 32,
             justifyContent: 'center',
             width: 32,
+        },
+        errorBox: {
+            alignItems: 'center',
+            backgroundColor: palette.dangerBg,
+            borderRadius: 8,
+            flexDirection: 'row',
+            gap: 8,
+            marginTop: 8,
+            paddingHorizontal: 12,
+            paddingVertical: 10,
+        },
+        errorText: {
+            color: palette.red,
+            flex: 1,
+            fontFamily: Fonts.mono,
+            fontSize: 11.5,
+            lineHeight: 16,
         },
         footer: {
             backgroundColor: palette.bg,
