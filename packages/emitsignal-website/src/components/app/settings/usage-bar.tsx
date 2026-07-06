@@ -6,7 +6,10 @@ interface UsageBarProps {
 }
 
 export function UsageBar({ color = 'var(--color-accent)', total, unit = '', used }: UsageBarProps) {
-    const percentage = Math.min(100, Math.round((used / total) * 100));
+    // A zero (or negative) total means the plan grants no allowance, so guard
+    // against dividing by zero: full if anything is used, otherwise empty.
+    const percentage =
+        total <= 0 ? (used > 0 ? 100 : 0) : Math.min(100, Math.round((used / total) * 100));
     const isOverThreshold = percentage >= 90;
     const barColor = isOverThreshold ? 'var(--color-warn)' : color;
 
