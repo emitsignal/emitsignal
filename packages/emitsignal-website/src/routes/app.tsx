@@ -6,6 +6,7 @@ import { DebugSectionsProvider } from '#/ctx/debug-sections';
 import { FeedStyleProvider } from '#/ctx/feed-style';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { ThemeProvider, useTheme } from '#/ctx/theme';
+import { ToastProvider } from '#/ctx/toast';
 import { fetchBillingServer, fetchSessionServer } from '#/lib/api-server-fns';
 import { isAuthenticated } from '#/lib/auth-guard';
 import { readDebugSectionsFromDocument } from '#/lib/debug-sections';
@@ -108,7 +109,9 @@ function WebShell() {
             <FeedStyleProvider initialFeedStyle={feedStyle}>
                 <DebugSectionsProvider initialSections={debugSections}>
                     <SubscriptionsProvider>
-                        <DashboardShell />
+                        <ToastProvider>
+                            <DashboardShell />
+                        </ToastProvider>
                     </SubscriptionsProvider>
                 </DebugSectionsProvider>
             </FeedStyleProvider>
