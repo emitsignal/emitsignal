@@ -13,12 +13,13 @@ describe('GET /topics/:name', () => {
     it('returns topic with counts', async () => {
         prismaMock.topic.findUnique.mockResolvedValueOnce({
             _count: { messages: 10, subscriptions: 3 },
+            accessMode: 'public',
             createdAt: new Date(1700000000000),
             description: 'desc',
             displayName: 'Test Topic',
             id: 't1',
-            isPublic: true,
             name: 'test-topic',
+            ownerId: null,
         });
 
         const res = await app.handle(new Request('http://localhost/topics/test-topic'));
@@ -28,13 +29,15 @@ describe('GET /topics/:name', () => {
         const data = await res.json();
 
         expect(data).toEqual({
+            accessMode: 'public',
             createdAt: 1700000000000,
             description: 'desc',
             displayName: 'Test Topic',
             id: 't1',
-            isPublic: true,
+            isOwner: false,
             messageCount: 10,
             name: 'test-topic',
+            ownerId: null,
             subscriberCount: 3,
         });
     });

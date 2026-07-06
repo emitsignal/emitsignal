@@ -81,16 +81,28 @@ export const prismaMock = {
         count: mock<(args?: Record<string, unknown>) => Promise<number>>(() => Promise.resolve(0)),
         create: mock<() => Promise<object>>(() =>
             Promise.resolve({
+                accessMode: 'public',
                 createdAt: new Date(),
                 description: '',
                 displayName: 'test',
                 id: 'topic-1',
-                isPublic: true,
                 name: 'test',
+                ownerId: null,
             }),
         ),
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
+        update: mock<() => Promise<object>>(() =>
+            Promise.resolve({
+                accessMode: 'public',
+                createdAt: new Date(),
+                description: '',
+                displayName: 'test',
+                id: 'topic-1',
+                name: 'test',
+                ownerId: null,
+            }),
+        ),
         upsert: mock<() => Promise<object>>(() =>
             Promise.resolve({
                 createdAt: new Date(),
@@ -98,6 +110,12 @@ export const prismaMock = {
                 name: 'test',
             }),
         ),
+    },
+    topicAccess: {
+        create: mock<() => Promise<object>>(() => Promise.resolve({ id: 'ta-1' })),
+        deleteMany: mock<() => Promise<{ count: number }>>(() => Promise.resolve({ count: 0 })),
+        findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
+        upsert: mock<() => Promise<object>>(() => Promise.resolve({ id: 'ta-1' })),
     },
     user: {
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),

@@ -18,11 +18,12 @@ describe('GET /subscriptions', () => {
                 pushEnabled: true,
                 settings: '{"listenSince":"always"}',
                 topic: {
+                    accessMode: 'public',
                     description: 'desc',
                     displayName: 'Test',
                     id: 't1',
-                    isPublic: true,
                     name: 'test-topic',
+                    ownerId: null,
                 },
             },
         ]);
@@ -38,11 +39,13 @@ describe('GET /subscriptions', () => {
             pushEnabled: true,
             settings: { listenSince: 'always' },
             topic: {
+                accessMode: 'public',
                 description: 'desc',
                 displayName: 'Test',
                 id: 't1',
-                isPublic: true,
+                isOwner: false,
                 name: 'test-topic',
+                ownerId: null,
             },
         });
     });

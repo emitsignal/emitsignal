@@ -7,7 +7,14 @@ mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
 
 import { updateSubscription } from '../../subscriptions/update';
 
-const topic = { description: null, displayName: 'T', id: 't1', isPublic: true, name: 'topic-1' };
+const topic = {
+    accessMode: 'public',
+    description: null,
+    displayName: 'T',
+    id: 't1',
+    name: 'topic-1',
+    ownerId: null,
+};
 
 function patch(body: Record<string, unknown>) {
     return new Request('http://localhost/subscriptions/sub-1', {

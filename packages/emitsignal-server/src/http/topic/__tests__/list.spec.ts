@@ -29,12 +29,13 @@ describe('GET /topics', () => {
     it('returns the owner topics when no query', async () => {
         const topics = [
             {
+                accessMode: 'public',
                 createdAt: new Date(1700000000000),
                 description: 'desc',
                 displayName: 'Test',
                 id: 't1',
-                isPublic: true,
                 name: 'test',
+                ownerId: 'user-1',
             },
         ];
 
@@ -49,12 +50,14 @@ describe('GET /topics', () => {
         expect(data).toBeArray();
         expect(data).toHaveLength(1);
         expect(data[0]).toEqual({
+            accessMode: 'public',
             createdAt: 1700000000000,
             description: 'desc',
             displayName: 'Test',
             id: 't1',
-            isPublic: true,
+            isOwner: true,
             name: 'test',
+            ownerId: 'user-1',
         });
     });
 
@@ -115,12 +118,13 @@ describe('GET /topics', () => {
     it('response shape includes all required fields', async () => {
         prismaMock.topic.findMany.mockResolvedValueOnce([
             {
+                accessMode: 'private',
                 createdAt: new Date(0),
                 description: 'A test topic',
                 displayName: 'Display',
                 id: 't-full',
-                isPublic: false,
                 name: 'full-test',
+                ownerId: 'user-1',
             },
         ]);
 
@@ -131,7 +135,7 @@ describe('GET /topics', () => {
         expect(topic).toHaveProperty('name');
         expect(topic).toHaveProperty('displayName');
         expect(topic).toHaveProperty('description');
-        expect(topic).toHaveProperty('isPublic');
+        expect(topic).toHaveProperty('accessMode');
         expect(topic).toHaveProperty('createdAt');
     });
 });
