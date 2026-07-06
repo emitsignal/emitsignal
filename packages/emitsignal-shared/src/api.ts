@@ -3,6 +3,8 @@ import type { MessageFilterParams } from './message-filters.ts';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
+export type AccessMode = 'private' | 'public' | 'readonly';
+
 export interface Action {
     label?: string;
     type: 'acknowledge' | 'view';
@@ -78,12 +80,14 @@ export interface SubscriptionSettings {
 }
 
 export interface Topic {
+    accessMode: AccessMode;
     createdAt: number;
     description?: null | string;
     displayName: string;
     id: string;
-    isPublic: boolean;
+    isOwner?: boolean;
     name: string;
+    ownerId?: null | string;
 }
 
 export interface TopicMetrics {
@@ -204,6 +208,13 @@ export function createApiClient(baseUrl: string) {
         claimSubscriptions(deviceId: string) {
             return request<{ claimed: number }>('/subscriptions/claim', {
                 body: JSON.stringify({ deviceId }),
+                method: 'POST',
+            });
+        },
+
+        claimTopic(name: string, input?: { accessMode?: AccessMode }) {
+            return request<Topic>(`/topics/${encodeURIComponent(name)}/claim`, {
+                body: JSON.stringify(input ?? {}),
                 method: 'POST',
             });
         },
@@ -371,6 +382,12 @@ export function createApiClient(baseUrl: string) {
             });
         },
 
+        releaseTopic(name: string) {
+            return request<Topic>(`/topics/${encodeURIComponent(name)}/claim`, {
+                method: 'DELETE',
+            });
+        },
+
         subscribe(
             deviceId: string,
             topicName: string,
@@ -407,6 +424,16 @@ export function createApiClient(baseUrl: string) {
         ) {
             return request<Subscription>(`/subscriptions/${id}`, {
                 body: JSON.stringify(body),
+                method: 'PATCH',
+            });
+        },
+
+        updateTopic(
+            name: string,
+            input: { accessMode?: AccessMode; description?: string; displayName?: string },
+        ) {
+            return request<Topic>(`/topics/${encodeURIComponent(name)}`, {
+                body: JSON.stringify(input),
                 method: 'PATCH',
             });
         },
