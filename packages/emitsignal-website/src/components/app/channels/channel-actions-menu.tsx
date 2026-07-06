@@ -85,9 +85,9 @@ export function ChannelActionsMenu({
     const claimTopic = useClaimTopic();
     const toast = useToast();
 
-    const isPaid = billing ? billing.plan !== 'free' : false;
-    const isOwner = subscription.topic.isOwner ?? false;
     const isClaimed = Boolean(subscription.topic.ownerId);
+    const isOwner = subscription.topic.isOwner ?? false;
+    const isPaid = billing ? billing.plan !== 'free' : false;
 
     const handleClaim = async () => {
         setMenuOpen(false);
@@ -405,11 +405,12 @@ function ManageTopicDialog({
     subscription: Subscription;
     topicName: string;
 }) {
-    const updateTopic = useUpdateTopic();
+    const [description, setDescription] = useState(subscription.topic.description ?? '');
     const [accessMode, setAccessMode] = useState<AccessMode>(
         subscription.topic.accessMode ?? 'public',
     );
-    const [description, setDescription] = useState(subscription.topic.description ?? '');
+
+    const updateTopic = useUpdateTopic();
 
     const handleSave = async () => {
         try {

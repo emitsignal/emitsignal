@@ -41,31 +41,31 @@ export const listenMulti = new Elysia().get(
             return { error: 'too_many_sse_connections', max, retryAfter: 60 };
         }
 
-        const topics = (query.topics ?? '')
+        const topicNames = (query.topics ?? '')
             .split(',')
-            .map((subscription) => subscription.trim())
+            .map((topic) => topic.trim())
             .filter(Boolean);
 
         // Only stream topics the caller may read. Unclaimed and public/readonly
         // topics stay open; private topics require membership.
-        let readableTopics = topics;
+        let readableTopics = topicNames;
 
-        if (topics.length) {
-            const rows = await prisma.topic.findMany({ where: { name: { in: topics } } });
-            const byName = new Map(rows.map((topic) => [topic.name, topic]));
-            const allowed: string[] = [];
+        if (topicNames.length) {
+            const topics = await prisma.topic.findMany({ where: { name: { in: topicNames } } });
+            const topicsByName = new Map(topics.map((topic) => [topic.name, topic]));
+            const allowedTopicNames: string[] = [];
 
-            for (const name of topics) {
-                const topic = byName.get(name);
+            for (const name of topicNames) {
+                const topic = topicsByName.get(name);
 
                 // Unknown names stay subscribable (they simply never emit),
                 // preserving prior behavior for not-yet-created topics.
                 if (!topic || (await resolveTopicCapabilities(topic, userId)).canRead) {
-                    allowed.push(name);
+                    allowedTopicNames.push(name);
                 }
             }
 
-            readableTopics = allowed;
+            readableTopics = allowedTopicNames;
         }
 
         // Wildcard fan-out can surface private topics, so gate each message by a
@@ -94,7 +94,7 @@ export const listenMulti = new Elysia().get(
                 const send = (event: string, data: unknown) =>
                     controller.enqueue(encoder.encode(formatEvent(event, data)));
 
-                const unsubscribers = topics.length
+                const unsubscribers = topicNames.length
                     ? readableTopics.map((name) =>
                           bus.subscribe(name, (event) => send('message', event)),
                       )
