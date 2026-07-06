@@ -24,7 +24,6 @@ describe('POST /subscriptions', () => {
             description: '',
             displayName: 'Test',
             id: 'id-topic',
-            isPublic: true,
             name: 'test-topic-99',
         });
 
@@ -53,7 +52,6 @@ describe('POST /subscriptions', () => {
             description: '',
             displayName: 'Test',
             id: 'topic-1',
-            isPublic: true,
             name: 'test-topic',
         });
 
@@ -71,7 +69,6 @@ describe('POST /subscriptions', () => {
             description: '',
             displayName: 'Test',
             id: 'topic-1',
-            isPublic: true,
             name: 'test-topic',
         });
 
