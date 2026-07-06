@@ -131,11 +131,11 @@ describe('GET /topics', () => {
         const res = await app.handle(new Request('http://localhost/topics'));
         const [topic] = await res.json();
 
-        expect(topic).toHaveProperty('id');
-        expect(topic).toHaveProperty('name');
-        expect(topic).toHaveProperty('displayName');
-        expect(topic).toHaveProperty('description');
         expect(topic).toHaveProperty('accessMode');
         expect(topic).toHaveProperty('createdAt');
+        expect(topic).toHaveProperty('description');
+        expect(topic).toHaveProperty('displayName');
+        expect(topic).toHaveProperty('id');
+        expect(topic).toHaveProperty('name');
     });
 });
