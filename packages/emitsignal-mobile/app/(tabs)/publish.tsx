@@ -182,9 +182,7 @@ export default function PublishScreen() {
                                         <WTopicAvatar name={topic.name} rounded={6} size={32} />
                                         <View style={{ flex: 1 }}>
                                             <Text style={styles.topicName}>{topic.name}</Text>
-                                            <Text style={styles.topicMeta}>
-                                                {topic.isPublic ? 'public' : 'private'}
-                                            </Text>
+                                            <Text style={styles.topicMeta}>{topic.accessMode}</Text>
                                         </View>
                                         <View style={{ width: 70 }}>
                                             <ActivitySparkline
