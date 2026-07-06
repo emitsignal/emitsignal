@@ -7,6 +7,7 @@ import {
     Bell,
     Key,
     LayoutGrid,
+    Lock,
     LogOut,
     type LucideIcon,
     Plus,
@@ -22,7 +23,9 @@ import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { useSession } from '#/ctx/session';
 import { useSubscriptions } from '#/ctx/subscriptions';
+import { useToast } from '#/ctx/toast';
 import { useBilling } from '#/hooks/use-billing';
+import { apiErrorMessage } from '#/lib/api-error';
 import { hashTopicLevel } from '#/lib/priority';
 
 interface NavItem {
@@ -39,10 +42,11 @@ const ACTIVE =
     'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium text-accent no-underline bg-accent/10';
 
 export function Sidebar() {
+    const { billing } = useBilling();
     const { signOut, user } = useSession();
     const { subscribe, subscriptions } = useSubscriptions();
-    const { billing } = useBilling();
     const navigate = useNavigate();
+    const toast = useToast();
 
     const plan = billing?.plan;
 
@@ -84,8 +88,8 @@ export function Sidebar() {
                 search: { priority: undefined, tags: [], topic: trimmed },
                 to: '/app/channels',
             });
-        } catch {
-            // ignore
+        } catch (error) {
+            toast(apiErrorMessage(error, 'Could not subscribe to this topic'), 'danger');
         } finally {
             setSubscribing(false);
         }
@@ -149,6 +153,10 @@ export function Sidebar() {
                     <Dot level={hashTopicLevel(subscription.topic.name)} size={5} />
 
                     <span className="flex-1 truncate">{subscription.topic.name}</span>
+
+                    {subscription.topic.accessMode !== 'public' && (
+                        <Lock className="flex-shrink-0 text-dim" size={12} />
+                    )}
                 </Link>
             ))}
 

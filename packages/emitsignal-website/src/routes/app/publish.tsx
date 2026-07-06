@@ -131,7 +131,7 @@ function ComposePage() {
                         {selectedTopic && (
                             <p className="mt-2 font-mono text-[10.5px] text-dim">
                                 {selectedTopic.description ?? 'existing topic'} ·{' '}
-                                {selectedTopic.isPublic ? 'public' : 'private'}
+                                {selectedTopic.accessMode}
                             </p>
                         )}
                     </div>

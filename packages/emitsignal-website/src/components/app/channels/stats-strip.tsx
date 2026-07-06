@@ -31,7 +31,7 @@ export function StatsStrip({ metrics, subscription }: Props) {
 
             <StatItem
                 label="topic"
-                subtitle={subscription?.topic.isPublic ? 'public' : 'private'}
+                subtitle={subscription?.topic.accessMode ?? 'public'}
                 value={subscription?.topic.displayName ?? '—'}
             />
 

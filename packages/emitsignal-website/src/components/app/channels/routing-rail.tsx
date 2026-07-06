@@ -22,7 +22,10 @@ interface Props {
 }
 
 export function RoutingRail({ subscription }: Props) {
-    const description = subscription?.settings.description?.trim();
+    const description = (
+        subscription?.settings.description ?? subscription?.topic.description
+    )?.trim();
+
     const topicName = subscription?.topic.name ?? '';
 
     return (
