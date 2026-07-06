@@ -51,11 +51,13 @@ export const updateSubscription = new Elysia({ prefix: '/subscriptions' }).patch
             pushEnabled: updated.pushEnabled,
             settings: parseSubscriptionSettings(updated.settings),
             topic: {
+                accessMode: updated.topic.accessMode,
                 description: updated.topic.description,
                 displayName: updated.topic.displayName,
                 id: updated.topic.id,
-                isPublic: updated.topic.isPublic,
+                isOwner: userId !== null && updated.topic.ownerId === userId,
                 name: updated.topic.name,
+                ownerId: updated.topic.ownerId,
             },
         };
     },

@@ -4,19 +4,30 @@ import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { duration } from '../../lib/duration';
 import { prisma } from '../../lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
+import { resolveUserId } from '../auth/plugin';
 
 export const topicMetrics = new Elysia().get(
     '/topics/:name/metrics',
-    async ({ params, status }) => {
+    async ({ headers, params, status }) => {
         const topic = await prisma.topic.findUnique({
             select: {
                 _count: { select: { subscriptions: true } },
+                accessMode: true,
                 id: true,
+                ownerId: true,
             },
             where: { name: params.name },
         });
 
         if (!topic) {
+            return status(404, { error: 'topic_not_found' });
+        }
+
+        const userId = await resolveUserId({ headers });
+        const capabilities = await resolveTopicCapabilities(topic, userId);
+
+        if (!capabilities.canRead) {
             return status(404, { error: 'topic_not_found' });
         }
 

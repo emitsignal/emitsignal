@@ -1,9 +1,11 @@
 import Elysia from 'elysia';
 
 import { duration } from '../../lib/duration';
-import { bus } from '../../lib/event-bus';
+import { bus, type MessageEvent } from '../../lib/event-bus';
 import { getClientIP } from '../../lib/ip';
+import { prisma } from '../../lib/prisma';
 import { acquireSseSlot } from '../../lib/rate-limit';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 const SSE_MAX_ANON = 3;
@@ -44,6 +46,46 @@ export const listenMulti = new Elysia().get(
             .map((subscription) => subscription.trim())
             .filter(Boolean);
 
+        // Only stream topics the caller may read. Unclaimed and public/readonly
+        // topics stay open; private topics require membership.
+        let readableTopics = topics;
+
+        if (topics.length) {
+            const rows = await prisma.topic.findMany({ where: { name: { in: topics } } });
+            const byName = new Map(rows.map((topic) => [topic.name, topic]));
+            const allowed: string[] = [];
+
+            for (const name of topics) {
+                const topic = byName.get(name);
+
+                // Unknown names stay subscribable (they simply never emit),
+                // preserving prior behavior for not-yet-created topics.
+                if (!topic || (await resolveTopicCapabilities(topic, userId)).canRead) {
+                    allowed.push(name);
+                }
+            }
+
+            readableTopics = allowed;
+        }
+
+        // Wildcard fan-out can surface private topics, so gate each message by a
+        // cached readability check keyed on its topic name.
+        const readableCache = new Map<string, boolean>();
+        const canReadTopic = async (name: string): Promise<boolean> => {
+            const cached = readableCache.get(name);
+
+            if (cached !== undefined) {
+                return cached;
+            }
+
+            const topic = await prisma.topic.findUnique({ where: { name } });
+            const allowed = topic ? (await resolveTopicCapabilities(topic, userId)).canRead : true;
+
+            readableCache.set(name, allowed);
+
+            return allowed;
+        };
+
         Object.assign(set.headers, sseHeaders());
 
         const stream = new ReadableStream<Uint8Array>({
@@ -53,8 +95,18 @@ export const listenMulti = new Elysia().get(
                     controller.enqueue(encoder.encode(formatEvent(event, data)));
 
                 const unsubscribers = topics.length
-                    ? topics.map((name) => bus.subscribe(name, (e) => send('message', e)))
-                    : [bus.subscribe('*', (e) => send('message', e))];
+                    ? readableTopics.map((name) =>
+                          bus.subscribe(name, (event) => send('message', event)),
+                      )
+                    : [
+                          bus.subscribe('*', (event: MessageEvent) => {
+                              void canReadTopic(event.topicName).then((allowed) => {
+                                  if (allowed) {
+                                      send('message', event);
+                                  }
+                              });
+                          }),
+                      ];
 
                 const cleanup = async () => {
                     clearInterval(heartbeat);

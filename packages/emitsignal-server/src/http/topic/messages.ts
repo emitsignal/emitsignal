@@ -4,14 +4,23 @@ import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { prisma } from '../../lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
 import { parseTagsQueryParam, serializeMessage } from '../../lib/topic';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
+import { resolveUserId } from '../auth/plugin';
 
 export const messages = new Elysia().get(
     '/topics/:name/messages',
-    async ({ params, query, status }) => {
+    async ({ headers, params, query, status }) => {
         const topic = await prisma.topic.findUnique({
             where: { name: params.name },
         });
         if (!topic) {
+            return status(404, { error: 'topic_not_found' });
+        }
+
+        const userId = await resolveUserId({ headers });
+        const capabilities = await resolveTopicCapabilities(topic, userId);
+
+        if (!capabilities.canRead) {
             return status(404, { error: 'topic_not_found' });
         }
 

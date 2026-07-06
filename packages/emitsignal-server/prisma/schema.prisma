@@ -275,10 +275,11 @@ model Subscription {
 model Topic {
     id          String   @id @default(cuid())
 
+    // "public" | "readonly" | "private" — source of truth for access control.
+    accessMode  String   @default("public")
     createdAt   DateTime @default(now())
     description String?
     displayName String
-    isPublic    Boolean  @default(true)
     name        String   @unique
     updatedAt   DateTime @updatedAt
 
@@ -289,7 +290,6 @@ model Topic {
     messages      Message[]
     subscriptions Subscription[]
 
-    @@index([isPublic])
     @@index([ownerId])
 }
 

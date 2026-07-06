@@ -6,7 +6,7 @@ import { resolveSubscriptions } from './resolve';
 export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
     '/',
     async ({ headers, query }) => {
-        const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
+        const { rows, userId } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
 
         return rows.map((subscription) => ({
             createdAt: subscription.createdAt.getTime(),
@@ -14,11 +14,13 @@ export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
             pushEnabled: subscription.pushEnabled,
             settings: parseSubscriptionSettings(subscription.settings),
             topic: {
+                accessMode: subscription.topic.accessMode,
                 description: subscription.topic.description,
                 displayName: subscription.topic.displayName,
                 id: subscription.topic.id,
-                isPublic: subscription.topic.isPublic,
+                isOwner: Boolean(userId) && subscription.topic.ownerId === userId,
                 name: subscription.topic.name,
+                ownerId: subscription.topic.ownerId,
             },
         }));
     },
