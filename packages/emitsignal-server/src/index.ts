@@ -24,6 +24,7 @@ import { subscriptionMetrics } from './http/subscriptions/metrics';
 import { subscribe } from './http/subscriptions/subscribe';
 import { unsubscribe } from './http/subscriptions/unsubscribe';
 import { updateSubscription } from './http/subscriptions/update';
+import { claimTopic } from './http/topic/claim';
 import { getTopic } from './http/topic/get';
 import { listTopics } from './http/topic/list';
 import { listen } from './http/topic/listen';
@@ -32,6 +33,7 @@ import { messages } from './http/topic/messages';
 import { topicMetrics } from './http/topic/metrics';
 import { publish } from './http/topic/publish';
 import { suggestions } from './http/topic/suggestions';
+import { updateTopic } from './http/topic/update';
 import { userAvatar } from './http/user/avatar';
 import { createWebhook } from './http/webhooks/create';
 import { deleteWebhook } from './http/webhooks/delete';
@@ -92,6 +94,7 @@ const app = new Elysia()
 
         return Bun.file(resolved);
     })
+    .use(claimTopic)
     .use(getTopic)
     .use(listen)
     .use(listenMulti)
@@ -107,6 +110,7 @@ const app = new Elysia()
     .use(subscribe)
     .use(suggestions)
     .use(unsubscribe)
+    .use(updateTopic)
     .use(updatePushToken)
     .use(updateSubscription)
     .use(userAvatar)

@@ -1,9 +1,9 @@
 import Elysia, { t } from 'elysia';
 
-import { PlanLimitError } from '../../lib/billing/plans';
 import { prisma } from '../../lib/prisma';
 import { serializeSubscriptionSettings } from '../../lib/subscription-settings';
 import { getOrCreateTopic, TOPIC_NAME_MAX_LENGTH, TopicNameError } from '../../lib/topic';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
@@ -14,7 +14,7 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
         let topic;
 
         try {
-            topic = await getOrCreateTopic(body.topicName, userId ?? undefined);
+            topic = await getOrCreateTopic(body.topicName);
         } catch (error) {
             if (error instanceof TopicNameError) {
                 return status(400, {
@@ -23,16 +23,13 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
                 });
             }
 
-            if (error instanceof PlanLimitError) {
-                return status(403, {
-                    error: 'plan_limit_reached',
-                    limit: error.limit,
-                    metric: error.metric,
-                    plan: error.plan,
-                });
-            }
-
             throw error;
+        }
+
+        const capabilities = await resolveTopicCapabilities(topic, userId);
+
+        if (!capabilities.canRead) {
+            return status(403, { error: 'forbidden', message: 'not allowed to read this topic' });
         }
 
         const settings = serializeSubscriptionSettings(body.settings ?? {});

@@ -4,8 +4,6 @@ import { isValidTopicName } from '@emitsignal/shared';
 
 import type { Action } from './actions';
 
-import { getUserPlan } from './billing/get-user-plan';
-import { PlanLimitError, PLANS } from './billing/plans';
 import { topicNameCache } from './cache';
 import { prisma } from './prisma';
 import { FileStorageService } from './storage';
@@ -19,7 +17,7 @@ export class TopicNameError extends Error {
     }
 }
 
-export async function getOrCreateTopic(topicName: string, ownerId?: string) {
+export async function getOrCreateTopic(topicName: string) {
     const name = topicName.toLowerCase();
 
     if (!isValidTopicName(name)) {
@@ -40,24 +38,15 @@ export async function getOrCreateTopic(topicName: string, ownerId?: string) {
         return existing;
     }
 
-    if (ownerId) {
-        const plan = await getUserPlan(ownerId);
-        const limit = PLANS[plan].limits.maxOwnedTopics;
-        const ownedCount = await prisma.topic.count({ where: { ownerId } });
-
-        if (ownedCount >= limit) {
-            throw new PlanLimitError('owned_topics', plan, limit);
-        }
-    }
-
+    // Topics are always created ownerless. Ownership is explicit and paid:
+    // see the claim route (POST /topics/:name/claim).
     const topic = await prisma.topic
         .create({
             data: {
+                accessMode: 'public',
                 description: '',
                 displayName: name,
-                isPublic: true,
                 name,
-                ownerId,
             },
         })
         .catch(async (error: unknown) => {

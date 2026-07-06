@@ -31,12 +31,14 @@ export const listTopics = new Elysia().get(
         });
 
         return topics.map((topic) => ({
+            accessMode: topic.accessMode,
             createdAt: topic.createdAt.getTime(),
             description: topic.description,
             displayName: topic.displayName,
             id: topic.id,
-            isPublic: topic.isPublic,
+            isOwner: true,
             name: topic.name,
+            ownerId: topic.ownerId,
         }));
     },
     {

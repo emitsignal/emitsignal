@@ -6,6 +6,7 @@ import { getClientIP } from '../../lib/ip';
 import { prisma } from '../../lib/prisma';
 import { acquireSseSlot } from '../../lib/rate-limit';
 import { serializeMessage } from '../../lib/topic';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 const SSE_MAX_ANON = 3;
@@ -46,6 +47,15 @@ export const listen = new Elysia().get(
         });
 
         if (!topic) {
+            slot.release();
+            set.status = 404;
+
+            return { error: 'topic_not_found' };
+        }
+
+        const capabilities = await resolveTopicCapabilities(topic, userId);
+
+        if (!capabilities.canRead) {
             slot.release();
             set.status = 404;
 

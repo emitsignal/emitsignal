@@ -3,7 +3,6 @@ import Elysia, { t } from 'elysia';
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { validateActions } from '../../lib/actions';
 import { getUserLimits } from '../../lib/billing/get-user-plan';
-import { PlanLimitError } from '../../lib/billing/plans';
 import { consumeDailyQuota, quotaExceededHeaders } from '../../lib/billing/usage';
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
@@ -13,6 +12,7 @@ import { prisma } from '../../lib/prisma';
 import { pushQueue, scheduleQueue } from '../../lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '../../lib/rate-limit';
 import { getOrCreateTopic, serializeMessage, TopicNameError } from '../../lib/topic';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 const MAX_SCHEDULE_SECONDS = duration.years(1).as('seconds');
@@ -84,7 +84,7 @@ export const publish = new Elysia().post(
         let topic;
 
         try {
-            topic = await getOrCreateTopic(params.name, userId ?? undefined);
+            topic = await getOrCreateTopic(params.name);
         } catch (error) {
             if (error instanceof TopicNameError) {
                 return status(400, {
@@ -93,16 +93,16 @@ export const publish = new Elysia().post(
                 });
             }
 
-            if (error instanceof PlanLimitError) {
-                return status(403, {
-                    error: 'plan_limit_reached',
-                    limit: error.limit,
-                    metric: error.metric,
-                    plan: error.plan,
-                });
-            }
-
             throw error;
+        }
+
+        const capabilities = await resolveTopicCapabilities(topic, userId);
+
+        if (!capabilities.canPublish) {
+            return status(403, {
+                error: 'forbidden',
+                message: 'not allowed to publish to this topic',
+            });
         }
 
         const validation = validateActions(body.actions);
