@@ -1,0 +1,8 @@
+{
+    "mcpServers": {
+        "plan": {
+            "type": "http",
+            "url": "https://plan.agent-native.com/_agent-native/mcp"
+        }
+    }
+}

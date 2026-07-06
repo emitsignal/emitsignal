@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "source": "agent-native",
+  "appSkillId": "visual-plans",
+  "displayName": "Agent-Native Plan",
+  "skillName": "visualize-repo",
+  "contentHash": "ade4067a380150a9",
+  "mcpUrl": "https://plan.agent-native.com/_agent-native/mcp",
+  "installedAt": "2026-07-06T02:07:52.703Z",
+  "installCommand": "npx @agent-native/core@latest skills add visualize-repo",
+  "updateCommand": "npx @agent-native/core@latest skills update visualize-repo",
+  "planMode": "hosted"
+}
