@@ -147,16 +147,18 @@ export default function SubscribeModal() {
                             />
                         </View>
 
-                        <View style={styles.section}>
-                            <Text style={styles.sectionLabel}>PUBLISH FROM</Text>
-                            <WCode language="BASH">
-                                {`# from your shell
+                        {topic && (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionLabel}>PUBLISH FROM</Text>
+                                <WCode language="BASH">
+                                    {`# from your shell
 curl -d "hello" ${api.baseUrl}/topic/${topic}
 
 # from EmitSignal cli
 emitsignal publish ${topic} "deploy ok"`}
-                            </WCode>
-                        </View>
+                                </WCode>
+                            </View>
+                        )}
                     </ScrollView>
 
                     <View style={styles.footer}>
