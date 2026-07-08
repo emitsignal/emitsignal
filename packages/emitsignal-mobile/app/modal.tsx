@@ -137,7 +137,6 @@ export default function SubscribeModal() {
                         )}
 
                         <View style={styles.section}>
-                            <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
                             <SubscriptionSettingsFields
                                 description={description}
                                 listenSince={listenSince}

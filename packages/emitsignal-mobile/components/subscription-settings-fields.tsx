@@ -58,6 +58,8 @@ export function SubscriptionSettingsFields({
                 value={description}
             />
 
+            <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
+
             <View style={styles.switchRow}>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.rowLabel}>Push notifications</Text>
