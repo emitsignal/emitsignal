@@ -16,6 +16,18 @@ export interface NormalizedMedia {
     inlineImages: MediaRef[];
 }
 
+export function isValidHref(value: string): boolean {
+    let url: URL;
+
+    try {
+        url = new URL(value);
+    } catch {
+        return false;
+    }
+
+    return url.protocol === 'http:' || url.protocol === 'https:';
+}
+
 // Accepts a bare URL string, a {title, href} object, or an array mixing both,
 // and returns the canonical MediaRef[] (empty for null/undefined).
 export function normalizeMediaInput(input: unknown): { error: string } | { refs: MediaRef[] } {
@@ -78,18 +90,6 @@ export function validateMessageMedia(
         inlineAttachments: inlineAttachments.refs,
         inlineImages: inlineImages.refs,
     };
-}
-
-function isValidHref(value: string): boolean {
-    let url: URL;
-
-    try {
-        url = new URL(value);
-    } catch {
-        return false;
-    }
-
-    return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
 function toMediaRef(item: unknown): { error: string } | { ref: MediaRef } {
