@@ -1,3 +1,4 @@
+import { safeExternalUrl } from '@emitsignal/shared/url';
 import { ChevronLeft, ChevronRight, Download, ExternalLink, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -68,16 +69,18 @@ export function ImageGallery({ images, onClose, startIndex = 0 }: ImageGalleryPr
                         <Download size={15} />
                     </button>
 
-                    <a
-                        aria-label="Open image in new tab"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-elev text-muted hover:text-fg"
-                        href={current.href}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        title="Open in new tab"
-                    >
-                        <ExternalLink size={15} />
-                    </a>
+                    {safeExternalUrl(current.href) && (
+                        <a
+                            aria-label="Open image in new tab"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-elev text-muted hover:text-fg"
+                            href={current.href}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            title="Open in new tab"
+                        >
+                            <ExternalLink size={15} />
+                        </a>
+                    )}
 
                     <button
                         aria-label="Close gallery"
@@ -126,6 +129,12 @@ export function ImageGallery({ images, onClose, startIndex = 0 }: ImageGalleryPr
 }
 
 async function downloadImage(image: MediaRef): Promise<void> {
+    // Ignore anything that isn't a safe http(s) URL — never fetch/open a
+    // javascript:/data: scheme.
+    if (!safeExternalUrl(image.href)) {
+        return;
+    }
+
     const filename = fileNameFor(image);
 
     try {

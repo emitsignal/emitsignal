@@ -1,10 +1,11 @@
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { Linking, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 import { useDevice } from '@/ctx/device';
 import { api } from '@/lib/api';
+import { openExternalUrl } from '@/lib/open-external';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -39,14 +40,19 @@ export function useForegroundNotifications() {
 
         notificationListener.current = Notifications.addNotificationReceivedListener(
             (notification) => {
-                console.log('Notification received in foreground:', notification);
+                if (__DEV__) {
+                    console.log('Notification received in foreground:', notification);
+                }
             },
         );
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(
             (response) => {
                 const data = response.notification.request.content.data;
-                console.log('Notification tapped:', data);
+
+                if (__DEV__) {
+                    console.log('Notification tapped:', data);
+                }
 
                 const messageId = data?.messageId as string | undefined;
 
@@ -97,9 +103,9 @@ export function useForegroundNotifications() {
                     const viewAction = actions.find((a) => a.type === 'view');
 
                     if (viewAction?.url) {
-                        Linking.openURL(viewAction.url).catch((error) =>
-                            console.warn('Failed to open URL:', error),
-                        );
+                        // Publisher-controlled URL from the push payload — only
+                        // open it through the http(s) scheme guard.
+                        void openExternalUrl(viewAction.url);
                     }
                 } catch {
                     // ignore parse error
