@@ -1,16 +1,28 @@
 import { parseTemplate, renderTemplate } from '@emitsignal/shared/webhook-template';
 import Elysia, { t } from 'elysia';
 
+import { consumeLimit } from '../../http/plugins/rate-limit-plugin';
 import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue } from '../../lib/queue';
+import { webhookReceiveLimiter } from '../../lib/rate-limit';
 import { getOrCreateTopic, serializeMessage } from '../../lib/topic';
 import { resolveUserId } from '../auth/plugin';
+
+// Public endpoint: cap the inbound payload so a single caller can't store huge
+// WebhookDelivery rows or exhaust memory. 64 KB is generous for webhook JSON.
+const MAX_WEBHOOK_BODY_BYTES = 64 * 1024;
 
 export const receiveWebhook = new Elysia().post(
     '/h/:slug',
     async ({ body, headers, params, status }) => {
         const start = Date.now();
+
+        const contentLength = Number(headers['content-length'] ?? 0);
+
+        if (Number.isFinite(contentLength) && contentLength > MAX_WEBHOOK_BODY_BYTES) {
+            return status(413, { error: 'payload_too_large' });
+        }
 
         const webhook = await prisma.webhook.findUnique({
             select: {
@@ -120,6 +132,8 @@ export const receiveWebhook = new Elysia().post(
         return { messageId: message.id, ok: true };
     },
     {
+        beforeHandle: ({ params, set }) =>
+            consumeLimit(webhookReceiveLimiter, `webhook:${params.slug}`, set),
         body: t.Unknown(),
     },
 );

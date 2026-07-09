@@ -5,6 +5,9 @@ import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
 
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+
+const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
 
 import { getMessage } from '../../messages/get';
 
@@ -21,6 +24,35 @@ describe('GET /messages/:id', () => {
         const data = await res.json();
 
         expect(data.error).toBe('message_not_found');
+    });
+
+    it('returns 404 for a private-topic message when the caller is not a member', async () => {
+        prismaMock.message.findUnique = mock(() =>
+            Promise.resolve({
+                actions: '[]',
+                body: 'secret',
+                createdAt: new Date(1700000000000),
+                id: 'msg-private',
+                priority: 3,
+                tags: '[]',
+                title: 'Secret',
+                topic: {
+                    accessMode: 'private',
+                    id: 'topic-private',
+                    name: 'secret-topic',
+                    ownerId: 'owner-1',
+                },
+                topicId: 'topic-private',
+            }),
+        );
+        // Anonymous caller (no session), and no TopicAccess row exists.
+        resolveUserIdMock.mockResolvedValueOnce(null);
+
+        prismaMock.topicAccess.findUnique = mock(() => Promise.resolve(null));
+
+        const res = await app.handle(new Request('http://localhost/messages/msg-private'));
+
+        expect(res.status).toBe(404);
     });
 
     it('returns a single message with attachments and topicName', async () => {

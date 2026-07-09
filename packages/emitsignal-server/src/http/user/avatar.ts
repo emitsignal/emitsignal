@@ -2,8 +2,15 @@ import Elysia, { t } from 'elysia';
 import path from 'node:path';
 
 import { prisma } from '../../lib/prisma';
-import { AVATAR_MAX_SIZE, FileStorageService } from '../../lib/storage';
+import { AVATAR_MAX_SIZE, FileStorageService, isAllowedMimeType } from '../../lib/storage';
 import { resolveUserId } from '../auth/plugin';
+
+const AVATAR_EXTENSION_BY_MIME: Record<string, string> = {
+    'image/gif': '.gif',
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+};
 
 export const userAvatar = new Elysia({ prefix: '/user' })
     .post(
@@ -17,7 +24,16 @@ export const userAvatar = new Elysia({ prefix: '/user' })
 
             const { file } = body;
 
-            if (!file.type.startsWith('image/')) {
+            // Reject anything that isn't an allowlisted raster image. This blocks
+            // image/svg+xml, which would otherwise be served inline and execute
+            // script (stored XSS).
+            if (!isAllowedMimeType(file.type) || !file.type.startsWith('image/')) {
+                return status(400, { error: 'invalid_mime_type' });
+            }
+
+            const ext = AVATAR_EXTENSION_BY_MIME[file.type.trim().toLowerCase()];
+
+            if (!ext) {
                 return status(400, { error: 'invalid_mime_type' });
             }
 
@@ -25,7 +41,6 @@ export const userAvatar = new Elysia({ prefix: '/user' })
                 return status(400, { error: 'payload_too_large' });
             }
 
-            const ext = path.extname(file.name || '');
             const storageKey = `avatars/${userId}${ext}`;
 
             const buffer = Buffer.from(await file.arrayBuffer());

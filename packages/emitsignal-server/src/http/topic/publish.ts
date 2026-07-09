@@ -170,13 +170,13 @@ export const publish = new Elysia().post(
                 ),
             ),
             bannerImage: t.Optional(mediaItemSchema),
-            body: t.Optional(t.String()),
+            body: t.Optional(t.String({ maxLength: 32_768 })),
             inlineAttachments: t.Optional(mediaInputSchema),
             inlineImages: t.Optional(mediaInputSchema),
             priority: t.Integer({ default: 3, maximum: 5, minimum: 1 }),
             scheduledAt: t.Optional(t.Integer()),
-            tags: t.Optional(t.Array(t.String())),
-            title: t.Optional(t.String()),
+            tags: t.Optional(t.Array(t.String({ maxLength: 64 }), { maxItems: 20 })),
+            title: t.Optional(t.String({ maxLength: 256 })),
         }),
         parse: [
             async ({ contentType, request }) => {

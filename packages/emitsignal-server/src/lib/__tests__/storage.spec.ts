@@ -219,8 +219,12 @@ describe('isAllowedMimeType', () => {
         expect(isAllowedMimeType('image/webp')).toBe(true);
     });
 
-    it('accepts image/svg+xml', () => {
-        expect(isAllowedMimeType('image/svg+xml')).toBe(true);
+    it('rejects image/svg+xml (SVG can carry inline script → stored XSS)', () => {
+        expect(isAllowedMimeType('image/svg+xml')).toBe(false);
+    });
+
+    it('rejects image/svg+xml regardless of case/whitespace', () => {
+        expect(isAllowedMimeType('  IMAGE/SVG+XML  ')).toBe(false);
     });
 
     it('accepts text/plain', () => {

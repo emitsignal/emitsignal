@@ -5,8 +5,22 @@ import { resolveUserId } from '../auth/plugin';
 
 export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
     '/',
-    async ({ body, headers }) => {
+    async ({ body, headers, status }) => {
         const userId = await resolveUserId({ headers });
+
+        const pushToken = await prisma.pushToken.findUnique({
+            select: { id: true, userId: true },
+            where: {
+                deviceId_token: { deviceId: body.deviceId, token: body.token },
+            },
+        });
+
+        // Don't let one caller reassign a token already owned by a different
+        // account (that would redirect another user's notifications). Only the
+        // owner — or an anonymous caller adopting an unowned token — may update it.
+        if (pushToken && pushToken.userId && pushToken.userId !== userId) {
+            return status(403, { error: 'forbidden' });
+        }
 
         const token = await prisma.pushToken.upsert({
             create: {
@@ -17,7 +31,9 @@ export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
             },
             update: {
                 platform: body.platform,
-                userId,
+                // Never downgrade an owned token to anonymous; only set ownership
+                // when adopting a previously unowned token.
+                ...(userId ? { userId } : {}),
             },
             where: {
                 deviceId_token: {

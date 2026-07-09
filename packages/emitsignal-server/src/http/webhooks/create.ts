@@ -7,10 +7,11 @@ import { resolveUserId } from '../auth/plugin';
 
 function randomSlug(prefix: string): string {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
     let suffix = '';
 
-    for (let index = 0; index < 7; index += 1) {
-        suffix += alphabet[Math.floor(Math.random() * alphabet.length)];
+    for (const byte of bytes) {
+        suffix += alphabet[byte % alphabet.length];
     }
 
     return `${prefix}_${suffix}`;
