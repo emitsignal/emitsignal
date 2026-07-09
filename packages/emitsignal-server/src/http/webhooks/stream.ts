@@ -71,6 +71,8 @@ export const streamWebhookDeliveries = new Elysia().get(
                 const heartbeat = setInterval(async () => {
                     try {
                         controller.enqueue(encoder.encode(': ping\n\n'));
+
+                        await slot.refresh();
                     } catch {
                         await cleanup();
                     }
