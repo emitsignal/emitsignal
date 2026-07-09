@@ -53,6 +53,7 @@ const config: ExpoConfig = {
         typedRoutes: false,
     },
     extra: {
+        appMode: appMode ?? 'production',
         eas: {
             projectId,
         },
