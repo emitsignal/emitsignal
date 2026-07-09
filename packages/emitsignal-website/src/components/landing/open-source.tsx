@@ -33,6 +33,12 @@ const FEATURES: Feature[] = [
     },
 ];
 
+interface FeatureCardProps {
+    desc: string;
+    icon: LucideIcon;
+    title: string;
+}
+
 export function OpenSource() {
     return (
         <Section id="open-source">
@@ -67,12 +73,6 @@ export function OpenSource() {
             </div>
         </Section>
     );
-}
-
-interface FeatureCardProps {
-    desc: string;
-    icon: LucideIcon;
-    title: string;
 }
 
 function FeatureCard({ desc, icon: Icon, title }: FeatureCardProps) {

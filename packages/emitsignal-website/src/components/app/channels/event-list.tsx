@@ -84,7 +84,7 @@ export function EventList({
                 ))
             )}
 
-            <div ref={sentinelRef} className="h-px" />
+            <div className="h-px" ref={sentinelRef} />
             {isFetchingNextPage && (
                 <div className="py-3 text-center font-mono text-[11px] text-dim">loading…</div>
             )}
