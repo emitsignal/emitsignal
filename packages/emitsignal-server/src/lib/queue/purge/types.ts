@@ -7,4 +7,5 @@
 // via cascade, so the job only removes the orphaned files from object storage.
 export type PurgeJob =
     | { avatarKey?: string; kind: 'storage'; storageKeys: string[] }
+    | { kind: 'expired' }
     | { kind: 'signals'; userId: string };
