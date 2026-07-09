@@ -1,3 +1,5 @@
+import { isValidHref } from './media-refs';
+
 export interface Action {
     label?: string;
     type: 'acknowledge' | 'view';
@@ -37,6 +39,11 @@ export function validateActions(raw: unknown): { actions: Action[]; ok: true } |
         } else if (action.type === 'view') {
             if (typeof action.url !== 'string' || !action.url) {
                 return { error: 'actions: view action requires a url' };
+            }
+
+            // Only http(s) links may be stored
+            if (!isValidHref(action.url)) {
+                return { error: 'actions: view url must be http(s)' };
             }
 
             if (seenUrls.has(action.url)) {

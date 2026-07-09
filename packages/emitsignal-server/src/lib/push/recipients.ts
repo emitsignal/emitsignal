@@ -1,4 +1,7 @@
+import { logger } from '../logger';
 import { prisma } from '../prisma';
+
+const MAX_PUSH_FANOUT = 1_000;
 
 /**
  * Resolves the deduplicated push tokens that should receive a topic's message.
@@ -9,8 +12,16 @@ import { prisma } from '../prisma';
 export async function resolvePushTokens(topicId: string): Promise<string[]> {
     const subscriptions = await prisma.subscription.findMany({
         select: { deviceId: true, userId: true },
+        take: MAX_PUSH_FANOUT,
         where: { pushEnabled: true, topicId },
     });
+
+    if (subscriptions.length === MAX_PUSH_FANOUT) {
+        logger.warn(
+            { topicId },
+            'push fan-out hit MAX_PUSH_FANOUT cap; some recipients may be skipped',
+        );
+    }
 
     if (subscriptions.length === 0) {
         return [];
@@ -32,6 +43,7 @@ export async function resolvePushTokens(topicId: string): Promise<string[]> {
 
     const pushTokens = await prisma.pushToken.findMany({
         select: { token: true },
+        take: MAX_PUSH_FANOUT,
         where: {
             OR: [{ deviceId: { in: deviceIds } }, { userId: { in: userIds } }],
             pushEnabled: true,
