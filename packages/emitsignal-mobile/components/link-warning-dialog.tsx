@@ -1,10 +1,12 @@
-import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { isSafeExternalUrl } from '@emitsignal/shared/url';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import type { MediaRef } from '@/lib/api';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
+import { openExternalUrl } from '@/lib/open-external';
 
 interface Props {
     link: MediaRef | null;
@@ -14,12 +16,15 @@ interface Props {
 export function LinkWarningDialog({ link, onClose }: Props) {
     const { palette, styles } = useThemedStyles(createStyles);
 
+    const safe = isSafeExternalUrl(link?.href);
+
     const handleOpen = () => {
         if (!link) {
             return;
         }
 
-        Linking.openURL(link.href).catch(() => {});
+        // Only open safe http(s) schemes; the guard also drops javascript:/data:.
+        void openExternalUrl(link.href);
 
         onClose();
     };
@@ -55,9 +60,14 @@ export function LinkWarningDialog({ link, onClose }: Props) {
                         <Pressable onPress={onClose} style={styles.cancelBtn}>
                             <Text style={styles.cancelText}>Cancel</Text>
                         </Pressable>
-                        <Pressable onPress={handleOpen} style={styles.openBtn}>
+
+                        <Pressable
+                            disabled={!safe}
+                            onPress={handleOpen}
+                            style={[styles.openBtn, !safe && styles.openBtnDisabled]}
+                        >
                             <IconSymbol color={palette.bg} name="link" size={14} />
-                            <Text style={styles.openText}>Open link</Text>
+                            <Text style={styles.openText}>{safe ? 'Open link' : 'Blocked'}</Text>
                         </Pressable>
                     </View>
                 </Pressable>
@@ -139,6 +149,9 @@ const createStyles = (palette: Palette) =>
             gap: 6,
             justifyContent: 'center',
             paddingVertical: 11,
+        },
+        openBtnDisabled: {
+            opacity: 0.5,
         },
         openText: {
             color: palette.bg,

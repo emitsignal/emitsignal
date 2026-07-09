@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AttachmentPreview } from '@/components/attachment-preview';
@@ -15,6 +15,7 @@ import { useDevice } from '@/ctx/device';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
 import { relativeTime } from '@/lib/format';
+import { openExternalUrl } from '@/lib/open-external';
 import { queryKeys } from '@/lib/query-client';
 
 export default function MessageDetailScreen() {
@@ -49,11 +50,8 @@ export default function MessageDetailScreen() {
     };
 
     const handleView = async (url: string) => {
-        try {
-            await Linking.openURL(url);
-        } catch (error) {
-            console.warn('Failed to open URL:', error);
-        }
+        // Publisher-controlled action URL — open only through the scheme guard.
+        await openExternalUrl(url);
     };
 
     if (!message) {

@@ -1,3 +1,4 @@
+import { isSafeExternalUrl } from '@emitsignal/shared/url';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -6,7 +7,6 @@ import { useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
-    Linking,
     type NativeScrollEvent,
     type NativeSyntheticEvent,
     Pressable,
@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, W } from '@/constants/theme';
 import { formatSize } from '@/lib/format';
+import { openExternalUrl } from '@/lib/open-external';
 
 interface GalleryItem {
     filename?: string;
@@ -69,15 +70,22 @@ export default function ImageViewerScreen() {
         setDownloading(true);
 
         try {
-            const available = await Sharing.isAvailableAsync();
-
-            if (!available) {
-                await Linking.openURL(active.url);
+            // Only ever fetch/open a safe http(s) URL.
+            if (!isSafeExternalUrl(active.url)) {
+                console.warn('Blocked download of unsafe URL scheme');
 
                 return;
             }
 
-            const localUri = `${FileSystem.cacheDirectory}${active.filename ?? 'image'}`;
+            const available = await Sharing.isAvailableAsync();
+
+            if (!available) {
+                await openExternalUrl(active.url);
+
+                return;
+            }
+
+            const localUri = `${FileSystem.cacheDirectory}${safeDownloadName(active.filename)}`;
             const result = await FileSystem.downloadAsync(active.url, localUri);
 
             await Sharing.shareAsync(result.uri, {
@@ -196,6 +204,15 @@ function parseItems(params: {
     }
 
     return [];
+}
+
+// Reduce a publisher-controlled filename to a safe basename so it can't traverse
+// out of the cache directory (e.g. "../../foo").
+function safeDownloadName(filename: string | undefined): string {
+    const base = (filename ?? 'image').split(/[\\/]/).pop() ?? 'image';
+    const cleaned = base.replace(/[^\w.-]/g, '_').replace(/^\.+/, '');
+
+    return cleaned || 'image';
 }
 
 const styles = StyleSheet.create({

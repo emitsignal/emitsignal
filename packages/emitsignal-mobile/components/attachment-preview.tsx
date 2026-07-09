@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { Attachment } from '@/lib/api';
 
@@ -7,6 +7,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { formatSize } from '@/lib/format';
+import { openExternalUrl } from '@/lib/open-external';
 
 interface Props {
     attachment: Attachment;
@@ -21,7 +22,7 @@ export function AttachmentPreview({ attachment, onPress }: Props) {
             onPress();
             return;
         }
-        Linking.openURL(attachment.url).catch(() => {});
+        void openExternalUrl(attachment.url);
     };
 
     return (

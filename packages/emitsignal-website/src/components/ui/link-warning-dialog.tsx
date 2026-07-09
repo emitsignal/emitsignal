@@ -1,3 +1,4 @@
+import { isSafeExternalUrl } from '@emitsignal/shared/url';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
 
 import type { MediaRef } from '#/lib/api';
@@ -12,8 +13,13 @@ export function LinkWarningDialog({ link, onClose }: LinkWarningDialogProps) {
         return null;
     }
 
+    const safe = isSafeExternalUrl(link.href);
+
     const handleOpen = () => {
-        window.open(link.href, '_blank', 'noopener,noreferrer');
+        if (safe) {
+            window.open(link.href, '_blank', 'noopener,noreferrer');
+        }
+
         onClose();
     };
 
@@ -65,12 +71,14 @@ export function LinkWarningDialog({ link, onClose }: LinkWarningDialogProps) {
                     </button>
 
                     <button
-                        className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-semibold"
+                        className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={!safe}
                         onClick={handleOpen}
                         style={{ background: 'var(--color-warn)', color: '#2a1a00' }}
+                        title={safe ? undefined : 'Blocked: unsupported URL scheme'}
                     >
                         <ExternalLink size={13} />
-                        Open link
+                        {safe ? 'Open link' : 'Link blocked'}
                     </button>
                 </div>
             </div>

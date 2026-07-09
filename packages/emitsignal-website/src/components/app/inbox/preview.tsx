@@ -1,3 +1,4 @@
+import { safeExternalUrl } from '@emitsignal/shared/url';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
@@ -132,17 +133,32 @@ export function InboxPreview({ message }: { message: Message | null }) {
                             Acknowledge
                         </button>
                     )}
-                    {otherActions.map((action, index) => (
-                        <a
-                            className="rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg no-underline hover:bg-elev-2"
-                            href={action.url ?? '#'}
-                            key={index}
-                            rel="noopener noreferrer"
-                            target={action.url ? '_blank' : undefined}
-                        >
-                            {action.label ?? action.type}
-                        </a>
-                    ))}
+
+                    {otherActions.map((action, index) => {
+                        // Only render a clickable link for safe http(s) URLs;
+                        // never emit an anchor for a javascript:/data: scheme.
+                        const safeHref = safeExternalUrl(action.url);
+
+                        return safeHref ? (
+                            <a
+                                className="rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg no-underline hover:bg-elev-2"
+                                href={safeHref}
+                                key={index}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                {action.label ?? action.type}
+                            </a>
+                        ) : (
+                            <span
+                                className="cursor-not-allowed rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
+                                key={index}
+                                title="This action link was blocked (unsupported URL scheme)."
+                            >
+                                {action.label ?? action.type}
+                            </span>
+                        );
+                    })}
                 </div>
             )}
 
