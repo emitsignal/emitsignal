@@ -1,7 +1,7 @@
 export { redisConnection } from './connection';
 export { emailQueue } from './email/email-queue';
 export { createEmailWorker } from './email/email-worker';
-export { purgeQueue } from './purge/purge-queue';
+export { purgeQueue, scheduleRetentionSweep } from './purge/purge-queue';
 export { createPurgeWorker } from './purge/purge-worker';
 export { pushQueue } from './push/push-queue';
 export { createPushWorker } from './push/push-worker';

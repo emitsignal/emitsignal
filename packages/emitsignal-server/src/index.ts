@@ -149,8 +149,8 @@ async function shutdown() {
     await pushQueue.close();
     await scheduleQueue.close();
 
-    await redisConnection.quit();
     await rateLimitRedis.quit();
+    await redisConnection.quit();
 
     server.stop();
 
