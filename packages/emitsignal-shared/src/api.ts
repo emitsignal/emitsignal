@@ -193,11 +193,13 @@ export function createApiClient(baseUrl: string) {
     }
 
     const api = {
-        acknowledgeMessage(messageId: string, deviceId: string, userId?: null | string) {
+        acknowledgeMessage(messageId: string, deviceId: string) {
+            // Attribution is derived from the authenticated session server-side;
+            // the client no longer sends a (spoofable) userId.
             return request<{ acknowledged: boolean; count: number }>(
                 `/messages/${encodeURIComponent(messageId)}/acknowledge`,
                 {
-                    body: JSON.stringify({ deviceId, userId }),
+                    body: JSON.stringify({ deviceId }),
                     method: 'POST',
                 },
             );
