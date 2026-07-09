@@ -1,7 +1,7 @@
 import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
-import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react';
+import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Message } from '#/lib/api';
 import type { Priority } from '#/lib/priority';
@@ -181,12 +181,29 @@ function NotificationList({
 function PriorityList({ messages, onSelect, selectedId }: SubListProps) {
     const levels: Priority[] = [5, 4, 3, 2, 1];
 
+    const groups = useMemo(() => {
+        const byLevel = new Map<Priority, Message[]>();
+
+        for (const message of messages) {
+            const level = message.priority as Priority;
+            const bucket = byLevel.get(level);
+
+            if (bucket) {
+                bucket.push(message);
+            } else {
+                byLevel.set(level, [message]);
+            }
+        }
+
+        return byLevel;
+    }, [messages]);
+
     return (
         <>
             {levels.map((level) => {
-                const group = messages.filter((message) => message.priority === level);
+                const group = groups.get(level);
 
-                if (group.length === 0) {
+                if (!group || group.length === 0) {
                     return null;
                 }
 
