@@ -3,8 +3,6 @@ import { ConnectionOptions, Worker } from 'bullmq';
 
 import type { PurgeJob } from './types';
 
-import { environment } from '../../../schema/environment';
-import { duration } from '../../duration';
 import { logger } from '../../logger';
 import { prisma } from '../../prisma';
 import { FileStorageService } from '../../storage';
@@ -93,10 +91,6 @@ function ownedMessagesWhere(userId: string) {
     return { OR: [{ senderId: userId }, { topic: { ownerId: userId } }] };
 }
 
-// Repeatable retention sweep. Always removes attachments whose `expiresAt` has
-// passed (deleting the file first, then the row). When MESSAGE_RETENTION_DAYS is
-// configured (> 0), also deletes messages older than that window; their
-// attachments/acknowledgments cascade away with them.
 async function purgeExpired(): Promise<void> {
     const now = new Date();
 
@@ -129,41 +123,40 @@ async function purgeExpired(): Promise<void> {
 
     let retiredMessages = 0;
 
-    if (environment.MESSAGE_RETENTION_DAYS > 0) {
-        const cutoff = new Date(
-            now.getTime() - duration.days(environment.MESSAGE_RETENTION_DAYS).as('ms'),
-        );
+    const expiredMessagesWhere = {
+        deliveredAt: { not: null },
+        expiresAt: { lt: now, not: null },
+    };
 
-        for (;;) {
-            // Remove attachment files for the messages about to be deleted before
-            // the rows cascade away, so no storage object is orphaned.
-            const attachments = await prisma.attachment.findMany({
-                select: { storageKey: true },
-                take: RETENTION_BATCH_SIZE,
-                where: { message: { createdAt: { lt: cutoff } } },
-            });
+    for (;;) {
+        const messages = await prisma.message.findMany({
+            select: { id: true },
+            take: RETENTION_BATCH_SIZE,
+            where: expiredMessagesWhere,
+        });
 
-            await deleteStorageKeys(attachments.map((attachment) => attachment.storageKey));
+        if (messages.length === 0) {
+            break;
+        }
 
-            const stale = await prisma.message.findMany({
-                select: { id: true },
-                take: RETENTION_BATCH_SIZE,
-                where: { createdAt: { lt: cutoff } },
-            });
+        const ids = messages.map((message) => message.id);
 
-            if (stale.length === 0) {
-                break;
-            }
+        // Remove attachment files for these messages before the rows cascade away,
+        // so no storage object is orphaned.
 
-            const { count } = await prisma.message.deleteMany({
-                where: { id: { in: stale.map((message) => message.id) } },
-            });
+        const attachments = await prisma.attachment.findMany({
+            select: { storageKey: true },
+            where: { messageId: { in: ids } },
+        });
 
-            retiredMessages += count;
+        await deleteStorageKeys(attachments.map((attachment) => attachment.storageKey));
 
-            if (stale.length < RETENTION_BATCH_SIZE) {
-                break;
-            }
+        const { count } = await prisma.message.deleteMany({ where: { id: { in: ids } } });
+
+        retiredMessages += count;
+
+        if (messages.length < RETENTION_BATCH_SIZE) {
+            break;
         }
     }
 

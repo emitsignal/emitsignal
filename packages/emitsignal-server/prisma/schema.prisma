@@ -214,6 +214,7 @@ model Message {
     body              String
     createdAt         DateTime @default(now())
     deliveredAt       DateTime?
+    expiresAt         DateTime? // set at delivery; null = keep forever (see retention helper)
     inlineAttachments String   @default("[]") // JSON array of {title?, href}
     inlineImages      String   @default("[]") // JSON array of {title?, href}
     priority          Int      @default(3) // 1=min..5=max
@@ -228,12 +229,13 @@ model Message {
     sender          User?              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
     topic           Topic              @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-    @@index([topicId, createdAt])
-    @@index([topicId, priority, createdAt])
-    @@index([tags], type: Gin)
-    @@index([topicId])
+    @@index([expiresAt])
     @@index([scheduledAt])
     @@index([senderId])
+    @@index([tags], type: Gin)
+    @@index([topicId, createdAt])
+    @@index([topicId, priority, createdAt])
+    @@index([topicId])
 }
 
 model PushToken {

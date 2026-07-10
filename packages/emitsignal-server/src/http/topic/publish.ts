@@ -2,7 +2,8 @@ import Elysia, { t } from 'elysia';
 
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
 import { validateActions } from '../../lib/actions';
-import { getUserLimits } from '../../lib/billing/get-user-plan';
+import { getUserLimits, getUserPlan } from '../../lib/billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '../../lib/billing/retention';
 import { consumeDailyQuota, quotaExceededHeaders } from '../../lib/billing/usage';
 import { duration } from '../../lib/duration';
 import { bus } from '../../lib/event-bus';
@@ -53,7 +54,6 @@ export const publish = new Elysia().post(
 
         if (userId) {
             const limits = await getUserLimits(userId);
-            inlineMax = limits.inlineMaxPerArray;
             const quota = await consumeDailyQuota(userId, 'messages', limits.messagesPerDay);
 
             if (!quota.allowed) {
@@ -66,6 +66,8 @@ export const publish = new Elysia().post(
                     resetAt: quota.resetAt,
                 });
             }
+
+            inlineMax = limits.inlineMaxPerArray;
         }
 
         const media = validateMessageMedia(
@@ -112,12 +114,20 @@ export const publish = new Elysia().post(
         }
 
         const actions = validation.actions;
+        const deliveredAt = isScheduled ? null : new Date();
 
         const message = await prisma.message.create({
             data: {
                 actions: JSON.stringify(actions),
                 bannerImage: media.bannerImage ? JSON.stringify(media.bannerImage) : null,
                 body: messageBody,
+                deliveredAt,
+                expiresAt: deliveredAt
+                    ? messageExpiresAt(
+                          deliveredAt,
+                          messageRetentionDays(userId ? await getUserPlan(userId) : null),
+                      )
+                    : null,
                 inlineAttachments: JSON.stringify(media.inlineAttachments),
                 inlineImages: JSON.stringify(media.inlineImages),
                 priority: body.priority,
