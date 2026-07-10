@@ -29,6 +29,10 @@ export interface PlanLimits {
     maxOwnedTopics: number;
     maxWebhooks: number;
     messagesPerDay: number;
+    // Days a delivered message is retained before the purge sweep removes it.
+    // 0 means "keep forever" (no expiry is ever set). Attachments derive their
+    // own, shorter window from this — see the server retention helper.
+    retentionDays: number;
 }
 
 export type PlanName = 'beam' | 'free' | 'pulse';
@@ -54,6 +58,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             maxOwnedTopics: 50,
             maxWebhooks: 30,
             messagesPerDay: 20_000,
+            retentionDays: 0,
         },
         name: 'beam',
         priceMonthlyUsd: 12,
@@ -69,6 +74,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             maxOwnedTopics: 0,
             maxWebhooks: 2,
             messagesPerDay: 100,
+            retentionDays: 90,
         },
         name: 'free',
         priceMonthlyUsd: 0,
@@ -84,6 +90,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             maxOwnedTopics: 15,
             maxWebhooks: 10,
             messagesPerDay: 2500,
+            retentionDays: 365,
         },
         name: 'pulse',
         priceMonthlyUsd: 5,
