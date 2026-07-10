@@ -3,12 +3,9 @@ import { resourceFromAttributes } from '@opentelemetry/resources';
 import { BatchSpanProcessor, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import * as Sentry from '@sentry/bun';
-import { argv } from 'bun';
 
 import pkg from '../../package.json';
 import { environment } from '../schema/environment';
-
-const [, scriptName] = argv;
 
 if (environment.SENTRY_ENABLED && environment.SENTRY_DSN) {
     Sentry.init({
@@ -22,9 +19,7 @@ if (environment.SENTRY_ENABLED && environment.SENTRY_DSN) {
 if (environment.OTEL_ENABLED) {
     const provider = new NodeTracerProvider({
         resource: resourceFromAttributes({
-            [ATTR_SERVICE_NAME]: scriptName.endsWith('workers/all.ts')
-                ? environment.OTEL_WORKER_SERVICE_NAME
-                : environment.OTEL_SERVICE_NAME,
+            [ATTR_SERVICE_NAME]: environment.OTEL_SERVICE_NAME,
             [ATTR_SERVICE_VERSION]: pkg.version,
             'deployment.environment': Bun.env.NODE_ENV ?? 'development',
         }),
