@@ -7,7 +7,11 @@ import { logger } from '../logger';
 // Consume a rate limiter from inside a Better Auth middleware. Unlike the
 // Elysia `consumeLimit` in rate-limit-plugin.ts, this raises Better Auth's own
 // APIError so the failure is serialized the same way as the rest of the auth
-// responses. Redis errors fail open, matching the project's rate-limit policy.
+// responses.
+//
+// Unlike the read/publish limiters, the auth limiters fail CLOSED: if Redis is
+// unavailable we reject rather than let OTP send/verify brute-force protection
+// silently disappear during an outage.
 export async function enforceAuthRateLimit(
     limiter: RateLimiterMemory | RateLimiterRedis,
     key: string,
@@ -23,6 +27,10 @@ export async function enforceAuthRateLimit(
             });
         }
 
-        logger.error({ error, key }, 'auth rate limiter error, failing open');
+        logger.error({ error, key }, 'auth rate limiter error, failing closed');
+
+        throw new APIError('TOO_MANY_REQUESTS', {
+            message: 'Service temporarily unavailable. Please try again later.',
+        });
     }
 }
