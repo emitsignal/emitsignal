@@ -75,6 +75,7 @@ function ComfyList({ messages, onSelect, selectedId }: SubListProps) {
             {now.length > 0 && (
                 <>
                     <SectionLabel>NOW</SectionLabel>
+
                     {now.map((message) => (
                         <NotificationRow
                             active={message.id === selectedId}
@@ -85,9 +86,11 @@ function ComfyList({ messages, onSelect, selectedId }: SubListProps) {
                     ))}
                 </>
             )}
+
             {earlier.length > 0 && (
                 <>
                     <SectionLabel>EARLIER</SectionLabel>
+
                     {earlier.map((message) => (
                         <NotificationRow
                             active={message.id === selectedId}
@@ -161,16 +164,20 @@ function NotificationList({
 
     return (
         <div className="w-[380px] shrink-0 overflow-auto border-r border-line">
-            {feedStyle === 'comfy' ? (
+            {feedStyle === 'comfy' && (
                 <ComfyList messages={messages} onSelect={onSelect} selectedId={selectedId} />
-            ) : null}
-            {feedStyle === 'timeline' ? (
+            )}
+
+            {feedStyle === 'timeline' && (
                 <TimelineList messages={messages} onSelect={onSelect} selectedId={selectedId} />
-            ) : null}
-            {feedStyle === 'priority' ? (
+            )}
+
+            {feedStyle === 'priority' && (
                 <PriorityList messages={messages} onSelect={onSelect} selectedId={selectedId} />
-            ) : null}
+            )}
+
             <div className="h-px" ref={sentinelRef} />
+
             {isFetchingNextPage && (
                 <div className="py-3 text-center font-mono text-[11px] text-dim">loading…</div>
             )}
@@ -178,9 +185,9 @@ function NotificationList({
     );
 }
 
-function PriorityList({ messages, onSelect, selectedId }: SubListProps) {
-    const levels: Priority[] = [5, 4, 3, 2, 1];
+const levels: Priority[] = [5, 4, 3, 2, 1];
 
+function PriorityList({ messages, onSelect, selectedId }: SubListProps) {
     const groups = useMemo(() => {
         const byLevel = new Map<Priority, Message[]>();
 
@@ -240,10 +247,16 @@ function SubscribeButton() {
 
     const handleSubscribe = async () => {
         const trimmed = topic.trim();
-        if (!trimmed) return;
+
+        if (!trimmed) {
+            return;
+        }
+
         setLoading(true);
+
         try {
             await subscribe(trimmed);
+
             setTopic('');
             setOpen(false);
         } catch (error) {
@@ -278,6 +291,7 @@ function SubscribeButton() {
                 placeholder="topic/name"
                 value={topic}
             />
+
             <button
                 className="rounded-md bg-accent px-2.5 py-1.5 font-mono text-[12px] font-semibold text-bg hover:bg-accent-dim disabled:opacity-50"
                 disabled={!topic.trim() || loading}
@@ -285,6 +299,7 @@ function SubscribeButton() {
             >
                 {loading ? '…' : 'add'}
             </button>
+
             <button
                 className="rounded-md px-2 py-1.5 font-mono text-[12px] text-muted hover:text-fg"
                 onClick={() => setOpen(false)}
