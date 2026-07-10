@@ -147,7 +147,7 @@ services:
                     'CMD',
                     'bun',
                     '-e',
-                    "fetch('http://localhost:5100/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+                    "fetch('http://127.0.0.1:5100/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
                 ]
             timeout: 5s
         image: emitsignal-server:latest
@@ -230,7 +230,7 @@ services:
                     'CMD',
                     'bun',
                     '-e',
-                    "fetch('http://localhost:5000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+                    "fetch('http://127.0.0.1:5000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
                 ]
             timeout: 5s
         labels:
