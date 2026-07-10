@@ -1,6 +1,11 @@
 import { Type } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 
+// Dev/test-only fallback signing secret. It is intentionally NOT a valid
+// production secret: the app refuses to boot in production unless
+// BETTER_AUTH_SECRET is set to something other than this value.
+const DEV_BETTER_AUTH_SECRET = 'emitsignal-dev-better-auth-secret-32chars!!';
+
 const environmentSchema = Type.Object({
     API_URL: Type.String({ default: 'http://localhost:5001' }),
     APP_URL: Type.String({ default: 'http://localhost:5002' }),
@@ -19,7 +24,7 @@ const environmentSchema = Type.Object({
     // Empty = allowlist disabled (anyone may sign in).
     AUTH_ALLOWED_EMAILS: Type.String({ default: '' }),
 
-    BETTER_AUTH_SECRET: Type.String({ default: 'emitsignal-dev-better-auth-secret-32chars!!' }),
+    BETTER_AUTH_SECRET: Type.String({ default: DEV_BETTER_AUTH_SECRET }),
 
     EMAIL_FROM: Type.String({ default: 'EmitSignal <noreply@emitsignal.com>' }),
     EMAIL_PROVIDER: Type.Union(
@@ -38,6 +43,11 @@ const environmentSchema = Type.Object({
 
     GITHUB_CLIENT_ID: Type.Optional(Type.String()),
     GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
+
+    // Message retention window in days. 0 (default) keeps messages forever;
+    // any positive value makes the hourly retention sweep delete messages older
+    // than the window. Expired attachments are always cleaned up regardless.
+    MESSAGE_RETENTION_DAYS: Type.Number({ default: 0 }),
 
     OTEL_ENABLED: Type.Boolean({ default: false }),
     OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
@@ -80,3 +90,16 @@ const environmentSchema = Type.Object({
 export type Environment = typeof environment;
 
 export const environment = Value.Parse(environmentSchema, Bun.env);
+
+// Fail closed in production: never allow the app to sign sessions/tokens with the
+// publicly-known dev fallback secret. This is the single most dangerous default,
+// since it ships in the open-source repo.
+if (
+    Bun.env.NODE_ENV === 'production' &&
+    (!environment.BETTER_AUTH_SECRET || environment.BETTER_AUTH_SECRET === DEV_BETTER_AUTH_SECRET)
+) {
+    throw new Error(
+        'BETTER_AUTH_SECRET must be set to a strong, unique value in production ' +
+            '(e.g. `openssl rand -base64 32`). Refusing to boot with the dev default.',
+    );
+}
