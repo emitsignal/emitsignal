@@ -46,7 +46,10 @@ FROM oven/bun:1.3.14-slim
 
 WORKDIR /app
 
-COPY --from=build /app/packages/emitsignal-website/.output ./.output
+COPY --from=build --chown=bun:bun /app/packages/emitsignal-website/.output ./.output
+
+# Drop root: run the SSR server as the unprivileged `bun` user.
+USER bun
 
 ENV HOST=0.0.0.0
 ENV PORT=5000

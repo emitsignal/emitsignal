@@ -19,8 +19,9 @@ services:
             POSTGRES_USER: emitsignal
         image: postgres:16-alpine
         restart: unless-stopped
+        # Bind to loopback only: don't expose the dev DB (weak creds) to the LAN.
         ports:
-            - '5432:5432'
+            - '127.0.0.1:5432:5432'
         healthcheck:
             interval: 5s
             retries: 10
@@ -32,8 +33,9 @@ services:
     redis:
         image: redis:7-alpine
         restart: unless-stopped
+        # Bind to loopback only: don't expose an unauthenticated Redis to the LAN.
         ports:
-            - '6379:6379'
+            - '127.0.0.1:6379:6379'
         healthcheck:
             interval: 5s
             retries: 10
@@ -49,8 +51,8 @@ services:
         image: kevenleone/kafrainbox:alpha
         restart: unless-stopped
         ports:
-            - '1025:1025' # SMTP
-            - '3134:3134' # Web UI → http://localhost:3134
+            - '127.0.0.1:1025:1025' # SMTP
+            - '127.0.0.1:3134:3134' # Web UI → http://localhost:3134
 
     otel-collector:
         image: otel/opentelemetry-collector-contrib:latest
@@ -64,8 +66,8 @@ services:
             jaeger:
                 condition: service_started
         ports:
-            - '4317:4317'
-            - '4318:4318'
+            - '127.0.0.1:4317:4317'
+            - '127.0.0.1:4318:4318'
 
     jaeger:
         image: jaegertracing/all-in-one:1.57
@@ -73,7 +75,7 @@ services:
         environment:
             COLLECTOR_OTLP_ENABLED: 'true'
         ports:
-            - '16686:16686' # Web UI → http://localhost:16686
+            - '127.0.0.1:16686:16686' # Web UI → http://localhost:16686
         volumes:
             - jaeger_dev_data:/tmp/jaeger
 
