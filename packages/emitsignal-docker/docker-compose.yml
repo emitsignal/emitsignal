@@ -18,8 +18,9 @@ services:
         environment:
             OTEL_EXPORTER_ENDPOINT: '${OTEL_EXPORTER_ENDPOINT}'
             OTEL_EXPORTER_AUTH_TOKEN: '${OTEL_EXPORTER_AUTH_TOKEN}'
-        image: otel/opentelemetry-collector-contrib:latest
+        image: otel/opentelemetry-collector-contrib:0.115.0
         logging: *default-logging
+        mem_limit: 256m
         restart: unless-stopped
         volumes:
             - ./otel/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
@@ -36,11 +37,25 @@ services:
             timeout: 5s
         image: postgres:16-alpine
         logging: *default-logging
+        mem_limit: 1g
         restart: unless-stopped
         volumes:
             - postgres_data:/var/lib/postgresql/data
 
     redis:
+        command:
+            [
+                'redis-server',
+                '--requirepass',
+                '${REDIS_PASSWORD}',
+                '--maxmemory',
+                '512mb',
+                '--maxmemory-policy',
+                'noeviction',
+            ]
+        environment:
+            # Lets redis-cli (healthcheck) authenticate without a plaintext flag.
+            REDISCLI_AUTH: ${REDIS_PASSWORD}
         healthcheck:
             interval: 10s
             retries: 5
@@ -48,15 +63,32 @@ services:
             timeout: 5s
         image: redis:7-alpine
         logging: *default-logging
+        mem_limit: 640m
         restart: unless-stopped
         volumes:
             - redis_data:/data
+    migrate:
+        build:
+            context: ../..
+            dockerfile: packages/emitsignal-docker/server/Dockerfile
+        command: ['prisma', 'migrate', 'deploy']
+        depends_on:
+            postgres:
+                condition: service_healthy
+        environment:
+            DATABASE_URL: 'postgresql://emitsignal:${POSTGRES_PASSWORD}@postgres:5432/emitsignal'
+        image: emitsignal-server:latest
+        logging: *default-logging
+        restart: 'no'
 
     server:
         build:
             context: ../..
             dockerfile: packages/emitsignal-docker/server/Dockerfile
+        command: ['bun', 'src/index.ts']
         depends_on:
+            migrate:
+                condition: service_completed_successfully
             postgres:
                 condition: service_healthy
             redis:
@@ -80,10 +112,11 @@ services:
             FILE_STORAGE_PROVIDER: '${FILE_STORAGE_PROVIDER:-local}'
             GITHUB_CLIENT_ID: '${GITHUB_CLIENT_ID:-}'
             GITHUB_CLIENT_SECRET: '${GITHUB_CLIENT_SECRET:-}'
+            NODE_ENV: 'production'
             OTEL_ENABLED: '${OTEL_ENABLED:-false}'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
             OTEL_SERVICE_NAME: '${OTEL_SERVICE_NAME:-emitsignal-server}'
-            REDIS_URL: 'redis://redis:6379'
+            REDIS_URL: 'redis://:${REDIS_PASSWORD}@redis:6379'
             RESEND_API_KEY: '${RESEND_API_KEY:-}'
             S3_ACCESS_KEY_ID: '${S3_ACCESS_KEY_ID:-}'
             S3_ENDPOINT: '${S3_ENDPOINT:-}'
@@ -105,6 +138,18 @@ services:
             STRIPE_SECRET_KEY: '${STRIPE_SECRET_KEY:-}'
             STRIPE_WEBHOOK_SECRET: '${STRIPE_WEBHOOK_SECRET:-}'
             UPLOAD_DIR: './uploads'
+        healthcheck:
+            interval: 15s
+            retries: 5
+            start_period: 30s
+            test:
+                [
+                    'CMD',
+                    'bun',
+                    '-e',
+                    "fetch('http://localhost:5100/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+                ]
+            timeout: 5s
         image: emitsignal-server:latest
         labels:
             - 'traefik.enable=true'
@@ -113,6 +158,7 @@ services:
             - 'traefik.http.routers.emitsignal-server.tls.certresolver=letsencrypt'
             - 'traefik.http.services.emitsignal-server.loadbalancer.server.port=5100'
         logging: *default-logging
+        mem_limit: 1g
         networks:
             - dokploy-network
             - default
@@ -125,8 +171,8 @@ services:
     worker:
         command: ['bun', 'src/workers/all.ts']
         depends_on:
-            server:
-                condition: service_started
+            migrate:
+                condition: service_completed_successfully
             postgres:
                 condition: service_healthy
             redis:
@@ -136,6 +182,7 @@ services:
         environment:
             API_URL: '${API_URL:-http://localhost:5100}'
             APP_URL: '${APP_URL:-http://localhost:5100}'
+            NODE_ENV: 'production'
             BETTER_AUTH_SECRET: '${BETTER_AUTH_SECRET}'
             DATABASE_URL: 'postgresql://emitsignal:${POSTGRES_PASSWORD}@postgres:5432/emitsignal'
             EMAIL_FROM: '${EMAIL_FROM:-EmitSignal <noreply@emitsignal.com>}'
@@ -147,7 +194,7 @@ services:
             OTEL_ENABLED: '${OTEL_ENABLED:-false}'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
             OTEL_SERVICE_NAME: '${OTEL_WORKER_SERVICE_NAME:-emitsignal-worker}'
-            REDIS_URL: 'redis://redis:6379'
+            REDIS_URL: 'redis://:${REDIS_PASSWORD}@redis:6379'
             RESEND_API_KEY: '${RESEND_API_KEY:-}'
             S3_ACCESS_KEY_ID: '${S3_ACCESS_KEY_ID:-}'
             S3_ENDPOINT: '${S3_ENDPOINT:-}'
@@ -163,6 +210,7 @@ services:
             UPLOAD_DIR: './uploads'
         image: emitsignal-server:latest
         logging: *default-logging
+        mem_limit: 1g
         restart: unless-stopped
         volumes:
             - server_uploads:/app/packages/emitsignal-server/uploads
@@ -173,6 +221,18 @@ services:
             dockerfile: packages/emitsignal-docker/website/Dockerfile
             args:
                 VITE_API_URL: '${API_URL:-http://localhost:5100}'
+        healthcheck:
+            interval: 15s
+            retries: 5
+            start_period: 30s
+            test:
+                [
+                    'CMD',
+                    'bun',
+                    '-e',
+                    "fetch('http://localhost:5000/').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+                ]
+            timeout: 5s
         labels:
             - 'traefik.enable=true'
             - 'traefik.http.routers.emitsignal-website.rule=Host(`${APP_DOMAIN}`)'
@@ -180,12 +240,14 @@ services:
             - 'traefik.http.routers.emitsignal-website.tls.certresolver=letsencrypt'
             - 'traefik.http.services.emitsignal-website.loadbalancer.server.port=5000'
         logging: *default-logging
+        mem_limit: 512m
         networks:
             - dokploy-network
             - default
         restart: unless-stopped
         depends_on:
-            - server
+            server:
+                condition: service_healthy
 
 volumes:
     postgres_data:

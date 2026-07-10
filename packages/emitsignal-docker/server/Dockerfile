@@ -66,8 +66,14 @@ RUN prisma generate
 # Ensure runtime directories exist for SQLite (dev) and local file uploads
 RUN mkdir -p db uploads
 
+# Drop root: run as the unprivileged `bun` user shipped by the base image. chown
+# the whole app tree (incl. the uploads dir, which backs a named volume) so the
+# runtime user can read code and write uploads.
+RUN chown -R bun:bun /app
+USER bun
+
 EXPOSE 5100
 
-# Default: apply pending migrations then start the API server.
-# The worker service overrides this CMD in docker-compose.yml.
-CMD ["sh", "-c", "prisma migrate deploy && bun src/index.ts"]
+# Default: start the API server. Migrations run in the one-shot `migrate` service
+# (see docker-compose.yml), so they are intentionally NOT in this CMD.
+CMD ["bun", "src/index.ts"]
