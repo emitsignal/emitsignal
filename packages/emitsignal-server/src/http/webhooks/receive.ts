@@ -2,6 +2,8 @@ import { parseTemplate, renderTemplate } from '@emitsignal/shared/webhook-templa
 import Elysia, { t } from 'elysia';
 
 import { consumeLimit } from '../../http/plugins/rate-limit-plugin';
+import { getUserPlan } from '../../lib/billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '../../lib/billing/retention';
 import { bus } from '../../lib/event-bus';
 import { prisma } from '../../lib/prisma';
 import { pushQueue } from '../../lib/queue';
@@ -75,10 +77,17 @@ export const receiveWebhook = new Elysia().post(
         // inbound delivery has no known sender.
         const senderId = await resolveUserId({ headers });
 
+        // Webhook deliveries are immediate. Retention follows the webhook owner's
+        // plan (the webhook belongs to a user even when the poster is anonymous).
+        const deliveredAt = new Date();
+        const plan = webhook.userId ? await getUserPlan(webhook.userId) : null;
+
         const message = await prisma.message.create({
             data: {
                 actions: '[]',
                 body: messageBody,
+                deliveredAt,
+                expiresAt: messageExpiresAt(deliveredAt, messageRetentionDays(plan)),
                 priority,
                 senderId,
                 tags,

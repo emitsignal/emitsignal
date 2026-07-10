@@ -3,6 +3,8 @@ import { ConnectionOptions, Worker } from 'bullmq';
 
 import type { ScheduleJob } from './schedule-queue';
 
+import { getUserPlan } from '../../billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '../../billing/retention';
 import { bus } from '../../event-bus';
 import { logger } from '../../logger';
 import { prisma } from '../../prisma';
@@ -72,8 +74,17 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
                             topicName: message.topic.name,
                         });
 
+                        const deliveredAt = new Date();
+                        const plan = message.senderId ? await getUserPlan(message.senderId) : null;
+
                         await prisma.message.update({
-                            data: { deliveredAt: new Date() },
+                            data: {
+                                deliveredAt,
+                                expiresAt: messageExpiresAt(
+                                    deliveredAt,
+                                    messageRetentionDays(plan),
+                                ),
+                            },
                             where: { id: message.id },
                         });
 

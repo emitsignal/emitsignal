@@ -44,11 +44,6 @@ const environmentSchema = Type.Object({
     GITHUB_CLIENT_ID: Type.Optional(Type.String()),
     GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
 
-    // Message retention window in days. 0 (default) keeps messages forever;
-    // any positive value makes the hourly retention sweep delete messages older
-    // than the window. Expired attachments are always cleaned up regardless.
-    MESSAGE_RETENTION_DAYS: Type.Number({ default: 0 }),
-
     OTEL_ENABLED: Type.Boolean({ default: false }),
     OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
     OTEL_SERVICE_NAME: Type.String({ default: 'emitsignal-server' }),

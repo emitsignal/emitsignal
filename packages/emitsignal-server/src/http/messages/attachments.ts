@@ -1,17 +1,14 @@
 import Elysia, { t } from 'elysia';
 
 import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
-import { getUserLimits } from '../../lib/billing/get-user-plan';
+import { getUserPlan } from '../../lib/billing/get-user-plan';
 import { PLANS } from '../../lib/billing/plans';
-import { duration } from '../../lib/duration';
+import { attachmentExpiresAt, messageRetentionDays } from '../../lib/billing/retention';
 import { prisma } from '../../lib/prisma';
 import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
 import { FileStorageService } from '../../lib/storage';
 import { isAllowedMimeType } from '../../lib/storage/provider';
 import { resolveUserId } from '../auth/plugin';
-
-const AUTH_TTL_MS = duration.days(15).as('ms');
-const NO_AUTH_TTL_MS = duration.hours(3).as('ms');
 
 export const attachments = new Elysia({ prefix: '/messages' }).post(
     '/:id/attachments',
@@ -44,11 +41,10 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         }
 
         const userId = await resolveUserId({ headers });
-        const ttlMs = userId ? AUTH_TTL_MS : NO_AUTH_TTL_MS;
-        const expiresAt = new Date(Date.now() + ttlMs);
+        const plan = userId ? await getUserPlan(userId) : null;
 
-        // Anonymous uploaders get free-tier attachment limits
-        const limits = userId ? await getUserLimits(userId) : PLANS.free.limits;
+        const expiresAt = attachmentExpiresAt(new Date(), messageRetentionDays(plan));
+        const limits = plan ? PLANS[plan].limits : PLANS.free.limits;
 
         const storage = FileStorageService.provider;
         const results = [];

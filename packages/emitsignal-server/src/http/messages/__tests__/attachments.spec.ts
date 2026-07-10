@@ -213,7 +213,7 @@ describe('POST /messages/:id/attachments', () => {
         expect(data.error).toBe('invalid_mime_type');
     });
 
-    it('sets 15-day expiry for authenticated users', async () => {
+    it('caps attachment expiry at 14 days for authenticated (free-plan) users', async () => {
         // authAwareBeforeHandle calls resolveUserId once, then the route handler calls it again
         resolveUserIdMock.mockResolvedValueOnce('user-1');
         resolveUserIdMock.mockResolvedValueOnce('user-1');
@@ -256,19 +256,21 @@ describe('POST /messages/:id/attachments', () => {
         const expireTime = createCall[0].data.expiresAt.getTime();
         const now = Date.now();
 
-        const fifteenDaysMs = duration.days(15).as('ms');
+        // Free plan retention is 90d, but attachments are capped at 14d.
+        const fourteenDaysMs = duration.days(14).as('ms');
 
-        expect(expireTime - now).toBeGreaterThan(fifteenDaysMs - 60000);
-        expect(expireTime - now).toBeLessThan(fifteenDaysMs + 60000);
+        expect(expireTime - now).toBeGreaterThan(fourteenDaysMs - 60000);
+        expect(expireTime - now).toBeLessThan(fourteenDaysMs + 60000);
     });
 
-    it('sets 3-hour expiry for unauthenticated users', async () => {
+    it('sets 7-day expiry for unauthenticated (anonymous) users', async () => {
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
         prismaMock.message.findUnique = mock(() =>
             Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
         );
 
-        const threeHoursMs = duration.hours(3).as('ms');
+        // Anonymous retention is 7d (below the 14d attachment cap).
+        const sevenDaysMs = duration.days(7).as('ms');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const createFn = mock((args: any) =>
@@ -303,8 +305,8 @@ describe('POST /messages/:id/attachments', () => {
         const expireTime = createCall[0].data.expiresAt.getTime();
         const now = Date.now();
 
-        expect(expireTime - now).toBeGreaterThan(threeHoursMs - 60000);
-        expect(expireTime - now).toBeLessThan(threeHoursMs + 60000);
+        expect(expireTime - now).toBeGreaterThan(sevenDaysMs - 60000);
+        expect(expireTime - now).toBeLessThan(sevenDaysMs + 60000);
     });
 
     it('returns 422 for non-multipart requests (Elysia schema validation)', async () => {
