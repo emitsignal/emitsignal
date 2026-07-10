@@ -33,13 +33,22 @@ describe('enforceAuthRateLimit', () => {
         await expect(enforceAuthRateLimit(limiter, 'second')).resolves.toBeUndefined();
     });
 
-    it('fails open when the limiter errors without rate-limit info', async () => {
+    it('fails closed when the limiter errors without rate-limit info', async () => {
         const brokenLimiter = {
             consume: async () => {
                 throw new Error('redis unavailable');
             },
         } as unknown as RateLimiterMemory;
 
-        await expect(enforceAuthRateLimit(brokenLimiter, 'key')).resolves.toBeUndefined();
+        let thrown: unknown;
+
+        try {
+            await enforceAuthRateLimit(brokenLimiter, 'key');
+        } catch (error) {
+            thrown = error;
+        }
+
+        expect(thrown).toBeInstanceOf(APIError);
+        expect((thrown as APIError).status).toBe('TOO_MANY_REQUESTS');
     });
 });
