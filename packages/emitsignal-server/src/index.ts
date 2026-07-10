@@ -3,7 +3,6 @@ import { opentelemetry } from '@elysia/opentelemetry';
 import { cors } from '@elysiajs/cors';
 import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
-import path from 'node:path';
 
 import pkg from '../package.json';
 import { getBilling } from './http/billing/get';
@@ -34,6 +33,7 @@ import { topicMetrics } from './http/topic/metrics';
 import { publish } from './http/topic/publish';
 import { suggestions } from './http/topic/suggestions';
 import { updateTopic } from './http/topic/update';
+import { serveUpload } from './http/uploads/serve';
 import { userAvatar } from './http/user/avatar';
 import { createWebhook } from './http/webhooks/create';
 import { deleteWebhook } from './http/webhooks/delete';
@@ -58,7 +58,16 @@ FileStorageService.init(environment);
 
 const isProduction = Bun.env.NODE_ENV === 'production';
 
-const app = new Elysia()
+const MAX_REQUEST_BODY_BYTES = 110 * 1024 * 1024;
+
+const app = new Elysia({
+    serve: {
+        // SSE connections send a keep-alive every 25s; the socket idle timeout
+        // must comfortably exceed that or Bun closes idle streams early.
+        idleTimeout: 120,
+        maxRequestBodySize: MAX_REQUEST_BODY_BYTES,
+    },
+})
     .use(opentelemetry())
     .use(loggerPlugin)
     .use(errorResponsePlugin)
@@ -74,54 +83,41 @@ const app = new Elysia()
     )
     .all('/api/auth/*', (ctx) => auth.handler(ctx.request))
     .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
-    .use(getBilling)
     .use(acknowledge)
     .use(attachments)
     .use(claimSubscriptions)
-    .use(getMessage)
-    .use(purgeSignals)
-    .get('/uploads/*', async ({ params, status }) => {
-        if (environment.FILE_STORAGE_PROVIDER === 's3') {
-            return status(501);
-        }
-
-        const resolved = path.resolve(environment.UPLOAD_DIR, params['*']);
-        const base = path.resolve(environment.UPLOAD_DIR);
-
-        if (!resolved.startsWith(base + path.sep) && base !== resolved) {
-            return status(403);
-        }
-
-        return Bun.file(resolved);
-    })
     .use(claimTopic)
+    .use(createWebhook)
+    .use(deleteWebhook)
+    .use(getBilling)
+    .use(getMessage)
     .use(getTopic)
+    .use(getWebhook)
+    .use(listDeliveries)
     .use(listen)
     .use(listenMulti)
     .use(listPushTokens)
     .use(listSubscriptionMessages)
     .use(listSubscriptions)
-    .use(subscriptionMetrics)
     .use(listTopics)
+    .use(listWebhooks)
     .use(messages)
-    .use(topicMetrics)
     .use(publish)
+    .use(purgeSignals)
+    .use(receiveWebhook)
     .use(registerPushToken)
+    .use(serveUpload)
+    .use(streamWebhookDeliveries)
     .use(subscribe)
+    .use(subscriptionMetrics)
     .use(suggestions)
+    .use(topicMetrics)
     .use(unsubscribe)
-    .use(updateTopic)
     .use(updatePushToken)
     .use(updateSubscription)
-    .use(userAvatar)
-    .use(listWebhooks)
-    .use(streamWebhookDeliveries)
-    .use(getWebhook)
-    .use(createWebhook)
+    .use(updateTopic)
     .use(updateWebhook)
-    .use(deleteWebhook)
-    .use(listDeliveries)
-    .use(receiveWebhook);
+    .use(userAvatar);
 
 export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
