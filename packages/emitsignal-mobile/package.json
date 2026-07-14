@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@bacons/apple-targets": "^4.0.7",
         "@better-auth/expo": "^1.6.14",
         "@emitsignal/shared": "workspace:*",
         "@expo/ui": "~56.0.18",
