@@ -21,6 +21,7 @@ import { ThemeProvider } from '@/ctx/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useForegroundNotifications } from '@/hooks/use-foreground-notifications';
 import { usePalette } from '@/hooks/use-palette';
+import { useWidgetSync } from '@/hooks/use-widget-sync';
 import { queryClient } from '@/lib/query-client';
 import { setupQuerySync } from '@/lib/query-online';
 
@@ -50,6 +51,7 @@ export default function RootLayout() {
 
 function RootLayoutContent() {
     useForegroundNotifications();
+    useWidgetSync();
 
     const colorScheme = useColorScheme();
     const palette = usePalette();

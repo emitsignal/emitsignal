@@ -6,6 +6,7 @@ import { clearOnboardingComplete } from '@/hooks/use-onboarding';
 import { api, setAuthToken } from '@/lib/api';
 import { authClient } from '@/lib/auth-client';
 import { queryClient, queryKeys } from '@/lib/query-client';
+import { clearWidgetSnapshot } from '@/lib/widget-storage';
 
 const DEVICE_ID_KEY = '@emitsignal/device_id';
 const PUSH_TOKEN_KEY = '@emitsignal/push_token';
@@ -93,6 +94,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             // and subscriptions, plus unscoped billing and push-token records) is
             // now stale. Drop the whole cache so the anonymous device starts fresh.
             queryClient.clear();
+
+            clearWidgetSnapshot();
         },
         user: data?.user
             ? {
