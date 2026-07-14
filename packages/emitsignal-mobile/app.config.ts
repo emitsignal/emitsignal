@@ -3,6 +3,7 @@ import { ExpoConfig } from 'expo/config';
 import { version } from './package.json';
 
 const appMode = process.env.APP_MODE;
+const appleTeamId = process.env.APPLE_TEAM_ID;
 
 const projectId = '1424f0ee-b60d-4b18-b09c-4a3bd2740ae8';
 
@@ -35,6 +36,8 @@ function getProjectConfig() {
 
 const { bundleIdentifier, iosIcon, name, scheme } = getProjectConfig();
 
+const appGroup = `group.${bundleIdentifier}`;
+
 const config: ExpoConfig = {
     android: {
         adaptiveIcon: {
@@ -53,6 +56,7 @@ const config: ExpoConfig = {
         typedRoutes: false,
     },
     extra: {
+        appGroup,
         appMode: appMode ?? 'production',
         eas: {
             projectId,
@@ -61,7 +65,11 @@ const config: ExpoConfig = {
     },
     icon: './assets/images/icon.png',
     ios: {
+        appleTeamId,
         bundleIdentifier,
+        entitlements: {
+            'com.apple.security.application-groups': [appGroup],
+        },
         icon: iosIcon,
         infoPlist: {
             ITSAppUsesNonExemptEncryption: false,
@@ -73,6 +81,7 @@ const config: ExpoConfig = {
     orientation: 'portrait',
     owner: 'kevenleone',
     plugins: [
+        '@bacons/apple-targets',
         'expo-apple-authentication',
         'expo-font',
         'expo-notifications',
