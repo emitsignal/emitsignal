@@ -26,24 +26,23 @@ interface TableOfContentsEntry {
 
 const TABLE_OF_CONTENTS: TableOfContentsEntry[] = [
     { id: 'agreement', label: '1. Agreement to these terms' },
-    { id: 'definitions', label: '2. Definitions' },
-    { id: 'eligibility', label: '3. Eligibility & accounts' },
-    { id: 'service', label: '4. The service' },
-    { id: 'acceptable-use', label: '5. Acceptable use' },
-    { id: 'your-content', label: '6. Your content & messages' },
-    { id: 'api', label: '7. API, CLI & rate limits' },
-    { id: 'plans', label: '8. Plans, billing & payment' },
-    { id: 'cancellation', label: '9. Cancellation & refunds' },
-    { id: 'intellectual-property', label: '10. Intellectual property' },
-    { id: 'third-party', label: '11. Third-party services' },
-    { id: 'availability', label: '12. Availability & changes' },
-    { id: 'termination', label: '13. Suspension & termination' },
-    { id: 'disclaimers', label: '14. Disclaimers' },
-    { id: 'liability', label: '15. Limitation of liability' },
-    { id: 'indemnification', label: '16. Indemnification' },
-    { id: 'governing-law', label: '17. Governing law & disputes' },
-    { id: 'changes', label: '18. Changes to these terms' },
-    { id: 'contact', label: '19. Contact' },
+    { id: 'eligibility', label: '2. Eligibility & accounts' },
+    { id: 'service', label: '3. The service' },
+    { id: 'acceptable-use', label: '4. Acceptable use' },
+    { id: 'your-content', label: '5. Your content & messages' },
+    { id: 'api', label: '6. API, CLI & rate limits' },
+    { id: 'plans', label: '7. Plans, billing & payment' },
+    { id: 'cancellation', label: '8. Cancellation & refunds' },
+    { id: 'intellectual-property', label: '9. Intellectual property' },
+    { id: 'third-party', label: '10. Third-party services' },
+    { id: 'availability', label: '11. Availability & changes' },
+    { id: 'termination', label: '12. Suspension & termination' },
+    { id: 'disclaimers', label: '13. Disclaimers' },
+    { id: 'liability', label: '14. Limitation of liability' },
+    { id: 'indemnification', label: '15. Indemnification' },
+    { id: 'governing-law', label: '16. Governing law & disputes' },
+    { id: 'changes', label: '17. Changes to these terms' },
+    { id: 'contact', label: '18. Contact' },
 ];
 
 export default function TermsPage() {
@@ -113,31 +112,8 @@ export default function TermsPage() {
                         </P>
                     </Section>
 
-                    <Section id="definitions">
-                        <Kicker>Section 2</Kicker>
-                        <H2>Definitions</H2>
-                        <Ul>
-                            <Li>
-                                <strong>Service</strong> — the EmitSignal real-time notification
-                                platform, including the website, API, CLI, and mobile app.
-                            </Li>
-                            <Li>
-                                <strong>Topic</strong> — a named channel to which publishers post
-                                messages and subscribers listen.
-                            </Li>
-                            <Li>
-                                <strong>Message</strong> — any content you publish to a topic,
-                                including title, body, tags, images, and attachments.
-                            </Li>
-                            <Li>
-                                <strong>Account</strong> — the credentials and profile associated
-                                with your use of the service.
-                            </Li>
-                        </Ul>
-                    </Section>
-
                     <Section id="eligibility">
-                        <Kicker>Section 3</Kicker>
+                        <Kicker>Section 2</Kicker>
                         <H2>Eligibility &amp; accounts</H2>
                         <P>
                             You must be at least 16 years old to use EmitSignal. Some features, such
@@ -153,7 +129,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="service">
-                        <Kicker>Section 4</Kicker>
+                        <Kicker>Section 3</Kicker>
                         <H2>The service</H2>
                         <P>
                             EmitSignal lets publishers post messages to named topics and lets
@@ -165,7 +141,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="acceptable-use">
-                        <Kicker>Section 5</Kicker>
+                        <Kicker>Section 4</Kicker>
                         <H2>Acceptable use</H2>
                         <P>You agree not to use the service to:</P>
                         <Ul>
@@ -197,7 +173,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="your-content">
-                        <Kicker>Section 6</Kicker>
+                        <Kicker>Section 5</Kicker>
                         <H2>Your content &amp; messages</H2>
                         <P>
                             You retain ownership of the messages and content you publish. You grant
@@ -215,7 +191,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="api">
-                        <Kicker>Section 7</Kicker>
+                        <Kicker>Section 6</Kicker>
                         <H2>API, CLI &amp; rate limits</H2>
                         <P>
                             Access to the API and CLI is subject to rate limits and usage quotas
@@ -227,7 +203,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="plans">
-                        <Kicker>Section 8</Kicker>
+                        <Kicker>Section 7</Kicker>
                         <H2>Plans, billing &amp; payment</H2>
                         <P>
                             EmitSignal offers a free plan and paid plans (Pulse and Beam) with
@@ -244,7 +220,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="cancellation">
-                        <Kicker>Section 9</Kicker>
+                        <Kicker>Section 8</Kicker>
                         <H2>Cancellation &amp; refunds</H2>
                         <P>
                             You can cancel a paid subscription at any time from your account
@@ -256,7 +232,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="intellectual-property">
-                        <Kicker>Section 10</Kicker>
+                        <Kicker>Section 9</Kicker>
                         <H2>Intellectual property</H2>
                         <P>
                             The service, including its software, design, and branding, is owned by
@@ -268,7 +244,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="third-party">
-                        <Kicker>Section 11</Kicker>
+                        <Kicker>Section 10</Kicker>
                         <H2>Third-party services</H2>
                         <P>
                             The service relies on third-party providers — including payment, email,
@@ -280,7 +256,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="availability">
-                        <Kicker>Section 12</Kicker>
+                        <Kicker>Section 11</Kicker>
                         <H2>Availability &amp; changes</H2>
                         <P>
                             We aim to keep the service available and reliable but do not guarantee
@@ -291,7 +267,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="termination">
-                        <Kicker>Section 13</Kicker>
+                        <Kicker>Section 12</Kicker>
                         <H2>Suspension &amp; termination</H2>
                         <P>
                             You may stop using the service and delete your account at any time.
@@ -307,7 +283,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="disclaimers">
-                        <Kicker>Section 14</Kicker>
+                        <Kicker>Section 13</Kicker>
                         <H2>Disclaimers</H2>
                         <P>
                             The service is provided &quot;as is&quot; and &quot;as available&quot;,
@@ -321,7 +297,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="liability">
-                        <Kicker>Section 15</Kicker>
+                        <Kicker>Section 14</Kicker>
                         <H2>Limitation of liability</H2>
                         <P>
                             To the maximum extent permitted by law, EmitSignal will not be liable
@@ -335,7 +311,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="indemnification">
-                        <Kicker>Section 16</Kicker>
+                        <Kicker>Section 15</Kicker>
                         <H2>Indemnification</H2>
                         <P>
                             You agree to indemnify and hold EmitSignal harmless from any claims,
@@ -346,7 +322,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="governing-law">
-                        <Kicker>Section 17</Kicker>
+                        <Kicker>Section 16</Kicker>
                         <H2>Governing law &amp; disputes</H2>
                         <P>
                             These Terms are governed by the laws of Brazil, without regard to its
@@ -358,7 +334,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="changes">
-                        <Kicker>Section 18</Kicker>
+                        <Kicker>Section 17</Kicker>
                         <H2>Changes to these terms</H2>
                         <P>
                             We may update these Terms as the service evolves or the law changes.
@@ -370,7 +346,7 @@ export default function TermsPage() {
                     </Section>
 
                     <Section id="contact">
-                        <Kicker>Section 19</Kicker>
+                        <Kicker>Section 18</Kicker>
                         <H2>Contact</H2>
                         <P>
                             Questions about these Terms can be sent to{' '}
