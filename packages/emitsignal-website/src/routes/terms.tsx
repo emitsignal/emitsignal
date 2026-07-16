@@ -96,12 +96,12 @@ export default function TermsPage() {
                         <H2>Agreement to these terms</H2>
                         <P>
                             These Terms of Service (&quot;Terms&quot;) form a binding agreement
-                            between you and <Token>[Legal entity name]</Token>{' '}
-                            (&quot;EmitSignal&quot;, &quot;we&quot;, &quot;us&quot;) and govern your
-                            use of the EmitSignal service. By creating an account, publishing or
-                            subscribing to a topic, or otherwise using the service, you agree to
-                            these Terms. If you are using EmitSignal on behalf of an organisation,
-                            you represent that you are authorised to bind that organisation.
+                            between you and Keven Leone, operating as &quot;EmitSignal&quot;
+                            (&quot;we&quot;, &quot;us&quot;), and govern your use of the EmitSignal
+                            service. By creating an account, publishing or subscribing to a topic,
+                            or otherwise using the service, you agree to these Terms. If you are
+                            using EmitSignal on behalf of an organisation, you represent that you
+                            are authorised to bind that organisation.
                         </P>
                         <P>
                             If you do not agree with these Terms, do not use the service. Your use
@@ -328,10 +328,9 @@ export default function TermsPage() {
                             for any indirect, incidental, special, consequential, or punitive
                             damages, or for any loss of profits, data, or goodwill, arising from or
                             related to your use of the service. Our total aggregate liability for
-                            any claim will not exceed the greater of the amounts you paid us in the
-                            twelve months before the claim or <Token>[liability cap amount]</Token>.
-                            Some jurisdictions do not allow certain limitations, so some of the
-                            above may not apply to you.
+                            any claim will not exceed the amount you paid us in the twelve months
+                            before the claim. Some jurisdictions do not allow certain limitations,
+                            so some of the above may not apply to you.
                         </P>
                     </Section>
 
@@ -350,13 +349,11 @@ export default function TermsPage() {
                         <Kicker>Section 17</Kicker>
                         <H2>Governing law &amp; disputes</H2>
                         <P>
-                            These Terms are governed by the laws of{' '}
-                            <Token>[Governing law jurisdiction]</Token>, without regard to its
+                            These Terms are governed by the laws of Brazil, without regard to its
                             conflict-of-laws rules. You agree that any dispute will be subject to
-                            the exclusive jurisdiction of the courts located in{' '}
-                            <Token>[Courts / venue]</Token>, except where mandatory
-                            consumer-protection law grants you the right to bring proceedings in
-                            your place of residence.
+                            the exclusive jurisdiction of the courts of Brazil, except where
+                            mandatory consumer-protection law grants you the right to bring
+                            proceedings in your place of residence.
                         </P>
                     </Section>
 
@@ -377,8 +374,13 @@ export default function TermsPage() {
                         <H2>Contact</H2>
                         <P>
                             Questions about these Terms can be sent to{' '}
-                            <Token>[legal@emitsignal.com]</Token>, or by post to{' '}
-                            <Token>[Legal entity name]</Token>, <Token>[Registered address]</Token>.
+                            <a
+                                className="text-accent no-underline hover:underline"
+                                href="mailto:legal@emitsignal.com"
+                            >
+                                legal@emitsignal.com
+                            </a>
+                            .
                         </P>
                     </Section>
 
@@ -424,14 +426,6 @@ function Section({ children, id }: { children: React.ReactNode; id?: string }) {
         <section className="border-t border-line py-14" id={id}>
             {children}
         </section>
-    );
-}
-
-function Token({ children }: { children: React.ReactNode }) {
-    return (
-        <span className="rounded bg-elev px-1.5 py-0.5 font-mono text-[12.5px] text-accent">
-            {children}
-        </span>
     );
 }
 
