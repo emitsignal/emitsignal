@@ -28,7 +28,7 @@ const TABLE_OF_CONTENTS: TableOfContentsEntry[] = [
     { id: 'introduction', label: '1. Introduction & scope' },
     { id: 'controller', label: '2. Data controller & contact' },
     { id: 'data-we-collect', label: '3. Personal data we collect' },
-    { id: 'how-we-use', label: '4. How we use your data & legal bases' },
+    { id: 'how-we-use', label: '4. How we use your data' },
     { id: 'cookies', label: '5. Cookies & similar technologies' },
     { id: 'processors', label: '6. Third-party processors' },
     { id: 'transfers', label: '7. International data transfers' },
@@ -256,34 +256,16 @@ export default function PrivacyPage() {
 
                     <Section id="how-we-use">
                         <Kicker>Section 4</Kicker>
-                        <H2>How we use your data &amp; legal bases</H2>
+                        <H2>How we use your data</H2>
                         <P>
-                            We process personal data only where a lawful basis applies. Under the
-                            GDPR (Art. 6) and the LGPD (Art. 7), the bases we rely on are:
+                            We use your data to run the service — creating and operating your
+                            account, delivering messages and notifications, and providing the API,
+                            CLI, and apps. We also use it to keep the service secure and reliable,
+                            for example through rate limiting and error monitoring, and to meet
+                            legal obligations like retaining billing records. Where we rely on your
+                            consent, such as for push notifications or optional integrations, you
+                            can withdraw it at any time.
                         </P>
-                        <Ul>
-                            <Li>
-                                <strong>Performance of a contract</strong> (LGPD: execução de
-                                contrato) — creating and operating your account, delivering messages
-                                and notifications, and providing the API, CLI, and apps.
-                            </Li>
-                            <Li>
-                                <strong>Legitimate interests</strong> (LGPD: legítimo interesse) —
-                                securing the service, preventing abuse through rate limiting,
-                                debugging via error monitoring, and improving reliability. We
-                                balance these against your rights.
-                            </Li>
-                            <Li>
-                                <strong>Consent</strong> (LGPD: consentimento) — sending push
-                                notifications you opt into, and optional integrations you enable.
-                                You can withdraw consent at any time.
-                            </Li>
-                            <Li>
-                                <strong>Legal obligation</strong> (LGPD: cumprimento de obrigação
-                                legal) — retaining billing records and responding to lawful
-                                requests.
-                            </Li>
-                        </Ul>
                     </Section>
 
                     <Section id="cookies">
