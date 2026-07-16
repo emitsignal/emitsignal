@@ -1,13 +1,13 @@
 ---
 name: visualize-repo
 description: >-
-  Open or create a repo-native visual documentation workspace backed by local
-  Plan MDX files. Use when the user asks to visualize a repository, create
-  durable visual docs for APIs/components/models/flows, launch a visual repo
-  viewer, review repo docs like a visual IDE, or collect Plan comments that
-  should become coding-agent changes.
+    Open or create a repo-native visual documentation workspace backed by local
+    Plan MDX files. Use when the user asks to visualize a repository, create
+    durable visual docs for APIs/components/models/flows, launch a visual repo
+    viewer, review repo docs like a visual IDE, or collect Plan comments that
+    should become coding-agent changes.
 metadata:
-  visibility: exported
+    visibility: exported
 ---
 
 # Visualize Repo

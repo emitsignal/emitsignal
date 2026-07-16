@@ -1,13 +1,13 @@
 {
-  "schemaVersion": 1,
-  "source": "agent-native",
-  "appSkillId": "visual-plans",
-  "displayName": "Agent-Native Plan",
-  "skillName": "visual-plan",
-  "contentHash": "d6c6813bf890e786",
-  "mcpUrl": "https://plan.agent-native.com/_agent-native/mcp",
-  "installedAt": "2026-07-06T02:07:52.692Z",
-  "installCommand": "npx @agent-native/core@latest skills add visual-plan",
-  "updateCommand": "npx @agent-native/core@latest skills update visual-plan",
-  "planMode": "hosted"
+    "appSkillId": "visual-plans",
+    "contentHash": "d6c6813bf890e786",
+    "displayName": "Agent-Native Plan",
+    "installCommand": "npx @agent-native/core@latest skills add visual-plan",
+    "installedAt": "2026-07-06T02:07:52.692Z",
+    "mcpUrl": "https://plan.agent-native.com/_agent-native/mcp",
+    "planMode": "hosted",
+    "schemaVersion": 1,
+    "skillName": "visual-plan",
+    "source": "agent-native",
+    "updateCommand": "npx @agent-native/core@latest skills update visual-plan"
 }

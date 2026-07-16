@@ -19,8 +19,8 @@ content; the renderer styles and roughens it.
 
 ```json
 {
-  "surface": "browser",
-  "html": "<div style=\"display:flex;flex-direction:column;gap:10px;padding:16px;height:100%\"><h1>Sign in</h1><p class=\"wf-muted\">Use your work email to continue.</p><div class=\"wf-card\" style=\"display:flex;flex-direction:column;gap:10px\"><label>Email<input value=\"jane@acme.co\" /></label><label>Password<input value=\"••••••••\" /></label><label style=\"display:flex;align-items:center;gap:8px\"><input type=\"checkbox\" checked /> Remember me</label><button class=\"primary\">Sign in</button></div><a href=\"#\">Forgot password?</a></div>"
+    "html": "<div style=\"display:flex;flex-direction:column;gap:10px;padding:16px;height:100%\"><h1>Sign in</h1><p class=\"wf-muted\">Use your work email to continue.</p><div class=\"wf-card\" style=\"display:flex;flex-direction:column;gap:10px\"><label>Email<input value=\"jane@acme.co\" /></label><label>Password<input value=\"••••••••\" /></label><label style=\"display:flex;align-items:center;gap:8px\"><input type=\"checkbox\" checked /> Remember me</label><button class=\"primary\">Sign in</button></div><a href=\"#\">Forgot password?</a></div>",
+    "surface": "browser"
 }
 ```
 
@@ -269,43 +269,36 @@ composed from the helper classes and tokens, layout in inline flex, no fonts or
 hex colors:
 
 ```html
-<div
-  style="display:flex;flex-direction:column;gap:12px;padding:16px;height:100%"
->
-  <div style="display:flex;align-items:center;justify-content:space-between">
-    <h1>Contacts</h1>
-    <button class="primary">New contact</button>
-  </div>
-  <div style="display:flex;gap:6px">
-    <span class="wf-pill accent">All 128</span>
-    <span class="wf-pill">Favorites</span>
-    <span class="wf-pill">Archived</span>
-  </div>
-  <div
-    class="wf-card"
-    style="display:flex;flex-direction:column;gap:0;padding:0"
-  >
-    <div
-      style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1.4px solid var(--wf-line)"
-    >
-      <div
-        style="width:32px;height:32px;border-radius:999px;background:var(--wf-accent-soft)"
-      ></div>
-      <div style="flex:1">
-        <strong>Jane Cooper</strong><br /><small>jane@acme.co</small>
-      </div>
-      <span class="wf-pill">Lead</span>
+<div style="display:flex;flex-direction:column;gap:12px;padding:16px;height:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+        <h1>Contacts</h1>
+        <button class="primary">New contact</button>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px">
-      <div
-        style="width:32px;height:32px;border-radius:999px;background:var(--wf-accent-soft)"
-      ></div>
-      <div style="flex:1">
-        <strong>Marcus Lee</strong><br /><small>marcus@globex.io</small>
-      </div>
-      <span class="wf-pill">Customer</span>
+    <div style="display:flex;gap:6px">
+        <span class="wf-pill accent">All 128</span>
+        <span class="wf-pill">Favorites</span>
+        <span class="wf-pill">Archived</span>
     </div>
-  </div>
+    <div class="wf-card" style="display:flex;flex-direction:column;gap:0;padding:0">
+        <div
+            style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1.4px solid var(--wf-line)"
+        >
+            <div
+                style="width:32px;height:32px;border-radius:999px;background:var(--wf-accent-soft)"
+            ></div>
+            <div style="flex:1"><strong>Jane Cooper</strong><br /><small>jane@acme.co</small></div>
+            <span class="wf-pill">Lead</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px">
+            <div
+                style="width:32px;height:32px;border-radius:999px;background:var(--wf-accent-soft)"
+            ></div>
+            <div style="flex:1">
+                <strong>Marcus Lee</strong><br /><small>marcus@globex.io</small>
+            </div>
+            <span class="wf-pill">Customer</span>
+        </div>
+    </div>
 </div>
 ```
 
