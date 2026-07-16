@@ -159,17 +159,22 @@ export default function PrivacyPage() {
                         <Kicker>Section 2</Kicker>
                         <H2>Data controller &amp; contact</H2>
                         <P>
-                            The controller responsible for your personal data is{' '}
-                            <Token>[Legal entity name]</Token>, registered at{' '}
-                            <Token>[Registered address]</Token>. For any privacy question, request,
-                            or complaint, contact us at <Token>[privacy@emitsignal.com]</Token>.
+                            EmitSignal is operated by Keven Leone, an individual (sole proprietor)
+                            rather than a registered legal entity. For any privacy question,
+                            request, or complaint, contact{' '}
+                            <a
+                                className="text-accent no-underline hover:underline"
+                                href="mailto:privacy@emitsignal.com"
+                            >
+                                privacy@emitsignal.com
+                            </a>
+                            .
                         </P>
                         <P>
-                            Our Data Protection Officer can be reached at{' '}
-                            <Token>[dpo@emitsignal.com]</Token>. Under GDPR Article 27, our
-                            representative in the EU is <Token>[EU representative]</Token>. Under
-                            LGPD Article 41, our person in charge (Encarregado) in Brazil is{' '}
-                            <Token>[Brazil DPO/Encarregado]</Token>.
+                            As an individual operator, EmitSignal has not appointed a separate Data
+                            Protection Officer, EU representative, or Brazilian Encarregado. Keven
+                            Leone acts as the person responsible for privacy matters under both the
+                            GDPR and the LGPD.
                         </P>
                     </Section>
 
@@ -348,9 +353,9 @@ export default function PrivacyPage() {
                         <P>
                             Some of our processors operate outside the EU/EEA or Brazil. Where
                             personal data is transferred internationally, we rely on appropriate
-                            safeguards such as adequacy decisions or Standard Contractual Clauses:{' '}
-                            <Token>[transfer mechanism]</Token>. You may request a copy of the
-                            relevant safeguards using the contact details below.
+                            safeguards such as adequacy decisions or the Standard Contractual
+                            Clauses approved by the European Commission. You may request a copy of
+                            the relevant safeguards using the contact details below.
                         </P>
                     </Section>
 
@@ -401,8 +406,14 @@ export default function PrivacyPage() {
                             profile and cascades to all related records — channels, messages, push
                             tokens, subscriptions, sessions, API keys, and passkeys — and erases
                             your stored attachment files. To request a data export, or to exercise
-                            any other right, email <Token>[privacy@emitsignal.com]</Token>. We
-                            respond within the timeframes required by law.
+                            any other right, email{' '}
+                            <a
+                                className="text-accent no-underline hover:underline"
+                                href="mailto:privacy@emitsignal.com"
+                            >
+                                privacy@emitsignal.com
+                            </a>
+                            . We respond within the timeframes required by law.
                         </P>
                     </Section>
 
@@ -445,11 +456,15 @@ export default function PrivacyPage() {
                         <H2>Contact &amp; complaints</H2>
                         <P>
                             For any privacy request, write to{' '}
-                            <Token>[privacy@emitsignal.com]</Token> or our Data Protection Officer
-                            at <Token>[dpo@emitsignal.com]</Token>. EU and EEA residents may also
-                            lodge a complaint with their local data protection supervisory
-                            authority. Brazilian residents may contact the Autoridade Nacional de
-                            Proteção de Dados (ANPD).
+                            <a
+                                className="text-accent no-underline hover:underline"
+                                href="mailto:privacy@emitsignal.com"
+                            >
+                                privacy@emitsignal.com
+                            </a>
+                            . EU and EEA residents may also lodge a complaint with their local data
+                            protection supervisory authority. Brazilian residents may contact the
+                            Autoridade Nacional de Proteção de Dados (ANPD).
                         </P>
                     </Section>
 
@@ -499,14 +514,6 @@ function Section({ children, id }: { children: React.ReactNode; id?: string }) {
         <section className="border-t border-line py-14" id={id}>
             {children}
         </section>
-    );
-}
-
-function Token({ children }: { children: React.ReactNode }) {
-    return (
-        <span className="rounded bg-elev px-1.5 py-0.5 font-mono text-[12.5px] text-accent">
-            {children}
-        </span>
     );
 }
 
