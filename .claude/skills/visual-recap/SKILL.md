@@ -1,11 +1,11 @@
 ---
 name: visual-recap
 description: >-
-  Turn a PR, branch, commit, or git diff into an interactive visual recap with
-  diagrams, file maps, API/schema summaries, annotated diffs, and focused review
-  notes.
+    Turn a PR, branch, commit, or git diff into an interactive visual recap with
+    diagrams, file maps, API/schema summaries, annotated diffs, and focused review
+    notes.
 metadata:
-  visibility: exported
+    visibility: exported
 ---
 
 # Visual Recap

@@ -1,11 +1,11 @@
 ---
 name: visual-plan
 description: >-
-  Turn ordinary text plans into rich interactive visual plans with diagrams,
-  file maps, annotated code, open questions, and UI/prototype review when
-  useful.
+    Turn ordinary text plans into rich interactive visual plans with diagrams,
+    file maps, annotated code, open questions, and UI/prototype review when
+    useful.
 metadata:
-  visibility: exported
+    visibility: exported
 ---
 
 # Agent-Native Plans
@@ -386,7 +386,7 @@ local bridge check/serve/verify command, and report the new local URL.
 
 `get-plan-feedback` returns rich anchors — read them before acting on any comment.
 
-- **Coordinate frames.** `targetX`/`targetY` are percentages *within* the
+- **Coordinate frames.** `targetX`/`targetY` are percentages _within_ the
   element named by `targetSelector`/`targetKind`. Bare `x`/`y` are percentages
   of the whole plan document. `canvasX`/`canvasY` are raw board-world pixels on
   the design canvas (board size given when available).
