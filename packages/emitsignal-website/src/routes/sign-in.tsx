@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
 import { isAuthenticated } from '#/lib/auth-guard';
+import { isAppleDevice } from '#/lib/is-apple-device';
 import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
 
 export const Route = createFileRoute('/sign-in')({
@@ -31,9 +32,11 @@ export const Route = createFileRoute('/sign-in')({
 });
 
 function SignInPage() {
+    const [appleBusy, setAppleBusy] = useState(false);
     const [busy, setBusy] = useState(false);
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
+    const [isApple, setIsApple] = useState(false);
     const [passkeyBusy, setPasskeyBusy] = useState(false);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -41,12 +44,15 @@ function SignInPage() {
     const callbackURL = `${typeof window !== 'undefined' ? window.location.origin : ''}/app`;
 
     useEffect(() => {
+        setIsApple(isAppleDevice());
+
         if (
             !PublicKeyCredential.isConditionalMediationAvailable ||
             !PublicKeyCredential.isConditionalMediationAvailable()
         ) {
             return;
         }
+
         void authClient.signIn.passkey({ autoFill: true });
     }, []);
 
@@ -58,15 +64,15 @@ function SignInPage() {
         setBusy(true);
         setError('');
 
-        const { error: err } = await authClient.emailOtp.sendVerificationOtp({
+        const { error: sendError } = await authClient.emailOtp.sendVerificationOtp({
             email: email.trim(),
             type: 'sign-in',
         });
 
         setBusy(false);
 
-        if (err) {
-            setError(err.message ?? 'Failed to send sign-in code');
+        if (sendError) {
+            setError(sendError.message ?? 'Failed to send sign-in code');
         } else {
             navigate({ search: { email: email.trim(), otp: undefined }, to: '/verify' });
         }
@@ -76,16 +82,31 @@ function SignInPage() {
         await authClient.signIn.social({ callbackURL, provider: 'github' });
     };
 
+    const handleApple = async () => {
+        setAppleBusy(true);
+        setError('');
+
+        const { error: appleError } = await authClient.signIn.social({
+            callbackURL,
+            provider: 'apple',
+        });
+
+        if (appleError) {
+            setAppleBusy(false);
+            setError(appleError.message ?? 'Failed to sign in with Apple');
+        }
+    };
+
     const handlePasskey = async () => {
         setPasskeyBusy(true);
         setError('');
 
-        const { data, error: err } = await authClient.signIn.passkey();
+        const { data, error: passkeyError } = await authClient.signIn.passkey();
 
         setPasskeyBusy(false);
 
-        if (err) {
-            setError(err.message ?? 'Passkey sign-in failed');
+        if (passkeyError) {
+            setError(passkeyError.message ?? 'Passkey sign-in failed');
         } else if (data) {
             queryClient.removeQueries({ queryKey: queryKeys.session });
 
@@ -159,13 +180,18 @@ function SignInPage() {
                         {passkeyBusy ? 'authenticating…' : 'continue with passkey'}
                     </span>
                 </button>
-                <button
-                    className="flex w-full items-center gap-2.5 rounded-lg border border-line bg-elev px-4 py-3 text-[13px] text-fg hover:bg-elev-2"
-                    disabled
-                >
-                    <span className="font-mono">continue with Apple</span>
-                    <span className="ml-auto font-mono text-[11px] text-dim">soon</span>
-                </button>
+
+                {isApple && (
+                    <button
+                        className="flex w-full items-center gap-2.5 rounded-lg border border-line bg-elev px-4 py-3 text-[13px] text-fg hover:bg-elev-2 disabled:opacity-60"
+                        disabled={appleBusy}
+                        onClick={handleApple}
+                    >
+                        <span className="font-mono">
+                            {appleBusy ? 'connecting…' : 'continue with Apple'}
+                        </span>
+                    </button>
+                )}
 
                 <p className="mt-8 text-center font-mono text-[11px] leading-[18px] text-dim">
                     by continuing you agree to the
