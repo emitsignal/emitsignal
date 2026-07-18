@@ -38,6 +38,15 @@ WORKDIR /app/packages/emitsignal-website
 ARG VITE_API_URL=http://localhost:3333
 ENV VITE_API_URL=${VITE_API_URL}
 
+# VITE_SENTRY_DSN/VITE_SENTRY_ENABLED are read via import.meta.env and baked
+# into the client bundle at build time, so they must be build args (unlike the
+# server-side SENTRY_DSN/SENTRY_ENABLED, which are read from process.env at
+# container runtime and just need to be passed via docker-compose `environment`).
+ARG VITE_SENTRY_DSN=
+ARG VITE_SENTRY_ENABLED=false
+ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+ENV VITE_SENTRY_ENABLED=${VITE_SENTRY_ENABLED}
+
 # Produces a Nitro SSR bundle at .output/server/index.mjs
 RUN bun run build
 
