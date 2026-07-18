@@ -4,7 +4,8 @@
             "developmentClient": true,
             "distribution": "internal",
             "env": {
-                "APP_MODE": "development"
+                "APP_MODE": "development",
+                "EXPO_PUBLIC_SENTRY_ENABLED": "false"
             }
         },
         "ios-simulator": {
@@ -17,12 +18,16 @@
             "channel": "preview",
             "distribution": "internal",
             "env": {
-                "APP_MODE": "preview"
+                "APP_MODE": "preview",
+                "EXPO_PUBLIC_SENTRY_ENABLED": "false"
             }
         },
         "production": {
             "autoIncrement": true,
-            "channel": "production"
+            "channel": "production",
+            "env": {
+                "EXPO_PUBLIC_SENTRY_ENABLED": "false"
+            }
         }
     },
     "cli": {

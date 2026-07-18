@@ -81,6 +81,7 @@ const config: ExpoConfig = {
     owner: 'kevenleone',
     plugins: [
         '@bacons/apple-targets',
+        '@sentry/react-native/expo',
         'expo-apple-authentication',
         'expo-font',
         'expo-notifications',

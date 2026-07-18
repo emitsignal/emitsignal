@@ -1,4 +1,6 @@
+import * as Sentry from '@sentry/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
+import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
 import {
     DarkTheme,
@@ -8,8 +10,8 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
+import { useEffect, useState } from 'react';
 
 import { AnimatedSplash } from '@/components/animated-splash';
 import { palettes } from '@/constants/theme';
@@ -31,7 +33,15 @@ setupQuerySync();
 // in-app animated intro. Both share the #08080a background so the swap is seamless.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+if (process.env.EXPO_PUBLIC_SENTRY_ENABLED === 'true' && process.env.EXPO_PUBLIC_SENTRY_DSN) {
+    Sentry.init({
+        dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+        environment: Constants.expoConfig?.extra?.appMode ?? 'production',
+        tracesSampleRate: 0.1,
+    });
+}
+
+function RootLayout() {
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
@@ -107,3 +117,5 @@ function RootLayoutContent() {
         </NavigationThemeProvider>
     );
 }
+
+export default Sentry.wrap(RootLayout);
