@@ -98,6 +98,8 @@ services:
             FILE_STORAGE_PROVIDER: 'local'
             BETTER_AUTH_SECRET: 'emitsignal-dev-better-auth-secret-32chars!!'
             REDIS_URL: 'redis://redis:6379'
+            SENTRY_DSN: '${SENTRY_DSN:-}'
+            SENTRY_ENABLED: '${SENTRY_ENABLED:-false}'
             SMTP_HOST: 'kafrainbox'
             SMTP_PASS: 'emitsignal'
             SMTP_PORT: '1025'
@@ -145,6 +147,8 @@ services:
             FILE_STORAGE_PROVIDER: 'local'
             BETTER_AUTH_SECRET: 'emitsignal-dev-better-auth-secret-32chars!!'
             REDIS_URL: 'redis://redis:6379'
+            SENTRY_DSN: '${SENTRY_DSN:-}'
+            SENTRY_ENABLED: '${SENTRY_ENABLED:-false}'
             SMTP_HOST: 'kafrainbox'
             SMTP_PASS: 'emitsignal'
             SMTP_PORT: '1025'
@@ -174,6 +178,12 @@ services:
                    bunx vite dev --port 5173 --host"
         environment:
             VITE_API_URL: 'http://localhost:5100'
+            VITE_SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
+            VITE_SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
+            # Same DSN as the client build (VITE_SENTRY_DSN): SSR and browser
+            # are the same Sentry project, distinguished automatically by SDK name.
+            SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
+            SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
         image: oven/bun:1
         restart: unless-stopped
         volumes:

@@ -204,6 +204,8 @@ services:
             S3_PUBLIC_URL_BASE: '${S3_PUBLIC_URL_BASE:-}'
             S3_REGION: '${S3_REGION:-}'
             S3_SECRET_ACCESS_KEY: '${S3_SECRET_ACCESS_KEY:-}'
+            SENTRY_DSN: '${SENTRY_DSN:-}'
+            SENTRY_ENABLED: '${SENTRY_ENABLED:-false}'
             SMTP_HOST: '${SMTP_HOST:-}'
             SMTP_PASS: '${SMTP_PASS:-}'
             SMTP_PORT: '${SMTP_PORT:-587}'
@@ -222,6 +224,13 @@ services:
             dockerfile: packages/emitsignal-docker/website/Dockerfile
             args:
                 VITE_API_URL: '${API_URL:-http://localhost:5100}'
+                VITE_SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
+                VITE_SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
+        environment:
+            # Same DSN as the client build (VITE_SENTRY_DSN): SSR and browser
+            # are the same Sentry project, distinguished automatically by SDK name.
+            SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
+            SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
         healthcheck:
             interval: 15s
             retries: 5
