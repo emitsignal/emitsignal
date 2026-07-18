@@ -1,13 +1,19 @@
 import type { QueryClient } from '@tanstack/react-query';
 
+import * as Sentry from '@sentry/tanstackstart-react';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { useEffect } from 'react';
 
 import { SessionProvider } from '#/ctx/session';
 
 import appCss from '../styles.css?url';
+
+if (import.meta.env.SSR) {
+    import('#/lib/instrument-server');
+}
 
 export interface RouterContext {
     queryClient: QueryClient;
@@ -20,6 +26,7 @@ const DEFAULT_TITLE = 'EmitSignal: push notifications with one curl';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+    errorComponent: ({ error }) => <RootErrorFallback error={error} />,
     head: () => ({
         links: [{ href: appCss, rel: 'stylesheet' }],
         meta: [
@@ -70,5 +77,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <Scripts />
             </body>
         </html>
+    );
+}
+
+function RootErrorFallback({ error }: { error: Error }) {
+    useEffect(() => {
+        Sentry.captureException(error);
+    }, [error]);
+
+    return (
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <p>Something went wrong.</p>
+        </div>
     );
 }
