@@ -8,6 +8,7 @@
         "@mdx-js/rollup": "^3.1.1",
         "@microsoft/fetch-event-source": "^2.0.1",
         "@resvg/resvg-js": "^2.6.2",
+        "@sentry/tanstackstart-react": "^10.66.0",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/react-devtools": "latest",
         "@tanstack/react-query": "latest",
