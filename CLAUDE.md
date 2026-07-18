@@ -82,7 +82,7 @@ CLI                       ┘                    │                  Redis
 
 ### Mobile (`packages/emitsignal-mobile`)
 
-- **Framework:** Expo SDK 54 / React Native 0.81.5 / Expo Router v6
+- **Framework:** Expo SDK 56 / React Native 0.85.3 / Expo Router 56
 - **Path alias:** `@/` → project root
 - **Auth:** `@better-auth/expo` with Bearer session tokens
 - **Context providers** (in `app/_layout.tsx`): `ThemeProvider` → `DebugSectionsProvider` → `SessionProvider` → `DeviceProvider`
