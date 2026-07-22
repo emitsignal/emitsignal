@@ -11,6 +11,7 @@ Transactional email templates built with [React Email](https://react.email). Tem
 | Message Alert   | `emails/message-alert.tsx`   | New message on a subscribed topic |
 | Weekly Digest   | `emails/weekly-digest.tsx`   | Weekly topic activity summary     |
 | API Key Created | `emails/api-key-created.tsx` | New API key notification          |
+| Account Deleted | `emails/account-deleted.tsx` | Account deletion confirmation     |
 
 ## Scripts
 
