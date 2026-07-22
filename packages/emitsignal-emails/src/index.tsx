@@ -1,3 +1,6 @@
+export type { AccountDeletedEmailProps } from '../emails/account-deleted';
+
+export { default as AccountDeletedEmail } from '../emails/account-deleted';
 export type { ApiKeyCreatedProps as ApiKeyCreatedEmailProps } from '../emails/api-key-created';
 
 export { default as ApiKeyCreatedEmail } from '../emails/api-key-created';

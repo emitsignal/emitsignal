@@ -23,6 +23,7 @@ import { getClientIP } from './ip';
 import { prisma } from './prisma';
 import { purgeQueue } from './queue';
 import { enforceAuthRateLimit, magicLinkLimiter, verifyLimiter } from './rate-limit';
+import { sendAccountDeletedEmail } from './send-account-deleted-email';
 import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
 
 // Paid plans only exist when Stripe is fully configured; without the env vars
@@ -257,11 +258,9 @@ export const auth = betterAuth({
             onboarded: { defaultValue: false, required: false, type: 'boolean' },
         },
         deleteUser: {
-            // Deleting the User row cascades to every owned record in the database
-            // (topics, messages, push tokens, subscriptions, acknowledgments, API
-            // keys, passkeys, accounts, sessions, topic access, webhooks). Here we
-            // capture the orphaned storage files and Stripe rows that the DB cascade
-            // can't reach, then hand the file cleanup to the async purge queue.
+            afterDelete: async (user) => {
+                await sendAccountDeletedEmail(user);
+            },
             beforeDelete: async (user) => {
                 const attachments = await prisma.attachment.findMany({
                     select: { storageKey: true },
