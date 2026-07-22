@@ -246,6 +246,7 @@ export const auth = betterAuth({
     trustedOrigins: [
         environment.APP_URL, // website browser origin (cookie-based web auth)
         'emitsignal://', // mobile app deep-link scheme (app.config.ts `scheme`)
+        'emitsignal-preview://', // mobile app deep-link scheme (app.config.ts `scheme`)
         'exp://', // Expo Go / dev client
         // Apple's auth servers post back to the callback via this origin.
         ...(isAppleAuthEnabled ? ['https://appleid.apple.com'] : []),
