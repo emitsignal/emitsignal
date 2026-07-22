@@ -11,6 +11,7 @@ const DEVICE_ID_KEY = '@emitsignal/device_id';
 const PUSH_TOKEN_KEY = '@emitsignal/push_token';
 
 export interface SessionContextValue {
+    deleteAccount: () => Promise<{ error: null | string }>;
     loading: boolean;
     signOut: () => Promise<void>;
     user: null | SessionUser;
@@ -64,6 +65,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }, [data?.user?.id]);
 
     const value: SessionContextValue = {
+        deleteAccount: async () => {
+            const { error } = await authClient.deleteUser();
+
+            if (error) {
+                return { error: error.message ?? 'Deletion failed' };
+            }
+
+            setAuthToken(null);
+
+            await clearOnboardingComplete();
+
+            // Same rationale as signOut below: the identity is gone, drop every
+            // cached query so the anonymous device starts fresh.
+            queryClient.clear();
+
+            return { error: null };
+        },
         loading: isPending,
         signOut: async () => {
             await authClient.signOut();

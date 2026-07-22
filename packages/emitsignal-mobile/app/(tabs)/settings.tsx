@@ -68,7 +68,7 @@ export default function SettingsScreen() {
     const { currentScheme, setTheme, theme } = useTheme();
     const { feedStyle, setFeedStyle } = useFeedStyle();
     const { sections, setSection } = useDebugSections();
-    const { signOut, user } = useSession();
+    const { deleteAccount, signOut, user } = useSession();
     const palette = palettes[currentScheme];
     const styles = useMemo(() => createStyles(palette), [palette]);
     const bottomInset = useTabBarInset();
@@ -165,24 +165,62 @@ export default function SettingsScreen() {
                 <SectionLabel>ACCOUNT</SectionLabel>
                 <View style={styles.group}>
                     {user ? (
-                        <Pressable
-                            onPress={() => {
-                                Alert.alert('Sign out', 'Are you sure you want to sign out?', [
-                                    { style: 'cancel', text: 'Cancel' },
-                                    {
-                                        onPress: async () => {
-                                            await signOut();
-                                            router.replace('/auth');
+                        <>
+                            <Pressable
+                                onPress={() => {
+                                    Alert.alert(
+                                        'Delete account',
+                                        'This permanently deletes your account and all associated data. This cannot be undone.',
+                                        [
+                                            { style: 'cancel', text: 'Cancel' },
+                                            {
+                                                onPress: async () => {
+                                                    const { error } = await deleteAccount();
+
+                                                    if (error) {
+                                                        Alert.alert(
+                                                            'Could not delete account',
+                                                            error,
+                                                        );
+                                                        return;
+                                                    }
+
+                                                    router.replace('/auth');
+                                                },
+                                                style: 'destructive',
+                                                text: 'Delete',
+                                            },
+                                        ],
+                                    );
+                                }}
+                                style={styles.row}
+                            >
+                                <Text style={[styles.rowLabel, { color: palette.red }]}>
+                                    Delete account
+                                </Text>
+                            </Pressable>
+
+                            <Pressable
+                                onPress={() => {
+                                    Alert.alert('Sign out', 'Are you sure you want to sign out?', [
+                                        { style: 'cancel', text: 'Cancel' },
+                                        {
+                                            onPress: async () => {
+                                                await signOut();
+                                                router.replace('/auth');
+                                            },
+                                            style: 'destructive',
+                                            text: 'Sign out',
                                         },
-                                        style: 'destructive',
-                                        text: 'Sign out',
-                                    },
-                                ]);
-                            }}
-                            style={[styles.row, styles.rowLast]}
-                        >
-                            <Text style={[styles.rowLabel, { color: palette.red }]}>Sign out</Text>
-                        </Pressable>
+                                    ]);
+                                }}
+                                style={[styles.row, styles.rowLast]}
+                            >
+                                <Text style={[styles.rowLabel, { color: palette.red }]}>
+                                    Sign out
+                                </Text>
+                            </Pressable>
+                        </>
                     ) : (
                         <Pressable
                             onPress={() => router.push('/auth')}
