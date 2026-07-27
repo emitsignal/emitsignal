@@ -45,7 +45,10 @@ export default function WeeklyDigestEmail({ inboxUrl, messages, weekStart }: Wee
     return (
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
-                <Head />
+                <Head>
+                    <meta name="color-scheme" content="dark" />
+                    <meta name="supported-color-schemes" content="dark" />
+                </Head>
                 <Preview>
                     Weekly Digest — {String(totalMessages)} message
                     {totalMessages === 1 ? '' : 's'} from {String(topicNames.length)} channel

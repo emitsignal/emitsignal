@@ -42,7 +42,10 @@ export default function MessageAlertEmail({
     return (
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
-                <Head />
+                <Head>
+                    <meta name="color-scheme" content="dark" />
+                    <meta name="supported-color-schemes" content="dark" />
+                </Head>
                 <Preview>
                     [{topicName}] {title} — Priority {String(priority)}
                 </Preview>
