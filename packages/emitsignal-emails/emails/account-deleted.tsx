@@ -12,7 +12,10 @@ export default function AccountDeletedEmail({ email, name }: AccountDeletedEmail
     return (
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
-                <Head />
+                <Head>
+                    <meta name="color-scheme" content="dark" />
+                    <meta name="supported-color-schemes" content="dark" />
+                </Head>
                 <Preview>Your EmitSignal account has been deleted</Preview>
                 <Body className="bg-es-bg py-10 font-sans">
                     <Container className="mx-auto max-w-xl px-5">
