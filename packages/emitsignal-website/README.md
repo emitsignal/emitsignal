@@ -31,4 +31,4 @@ Requires the [EmitSignal server](../emitsignal-server) to be running. Set `VITE_
 
 | Variable       | Default                 | Description         |
 | -------------- | ----------------------- | ------------------- |
-| `VITE_API_URL` | `http://localhost:3333` | Server API base URL |
+| `VITE_API_URL` | `http://localhost:5001` | Server API base URL |
