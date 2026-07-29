@@ -3,16 +3,20 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
 
+const DESCRIPTION =
+    'The standards of behaviour we expect from everyone who participates in the EmitSignal community — our platform, repositories, and communication channels.';
+const TITLE = 'Code of Conduct — EmitSignal';
+
 export const Route = createFileRoute('/code-of-conduct')({
     component: CodeOfConductPage,
     head: () => ({
         meta: [
-            { title: 'Code of Conduct — EmitSignal' },
-            {
-                content:
-                    'The standards of behaviour we expect from everyone who participates in the EmitSignal community — our platform, repositories, and communication channels.',
-                name: 'description',
-            },
+            { title: TITLE },
+            { content: DESCRIPTION, name: 'description' },
+            { content: TITLE, property: 'og:title' },
+            { content: DESCRIPTION, property: 'og:description' },
+            { content: TITLE, name: 'twitter:title' },
+            { content: DESCRIPTION, name: 'twitter:description' },
         ],
     }),
 });

@@ -3,16 +3,20 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
 
+const DESCRIPTION =
+'The terms and conditions that govern your use of EmitSignal — accounts, acceptable use, plans, billing, liability, and termination.';
+const TITLE = 'Terms of Service — EmitSignal';
+
 export const Route = createFileRoute('/terms')({
     component: TermsPage,
     head: () => ({
         meta: [
-            { title: 'Terms of Service — EmitSignal' },
-            {
-                content:
-                    'The terms and conditions that govern your use of EmitSignal — accounts, acceptable use, plans, billing, liability, and termination.',
-                name: 'description',
-            },
+            { content: DESCRIPTION, name: 'description' },
+            { content: DESCRIPTION, name: 'twitter:description' },
+            { content: DESCRIPTION, property: 'og:description' },
+            { content: TITLE, name: 'twitter:title' },
+            { content: TITLE, property: 'og:title' },
+            { title: TITLE },
         ],
     }),
 });

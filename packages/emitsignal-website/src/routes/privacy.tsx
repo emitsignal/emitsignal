@@ -3,16 +3,20 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
 
+const DESCRIPTION =
+    'How EmitSignal collects, uses, shares, and retains personal data, and your rights under the GDPR and the LGPD.';
+const TITLE = 'Privacy Policy — EmitSignal';
+
 export const Route = createFileRoute('/privacy')({
     component: PrivacyPage,
     head: () => ({
         meta: [
-            { title: 'Privacy Policy — EmitSignal' },
-            {
-                content:
-                    'How EmitSignal collects, uses, shares, and retains personal data, and your rights under the GDPR and the LGPD.',
-                name: 'description',
-            },
+            { content: DESCRIPTION, name: 'description' },
+            { content: DESCRIPTION, name: 'twitter:description' },
+            { content: DESCRIPTION, property: 'og:description' },
+            { content: TITLE, name: 'twitter:title' },
+            { content: TITLE, property: 'og:title' },
+            { title: TITLE },
         ],
     }),
 });
