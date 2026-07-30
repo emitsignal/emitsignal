@@ -181,6 +181,16 @@ export default function ImageViewerScreen() {
     );
 }
 
+function isSafeGalleryItem(item: unknown): item is GalleryItem {
+    if (typeof item !== 'object' || item === null) {
+        return false;
+    }
+
+    const candidate = item as Record<string, unknown>;
+
+    return typeof candidate.url === 'string' && isSafeExternalUrl(candidate.url);
+}
+
 function parseItems(params: {
     filename?: string;
     gallery?: string;
@@ -189,17 +199,21 @@ function parseItems(params: {
 }): GalleryItem[] {
     if (params.gallery) {
         try {
-            const parsed = JSON.parse(params.gallery) as GalleryItem[];
+            const parsed = JSON.parse(params.gallery) as unknown;
 
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                return parsed;
+            if (Array.isArray(parsed)) {
+                const items = parsed.filter(isSafeGalleryItem);
+
+                if (items.length > 0) {
+                    return items;
+                }
             }
         } catch {
             // fall through to single-item handling
         }
     }
 
-    if (params.url) {
+    if (params.url && isSafeExternalUrl(params.url)) {
         return [{ filename: params.filename, size: params.size, url: params.url }];
     }
 
