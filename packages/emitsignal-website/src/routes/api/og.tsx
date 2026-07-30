@@ -88,6 +88,10 @@ function avatarInitials(name: string): string {
         .toUpperCase();
 }
 
+function bounded(value: null | string, max: number) {
+    return value === null ? null : value.slice(0, max);
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // A · EDITORIAL
 // Title-forward, category kicker + top-right glow, author byline footer.
@@ -544,14 +548,19 @@ export const Route = createFileRoute('/api/og')({
                 const { searchParams } = new URL(request.url);
 
                 const props: CardProps = {
-                    author: searchParams.get('author') ?? 'EmitSignal',
-                    category: searchParams.get('category') ?? 'product',
-                    date: searchParams.get('date') ?? new Date().toISOString().slice(0, 10),
+                    author: bounded(searchParams.get('author'), 80) ?? 'EmitSignal',
+                    category: bounded(searchParams.get('category'), 40) ?? 'product',
+                    date:
+                        bounded(searchParams.get('date'), 40) ??
+                        new Date().toISOString().slice(0, 10),
                     description:
-                        searchParams.get('description') ??
+                        bounded(searchParams.get('description'), 300) ??
                         'Engineering deep-dives, product updates, and tutorials.',
-                    readTime: Number(searchParams.get('readTime') ?? '5'),
-                    title: searchParams.get('title') ?? 'EmitSignal Blog',
+                    readTime: Math.min(
+                        999,
+                        Math.max(0, Number(searchParams.get('readTime') ?? '5') || 0),
+                    ),
+                    title: bounded(searchParams.get('title'), 32) ?? 'EmitSignal Blog',
                 };
 
                 const template = searchParams.get('template') ?? 'editorial';
