@@ -1,4 +1,4 @@
-import { describe, expect, it, mock } from 'bun:test';
+import { afterEach, describe, expect, it, mock } from 'bun:test';
 import Elysia from 'elysia';
 
 import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
@@ -12,6 +12,13 @@ mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { resetUserPlansForTests, setUserPlanForTests } from '../../../lib/billing/get-user-plan';
 import { attachments } from '../attachments';
+
+const unclaimedTopicMessage = {
+    id: 'msg-1',
+    senderId: null,
+    topic: { accessMode: 'public', id: 'topic-1', ownerId: null },
+    topicId: 'topic-1',
+};
 
 describe('POST /messages/:id/attachments', () => {
     const app = new Elysia().use(attachments);
@@ -51,9 +58,7 @@ describe('POST /messages/:id/attachments', () => {
     });
 
     it('returns 400 when file exceeds the anonymous (free) 5 MB limit', async () => {
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         const form = new FormData();
         const largeBuffer = new Uint8Array(6 * 1024 * 1024);
@@ -82,9 +87,7 @@ describe('POST /messages/:id/attachments', () => {
         resolveUserIdMock.mockResolvedValueOnce('pulse-user');
         resolveUserIdMock.mockResolvedValueOnce('pulse-user');
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         const form = new FormData();
         const buffer = new Uint8Array(6 * 1024 * 1024);
@@ -104,9 +107,7 @@ describe('POST /messages/:id/attachments', () => {
     it('rejects a 26 MB file on the pulse plan but accepts it on beam', async () => {
         resetUserPlansForTests();
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         const buffer = new Uint8Array(26 * 1024 * 1024);
 
@@ -138,9 +139,7 @@ describe('POST /messages/:id/attachments', () => {
     });
 
     it('returns 409 when message already has an attachment', async () => {
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
         prismaMock.attachment.count = mock(() => Promise.resolve(1));
 
         const form = new FormData();
@@ -163,9 +162,7 @@ describe('POST /messages/:id/attachments', () => {
     });
 
     it('returns 400 when more than one file is attached', async () => {
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         const form = new FormData();
         const file1 = new File(['a'], 'a.txt', { type: 'text/plain' });
@@ -190,9 +187,7 @@ describe('POST /messages/:id/attachments', () => {
 
     it('returns 400 for invalid MIME type', async () => {
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         const form = new FormData();
         const file = new File(['pdf content'], 'doc.pdf', { type: 'application/pdf' });
@@ -218,9 +213,7 @@ describe('POST /messages/:id/attachments', () => {
         resolveUserIdMock.mockResolvedValueOnce('user-1');
         resolveUserIdMock.mockResolvedValueOnce('user-1');
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const createFn = mock((args: any) =>
@@ -265,9 +258,7 @@ describe('POST /messages/:id/attachments', () => {
 
     it('sets 7-day expiry for unauthenticated (anonymous) users', async () => {
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         // Anonymous retention is 7d (below the 14d attachment cap).
         const sevenDaysMs = duration.days(7).as('ms');
@@ -323,9 +314,7 @@ describe('POST /messages/:id/attachments', () => {
 
     it('uploads a single file and returns attachment record', async () => {
         prismaMock.attachment.count = mock(() => Promise.resolve(0));
-        prismaMock.message.findUnique = mock(() =>
-            Promise.resolve({ id: 'msg-1', topicId: 'topic-1' }),
-        );
+        prismaMock.message.findUnique = mock(() => Promise.resolve({ ...unclaimedTopicMessage }));
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const uploadMock = mock((input: any) =>
@@ -370,5 +359,100 @@ describe('POST /messages/:id/attachments', () => {
 
         expect(data.attachments).toHaveLength(1);
         expect(data.attachments[0].filename).toBe('hello.txt');
+    });
+
+    describe('topic authorization', () => {
+        afterEach(() => {
+            resolveUserIdMock.mockResolvedValue(null);
+        });
+
+        const privateTopicMessage = {
+            id: 'msg-1',
+            senderId: 'owner-1',
+            topic: { accessMode: 'private', id: 'topic-1', ownerId: 'owner-1' },
+            topicId: 'topic-1',
+        };
+
+        function uploadRequest() {
+            const form = new FormData();
+
+            form.append('files', new File(['x'], 'x.txt', { type: 'text/plain' }));
+
+            return new Request('http://localhost/messages/msg-1/attachments', {
+                body: form,
+                method: 'POST',
+            });
+        }
+
+        it('returns 404 for an anonymous caller attaching to a private topic', async () => {
+            resolveUserIdMock.mockResolvedValue(null);
+            prismaMock.attachment.count = mock(() => Promise.resolve(0));
+            prismaMock.message.findUnique = mock(() => Promise.resolve({ ...privateTopicMessage }));
+
+            const res = await app.handle(uploadRequest());
+
+            expect(res.status).toBe(404);
+            expect((await res.json()).error).toBe('message_not_found');
+        });
+
+        it('returns 404 for a non-member attaching to a private topic', async () => {
+            resolveUserIdMock.mockResolvedValue('intruder-1');
+            prismaMock.attachment.count = mock(() => Promise.resolve(0));
+            prismaMock.message.findUnique = mock(() => Promise.resolve({ ...privateTopicMessage }));
+            prismaMock.topicAccess.findUnique = mock(() => Promise.resolve(null));
+
+            const res = await app.handle(uploadRequest());
+
+            expect(res.status).toBe(404);
+        });
+
+        it('returns 403 for a reader who cannot publish to a readonly topic', async () => {
+            resolveUserIdMock.mockResolvedValue('reader-1');
+            prismaMock.attachment.count = mock(() => Promise.resolve(0));
+            prismaMock.message.findUnique = mock(() =>
+                Promise.resolve({
+                    id: 'msg-1',
+                    senderId: 'owner-1',
+                    topic: { accessMode: 'readonly', id: 'topic-1', ownerId: 'owner-1' },
+                    topicId: 'topic-1',
+                }),
+            );
+            prismaMock.topicAccess.findUnique = mock(() => Promise.resolve(null));
+
+            const res = await app.handle(uploadRequest());
+
+            expect(res.status).toBe(403);
+            expect((await res.json()).error).toBe('forbidden');
+        });
+
+        it('allows the topic owner to attach', async () => {
+            resolveUserIdMock.mockResolvedValue('owner-1');
+            prismaMock.attachment.count = mock(() => Promise.resolve(0));
+            prismaMock.message.findUnique = mock(() => Promise.resolve({ ...privateTopicMessage }));
+            fileStorageMock.provider.upload = mock(() =>
+                Promise.resolve({
+                    filename: 'x.txt',
+                    mimeType: 'text/plain',
+                    size: 1,
+                    storageKey: 'key.txt',
+                }),
+            );
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            prismaMock.attachment.create = mock((args: any) =>
+                Promise.resolve({
+                    createdAt: new Date(),
+                    expiresAt: args.data.expiresAt,
+                    filename: args.data.filename,
+                    id: 'att-1',
+                    mimeType: args.data.mimeType,
+                    size: args.data.size,
+                    storageKey: args.data.storageKey,
+                }),
+            );
+
+            const res = await app.handle(uploadRequest());
+
+            expect(res.status).toBe(200);
+        });
     });
 });
