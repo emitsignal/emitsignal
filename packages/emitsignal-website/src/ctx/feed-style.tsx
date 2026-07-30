@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
+import { setPreferenceCookie } from '#/lib/cookies';
 import { FEED_STYLE_KEY, type FeedStyle } from '#/lib/feed-style';
 
 interface FeedStyleContextValue {
@@ -26,7 +27,7 @@ export function FeedStyleProvider({
         setFeedStyleState(next);
 
         if (typeof document !== 'undefined') {
-            document.cookie = `${FEED_STYLE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`;
+            setPreferenceCookie(FEED_STYLE_KEY, next);
         }
     };
 
