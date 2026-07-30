@@ -50,13 +50,11 @@ import { logger } from './lib/logger';
 import { emailQueue, purgeQueue, pushQueue, redisConnection, scheduleQueue } from './lib/queue';
 import { rateLimitRedis } from './lib/rate-limit';
 import { FileStorageService } from './lib/storage';
-import { environment } from './schema/environment';
+import { environment, isProduction } from './schema/environment';
 
 Email.init(environment);
 EmailService.init(emailQueue);
 FileStorageService.init(environment);
-
-const isProduction = Bun.env.NODE_ENV === 'production';
 
 const MAX_REQUEST_BODY_BYTES = 110 * 1024 * 1024;
 
@@ -121,7 +119,10 @@ const app = new Elysia({
 
 export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
 
-logger.info(`🟣 Server started at ${environment.EMIT_SIGNAL_HTTP_PORT}`);
+logger.info(
+    `🟣 Server started at ${environment.EMIT_SIGNAL_HTTP_PORT} ` +
+        `(env: ${environment.NODE_ENV}, trusted proxy header: ${environment.TRUSTED_PROXY_HEADER})`,
+);
 
 let isShuttingDown = false;
 

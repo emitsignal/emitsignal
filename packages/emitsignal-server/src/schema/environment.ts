@@ -44,6 +44,11 @@ const environmentSchema = Type.Object({
     GITHUB_CLIENT_ID: Type.Optional(Type.String()),
     GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
 
+    NODE_ENV: Type.Union(
+        [Type.Literal('development'), Type.Literal('production'), Type.Literal('test')],
+        { default: 'development' },
+    ),
+
     OTEL_ENABLED: Type.Boolean({ default: false }),
     OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
     OTEL_SERVICE_NAME: Type.String({ default: 'emitsignal-server' }),
@@ -56,7 +61,6 @@ const environmentSchema = Type.Object({
 
     S3_ACCESS_KEY_ID: Type.Optional(Type.String()),
     S3_ENDPOINT: Type.Optional(Type.String()),
-
     S3_FORCE_PATH_STYLE: Type.Optional(Type.Boolean()),
     S3_PRIVATE_BUCKET_NAME: Type.Optional(Type.String()),
     S3_PUBLIC_BUCKET_NAME: Type.Optional(Type.String()),
@@ -79,6 +83,16 @@ const environmentSchema = Type.Object({
     STRIPE_SECRET_KEY: Type.Optional(Type.String()),
     STRIPE_WEBHOOK_SECRET: Type.Optional(Type.String()),
 
+    TRUSTED_PROXY_HEADER: Type.Union(
+        [
+            Type.Literal('none'),
+            Type.Literal('cf-connecting-ip'),
+            Type.Literal('x-real-ip'),
+            Type.Literal('x-forwarded-for'),
+        ],
+        { default: 'none' },
+    ),
+
     UPLOAD_DIR: Type.String({ default: './uploads' }),
 });
 
@@ -86,11 +100,14 @@ export type Environment = typeof environment;
 
 export const environment = Value.Parse(environmentSchema, Bun.env);
 
+export const isProduction = environment.NODE_ENV === 'production';
+export const isTest = environment.NODE_ENV === 'test';
+
 // Fail closed in production: never allow the app to sign sessions/tokens with the
 // publicly-known dev fallback secret. This is the single most dangerous default,
 // since it ships in the open-source repo.
 if (
-    Bun.env.NODE_ENV === 'production' &&
+    isProduction &&
     (!environment.BETTER_AUTH_SECRET || environment.BETTER_AUTH_SECRET === DEV_BETTER_AUTH_SECRET)
 ) {
     throw new Error(

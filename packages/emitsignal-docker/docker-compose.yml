@@ -137,6 +137,7 @@ services:
             STRIPE_PRICE_PULSE_YEARLY: '${STRIPE_PRICE_PULSE_YEARLY:-}'
             STRIPE_SECRET_KEY: '${STRIPE_SECRET_KEY:-}'
             STRIPE_WEBHOOK_SECRET: '${STRIPE_WEBHOOK_SECRET:-}'
+            TRUSTED_PROXY_HEADER: '${TRUSTED_PROXY_HEADER:-}'
             UPLOAD_DIR: './uploads'
         healthcheck:
             interval: 15s
