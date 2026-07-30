@@ -12,7 +12,7 @@ import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
-import { environment } from '../schema/environment';
+import { environment, isProduction } from '../schema/environment';
 import { API_KEY_PREFIX, getApiKeyFromHeaders } from './api-key-header';
 import { invalidateUserPlanCache } from './billing/get-user-plan';
 import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
@@ -245,13 +245,12 @@ export const auth = betterAuth({
             : {}),
     },
     trustedOrigins: [
-        environment.APP_URL, // website browser origin (cookie-based web auth)
-        'emitsignal://', // mobile app deep-link scheme (app.config.ts `scheme`)
-        'emitsignal-preview://', // mobile app deep-link scheme (app.config.ts `scheme`)
-        'exp://', // Expo Go / dev client
-        // Apple's auth servers post back to the callback via this origin.
+        environment.APP_URL,
+        'emitsignal://',
+        'emitsignal-preview://',
+        'exp://',
         ...(isAppleAuthEnabled ? ['https://appleid.apple.com'] : []),
-        ...(process.env.NODE_ENV === 'production' ? [] : ['*']),
+        ...(isProduction ? [] : ['*']),
     ],
     user: {
         additionalFields: {

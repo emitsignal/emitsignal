@@ -8,12 +8,23 @@
  * Endpoint-specific thresholds are covered by the load test script:
  *   bun run scripts/test-rate-limits.ts
  */
-import { beforeEach, describe, expect, it } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test';
 import { Elysia } from 'elysia';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 import { consumeLimit, SetLike } from '../../http/plugins/rate-limit-plugin';
 import { getClientIP, ServerLike } from '../../lib/ip';
+import { environment } from '../../schema/environment';
+
+const originalTrustedProxyHeader = environment.TRUSTED_PROXY_HEADER;
+
+beforeAll(() => {
+    environment.TRUSTED_PROXY_HEADER = 'x-forwarded-for';
+});
+
+afterAll(() => {
+    environment.TRUSTED_PROXY_HEADER = originalTrustedProxyHeader;
+});
 
 /** Build a minimal Elysia app with a GET /test route guarded by a fresh limiter. */
 function makeApp(points: number) {

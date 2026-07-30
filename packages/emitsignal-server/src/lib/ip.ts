@@ -1,3 +1,5 @@
+import { environment } from '../schema/environment';
+
 const PRIVATE_IP_PATTERNS = [
     /^127\./,
     /^10\./,
@@ -11,41 +13,44 @@ const PRIVATE_IP_PATTERNS = [
 export type ServerLike = { requestIP?: (req: Request) => { address: string } | null } | null;
 
 export function getClientIP(request: Request, server: ServerLike): string {
-    // Cloudflare — cf-connecting-ip is always the real client IP,
-    // cannot be spoofed (set by Cloudflare's edge, not the client)
-    const cfIP = request.headers.get('cf-connecting-ip');
-    if (cfIP?.trim()) {
-        return cfIP.trim();
-    }
+    const trustedHeader = environment.TRUSTED_PROXY_HEADER;
 
-    // x-real-ip — set by Nginx's `proxy_set_header X-Real-IP $remote_addr`
-    // Not the client, so trustworthy if you control the proxy
-    const realIP = request.headers.get('x-real-ip');
-    if (realIP?.trim()) {
-        return realIP.trim();
-    }
+    if (trustedHeader !== 'none') {
+        const forwarded = readForwardedAddress(request, trustedHeader);
 
-    // x-forwarded-for — read LEFT to right, skip private/loopback IPs.
-    const forwarded = request.headers.get('x-forwarded-for');
-
-    if (forwarded) {
-        const ips = forwarded
-            .split(',')
-            .map((ip) => ip.trim())
-            .filter(Boolean);
-
-        for (const ip of ips) {
-            if (!isPrivateIP(ip)) {
-                return ip;
-            }
+        if (forwarded) {
+            return forwarded;
         }
     }
 
-    // Bun native — actual TCP connection address, ground truth
-    // Only bypassed if running behind a proxy (which is why it's the last resort)
     return server?.requestIP?.(request)?.address ?? 'unknown';
 }
 
 function isPrivateIP(ip: string): boolean {
     return PRIVATE_IP_PATTERNS.some((pattern) => pattern.test(ip));
+}
+
+function readForwardedAddress(request: Request, header: string): null | string {
+    const raw = request.headers.get(header);
+
+    if (!raw?.trim()) {
+        return null;
+    }
+
+    if (header !== 'x-forwarded-for') {
+        return raw.trim();
+    }
+
+    const addresses = raw
+        .split(',')
+        .map((address) => address.trim())
+        .filter(Boolean);
+
+    for (let index = addresses.length - 1; index >= 0; index -= 1) {
+        if (!isPrivateIP(addresses[index])) {
+            return addresses[index];
+        }
+    }
+
+    return null;
 }

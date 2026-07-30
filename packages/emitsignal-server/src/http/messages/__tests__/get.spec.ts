@@ -3,10 +3,11 @@ import Elysia from 'elysia';
 
 import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
 
+const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
+
 mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
 mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
-const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
 
 import { getMessage } from '../../messages/get';
 
