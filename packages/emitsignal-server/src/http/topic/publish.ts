@@ -167,7 +167,9 @@ export const publish = new Elysia().post(
         return { message: 'posted', messageId: message.id };
     },
     {
-        beforeHandle: authAwareBeforeHandle(publishAnonLimiter, publishAuthLimiter),
+        beforeHandle: authAwareBeforeHandle(publishAnonLimiter, publishAuthLimiter, {
+            failClosedWhenAnonymous: true,
+        }),
         body: t.Object({
             actions: t.Optional(
                 t.Array(
