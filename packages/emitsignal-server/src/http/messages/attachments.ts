@@ -106,7 +106,9 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         return { attachments: results };
     },
     {
-        beforeHandle: authAwareBeforeHandle(uploadAnonLimiter, uploadAuthLimiter),
+        beforeHandle: authAwareBeforeHandle(uploadAnonLimiter, uploadAuthLimiter, {
+            failClosedWhenAnonymous: true,
+        }),
         body: t.Object({
             files: t.Files(),
         }),

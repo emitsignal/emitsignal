@@ -142,6 +142,27 @@ describe('fail-open behavior', () => {
         const res = await app.handle(req());
         expect(res.status).toBe(200);
     });
+
+    it('returns 503 when the limiter throws and failClosed is set', async () => {
+        const brokenLimiter = {
+            consume: async () => {
+                throw new Error('Redis down');
+            },
+        };
+
+        const app = new Elysia().get('/test', () => ({ ok: true }), {
+            beforeHandle: async ({ set }) => {
+                return consumeLimit(brokenLimiter as never, 'key', set as SetLike, {
+                    failClosed: true,
+                });
+            },
+        });
+
+        const res = await app.handle(req());
+
+        expect(res.status).toBe(503);
+        expect((await res.json()).error).toBe('rate_limiter_unavailable');
+    });
 });
 
 // ---------------------------------------------------------------------------
