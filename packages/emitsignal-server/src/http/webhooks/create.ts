@@ -3,6 +3,7 @@ import Elysia, { t } from 'elysia';
 import { getUserPlan } from '../../lib/billing/get-user-plan';
 import { PLANS } from '../../lib/billing/plans';
 import { prisma } from '../../lib/prisma';
+import { canPublishToTopicName } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 function randomSlug(prefix: string): string {
@@ -29,7 +30,17 @@ export const createWebhook = new Elysia().post(
     '/webhooks',
     async ({ body, headers, status }) => {
         const userId = await resolveUserId({ headers });
-        if (!userId) return status(401, { error: 'missing_token' });
+
+        if (!userId) {
+            return status(401, { error: 'missing_token' });
+        }
+
+        if (!(await canPublishToTopicName(body.topicName, userId))) {
+            return status(403, {
+                error: 'forbidden',
+                message: 'not allowed to publish to this topic',
+            });
+        }
 
         const plan = await getUserPlan(userId);
         const maxWebhooks = PLANS[plan].limits.maxWebhooks;
