@@ -45,7 +45,7 @@ export async function resolvePushTokens(topicId: string): Promise<string[]> {
         select: { token: true },
         take: MAX_PUSH_FANOUT,
         where: {
-            OR: [{ deviceId: { in: deviceIds } }, { userId: { in: userIds } }],
+            OR: [{ deviceId: { in: deviceIds }, userId: null }, { userId: { in: userIds } }],
             pushEnabled: true,
         },
     });
