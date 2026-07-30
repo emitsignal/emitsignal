@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
+import { setPreferenceCookie } from '#/lib/cookies';
 import { DEBUG_SECTIONS_KEY, type DebugSections } from '#/lib/debug-sections';
 
 interface DebugSectionsContextValue {
@@ -30,7 +31,7 @@ export function DebugSectionsProvider({
         if (typeof document !== 'undefined') {
             const encoded = encodeURIComponent(JSON.stringify(next));
 
-            document.cookie = `${DEBUG_SECTIONS_KEY}=${encoded}; path=/; max-age=31536000; samesite=lax`;
+            setPreferenceCookie(DEBUG_SECTIONS_KEY, encoded);
         }
     };
 

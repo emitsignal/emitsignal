@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useState } from 'react';
 
+import { setPreferenceCookie } from '#/lib/cookies';
 import { THEME_PREFERENCE_KEY, type ThemePreference } from '#/lib/theme';
 
 interface ThemeContextValue {
@@ -28,7 +29,7 @@ export function ThemeProvider({
         setThemeState(next);
 
         if (typeof document !== 'undefined') {
-            document.cookie = `${THEME_PREFERENCE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`;
+            setPreferenceCookie(THEME_PREFERENCE_KEY, next);
         }
     };
 
