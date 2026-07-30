@@ -9,6 +9,7 @@ import { prisma } from '../../lib/prisma';
 import { pushQueue } from '../../lib/queue';
 import { webhookReceiveLimiter } from '../../lib/rate-limit';
 import { getOrCreateTopic, serializeMessage } from '../../lib/topic';
+import { canPublishToTopicName } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 // Public endpoint: cap the inbound payload so a single caller can't store huge
@@ -44,6 +45,10 @@ export const receiveWebhook = new Elysia().post(
 
         if (webhook.status === 'paused') {
             return status(503, { error: 'webhook_paused' });
+        }
+
+        if (!(await canPublishToTopicName(webhook.topicName, webhook.userId ?? null))) {
+            return status(403, { error: 'forbidden' });
         }
 
         const payload = body as Record<string, unknown>;

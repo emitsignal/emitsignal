@@ -15,6 +15,22 @@ interface TopicAccessInput {
 
 const PUBLISHER_ROLES = ['owner', 'publisher'];
 
+export async function canPublishToTopicName(
+    topicName: string,
+    userId: null | string,
+): Promise<boolean> {
+    const topic = await prisma.topic.findUnique({
+        select: { accessMode: true, id: true, ownerId: true },
+        where: { name: topicName.toLowerCase() },
+    });
+
+    if (!topic) {
+        return true;
+    }
+
+    return (await resolveTopicCapabilities(topic, userId)).canPublish;
+}
+
 // Resolves what a caller may do with a topic. Unclaimed topics (ownerId === null)
 // stay fully open for backwards compatibility; enforcement only applies once a
 // topic has been explicitly claimed.

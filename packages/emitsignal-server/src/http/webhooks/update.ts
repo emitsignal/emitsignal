@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 
 import { prisma } from '../../lib/prisma';
+import { canPublishToTopicName } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 export const updateWebhook = new Elysia().patch(
@@ -23,6 +24,16 @@ export const updateWebhook = new Elysia().patch(
 
         if (webhook.userId !== userId) {
             return status(403, { error: 'forbidden' });
+        }
+
+        if (
+            body.topicName !== undefined &&
+            !(await canPublishToTopicName(body.topicName, userId))
+        ) {
+            return status(403, {
+                error: 'forbidden',
+                message: 'not allowed to publish to this topic',
+            });
         }
 
         const updated = await prisma.webhook.update({
