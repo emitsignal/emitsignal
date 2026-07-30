@@ -26,8 +26,8 @@ export default function WelcomeEmail({ email, name }: WelcomeEmailProps) {
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
                 <Head>
-                    <meta name="color-scheme" content="dark" />
-                    <meta name="supported-color-schemes" content="dark" />
+                    <meta content="dark" name="color-scheme" />
+                    <meta content="dark" name="supported-color-schemes" />
                 </Head>
                 <Preview>Welcome to EmitSignal — your inbox for alerts</Preview>
                 <Body className="bg-es-bg py-10 font-sans">

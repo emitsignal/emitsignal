@@ -33,8 +33,8 @@ export default function MagicLinkEmail({
         <Html lang="en">
             <Tailwind config={tailwindConfig}>
                 <Head>
-                    <meta name="color-scheme" content="dark" />
-                    <meta name="supported-color-schemes" content="dark" />
+                    <meta content="dark" name="color-scheme" />
+                    <meta content="dark" name="supported-color-schemes" />
                 </Head>
                 <Preview>Your EmitSignal sign-in code: {code}</Preview>
                 <Body className="bg-es-bg py-10 font-sans">
