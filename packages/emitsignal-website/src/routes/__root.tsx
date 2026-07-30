@@ -15,7 +15,7 @@ export interface RouterContext {
 
 const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://emitsignal.com';
 const DEFAULT_DESCRIPTION =
-'A pubsub layer for humans. Pipe anything into a topic from your shell, CI, cron, or a webhook — get it on your phone, terminal, slack, or email.';
+    'A pubsub layer for humans. Pipe anything into a topic from your shell, CI, cron, or a webhook — get it on your phone, terminal, slack, or email.';
 const DEFAULT_TITLE = 'EmitSignal — push notifications with one curl';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
 
@@ -51,19 +51,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </head>
             <body>
                 <SessionProvider>{children}</SessionProvider>
-                <TanStackDevtools
-                    config={{ position: 'bottom-right' }}
-                    plugins={[
-                        {
-                            name: 'Tanstack Router',
-                            render: <TanStackRouterDevtoolsPanel />,
-                        },
-                        {
-                            name: 'Tanstack Query',
-                            render: <ReactQueryDevtoolsPanel />,
-                        },
-                    ]}
-                />
+
+                {import.meta.env.DEV && (
+                    <TanStackDevtools
+                        config={{ position: 'bottom-right' }}
+                        plugins={[
+                            {
+                                name: 'Tanstack Router',
+                                render: <TanStackRouterDevtoolsPanel />,
+                            },
+                            {
+                                name: 'Tanstack Query',
+                                render: <ReactQueryDevtoolsPanel />,
+                            },
+                        ]}
+                    />
+                )}
                 <Scripts />
             </body>
         </html>

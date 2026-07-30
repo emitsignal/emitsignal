@@ -4,7 +4,7 @@ import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
 
 const DESCRIPTION =
-'The terms and conditions that govern your use of EmitSignal — accounts, acceptable use, plans, billing, liability, and termination.';
+    'The terms and conditions that govern your use of EmitSignal — accounts, acceptable use, plans, billing, liability, and termination.';
 const TITLE = 'Terms of Service — EmitSignal';
 
 export const Route = createFileRoute('/terms')({
