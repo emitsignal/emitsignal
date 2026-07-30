@@ -8,6 +8,7 @@ import { prisma } from '../../lib/prisma';
 import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
 import { FileStorageService } from '../../lib/storage';
 import { isAllowedMimeType } from '../../lib/storage/provider';
+import { resolveTopicCapabilities } from '../../lib/topic-access';
 import { resolveUserId } from '../auth/plugin';
 
 export const attachments = new Elysia({ prefix: '/messages' }).post(
@@ -25,11 +26,31 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         }
 
         const message = await prisma.message.findUnique({
+            include: {
+                topic: { select: { accessMode: true, id: true, ownerId: true } },
+            },
             where: { id: params.id },
         });
 
         if (!message) {
             return status(404, { error: 'message_not_found' });
+        }
+
+        const userId = await resolveUserId({ headers });
+
+        const capabilities = await resolveTopicCapabilities(message.topic, userId);
+
+        if (!capabilities.canRead) {
+            return status(404, { error: 'message_not_found' });
+        }
+
+        const isSender = userId !== null && message.senderId === userId;
+
+        if (!capabilities.canPublish && !isSender) {
+            return status(403, {
+                error: 'forbidden',
+                message: 'not allowed to attach files to this message',
+            });
         }
 
         const existingCount = await prisma.attachment.count({
@@ -40,7 +61,6 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
             return status(409, { error: 'attachment_already_exists' });
         }
 
-        const userId = await resolveUserId({ headers });
         const plan = userId ? await getUserPlan(userId) : null;
 
         const expiresAt = attachmentExpiresAt(new Date(), messageRetentionDays(plan));
