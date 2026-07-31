@@ -1,6 +1,7 @@
 import type { FileMetadata, FileStorage, FileUploadInput, StorageBucket } from './provider';
 
 import { duration } from '../duration';
+import { extensionForMimeType } from './provider';
 
 interface S3Client {
     delete(key: string): Promise<void>;
@@ -65,8 +66,8 @@ export class S3FileStorage implements FileStorage {
     }
 
     async upload(input: FileUploadInput): Promise<FileMetadata> {
-        const ext = input.filename.split('.').pop() ?? '';
-        const storageKey = input.storageKey ?? `${crypto.randomUUID()}${ext ? `.${ext}` : ''}`;
+        const storageKey =
+            input.storageKey ?? `${crypto.randomUUID()}${extensionForMimeType(input.mimeType)}`;
 
         await this.clientFor(input.bucket ?? 'private').write(storageKey, input.buffer, {
             type: input.mimeType,
