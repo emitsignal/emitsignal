@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { parse, stringify } from 'smol-toml';
@@ -56,5 +56,10 @@ export function readConfig(): CliConfig {
 }
 
 export function writeConfig(config: CliConfig): void {
-    writeFileSync(configPath, stringify(config as unknown as Record<string, unknown>), 'utf-8');
+    writeFileSync(configPath, stringify(config as unknown as Record<string, unknown>), {
+        encoding: 'utf-8',
+        mode: 0o600,
+    });
+
+    chmodSync(configPath, 0o600);
 }
