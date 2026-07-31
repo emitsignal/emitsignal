@@ -1,7 +1,7 @@
 import Elysia from 'elysia';
 
 import { duration } from '../../lib/duration';
-import { bus, type MessageEvent } from '../../lib/event-bus';
+import { bus } from '../../lib/event-bus';
 import { getClientIP } from '../../lib/ip';
 import { prisma } from '../../lib/prisma';
 import { acquireSseSlot } from '../../lib/rate-limit';
@@ -13,6 +13,23 @@ const SSE_MAX_AUTH = 10;
 
 function formatEvent(event: string, data: unknown) {
     return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
+async function resolveOwnTopicNames(userId: string): Promise<string[]> {
+    const [owned, subscribed] = await Promise.all([
+        prisma.topic.findMany({ select: { name: true }, where: { ownerId: userId } }),
+        prisma.subscription.findMany({
+            select: { topic: { select: { name: true } } },
+            where: { userId },
+        }),
+    ]);
+
+    return [
+        ...new Set([
+            ...owned.map((topic) => topic.name),
+            ...subscribed.map((subscription) => subscription.topic.name),
+        ]),
+    ];
 }
 
 function sseHeaders() {
@@ -46,45 +63,35 @@ export const listenMulti = new Elysia().get(
             .map((topic) => topic.trim())
             .filter(Boolean);
 
-        // Only stream topics the caller may read. Unclaimed and public/readonly
-        // topics stay open; private topics require membership.
-        let readableTopics = topicNames;
+        if (topicNames.length === 0 && !userId) {
+            await slot.release();
 
-        if (topicNames.length) {
-            const topics = await prisma.topic.findMany({ where: { name: { in: topicNames } } });
-            const topicsByName = new Map(topics.map((topic) => [topic.name, topic]));
-            const allowedTopicNames: string[] = [];
+            set.status = 400;
 
-            for (const name of topicNames) {
-                const topic = topicsByName.get(name);
-
-                // Unknown names stay subscribable (they simply never emit),
-                // preserving prior behavior for not-yet-created topics.
-                if (!topic || (await resolveTopicCapabilities(topic, userId)).canRead) {
-                    allowedTopicNames.push(name);
-                }
-            }
-
-            readableTopics = allowedTopicNames;
+            return {
+                error: 'topics_required',
+                message: 'anonymous listeners must specify ?topics=',
+            };
         }
 
-        // Wildcard fan-out can surface private topics, so gate each message by a
-        // cached readability check keyed on its topic name.
-        const readableCache = new Map<string, boolean>();
-        const canReadTopic = async (name: string): Promise<boolean> => {
-            const cached = readableCache.get(name);
+        const requestedTopicNames = topicNames.length
+            ? topicNames
+            : await resolveOwnTopicNames(userId as string);
 
-            if (cached !== undefined) {
-                return cached;
+        const topics = await prisma.topic.findMany({
+            where: { name: { in: requestedTopicNames } },
+        });
+
+        const readableTopics: string[] = [];
+        const topicsByName = new Map(topics.map((topic) => [topic.name, topic]));
+
+        for (const topicName of requestedTopicNames) {
+            const topic = topicsByName.get(topicName);
+
+            if (!topic || (await resolveTopicCapabilities(topic, userId)).canRead) {
+                readableTopics.push(topicName);
             }
-
-            const topic = await prisma.topic.findUnique({ where: { name } });
-            const allowed = topic ? (await resolveTopicCapabilities(topic, userId)).canRead : true;
-
-            readableCache.set(name, allowed);
-
-            return allowed;
-        };
+        }
 
         Object.assign(set.headers, sseHeaders());
 
@@ -94,19 +101,9 @@ export const listenMulti = new Elysia().get(
                 const send = (event: string, data: unknown) =>
                     controller.enqueue(encoder.encode(formatEvent(event, data)));
 
-                const unsubscribers = topicNames.length
-                    ? readableTopics.map((name) =>
-                          bus.subscribe(name, (event) => send('message', event)),
-                      )
-                    : [
-                          bus.subscribe('*', (event: MessageEvent) => {
-                              void canReadTopic(event.topicName).then((allowed) => {
-                                  if (allowed) {
-                                      send('message', event);
-                                  }
-                              });
-                          }),
-                      ];
+                const unsubscribers = readableTopics.map((name) =>
+                    bus.subscribe(name, (event) => send('message', event)),
+                );
 
                 const cleanup = async () => {
                     clearInterval(heartbeat);
