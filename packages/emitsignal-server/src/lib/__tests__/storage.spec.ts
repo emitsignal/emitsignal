@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, rmSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
 import { LocalFileStorage } from '../storage/local-provider';
-import { isAllowedMimeType } from '../storage/provider';
+import { extensionForMimeType, isAllowedMimeType } from '../storage/provider';
 import { S3FileStorage } from '../storage/s3-provider';
 
 describe('LocalFileStorage', () => {
@@ -249,5 +249,69 @@ describe('isAllowedMimeType', () => {
 
     it('rejects empty string', () => {
         expect(isAllowedMimeType('')).toBe(false);
+    });
+
+    it('ignores MIME parameters when matching', () => {
+        expect(isAllowedMimeType('text/plain; charset=utf-8')).toBe(true);
+        expect(isAllowedMimeType('image/svg+xml; charset=utf-8')).toBe(false);
+    });
+});
+
+describe('extensionForMimeType', () => {
+    it('maps known image types', () => {
+        expect(extensionForMimeType('image/png')).toBe('.png');
+        expect(extensionForMimeType('image/jpeg')).toBe('.jpg');
+        expect(extensionForMimeType('text/plain')).toBe('.txt');
+    });
+
+    it('ignores case and MIME parameters', () => {
+        expect(extensionForMimeType('IMAGE/PNG')).toBe('.png');
+        expect(extensionForMimeType('text/plain; charset=utf-8')).toBe('.txt');
+    });
+
+    it('falls back to an inert extension for unmapped types', () => {
+        expect(extensionForMimeType('image/svg+xml')).toBe('.bin');
+        expect(extensionForMimeType('text/html')).toBe('.bin');
+        expect(extensionForMimeType('')).toBe('.bin');
+    });
+});
+
+describe('storage key derivation (stored-XSS regression)', () => {
+    const testDir = path.join(import.meta.dir, 'test-uploads-mime');
+
+    afterAll(() => {
+        if (existsSync(testDir)) {
+            rmSync(testDir, { force: true, recursive: true });
+        }
+    });
+
+    it('never derives the extension from the caller-supplied filename', async () => {
+        mkdirSync(testDir, { recursive: true });
+
+        const storage = new LocalFileStorage('http://localhost:5001', testDir);
+        const result = await storage.upload({
+            buffer: Buffer.from('<script>alert(1)</script>'),
+            filename: 'payload.html',
+            mimeType: 'image/png',
+        });
+
+        expect(result.storageKey).not.toContain('.html');
+        expect(result.storageKey).toMatch(/\.png$/);
+
+        // The extension is what Bun uses to pick a Content-Type when serving.
+        expect(Bun.file(path.join(testDir, result.storageKey)).type).not.toContain('text/html');
+    });
+
+    it('does not produce an .svg key for a spoofed svg filename', async () => {
+        mkdirSync(testDir, { recursive: true });
+
+        const storage = new LocalFileStorage('http://localhost:5001', testDir);
+        const result = await storage.upload({
+            buffer: Buffer.from('<svg onload="alert(1)"/>'),
+            filename: 'payload.svg',
+            mimeType: 'image/png',
+        });
+
+        expect(result.storageKey).not.toContain('.svg');
     });
 });
