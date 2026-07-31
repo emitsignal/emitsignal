@@ -3,6 +3,8 @@ import path from 'node:path';
 
 import type { FileMetadata, FileStorage, FileUploadInput } from './provider';
 
+import { extensionForMimeType } from './provider';
+
 export class LocalFileStorage implements FileStorage {
     constructor(
         private readonly baseUrl: string,
@@ -22,7 +24,7 @@ export class LocalFileStorage implements FileStorage {
     }
 
     async upload(input: FileUploadInput): Promise<FileMetadata> {
-        const ext = path.extname(input.filename) || '';
+        const ext = extensionForMimeType(input.mimeType);
         const storageKey = input.storageKey ?? `${crypto.randomUUID()}${ext}`;
         const filePath = path.join(this.uploadDir, storageKey);
 
