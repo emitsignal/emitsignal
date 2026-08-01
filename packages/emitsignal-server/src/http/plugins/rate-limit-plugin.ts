@@ -10,6 +10,13 @@ import { resolveUserId } from '../auth/plugin';
 
 const LIMITER_UNAVAILABLE_RETRY_SECONDS = 30;
 
+// A limiter outage fails every request, so reporting per-request would emit
+// thousands of identical events and burn the Sentry quota during the exact
+// incident the alert is for. One event per window is enough to page someone.
+const LIMITER_ERROR_REPORT_INTERVAL_MS = 60_000;
+
+let lastLimiterErrorReportedAt = 0;
+
 export interface ConsumeLimitOptions {
     // reject rather than allow when the limiter backend is
     // unreachable. Set this on anonymous write paths, where the rate limiter is
@@ -74,7 +81,7 @@ export async function consumeLimit(
         // on every route. Surface it as an exception so it actually pages someone,
         // instead of only landing in a log nobody is watching.
         logger.error({ error, failClosed: options.failClosed === true, key }, 'rate limiter error');
-        Sentry.captureException(error, { tags: { component: 'rate-limiter' } });
+        reportLimiterError(error);
 
         if (options.failClosed) {
             set.headers['retry-after'] = String(LIMITER_UNAVAILABLE_RETRY_SECONDS);
@@ -105,6 +112,18 @@ export function fixedKeyBeforeHandle<TBody = unknown>(
     }) => {
         return consumeLimit(limiter, getKey({ body, request, server }), set);
     };
+}
+
+function reportLimiterError(error: unknown): void {
+    const now = Date.now();
+
+    if (now - lastLimiterErrorReportedAt < LIMITER_ERROR_REPORT_INTERVAL_MS) {
+        return;
+    }
+
+    lastLimiterErrorReportedAt = now;
+
+    Sentry.captureException(error, { tags: { component: 'rate-limiter' } });
 }
 
 export const rateLimitPlugin = new Elysia({ name: 'rate-limit' })
