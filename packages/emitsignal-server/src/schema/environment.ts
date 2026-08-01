@@ -6,7 +6,7 @@ import { Value } from '@sinclair/typebox/value';
 // BETTER_AUTH_SECRET is set to something other than this value.
 const DEV_BETTER_AUTH_SECRET = 'emitsignal-dev-better-auth-secret-32chars!!';
 
-const environmentSchema = Type.Object({
+export const environmentSchema = Type.Object({
     API_URL: Type.String({ default: 'http://localhost:5001' }),
     APP_URL: Type.String({ default: 'http://localhost:5002' }),
 
@@ -44,10 +44,11 @@ const environmentSchema = Type.Object({
     GITHUB_CLIENT_ID: Type.Optional(Type.String()),
     GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
 
-    NODE_ENV: Type.Union(
-        [Type.Literal('development'), Type.Literal('production'), Type.Literal('test')],
-        { default: 'development' },
-    ),
+    // Deliberately not a closed union: deployments legitimately use values like
+    // "staging" or "ci", and refusing to boot on an unrecognized NODE_ENV would
+    // be a regression. Only "production" and "test" carry behavior — see
+    // isProduction / isTest below.
+    NODE_ENV: Type.String({ default: 'development' }),
 
     OTEL_ENABLED: Type.Boolean({ default: false }),
     OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
