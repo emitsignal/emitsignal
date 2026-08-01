@@ -124,6 +124,17 @@ logger.info(
         `(env: ${environment.NODE_ENV}, trusted proxy header: ${environment.TRUSTED_PROXY_HEADER})`,
 );
 
+// Almost every production deployment sits behind a proxy. Leaving this unset
+// there collapses every anonymous caller onto the proxy's IP, so the shared
+// rate-limit buckets exhaust platform-wide instead of per client.
+if (isProduction && environment.TRUSTED_PROXY_HEADER === 'none') {
+    logger.warn(
+        'TRUSTED_PROXY_HEADER is "none" in production: client IPs come from the TCP peer address. ' +
+            'If this server is behind a proxy or CDN, set it to the header your proxy sets ' +
+            '(cf-connecting-ip, x-real-ip, or x-forwarded-for) or all anonymous traffic will share one rate-limit bucket.',
+    );
+}
+
 let isShuttingDown = false;
 
 async function shutdown() {

@@ -92,6 +92,28 @@ data: {"id":"…","title":"…","body":"…","priority":4,"tags":[…],"actions"
 | `EMAIL_FROM`            | `EmitSignal <noreply@…>`    | Sender address                                   |
 | `FILE_STORAGE_PROVIDER` | `local`                     | `local` \| `s3`                                  |
 | `UPLOAD_DIR`            | `./uploads`                 | Directory for local file uploads                 |
+| `TRUSTED_PROXY_HEADER`  | `none`                      | Header carrying the real client IP — see below   |
+
+### Running behind a reverse proxy
+
+Rate limiting keys on the client IP, so the server has to know where that IP comes
+from. `TRUSTED_PROXY_HEADER` selects the one header it will believe:
+
+| Value              | Use when                                                           |
+| ------------------ | ------------------------------------------------------------------ |
+| `none` (default)   | The server is exposed directly; the TCP peer address is the client |
+| `cf-connecting-ip` | Behind Cloudflare                                                  |
+| `x-real-ip`        | Behind Nginx with `proxy_set_header X-Real-IP $remote_addr`        |
+| `x-forwarded-for`  | Behind Traefik/ALB; the rightmost public hop in the list is used   |
+
+Every other header is ignored, so a client cannot spoof its way into a fresh
+rate-limit bucket. **The flip side matters just as much:** leave this at `none`
+while running behind a proxy and every anonymous request keys on the proxy's IP,
+which drains the shared anonymous publish/upload/SSE budgets platform-wide. The
+server logs a warning at startup when it sees `none` in production.
+
+Whichever header you pick, the proxy must _overwrite_ it on inbound requests
+rather than append to a client-supplied value.
 
 ### SMTP (when `EMAIL_PROVIDER=smtp`)
 
