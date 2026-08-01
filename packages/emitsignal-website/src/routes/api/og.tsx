@@ -560,7 +560,7 @@ export const Route = createFileRoute('/api/og')({
                         999,
                         Math.max(0, Number(searchParams.get('readTime') ?? '5') || 0),
                     ),
-                    title: bounded(searchParams.get('title'), 32) ?? 'EmitSignal Blog',
+                    title: bounded(searchParams.get('title'), 120) ?? 'EmitSignal Blog',
                 };
 
                 const template = searchParams.get('template') ?? 'editorial';
