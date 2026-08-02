@@ -15,8 +15,8 @@ export interface RouterContext {
 
 const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://emitsignal.com';
 const DEFAULT_DESCRIPTION =
-    'A pubsub layer for humans. Pipe anything into a topic from your shell, CI, cron, or a webhook — get it on your phone, terminal, slack, or email.';
-const DEFAULT_TITLE = 'EmitSignal — push notifications with one curl';
+    'A pubsub layer for humans. Pipe anything into a topic from your shell, CI, or cron, then read it on your phone, terminal, or inbox.';
+const DEFAULT_TITLE = 'EmitSignal: push notifications with one curl';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
 
 export const Route = createRootRouteWithContext<RouterContext>()({

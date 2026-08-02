@@ -1,7 +1,11 @@
-import { ArrowRight, Terminal } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+
+import { CopyButton } from '#/components/ui/copy-button';
 
 import { Button } from './button';
 import { HeroTerminal } from './hero-terminal';
+
+const TRY_IT_COMMAND = 'curl -d "hi from the marketing site" emitsignal.com/me-tryout';
 
 export function Hero() {
     return (
@@ -18,66 +22,39 @@ export function Hero() {
 
 function HeroBackground() {
     return (
-        <>
-            <div
-                className="pointer-events-none absolute inset-0 opacity-35"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(var(--color-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-line) 1px, transparent 1px)',
-                    backgroundSize: '64px 64px',
-                    maskImage: 'radial-gradient(ellipse at 30% 40%, black 0%, transparent 70%)',
-                    WebkitMaskImage:
-                        'radial-gradient(ellipse at 30% 40%, black 0%, transparent 70%)',
-                }}
-            />
-
-            <div
-                className="pointer-events-none absolute left-[-10%] top-[20%] h-[600px] w-[600px] blur-3xl"
-                style={{
-                    background: 'radial-gradient(circle, rgba(91,33,182,0.4), transparent 60%)',
-                }}
-            />
-        </>
+        <div
+            className="pointer-events-none absolute inset-0 opacity-35"
+            style={{
+                backgroundImage:
+                    'linear-gradient(var(--color-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-line) 1px, transparent 1px)',
+                backgroundSize: '64px 64px',
+                maskImage: 'radial-gradient(ellipse at 30% 40%, black 0%, transparent 70%)',
+                WebkitMaskImage: 'radial-gradient(ellipse at 30% 40%, black 0%, transparent 70%)',
+            }}
+        />
     );
 }
 
 function HeroCopy() {
     return (
         <div>
-            <h1 className="m-0 font-sans text-[44px] font-semibold leading-[0.98] tracking-[-1.6px] text-fg sm:text-[56px] sm:tracking-[-2px] md:text-[76px] md:tracking-[-2.6px]">
-                Push&nbsp;notifications
-                <br />
-                with{' '}
-                <span
-                    className="font-mono font-medium text-accent"
-                    style={{
-                        background:
-                            'linear-gradient(180deg, var(--color-accent), var(--color-accent-dim))',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}
-                >
-                    one curl
-                </span>
-                .
+            <h1 className="m-0 font-sans text-[40px] font-semibold leading-[1.02] tracking-[-1.6px] text-fg sm:text-[48px] sm:tracking-[-2px] md:text-[56px] md:tracking-[-2.2px]">
+                Push notifications with{' '}
+                <span className="font-mono font-medium text-accent">one curl</span>.
             </h1>
 
-            <p className="mb-9 mt-7 max-w-[520px] font-sans text-[19px] leading-[1.55] text-muted">
-                A pubsub layer for humans. Pipe anything into a topic from your shell, CI, cron, or
-                a webhook — get it on your phone, terminal, slack, or email. No SDK. No account to
-                start.
+            <p className="mb-8 mt-6 max-w-[520px] font-sans text-[19px] leading-[1.55] text-muted">
+                Pipe anything into a topic from your shell, CI, or cron. Read it on your phone,
+                terminal, or inbox.
             </p>
 
             <TryItNowCurl />
 
             <div className="flex flex-wrap items-center gap-3">
                 <Button icon={<ArrowRight size={13} />} to="/app" variant="primary">
-                    Get started · free
+                    Get started
                 </Button>
-                <Button href="#how" icon={<Terminal size={13} />}>
-                    brew install emitsignal
-                </Button>
-                <span className="font-mono text-[12.5px] text-dim">· 30s setup</span>
+                <Button href="#how">How it works</Button>
             </div>
         </div>
     );
@@ -85,16 +62,13 @@ function HeroCopy() {
 
 function TryItNowCurl() {
     return (
-        <div className="mb-5.5 rounded-xl border border-line bg-deep px-4 py-3.5 font-mono text-[14px] leading-[1.5]">
-            <p className="mb-2 text-[10px] tracking-[1.4px] text-dim">
-                TRY IT NOW · NO ACCOUNT NEEDED
-            </p>
-
-            <div className="text-fg">
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-line bg-deep px-4 py-3.5">
+            <code className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap font-mono text-[13.5px] leading-[1.5]">
                 <span className="text-success">$</span> <span className="text-dim">curl -d</span>{' '}
                 <span className="text-warn">"hi from the marketing site"</span>{' '}
                 <span className="text-accent">emitsignal.com/me-tryout</span>
-            </div>
+            </code>
+            <CopyButton className="shrink-0" value={TRY_IT_COMMAND} />
         </div>
     );
 }
