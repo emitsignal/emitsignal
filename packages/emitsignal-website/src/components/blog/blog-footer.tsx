@@ -1,4 +1,5 @@
 import { Logo } from '#/components/ui/logo';
+import { STATUS_URL } from '#/lib/links';
 
 export function BlogFooter() {
     return (
@@ -13,7 +14,7 @@ export function BlogFooter() {
                 <span className="ml-auto flex items-center gap-1.5 font-mono text-[11px] text-dim">
                     <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
                     all systems normal ·{' '}
-                    <a href="https://status.emitsignal.com" target="_blank">
+                    <a href={STATUS_URL} target="_blank">
                         status.emitsignal.com
                     </a>
                 </span>

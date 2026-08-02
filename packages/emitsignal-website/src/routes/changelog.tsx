@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { Footer } from '#/components/landing/footer';
 import { Nav } from '#/components/landing/nav';
+import { DOCS_URL } from '#/lib/links';
 
 export const Route = createFileRoute('/changelog')({ component: ChangelogPage });
 
@@ -230,7 +231,7 @@ export default function ChangelogPage() {
                                     listen, and subscribe from the terminal{' '}
                                     <a
                                         className="text-accent no-underline"
-                                        href="https://docs.emitsignal.com/cli"
+                                        href={`${DOCS_URL}/cli`}
                                         target="_blank"
                                     >
                                         (docs)
