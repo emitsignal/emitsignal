@@ -1,0 +1,147 @@
+import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { Elysia } from 'elysia';
+
+import { prismaMock } from '../../../__tests__/mocks';
+
+const mockBus = { publish: mock(), publishWebhookDelivery: mock(), subscribe: mock() };
+const mockPushQueue = { add: mock(() => Promise.resolve()) };
+
+mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('../../../lib/event-bus', () => ({ bus: mockBus }));
+mock.module('../../../lib/queue', () => ({
+    pushQueue: mockPushQueue,
+    scheduleQueue: { add: mock(() => Promise.resolve()) },
+}));
+// Header-driven so a leak into other test files behaves like the real module
+// (no test header → anonymous).
+mock.module('../../auth/plugin', () => ({
+    resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
+        Promise.resolve(headers['x-test-user-id'] ?? null),
+}));
+
+import { receiveWebhook } from '../receive';
+
+describe('POST /h/:slug link → view action', () => {
+    const app = new Elysia().use(receiveWebhook);
+
+    function withTemplateLink(link: string) {
+        prismaMock.webhook.findUnique.mockResolvedValue({
+            id: 'wh-1',
+            source: 'custom',
+            status: 'active',
+            template: JSON.stringify({ link, title: '{{event.name}}' }),
+            topicName: 'deploys',
+            userId: null,
+        });
+    }
+
+    function request(payload: unknown) {
+        return new Request('http://localhost/h/cw_abc1234', {
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+        });
+    }
+
+    // The actions column is written as a JSON string; read back what the route stored.
+    function storedActions() {
+        const calls = prismaMock.message.create.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown as [{ data: Record<string, unknown> }];
+
+        return JSON.parse(lastCall[0].data.actions as string) as unknown[];
+    }
+
+    beforeEach(() => {
+        prismaMock.message.create.mockClear();
+        mockPushQueue.add.mockClear();
+        prismaMock.topic.findUnique.mockResolvedValue({
+            displayName: 'deploys',
+            id: 'topic-1',
+            name: 'deploys',
+        });
+    });
+
+    it('stores a single view action for an http(s) link', async () => {
+        withTemplateLink('https://status.dev/{{event.id}}');
+
+        const res = await app.handle(request({ event: { id: '42', name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([
+            { label: 'View', type: 'view', url: 'https://status.dev/42' },
+        ]);
+    });
+
+    it('drops a javascript: link but still delivers the message', async () => {
+        withTemplateLink('javascript:alert(1)');
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([]);
+    });
+
+    it('drops a relative link but still delivers the message', async () => {
+        withTemplateLink('/repos/acme/api');
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([]);
+    });
+
+    it('stores no action when the link template does not resolve', async () => {
+        withTemplateLink('{{event.url}}');
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([]);
+    });
+
+    it('stores no action when the template has no link at all', async () => {
+        prismaMock.webhook.findUnique.mockResolvedValue({
+            id: 'wh-1',
+            source: 'custom',
+            status: 'active',
+            template: JSON.stringify({ title: '{{event.name}}' }),
+            topicName: 'deploys',
+            userId: null,
+        });
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([]);
+    });
+
+    it('stores no action for an untemplated passthrough delivery', async () => {
+        prismaMock.webhook.findUnique.mockResolvedValue({
+            id: 'wh-1',
+            source: 'custom',
+            status: 'active',
+            template: null,
+            topicName: 'deploys',
+            userId: null,
+        });
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([]);
+    });
+
+    it('forwards the same action to the push job', async () => {
+        withTemplateLink('https://status.dev/run');
+
+        await app.handle(request({ event: { name: 'deploy' } }));
+
+        const calls = mockPushQueue.add.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown as [string, Record<string, unknown>];
+
+        expect(lastCall[0]).toBe('push-message');
+        expect(lastCall[1].actions).toEqual([
+            { label: 'View', type: 'view', url: 'https://status.dev/run' },
+        ]);
+    });
+});

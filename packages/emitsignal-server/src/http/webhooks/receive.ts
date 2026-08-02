@@ -1,7 +1,10 @@
 import { parseTemplate, renderTemplate } from '@emitsignal/shared/webhook-template';
 import Elysia, { t } from 'elysia';
 
+import type { Action } from '../../lib/actions';
+
 import { consumeLimit } from '../../http/plugins/rate-limit-plugin';
+import { validateActions } from '../../lib/actions';
 import { getUserPlan } from '../../lib/billing/get-user-plan';
 import { messageExpiresAt, messageRetentionDays } from '../../lib/billing/retention';
 import { bus } from '../../lib/event-bus';
@@ -55,6 +58,7 @@ export const receiveWebhook = new Elysia().post(
         const template = parseTemplate(webhook.template);
         const templated = !!template;
 
+        let actions: Action[] = [];
         let messageBody: string;
         let priority: number;
         let tags: string[];
@@ -63,6 +67,7 @@ export const receiveWebhook = new Elysia().post(
         if (template) {
             const rendered = renderTemplate(template, payload);
 
+            actions = viewActionFor(rendered.link);
             messageBody = rendered.body;
             priority = rendered.priority;
             tags = rendered.tags;
@@ -89,7 +94,7 @@ export const receiveWebhook = new Elysia().post(
 
         const message = await prisma.message.create({
             data: {
-                actions: '[]',
+                actions: JSON.stringify(actions),
                 body: messageBody,
                 deliveredAt,
                 expiresAt: messageExpiresAt(deliveredAt, messageRetentionDays(plan)),
@@ -106,7 +111,7 @@ export const receiveWebhook = new Elysia().post(
         bus.publish(topic.name, { ...event, topicName: topic.name });
 
         pushQueue.add('push-message', {
-            actions: [],
+            actions,
             body: messageBody,
             messageId: message.id,
             priority,
@@ -151,3 +156,17 @@ export const receiveWebhook = new Elysia().post(
         body: t.Unknown(),
     },
 );
+
+// The rendered link comes from the caller's payload on a public endpoint, so it
+// is untrusted: run it through the same validator `POST /topic/:name` uses so
+// only http(s) URLs are ever stored. Unlike publish, a link we cannot use never
+// fails the delivery — the notification still goes out, just without a button.
+function viewActionFor(link: string): Action[] {
+    if (!link) {
+        return [];
+    }
+
+    const validation = validateActions([{ type: 'view', url: link }]);
+
+    return 'ok' in validation ? validation.actions : [];
+}

@@ -23,12 +23,16 @@ export function renderTemplate(
     payload: unknown,
 ): {
     body: string;
+    link: string;
     priority: number;
     tags: string[];
     title: string;
 } {
     const title = template.title ? applyTemplate(template.title, payload) : 'Webhook delivery';
     const body = template.body ? applyTemplate(template.body, payload) : '';
+    // An unset link, or one whose template path does not resolve, renders to ''.
+    // Callers treat that as "no action" — a link is never required for delivery.
+    const link = template.link ? applyTemplate(template.link, payload).trim() : '';
     const rawTags = template.tags ? applyTemplate(template.tags, payload) : '';
     const tags = rawTags
         ? rawTags
@@ -39,7 +43,7 @@ export function renderTemplate(
 
     const priority = Math.min(5, Math.max(1, parseInt(template.priority ?? '3', 10))) || 3;
 
-    return { body, priority, tags, title };
+    return { body, link, priority, tags, title };
 }
 
 function formatValue(value: unknown, emptyValue: string): string {
