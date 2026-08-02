@@ -3,9 +3,16 @@ import { describe, expect, test } from 'vitest';
 
 import { NotifPreview } from './notif-preview';
 
-function renderPreview(link?: string) {
+function renderPreview(link?: string, linkLabel?: string) {
     return render(
-        <NotifPreview body="body" channel="deploys" link={link} priority={3} title="title" />,
+        <NotifPreview
+            body="body"
+            channel="deploys"
+            link={link}
+            linkLabel={linkLabel}
+            priority={3}
+            title="title"
+        />,
     );
 }
 
@@ -42,5 +49,32 @@ describe('NotifPreview link', () => {
 
         expect(screen.queryByText('View')).toBeNull();
         expect(screen.queryByText('View · dropped')).toBeNull();
+    });
+});
+
+describe('NotifPreview link label', () => {
+    test('renders a custom label on the button', () => {
+        renderPreview('https://status.dev/run/42', 'Open run');
+
+        expect(screen.getByText('Open run')).toBeDefined();
+        expect(screen.queryByText('View')).toBeNull();
+    });
+
+    test('falls back to View for an empty label', () => {
+        renderPreview('https://status.dev/run/42', '   ');
+
+        expect(screen.getByText('View')).toBeDefined();
+    });
+
+    test('renders the capped label the server will deliver', () => {
+        renderPreview('https://status.dev/run/42', 'x'.repeat(60));
+
+        expect(screen.getByText('x'.repeat(40))).toBeDefined();
+    });
+
+    test('labels the dropped state with the custom label too', () => {
+        renderPreview('/repos/acme/api', 'Open repo');
+
+        expect(screen.getByText('Open repo · dropped')).toBeDefined();
     });
 });

@@ -1,3 +1,5 @@
+import { normalizeLinkLabel } from '@emitsignal/shared/webhook-template';
+
 import { Avatar } from '#/components/ui/avatar';
 import { priorityHex } from '#/lib/priority';
 
@@ -6,6 +8,7 @@ interface NotifPreviewProps {
     channel: string;
     compact?: boolean;
     link?: string;
+    linkLabel?: string;
     priority: number | string;
     tags?: string | string[];
     title: string;
@@ -16,6 +19,7 @@ export function NotifPreview({
     channel,
     compact = false,
     link = '',
+    linkLabel = '',
     priority,
     tags = [],
     title,
@@ -35,6 +39,7 @@ export function NotifPreview({
     // so a template that renders an unusable link is visible before it ships.
     const deliverableLink = isDeliverableLink(link);
     const droppedLink = link !== '' && !deliverableLink;
+    const buttonLabel = normalizeLinkLabel(linkLabel) || 'View';
 
     return (
         <div
@@ -79,7 +84,7 @@ export function NotifPreview({
                                 className="inline-block rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg"
                                 title={link}
                             >
-                                View
+                                {buttonLabel}
                             </span>
                         </div>
                     )}
@@ -89,7 +94,7 @@ export function NotifPreview({
                                 className="inline-block rounded-md border border-dashed border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
                                 title="Not an http(s) URL — this link is dropped and no button is delivered."
                             >
-                                View · dropped
+                                {buttonLabel} · dropped
                             </span>
                         </div>
                     )}
