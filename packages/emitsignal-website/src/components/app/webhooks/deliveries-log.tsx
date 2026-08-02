@@ -1,3 +1,4 @@
+import { applyTemplate as applyTemplateExact } from '@emitsignal/shared/webhook-template';
 import { useNavigate } from '@tanstack/react-router';
 import { Copy, Edit, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
@@ -83,6 +84,7 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                 body: applyTemplate(template.body ?? '', delivery.payload),
                 channel: delivery.channel,
                 link: applyTemplate(template.link ?? '', delivery.payload).trim(),
+                linkLabel: applyTemplateExact(template.linkLabel ?? '', delivery.payload),
                 priority: Number(template.priority ?? '3'),
                 tags: applyTemplate(template.tags ?? '', delivery.payload),
                 title: applyTemplate(template.title ?? '', delivery.payload),

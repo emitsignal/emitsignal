@@ -1,3 +1,4 @@
+import { applyTemplate as applyTemplateExact } from '@emitsignal/shared/webhook-template';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { ChevronDown, Copy } from 'lucide-react';
@@ -36,6 +37,7 @@ const SOURCE_DATA: Record<
         template: {
             body: '{{pusher.name}} · {{head_commit.message}}',
             link: '{{head_commit.url}}',
+            linkLabel: 'View commit',
             priority: '3',
             tags: 'git, push, {{repository.name}}',
             title: 'Push to {{repository.full_name}}',
@@ -102,7 +104,14 @@ const GLYPH: Record<Source, string> = {
     vercel: 'VC',
 };
 
-const EMPTY_TEMPLATE: WebhookTemplate = { body: '', link: '', priority: '3', tags: '', title: '' };
+const EMPTY_TEMPLATE: WebhookTemplate = {
+    body: '',
+    link: '',
+    linkLabel: '',
+    priority: '3',
+    tags: '',
+    title: '',
+};
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -169,6 +178,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         body: applyTemplate(templateFields.body ?? '', activePayload),
         channel: topicName || `${source}/channel`,
         link: applyTemplate(templateFields.link ?? '', activePayload).trim(),
+        linkLabel: applyTemplateExact(templateFields.linkLabel ?? '', activePayload),
         priority: Number(templateFields.priority ?? '3'),
         tags: applyTemplate(templateFields.tags ?? '', activePayload),
         title: applyTemplate(templateFields.title ?? '', activePayload),
@@ -488,6 +498,25 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                 />
                             </div>
                         ))}
+
+                        {(templateFields.link ?? '') !== '' && (
+                            <div className="mb-2.5">
+                                <div className="mb-1 flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                                    Button label
+                                    <span className="normal-case tracking-normal text-faint">
+                                        optional · defaults to “View”
+                                    </span>
+                                </div>
+                                <input
+                                    className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
+                                    onChange={(e) =>
+                                        handleTemplateFieldChange('linkLabel', e.target.value)
+                                    }
+                                    placeholder="View"
+                                    value={templateFields.linkLabel ?? ''}
+                                />
+                            </div>
+                        )}
 
                         <div className="mb-2.5">
                             <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
