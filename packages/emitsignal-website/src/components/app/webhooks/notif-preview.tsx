@@ -5,6 +5,7 @@ interface NotifPreviewProps {
     body: string;
     channel: string;
     compact?: boolean;
+    link?: string;
     priority: number | string;
     tags?: string | string[];
     title: string;
@@ -14,6 +15,7 @@ export function NotifPreview({
     body,
     channel,
     compact = false,
+    link = '',
     priority,
     tags = [],
     title,
@@ -27,6 +29,12 @@ export function NotifPreview({
 
     const priorityValue = Number(priority);
     const priColor = priorityHex(priorityValue);
+
+    // The server drops any link that is not http(s) — relative paths included —
+    // and delivers the notification without a button. Preview that outcome too,
+    // so a template that renders an unusable link is visible before it ships.
+    const deliverableLink = isDeliverableLink(link);
+    const droppedLink = link !== '' && !deliverableLink;
 
     return (
         <div
@@ -65,8 +73,42 @@ export function NotifPreview({
                             ))}
                         </div>
                     )}
+                    {deliverableLink && (
+                        <div className="mt-2.5">
+                            <span
+                                className="inline-block rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg"
+                                title={link}
+                            >
+                                View
+                            </span>
+                        </div>
+                    )}
+                    {droppedLink && (
+                        <div className="mt-2.5">
+                            <span
+                                className="inline-block rounded-md border border-dashed border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
+                                title="Not an http(s) URL — this link is dropped and no button is delivered."
+                            >
+                                View · dropped
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
     );
+}
+
+// Mirrors the server's `isValidHref` (lib/media-refs.ts), which is what decides
+// whether a rendered template link survives into a delivered action. Deliberately
+// not `safeExternalUrl` from shared: that one also accepts `mailto:`, so it would
+// preview a button the server goes on to drop.
+function isDeliverableLink(link: string): boolean {
+    try {
+        const { protocol } = new URL(link);
+
+        return protocol === 'http:' || protocol === 'https:';
+    } catch {
+        return false;
+    }
 }

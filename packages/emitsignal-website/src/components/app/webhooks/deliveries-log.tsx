@@ -82,6 +82,7 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
             return {
                 body: applyTemplate(template.body ?? '', delivery.payload),
                 channel: delivery.channel,
+                link: applyTemplate(template.link ?? '', delivery.payload).trim(),
                 priority: Number(template.priority ?? '3'),
                 tags: applyTemplate(template.tags ?? '', delivery.payload),
                 title: applyTemplate(template.title ?? '', delivery.payload),
