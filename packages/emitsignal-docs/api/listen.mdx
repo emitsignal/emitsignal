@@ -29,6 +29,10 @@ curl -N \
 # data: {"id":"...","title":"High memory","priority":5,"createdAt":1790000000000, ...}
 ```
 
+Listening to a topic that doesn't exist yet is allowed — publishing creates the topic on first
+use, so you can connect ahead of the first signal. A topic that exists but that you're not
+allowed to read returns `404 topic_not_found`.
+
 ## Many topics
 
 ```
@@ -36,7 +40,14 @@ GET /listen
 ```
 
 <ParamField query="topics" type="string">
-    Comma-separated topic names. If omitted, subscribes to the wildcard `*` (every topic).
+    Comma-separated topic names. If omitted, subscribes to every topic you own or are subscribed to
+    — authentication is required in that case, otherwise the request fails with `400
+    topics_required`.
+</ParamField>
+
+<ParamField query="since" type="integer (unix ms)">
+    Replay backlog first, exactly as on the single-topic endpoint. Streams up to 200 messages across
+    all subscribed topics with `createdAt` greater than this timestamp, then continues live.
 </ParamField>
 
 ```bash
@@ -44,6 +55,10 @@ curl -N \
   -H "Authorization: Bearer es_xxx" \
   "https://api.emitsignal.com/listen?topics=alerts/prod,deploy/prod"
 ```
+
+Topics you cannot read are skipped silently, so one private topic in the list doesn't break the
+rest of the stream. If none of the requested topics are readable, the request returns
+`404 topic_not_found`.
 
 <Warning>
     When the connection cap is hit you get `429 too_many_sse_connections` with

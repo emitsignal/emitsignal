@@ -58,7 +58,7 @@ CLI                       ┘                    │                  Redis
 - **Framework:** Elysia on Bun; routes are Elysia plugins in `src/http/`
 - **Database:** PostgreSQL via Prisma; schema at `prisma/schema.prisma`; generated client at `src/generated/prisma/`
 - **Queues:** BullMQ backed by Redis (`src/lib/queue/`); three queues — `email`, `push`, `schedule`; workers run in `src/workers/`
-- **SSE fanout:** `src/lib/event-bus.ts` — an in-process `EventEmitter` that powers `GET /topics/:name/listen`. Single-node only; replace with Redis pub/sub for multi-node.
+- **SSE fanout:** `src/lib/event-bus.ts` — an in-process `EventEmitter` that powers the listen endpoints. Single-node only; replace with Redis pub/sub for multi-node. Transport plumbing (headers, frame encoding, heartbeat/cleanup) lives in `src/lib/sse.ts`; `GET /topics/:name/listen` and `GET /listen` are thin wrappers over one shared handler in `src/http/topic/sse-listen.ts`.
 - **Auth:** Better Auth (`src/lib/auth.ts`) — magic link, passkey, API keys, optional GitHub OAuth. Auth is resolved per-request in `src/http/auth/plugin.ts`; supports cookie-based sessions (web) and `Bearer <session-token>` (mobile/CLI).
 - **Rate limiting:** `rate-limiter-flexible` via Redis (`src/lib/rate-limit.ts`); applied globally via `src/http/plugins/rate-limit-plugin.ts`. Fails open if Redis is unavailable.
 - **File storage:** provider-switched via `FILE_STORAGE_PROVIDER` env — `local` (default) or `s3` (`src/lib/storage/`)
