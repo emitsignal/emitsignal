@@ -51,8 +51,8 @@ curl -X POST https://emitsignal.com/topic/alerts \
 # one topic
 curl -N https://emitsignal.com/topics/alerts/listen
 
-# several at once
-curl -N "https://emitsignal.com/listen?topics=alerts,ci,deploys"
+# several at once, replaying the last 10 minutes first
+curl -N "https://emitsignal.com/listen?topics=alerts,ci,deploys&since=$(($(date +%s000) - 600000))"
 ```
 
 **Schedule for later** — relative durations (`30m`, `2h`, `1d`) or a unix timestamp:
@@ -69,7 +69,7 @@ curl -X POST https://emitsignal.com/topic/reminders \
 # Features
 
 - **Topics** — publish to any named topic; subscribers tune in by name, no pre-registration.
-- **Live delivery (SSE)** — `GET /topics/:name/listen` or `GET /listen?topics=a,b,c`, with `?since=` backlog replay and heartbeats.
+- **Live delivery (SSE)** — `GET /topics/:name/listen` or `GET /listen?topics=a,b,c`, both with `?since=` backlog replay and heartbeats.
 - **Push notifications** — delivered to the Expo mobile app (iOS, Android) via queued workers.
 - **Priorities** — `1`–`5`, or the aliases `min` / `low` / `default` / `high` / `urgent`.
 - **Tags & actions** — categorize with `X-Tags`, attach interactive `X-Actions` to a message.

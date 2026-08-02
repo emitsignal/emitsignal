@@ -58,7 +58,7 @@ The server listens on port `5001` by default (`EMIT_SIGNAL_HTTP_PORT`).
 | `GET`    | `/topics/:name`                   | Topic details with message count  |
 | `GET`    | `/topics/:name/messages?limit=50` | Topic message history             |
 | `GET`    | `/topics/:name/listen?since=<ms>` | SSE — backfill + live stream      |
-| `GET`    | `/listen?topics=a,b,c`            | SSE — multi-topic live stream     |
+| `GET`    | `/listen?topics=a,b,c&since=<ms>` | SSE — multi-topic backfill + live |
 | `POST`   | `/topic/:name`                    | Publish a message                 |
 | `GET`    | `/suggestions`                    | Topic name suggestions (`?q=`)    |
 | `GET`    | `/messages/:id`                   | Get a single message              |
