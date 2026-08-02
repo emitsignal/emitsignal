@@ -1,3 +1,5 @@
+import { AUTHOR_URL } from '#/lib/links';
+
 export interface Author {
     bio: string;
     handle: string;
@@ -46,7 +48,7 @@ export const AUTHORS: Record<AuthorId, Author> = {
         handle: '@kevenleone',
         id: 'keven',
         name: 'Keven Leone',
-        photo: 'https://github.com/kevenleone.png',
+        photo: `${AUTHOR_URL}.png`,
         role: 'Project Maintainer',
     },
     team: {
