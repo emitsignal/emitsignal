@@ -451,9 +451,14 @@ export function createApiClient(baseUrl: string) {
         },
     };
 
-    function sseMultiUrl(topics: string[]): string {
+    function sseMultiUrl(topics: string[], since?: number): string {
         const encodedTopics = topics.map((topic) => encodeURIComponent(topic)).join(',');
-        return `${baseUrl}/listen${encodedTopics ? `?topics=${encodedTopics}` : ''}`;
+        const parameters = [
+            encodedTopics ? `topics=${encodedTopics}` : '',
+            since ? `since=${since}` : '',
+        ].filter(Boolean);
+
+        return `${baseUrl}/listen${parameters.length ? `?${parameters.join('&')}` : ''}`;
     }
 
     function sseUrl(topicName: string, since?: number): string {
