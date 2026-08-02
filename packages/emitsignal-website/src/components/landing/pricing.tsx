@@ -34,7 +34,7 @@ function planTier(plan: PlanDefinition): Tier {
 
     if (plan.name === 'free') {
         return {
-            cta: 'Start free',
+            cta: 'Get started',
             description: plan.description,
             features,
             href: '/sign-in',
@@ -52,7 +52,7 @@ function planTier(plan: PlanDefinition): Tier {
         href: '/app/settings/billing',
         name: plan.label,
         price: `$${plan.priceMonthlyUsd}`,
-        priceSubtitle: `/ month · $${plan.priceYearlyUsd}/yr`,
+        priceSubtitle: `/ month, or $${plan.priceYearlyUsd}/yr`,
         tag: plan.name === 'pulse' ? 'most popular' : undefined,
     };
 }
@@ -63,15 +63,17 @@ export function Pricing() {
     return (
         <Section
             id="pricing"
-            style={{ background: 'linear-gradient(180deg, transparent, rgba(26,22,37,0.33))' }}
+            style={{
+                background:
+                    'linear-gradient(180deg, transparent, color-mix(in srgb, var(--color-elev) 55%, transparent))',
+            }}
         >
-            <Eyebrow>PRICING</Eyebrow>
+            <Eyebrow>Pricing</Eyebrow>
             <h2 className="m-0 mb-4 max-w-[780px] text-[28px] font-semibold leading-[1.05] tracking-[-1px] text-fg sm:text-[36px] md:text-[44px] md:tracking-[-1.4px]">
                 Pay for what you push.
             </h2>
             <p className="mb-10 max-w-[620px] font-sans text-[17px] leading-[1.55] text-muted">
-                No per-seat tax. No SDK to license. Pay yearly and get 2 months free. The free tier
-                is real — many people stay on it.
+                No per-seat tax. No SDK to license. Pay yearly and get 2 months free.
             </p>
 
             <div className="grid grid-cols-1 gap-[18px] md:grid-cols-3">
@@ -83,8 +85,8 @@ export function Pricing() {
             <div className="mt-8 flex items-center gap-4 rounded-xl border border-dashed border-line px-5 py-4 font-mono text-[12px] text-muted">
                 <AlertTriangle className="text-warn shrink-0" size={14} />
                 <span>
-                    A message = one published signal. Receiving is free — same signal to 200
-                    subscribers still counts as 1. Daily limits reset at midnight UTC.
+                    A message is one published signal. Receiving is free, so the same signal sent to
+                    200 subscribers still counts as 1. Daily limits reset at midnight UTC.
                 </span>
             </div>
         </Section>
@@ -95,10 +97,8 @@ function TierCard({ tier }: { tier: Tier }) {
     return (
         <div
             className={cn(
-                'relative rounded-2xl border px-7 py-8',
-                tier.highlighted
-                    ? 'border-accent bg-elev shadow-[0_0_0_4px_rgba(167,139,250,0.1)]'
-                    : 'border-line bg-transparent',
+                'relative flex h-full flex-col rounded-xl border px-7 py-8',
+                tier.highlighted ? 'border-accent bg-elev' : 'border-line bg-transparent',
             )}
         >
             {tier.tag && (
@@ -113,10 +113,8 @@ function TierCard({ tier }: { tier: Tier }) {
                 <span className="text-[44px] font-semibold tracking-[-1.4px]">{tier.price}</span>
                 <span className="font-mono text-[12.5px] text-dim">{tier.priceSubtitle}</span>
             </div>
-            <p className="min-h-[42px] m-0 mb-5.5 text-[14px] leading-[1.5] text-muted">
-                {tier.description}
-            </p>
-            <ul className="m-0 mb-6.5 flex list-none flex-col gap-2.5 p-0">
+            <p className="m-0 mb-5.5 text-[14px] leading-[1.5] text-muted">{tier.description}</p>
+            <ul className="m-0 mb-6.5 flex flex-1 list-none flex-col gap-2.5 p-0">
                 {tier.features.map((feature) => (
                     <li className="flex items-start gap-2.5 text-[13px] text-muted" key={feature}>
                         <span className="font-mono leading-[1.5] text-accent">→</span>
@@ -126,9 +124,9 @@ function TierCard({ tier }: { tier: Tier }) {
             </ul>
             <a
                 className={cn(
-                    'block rounded-lg px-4 py-3 text-center font-mono text-[13px] font-semibold no-underline',
+                    'block rounded-lg px-4 py-3 text-center font-mono text-[13px] font-semibold no-underline active:translate-y-px',
                     tier.highlighted
-                        ? 'bg-accent text-bg hover:bg-accent-dim'
+                        ? 'bg-accent text-bg hover:bg-accent-hover'
                         : 'border border-line text-fg hover:bg-elev',
                 )}
                 href={tier.href}
