@@ -13,13 +13,14 @@
     /* Text */
     --color-fg: #f5f0ff;
     --color-muted: #b8a9d9;
-    --color-dim: #7a6d99;
+    --color-dim: #8b7db0;
     --color-faint: #4a4166;
 
     /* Accent (violet) */
     --color-accent: #a78bfa;
     --color-accent-dim: #7c3aed;
     --color-accent-deep: #5b21b6;
+    --color-accent-hover: #c4b5fd;
 
     /* Semantic */
     --color-success: #4ade80;
@@ -64,6 +65,7 @@
     --color-accent: #7c3aed;
     --color-accent-dim: #6d28d9;
     --color-accent-deep: #5b21b6;
+    --color-accent-hover: #6d28d9;
 
     /* Semantic */
     --color-success: #16a34a;
@@ -104,6 +106,18 @@
     }
     to {
         transform: translateY(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-delay: -1ms !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
     }
 }
 

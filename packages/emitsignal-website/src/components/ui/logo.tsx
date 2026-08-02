@@ -19,7 +19,7 @@ export function Logo({ className, label = 'EmitSignal', pulse = false, size = 14
                     pulse && 'animate-[signal-pulse_2s_ease-in-out_infinite]',
                 )}
                 style={{
-                    boxShadow: `0 0 ${size * 0.6}px var(--color-accent)`,
+                    boxShadow: pulse ? `0 0 ${size * 0.6}px var(--color-accent)` : undefined,
                     height: size * 0.55,
                     width: size * 0.55,
                 }}
