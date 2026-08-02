@@ -34,9 +34,8 @@ export function registerListenCommand(program: Command): void {
                 ? (opts.tag as string).split(',').map((s: string) => s.trim())
                 : null;
 
-            const since = opts.since
-                ? Math.floor((Date.now() - durationToMs(opts.since as string)) / 1000)
-                : undefined;
+            // The server reads `since` as a unix timestamp in milliseconds.
+            const since = opts.since ? Date.now() - durationToMs(opts.since as string) : undefined;
 
             let url: string;
 
@@ -47,9 +46,9 @@ export function registerListenCommand(program: Command): void {
                     const subscriptions = await client.api.listSubscriptions(getDeviceId());
                     const topics = subscriptions.map((subscription) => subscription.topic.name);
 
-                    url = client.sseMultiUrl(topics);
+                    url = client.sseMultiUrl(topics, since);
                 } catch {
-                    url = client.sseMultiUrl([]);
+                    url = client.sseMultiUrl([], since);
                 }
             }
 
