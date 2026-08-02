@@ -25,11 +25,15 @@ describe('POST /h/:slug link → view action', () => {
     const app = new Elysia().use(receiveWebhook);
 
     function withTemplateLink(link: string) {
+        withTemplate({ link, title: '{{event.name}}' });
+    }
+
+    function withTemplate(template: Record<string, string>) {
         prismaMock.webhook.findUnique.mockResolvedValue({
             id: 'wh-1',
             source: 'custom',
             status: 'active',
-            template: JSON.stringify({ link, title: '{{event.name}}' }),
+            template: JSON.stringify(template),
             topicName: 'deploys',
             userId: null,
         });
@@ -143,5 +147,46 @@ describe('POST /h/:slug link → view action', () => {
         expect(lastCall[1].actions).toEqual([
             { label: 'View', type: 'view', url: 'https://status.dev/run' },
         ]);
+    });
+
+    it('uses a templated link label as the button text', async () => {
+        withTemplate({ link: 'https://status.dev/run', linkLabel: 'Open {{event.name}}' });
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([
+            { label: 'Open deploy', type: 'view', url: 'https://status.dev/run' },
+        ]);
+    });
+
+    it('falls back to View when the label template does not resolve', async () => {
+        withTemplate({ link: 'https://status.dev/run', linkLabel: '{{event.label}}' });
+
+        await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(storedActions()).toEqual([
+            { label: 'View', type: 'view', url: 'https://status.dev/run' },
+        ]);
+    });
+
+    it('collapses and caps a label the payload blew up', async () => {
+        withTemplate({ link: 'https://status.dev/run', linkLabel: '{{event.name}}' });
+
+        const res = await app.handle(request({ event: { name: `a\n${'b'.repeat(200)}` } }));
+
+        const [action] = storedActions() as [{ label: string }];
+
+        expect(res.status).toBe(200);
+        expect(action.label).toBe(`a ${'b'.repeat(38)}`);
+    });
+
+    it('ignores a label when the link itself is dropped', async () => {
+        withTemplate({ link: 'javascript:alert(1)', linkLabel: 'Open dashboard' });
+
+        const res = await app.handle(request({ event: { name: 'deploy' } }));
+
+        expect(res.status).toBe(200);
+        expect(storedActions()).toEqual([]);
     });
 });

@@ -1,9 +1,16 @@
 import type { WebhookTemplate } from './api.ts';
 
+// Labels interpolate payload values on a public endpoint, so the text is untrusted.
+export const MAX_LINK_LABEL_LENGTH = 40;
+
 export function applyTemplate(input: string, payload: unknown, defaultValue = ''): string {
     return input.replace(/\{\{\s*([^}]+)\s*\}\}/g, (_, path: string) =>
         formatValue(resolvePath(payload, path.trim().split('.')), defaultValue),
     );
+}
+
+export function normalizeLinkLabel(label: string): string {
+    return label.replace(/\s+/g, ' ').trim().slice(0, MAX_LINK_LABEL_LENGTH).trim();
 }
 
 export function parseTemplate(raw: null | string): null | WebhookTemplate {
@@ -24,6 +31,7 @@ export function renderTemplate(
 ): {
     body: string;
     link: string;
+    linkLabel: string;
     priority: number;
     tags: string[];
     title: string;
@@ -33,6 +41,10 @@ export function renderTemplate(
     // An unset link, or one whose template path does not resolve, renders to ''.
     // Callers treat that as "no action" — a link is never required for delivery.
     const link = template.link ? applyTemplate(template.link, payload).trim() : '';
+    const linkLabel =
+        link && template.linkLabel
+            ? normalizeLinkLabel(applyTemplate(template.linkLabel, payload))
+            : '';
     const rawTags = template.tags ? applyTemplate(template.tags, payload) : '';
     const tags = rawTags
         ? rawTags
@@ -43,7 +55,7 @@ export function renderTemplate(
 
     const priority = Math.min(5, Math.max(1, parseInt(template.priority ?? '3', 10))) || 3;
 
-    return { body, link, priority, tags, title };
+    return { body, link, linkLabel, priority, tags, title };
 }
 
 function formatValue(value: unknown, emptyValue: string): string {

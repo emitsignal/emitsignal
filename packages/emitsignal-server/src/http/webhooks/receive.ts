@@ -67,7 +67,7 @@ export const receiveWebhook = new Elysia().post(
         if (template) {
             const rendered = renderTemplate(template, payload);
 
-            actions = viewActionFor(rendered.link);
+            actions = viewActionFor(rendered.link, rendered.linkLabel);
             messageBody = rendered.body;
             priority = rendered.priority;
             tags = rendered.tags;
@@ -161,12 +161,14 @@ export const receiveWebhook = new Elysia().post(
 // is untrusted: run it through the same validator `POST /topic/:name` uses so
 // only http(s) URLs are ever stored. Unlike publish, a link we cannot use never
 // fails the delivery — the notification still goes out, just without a button.
-function viewActionFor(link: string): Action[] {
+function viewActionFor(link: string, label: string): Action[] {
     if (!link) {
         return [];
     }
 
-    const validation = validateActions([{ type: 'view', url: link }]);
+    const validation = validateActions([
+        label ? { label, type: 'view', url: link } : { type: 'view', url: link },
+    ]);
 
     return 'ok' in validation ? validation.actions : [];
 }
