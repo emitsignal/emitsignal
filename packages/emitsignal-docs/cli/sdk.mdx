@@ -1,6 +1,6 @@
 ---
 title: 'SDK'
-description: 'Every CLI verb maps 1:1 to an HTTP endpoint and to typed SDKs. Same auth, same filter grammar.'
+description: 'Every CLI verb maps 1:1 to an HTTP endpoint and to the typed SDK. Same auth, same filter grammar.'
 ---
 
 The CLI is a thin wrapper over the HTTP API. Everything it can do, the SDK can do —
@@ -54,28 +54,6 @@ await es.publish('deploy/prod', {
 for await (const ev of es.listen('priority>=2')) {
     console.log(ev.title);
 }
-```
-
-## Python
-
-```bash
-pip install emitsignal
-```
-
-```python
-from emitsignal import EmitSignal
-
-es = EmitSignal(token=os.environ["ES_TOKEN"])
-
-# Publish
-es.publish("deploy/prod",
-           priority=4,
-           tags=["ci", "release"],
-           message="api-gateway → v2.14.3")
-
-# Blocking stream generator
-for ev in es.listen("priority>=2"):
-    print(ev.title)
 ```
 
 ## Mapping: CLI → HTTP → SDK
