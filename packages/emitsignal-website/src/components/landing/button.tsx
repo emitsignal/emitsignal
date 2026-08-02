@@ -26,10 +26,14 @@ interface InternalLink extends BaseProps {
 type Variant = 'primary' | 'secondary';
 
 const BASE_CLASS =
-    'inline-flex cursor-pointer items-center gap-2 rounded-lg px-[18px] py-[11px] text-[13.5px] font-semibold no-underline transition-colors';
+    'inline-flex cursor-pointer items-center gap-2 rounded-lg px-[18px] py-[11px] text-[13.5px] font-semibold no-underline transition-colors active:translate-y-px';
+
+function isExternal(href: string): boolean {
+    return /^(https?:|mailto:)/.test(href);
+}
 
 const VARIANT_CLASS: Record<Variant, string> = {
-    primary: 'bg-accent text-bg hover:bg-accent-dim',
+    primary: 'bg-accent text-bg hover:bg-accent-hover',
     secondary: 'border border-line text-fg hover:bg-elev',
 };
 
@@ -61,8 +65,16 @@ export function Button({
             </Link>
         );
     }
+    const href = props.href ?? '#';
+    const external = isExternal(href);
+
     return (
-        <a className={className} href={props.href ?? '#'} target="_blank">
+        <a
+            className={className}
+            href={href}
+            rel={external ? 'noopener noreferrer' : undefined}
+            target={external ? '_blank' : undefined}
+        >
             {inner}
         </a>
     );
