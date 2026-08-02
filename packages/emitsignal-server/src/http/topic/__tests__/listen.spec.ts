@@ -115,6 +115,31 @@ describe('GET /topics/:name/listen (SSE)', () => {
             expect(frame).toContain('"topicName":"test-topic"');
         });
 
+        it('includes attachments on replayed messages', async () => {
+            prismaMock.message.findMany = mock(() => Promise.resolve([backlogMessage]));
+            prismaMock.attachment.findMany = mock(() =>
+                Promise.resolve([
+                    {
+                        filename: 'report.pdf',
+                        mimeType: 'application/pdf',
+                        size: 42,
+                        storageKey: 'abc.pdf',
+                    },
+                ]),
+            );
+
+            const res = await app.handle(
+                new Request('http://localhost/topics/test-topic/listen?since=1700000000000'),
+            );
+
+            const reader = res.body!.getReader();
+            const frame = new TextDecoder().decode((await reader.read()).value);
+            await reader.cancel();
+
+            expect(frame).toContain('report.pdf');
+            expect(prismaMock.attachment.findMany).toHaveBeenCalled();
+        });
+
         it('does not query messages without a since parameter', async () => {
             await app.handle(new Request('http://localhost/topics/test-topic/listen'));
 
