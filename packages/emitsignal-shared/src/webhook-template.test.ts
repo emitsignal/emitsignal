@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyTemplate, renderTemplate } from './webhook-template.ts';
+import {
+    applyTemplate,
+    MAX_LINK_LABEL_LENGTH,
+    normalizeLinkLabel,
+    renderTemplate,
+} from './webhook-template.ts';
 
 const payload = {
     heartbeat: {
@@ -83,6 +88,60 @@ describe('renderTemplate link', () => {
     test('trims surrounding whitespace', () => {
         expect(renderTemplate({ link: '  https://status.dev  ' }, payload).link).toBe(
             'https://status.dev',
+        );
+    });
+});
+
+describe('renderTemplate linkLabel', () => {
+    test('resolves a label template against the payload', () => {
+        const rendered = renderTemplate(
+            { link: 'https://status.dev', linkLabel: 'Open {{monitor.name}}' },
+            payload,
+        );
+        expect(rendered.linkLabel).toBe('Open EmitSignal');
+    });
+
+    test('returns an empty label when the template has none', () => {
+        expect(renderTemplate({ link: 'https://status.dev' }, payload).linkLabel).toBe('');
+    });
+
+    test('returns an empty label when the template path does not resolve', () => {
+        expect(
+            renderTemplate({ link: 'https://status.dev', linkLabel: '{{monitor.nope}}' }, payload)
+                .linkLabel,
+        ).toBe('');
+    });
+
+    test('ignores the label when there is no link to attach it to', () => {
+        expect(renderTemplate({ linkLabel: 'Open dashboard' }, payload).linkLabel).toBe('');
+    });
+
+    test('collapses whitespace injected by the payload', () => {
+        expect(
+            renderTemplate(
+                { link: 'https://status.dev', linkLabel: '  Open\n\t{{monitor.name}}  ' },
+                payload,
+            ).linkLabel,
+        ).toBe('Open EmitSignal');
+    });
+
+    test('caps an over-long label at MAX_LINK_LABEL_LENGTH', () => {
+        const rendered = renderTemplate(
+            { link: 'https://status.dev', linkLabel: 'x'.repeat(200) },
+            payload,
+        );
+        expect(rendered.linkLabel).toBe('x'.repeat(MAX_LINK_LABEL_LENGTH));
+    });
+});
+
+describe('normalizeLinkLabel', () => {
+    test('returns an empty string for whitespace-only input', () => {
+        expect(normalizeLinkLabel('   \n  ')).toBe('');
+    });
+
+    test('does not leave a trailing space when the cap lands mid-word', () => {
+        expect(normalizeLinkLabel(`${'x'.repeat(MAX_LINK_LABEL_LENGTH - 1)} tail`)).toBe(
+            'x'.repeat(MAX_LINK_LABEL_LENGTH - 1),
         );
     });
 });

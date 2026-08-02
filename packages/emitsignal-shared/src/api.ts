@@ -140,6 +140,7 @@ export interface WebhookDelivery {
 export interface WebhookTemplate {
     body?: string;
     link?: string;
+    linkLabel?: string;
     priority?: string;
     tags?: string;
     title?: string;
