@@ -168,6 +168,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     const rendered = {
         body: applyTemplate(templateFields.body ?? '', activePayload),
         channel: topicName || `${source}/channel`,
+        link: applyTemplate(templateFields.link ?? '', activePayload).trim(),
         priority: Number(templateFields.priority ?? '3'),
         tags: applyTemplate(templateFields.tags ?? '', activePayload),
         title: applyTemplate(templateFields.title ?? '', activePayload),
