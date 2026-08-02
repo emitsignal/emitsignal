@@ -126,7 +126,7 @@ export async function handleSseListen(
 
                 for (const message of backlog) {
                     send('message', {
-                        ...(await serializeMessage(message, 0, false)),
+                        ...(await serializeMessage(message, 0, true)),
                         topicName: topicNameById.get(message.topicId) ?? '',
                     });
                 }
