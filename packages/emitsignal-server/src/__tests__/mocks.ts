@@ -155,6 +155,14 @@ export const prismaMock = {
                 topicName: 'deploys',
             }),
         ),
+        findUnique: mock<(args?: Record<string, unknown>) => Promise<null | object>>(() =>
+            Promise.resolve(null),
+        ),
+    },
+    webhookDelivery: {
+        create: mock<(args: { data: Record<string, unknown> }) => Promise<object>>(() =>
+            Promise.resolve({ createdAt: new Date(), id: 'whd-1' }),
+        ),
     },
 };
 

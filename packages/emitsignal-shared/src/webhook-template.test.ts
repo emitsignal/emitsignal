@@ -65,3 +65,24 @@ describe('renderTemplate with wildcard tags', () => {
         expect(rendered.title).toBe('EmitSignal');
     });
 });
+
+describe('renderTemplate link', () => {
+    test('resolves a link template against the payload', () => {
+        const rendered = renderTemplate({ link: 'https://status.dev/{{monitor.id}}' }, payload);
+        expect(rendered.link).toBe('https://status.dev/42');
+    });
+
+    test('returns an empty link when the template has none', () => {
+        expect(renderTemplate({ title: '{{monitor.name}}' }, payload).link).toBe('');
+    });
+
+    test('returns an empty link when the template path does not resolve', () => {
+        expect(renderTemplate({ link: '{{monitor.nope}}' }, payload).link).toBe('');
+    });
+
+    test('trims surrounding whitespace', () => {
+        expect(renderTemplate({ link: '  https://status.dev  ' }, payload).link).toBe(
+            'https://status.dev',
+        );
+    });
+});
