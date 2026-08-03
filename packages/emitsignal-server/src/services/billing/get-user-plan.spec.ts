@@ -10,8 +10,8 @@ import {
     invalidateUserPlanCache,
     resetUserPlansForTests,
     setUserPlanForTests,
-} from '#/services/billing/get-user-plan';
-import { PLANS } from '#/services/billing/plans';
+} from './get-user-plan';
+import { PLANS } from './plans';
 
 function subscriptionRow(overrides: Record<string, unknown> = {}) {
     return {

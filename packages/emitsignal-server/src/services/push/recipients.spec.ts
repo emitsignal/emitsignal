@@ -1,12 +1,22 @@
-import { describe, expect, it, mock } from 'bun:test';
+import { afterAll, describe, expect, it, mock } from 'bun:test';
 
 import { prismaMock } from '#/__tests__/mocks';
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { resolvePushTokens } from '#/services/push/recipients';
+import { resolvePushTokens } from './recipients';
 
 describe('resolvePushTokens', () => {
+    // These cases replace the shared mocks outright rather than queueing values,
+    // so they must be handed back or later spec files inherit them.
+    const originalSubscriptionFindMany = prismaMock.subscription.findMany;
+    const originalPushTokenFindMany = prismaMock.pushToken.findMany;
+
+    afterAll(() => {
+        prismaMock.subscription.findMany = originalSubscriptionFindMany;
+        prismaMock.pushToken.findMany = originalPushTokenFindMany;
+    });
+
     it('returns an empty list when the topic has no subscriptions', async () => {
         prismaMock.subscription.findMany = mock(() => Promise.resolve([]));
 
