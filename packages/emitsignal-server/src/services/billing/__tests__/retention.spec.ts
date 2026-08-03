@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'bun:test';
 
-import { duration } from '#/utils/duration';
-
 import {
     ANON_RETENTION_DAYS,
     ATTACHMENT_MAX_RETENTION_DAYS,
     attachmentExpiresAt,
     messageExpiresAt,
     messageRetentionDays,
-} from './retention';
+} from '#/services/billing/retention';
+import { duration } from '#/utils/duration';
 
 describe('messageRetentionDays', () => {
     it('maps each plan to its retention window', () => {

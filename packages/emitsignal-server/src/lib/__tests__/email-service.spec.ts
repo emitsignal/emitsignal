@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test';
 
-import { EmailService } from './email-service';
+import { EmailService } from '#/lib/email-service';
 
 describe('EmailService', () => {
     it('init stores the queue for later use', async () => {

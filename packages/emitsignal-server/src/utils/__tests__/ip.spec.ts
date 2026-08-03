@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 
 import { environment } from '#/schema/environment';
-
-import { getClientIP } from './ip';
+import { getClientIP } from '#/utils/ip';
 
 describe('getClientIP', () => {
     it('ignores X-Forwarded-For when no proxy header is trusted', () => {

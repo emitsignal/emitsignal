@@ -9,7 +9,7 @@ import {
     isValidTopicName,
     TOPIC_NAME_MAX_LENGTH,
     TOPIC_NAME_REGEX,
-} from './topic';
+} from '#/services/topic';
 
 describe('TOPIC_NAME_REGEX', () => {
     const validNames = ['my-topic', 'a/b_c', 'a1', 'UPPER', 'CamelCase', 'test-ns/my-topic', 'abc'];

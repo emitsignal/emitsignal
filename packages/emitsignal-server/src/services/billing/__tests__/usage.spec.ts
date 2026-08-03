@@ -5,7 +5,7 @@ import {
     getDailyUsage,
     quotaExceededHeaders,
     resetUsageForTests,
-} from './usage';
+} from '#/services/billing/usage';
 
 beforeEach(() => {
     resetUsageForTests();
