@@ -1,10 +1,10 @@
 import type { Queue } from 'bullmq';
 
-import type { EmailOptions } from './email/provider';
+import type { EmailOptions } from '#/lib/email/provider';
 
-import { getUserPlan } from './billing/get-user-plan';
-import { PlanLimitError, PLANS } from './billing/plans';
-import { consumeDailyQuota } from './billing/usage';
+import { getUserPlan } from '#/lib/billing/get-user-plan';
+import { PlanLimitError, PLANS } from '#/lib/billing/plans';
+import { consumeDailyQuota } from '#/lib/billing/usage';
 
 export interface EmailQuotaOptions {
     userId: string;

@@ -4,9 +4,9 @@ import * as Sentry from '@sentry/bun';
 import Elysia from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
-import { getClientIP, ServerLike } from '#/lib/ip';
 import { logger } from '#/lib/logger';
 import { globalAnonLimiter, globalAuthLimiter } from '#/lib/rate-limit';
+import { getClientIP, ServerLike } from '#/utils/ip';
 
 const LIMITER_UNAVAILABLE_RETRY_SECONDS = 30;
 

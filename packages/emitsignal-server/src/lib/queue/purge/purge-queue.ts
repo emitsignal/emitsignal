@@ -1,7 +1,7 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
-import { duration } from '#/lib/duration';
 import { redisConnection } from '#/lib/queue/connection';
+import { duration } from '#/utils/duration';
 
 import type { PurgeJob } from './types';
 

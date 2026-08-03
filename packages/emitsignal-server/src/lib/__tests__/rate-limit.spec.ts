@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it } from 'bun:test';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 import { consumeLimit } from '#/http/plugins/rate-limit-plugin';
-import { getClientIP } from '#/lib/ip';
 import { environment } from '#/schema/environment';
+import { getClientIP } from '#/utils/ip';
 
 describe('getClientIP', () => {
     it('ignores X-Forwarded-For when no proxy header is trusted', () => {

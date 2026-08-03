@@ -8,8 +8,6 @@ mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 import {
     getOrCreateTopic,
     isValidTopicName,
-    parseActions,
-    parseTagsQueryParam,
     serializeMessage,
     TOPIC_NAME_MAX_LENGTH,
     TOPIC_NAME_REGEX,
@@ -93,59 +91,6 @@ describe('getOrCreateTopic', () => {
 
     it('rejects an invalid topic name', () => {
         expect(getOrCreateTopic('has space')).rejects.toThrow();
-    });
-});
-
-describe('parseActions', () => {
-    it('parses valid JSON array of actions', () => {
-        const raw = JSON.stringify([{ type: 'acknowledge' }]);
-        expect(parseActions(raw)).toEqual([{ type: 'acknowledge' }]);
-    });
-
-    it('filters out non-action types', () => {
-        const raw = JSON.stringify([
-            { type: 'acknowledge' },
-            { type: 'invalid' },
-            { type: 'view' },
-        ]);
-        const result = parseActions(raw);
-        expect(result).toHaveLength(2);
-        expect(result[0]).toEqual({ type: 'acknowledge' });
-        expect(result[1]).toEqual({ type: 'view' });
-    });
-
-    it('returns empty array for invalid JSON', () => {
-        expect(parseActions('not-json')).toEqual([]);
-    });
-
-    it('returns empty array for empty string', () => {
-        expect(parseActions('')).toEqual([]);
-    });
-
-    it('returns empty array for non-array JSON', () => {
-        expect(parseActions('{"foo":"bar"}')).toEqual([]);
-    });
-});
-
-describe('parseTagsQueryParam', () => {
-    it('splits a comma-separated string into trimmed tags', () => {
-        expect(parseTagsQueryParam('urgent, news ,sev2')).toEqual(['urgent', 'news', 'sev2']);
-    });
-
-    it('deduplicates tags', () => {
-        expect(parseTagsQueryParam('a,a,b')).toEqual(['a', 'b']);
-    });
-
-    it('drops empty segments', () => {
-        expect(parseTagsQueryParam('a,,b,')).toEqual(['a', 'b']);
-    });
-
-    it('returns empty array for undefined', () => {
-        expect(parseTagsQueryParam(undefined)).toEqual([]);
-    });
-
-    it('returns empty array for empty string', () => {
-        expect(parseTagsQueryParam('')).toEqual([]);
     });
 });
 

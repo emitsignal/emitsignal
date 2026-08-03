@@ -51,6 +51,44 @@ export function normalizeMediaInput(input: unknown): { error: string } | { refs:
     return { refs };
 }
 
+// Reads the JSON string column back into a single ref. Lenient by design: stored
+// rows are already trusted, so malformed data yields null rather than an error.
+export function parseMediaRef(raw: null | string): MediaRef | null {
+    const refs = parseMediaRefs(raw ?? '');
+
+    return refs[0] ?? null;
+}
+
+export function parseMediaRefs(raw: string): MediaRef[] {
+    if (!raw) {
+        return [];
+    }
+
+    try {
+        const parsed = JSON.parse(raw);
+        const items = Array.isArray(parsed) ? parsed : [parsed];
+
+        return items
+            .filter(
+                (item: unknown): item is MediaRef =>
+                    typeof item === 'object' &&
+                    item !== null &&
+                    typeof (item as MediaRef).href === 'string',
+            )
+            .map((item) => {
+                const ref: MediaRef = { href: item.href };
+
+                if (typeof item.title === 'string' && item.title) {
+                    ref.title = item.title;
+                }
+
+                return ref;
+            });
+    } catch {
+        return [];
+    }
+}
+
 export function validateMessageMedia(
     input: MediaInputs,
     inlineMax: number,

@@ -13,8 +13,8 @@ import { Elysia } from 'elysia';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
 import { consumeLimit, SetLike } from '#/http/plugins/rate-limit-plugin';
-import { getClientIP, ServerLike } from '#/lib/ip';
 import { environment } from '#/schema/environment';
+import { getClientIP, ServerLike } from '#/utils/ip';
 
 const originalTrustedProxyHeader = environment.TRUSTED_PROXY_HEADER;
 

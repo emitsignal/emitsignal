@@ -12,15 +12,15 @@ import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
+import { invalidateUserPlanCache } from '#/lib/billing/get-user-plan';
+import { isStripeBillingEnabled, stripePlanConfig } from '#/lib/billing/plans';
 import { environment, isProduction } from '#/schema/environment';
+import { API_KEY_PREFIX, getApiKeyFromHeaders } from '#/utils/api-key-header';
+import { duration } from '#/utils/duration';
+import { isEmailAllowed } from '#/utils/email-allowlist';
+import { getClientIP } from '#/utils/ip';
 
-import { API_KEY_PREFIX, getApiKeyFromHeaders } from './api-key-header';
-import { invalidateUserPlanCache } from './billing/get-user-plan';
-import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';
-import { duration } from './duration';
-import { isEmailAllowed } from './email-allowlist';
 import { EmailService } from './email-service';
-import { getClientIP } from './ip';
 import { prisma } from './prisma';
 import { purgeQueue } from './queue';
 import { enforceAuthRateLimit, magicLinkLimiter, verifyLimiter } from './rate-limit';

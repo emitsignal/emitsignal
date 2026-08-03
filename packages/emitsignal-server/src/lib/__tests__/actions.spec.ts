@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { validateActions } from '#/lib/actions';
+import { parseActions, validateActions } from '#/utils/actions';
 
 describe('validateActions', () => {
     describe('empty / non-array input', () => {
@@ -125,5 +125,36 @@ describe('validateActions', () => {
 
             expect(result).toEqual({ error: 'actions: each action must be an object' });
         });
+    });
+});
+
+describe('parseActions', () => {
+    it('parses valid JSON array of actions', () => {
+        const raw = JSON.stringify([{ type: 'acknowledge' }]);
+        expect(parseActions(raw)).toEqual([{ type: 'acknowledge' }]);
+    });
+
+    it('filters out non-action types', () => {
+        const raw = JSON.stringify([
+            { type: 'acknowledge' },
+            { type: 'invalid' },
+            { type: 'view' },
+        ]);
+        const result = parseActions(raw);
+        expect(result).toHaveLength(2);
+        expect(result[0]).toEqual({ type: 'acknowledge' });
+        expect(result[1]).toEqual({ type: 'view' });
+    });
+
+    it('returns empty array for invalid JSON', () => {
+        expect(parseActions('not-json')).toEqual([]);
+    });
+
+    it('returns empty array for empty string', () => {
+        expect(parseActions('')).toEqual([]);
+    });
+
+    it('returns empty array for non-array JSON', () => {
+        expect(parseActions('{"foo":"bar"}')).toEqual([]);
     });
 });

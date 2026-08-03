@@ -5,7 +5,7 @@ import { prisma } from '#/lib/prisma';
 import {
     parseSubscriptionSettings,
     serializeSubscriptionSettings,
-} from '#/lib/subscription-settings';
+} from '#/utils/subscription-settings';
 
 export const updateSubscription = new Elysia({ prefix: '/subscriptions' }).patch(
     '/:id',

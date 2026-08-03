@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { parseSubscriptionSettings } from '#/lib/subscription-settings';
+import { parseSubscriptionSettings } from '#/utils/subscription-settings';
 
 import { resolveSubscriptions } from './resolve';
 

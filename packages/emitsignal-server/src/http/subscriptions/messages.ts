@@ -3,8 +3,9 @@ import Elysia, { t } from 'elysia';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
-import { parseSubscriptionSettings } from '#/lib/subscription-settings';
-import { parseTagsQueryParam, serializeMessage } from '#/lib/topic';
+import { serializeMessage } from '#/lib/topic';
+import { parseSubscriptionSettings } from '#/utils/subscription-settings';
+import { parseTagsQueryParam } from '#/utils/tags';
 
 import { resolveSubscriptions } from './resolve';
 

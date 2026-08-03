@@ -1,4 +1,4 @@
-import { duration } from '#/lib/duration';
+import { duration } from '#/utils/duration';
 
 import { rateLimitRedis } from './limiters';
 

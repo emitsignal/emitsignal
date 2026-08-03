@@ -6,16 +6,16 @@
 // concurrency budget the connection draws on.
 
 import type { MessageEvent } from '#/lib/event-bus';
-import type { ServerLike } from '#/lib/ip';
+import type { ServerLike } from '#/utils/ip';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { bus } from '#/lib/event-bus';
-import { getClientIP } from '#/lib/ip';
 import { prisma } from '#/lib/prisma';
 import { acquireSseSlot } from '#/lib/rate-limit';
 import { createSseStream, sseHeaders } from '#/lib/sse';
 import { serializeMessage } from '#/lib/topic';
 import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { getClientIP } from '#/utils/ip';
 
 const BACKLOG_LIMIT = 200;
 const SSE_MAX_ANON = 3;
