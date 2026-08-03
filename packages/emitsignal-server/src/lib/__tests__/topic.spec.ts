@@ -5,13 +5,13 @@ import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
+import { serializeMessage } from '#/services/message';
 import {
     getOrCreateTopic,
     isValidTopicName,
-    serializeMessage,
     TOPIC_NAME_MAX_LENGTH,
     TOPIC_NAME_REGEX,
-} from '#/lib/topic';
+} from '#/services/topic';
 
 describe('TOPIC_NAME_REGEX', () => {
     const validNames = ['my-topic', 'a/b_c', 'a1', 'UPPER', 'CamelCase', 'test-ns/my-topic', 'abc'];

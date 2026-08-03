@@ -12,9 +12,11 @@ import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
-import { invalidateUserPlanCache } from '#/lib/billing/get-user-plan';
-import { isStripeBillingEnabled, stripePlanConfig } from '#/lib/billing/plans';
 import { environment, isProduction } from '#/schema/environment';
+import { invalidateUserPlanCache } from '#/services/billing/get-user-plan';
+import { isStripeBillingEnabled, stripePlanConfig } from '#/services/billing/plans';
+import { sendAccountDeletedEmail } from '#/services/emails/account-deleted';
+import { sendApiKeyCreatedEmail } from '#/services/emails/api-key-created';
 import { API_KEY_PREFIX, getApiKeyFromHeaders } from '#/utils/api-key-header';
 import { duration } from '#/utils/duration';
 import { isEmailAllowed } from '#/utils/email-allowlist';
@@ -24,8 +26,6 @@ import { EmailService } from './email-service';
 import { prisma } from './prisma';
 import { purgeQueue } from './queue';
 import { enforceAuthRateLimit, magicLinkLimiter, verifyLimiter } from './rate-limit';
-import { sendAccountDeletedEmail } from './send-account-deleted-email';
-import { sendApiKeyCreatedEmail } from './send-api-key-created-email';
 
 // Paid plans only exist when Stripe is fully configured; without the env vars
 // the server boots with every user on the free plan.

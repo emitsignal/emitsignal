@@ -2,8 +2,8 @@ import Elysia from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
-import { serializeMessage } from '#/lib/topic';
-import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { serializeMessage } from '#/services/message';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 
 export const getMessage = new Elysia({ prefix: '/messages' }).get(
     '/:id',

@@ -13,8 +13,8 @@ import { bus } from '#/lib/event-bus';
 import { prisma } from '#/lib/prisma';
 import { acquireSseSlot } from '#/lib/rate-limit';
 import { createSseStream, sseHeaders } from '#/lib/sse';
-import { serializeMessage } from '#/lib/topic';
-import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { serializeMessage } from '#/services/message';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 import { getClientIP } from '#/utils/ip';
 
 const BACKLOG_LIMIT = 200;

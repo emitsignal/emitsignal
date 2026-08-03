@@ -2,7 +2,7 @@ import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
-import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 
 export const acknowledge = new Elysia({ prefix: '/messages' }).post(
     '/:id/acknowledge',

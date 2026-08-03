@@ -1,11 +1,10 @@
 import { ApiKeyCreatedEmail, render } from '@emitsignal/emails';
 import { createElement } from 'react';
 
+import { EmailService } from '#/lib/email-service';
+import { logger } from '#/lib/logger';
+import { prisma } from '#/lib/prisma';
 import { environment } from '#/schema/environment';
-
-import { EmailService } from './email-service';
-import { logger } from './logger';
-import { prisma } from './prisma';
 
 interface CreatedApiKey {
     createdAt: Date | string;

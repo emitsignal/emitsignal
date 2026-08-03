@@ -19,8 +19,8 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { publish } from '#/http/topic/publish';
-import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
-import { resetUsageForTests } from '#/lib/billing/usage';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
+import { resetUsageForTests } from '#/services/billing/usage';
 
 describe('POST /topic/:name — message media', () => {
     const app = new Elysia().use(publish);

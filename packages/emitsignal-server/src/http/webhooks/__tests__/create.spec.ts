@@ -12,8 +12,8 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { createWebhook } from '#/http/webhooks/create';
-import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
-import { PLANS } from '#/lib/billing/plans';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
+import { PLANS } from '#/services/billing/plans';
 
 describe('POST /webhooks', () => {
     const app = new Elysia().use(createWebhook);

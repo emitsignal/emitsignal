@@ -4,7 +4,7 @@ import { resolveUserId } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
-import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 import { duration } from '#/utils/duration';
 
 export const topicMetrics = new Elysia().get(

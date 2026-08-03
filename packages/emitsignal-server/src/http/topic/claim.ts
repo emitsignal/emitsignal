@@ -5,11 +5,11 @@ import type { Topic } from '#/generated/prisma/client';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
-import { getUserPlan } from '#/lib/billing/get-user-plan';
-import { PLANS } from '#/lib/billing/plans';
 import { topicNameCache } from '#/lib/cache';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
+import { getUserPlan } from '#/services/billing/get-user-plan';
+import { PLANS } from '#/services/billing/plans';
 
 // Ownership is derived from Topic.ownerId, so these writes are done sequentially
 // rather than in a transaction: if the owner TopicAccess row ever fails to write,

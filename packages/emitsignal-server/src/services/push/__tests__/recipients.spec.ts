@@ -4,7 +4,7 @@ import { prismaMock } from '#/__tests__/mocks';
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { resolvePushTokens } from '#/lib/push/recipients';
+import { resolvePushTokens } from '#/services/push/recipients';
 
 describe('resolvePushTokens', () => {
     it('returns an empty list when the topic has no subscriptions', async () => {

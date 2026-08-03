@@ -4,7 +4,7 @@ import { prismaMock } from '#/__tests__/mocks';
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 
 describe('resolveTopicCapabilities', () => {
     beforeEach(() => {

@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { prisma } from '#/lib/prisma';
 
 export interface TopicCapabilities {
     canPublish: boolean;

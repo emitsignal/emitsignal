@@ -2,8 +2,8 @@ import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
-import { getOrCreateTopic, TOPIC_NAME_MAX_LENGTH, TopicNameError } from '#/lib/topic';
-import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { getOrCreateTopic, TOPIC_NAME_MAX_LENGTH, TopicNameError } from '#/services/topic';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 import { serializeSubscriptionSettings } from '#/utils/subscription-settings';
 
 export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
