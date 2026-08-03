@@ -4,7 +4,7 @@ import { prismaMock } from '#/__tests__/mocks';
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { resolvePushTokens } from './recipients';
+import { resolvePushTokens } from '#/services/push/recipients';
 
 describe('resolvePushTokens', () => {
     // These cases replace the shared mocks outright rather than queueing values,

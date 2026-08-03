@@ -2,7 +2,7 @@ import { APIError } from 'better-auth/api';
 import { describe, expect, it } from 'bun:test';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
-import { enforceAuthRateLimit } from './enforce';
+import { enforceAuthRateLimit } from '#/lib/rate-limit/enforce';
 
 describe('enforceAuthRateLimit', () => {
     it('allows requests up to the limit and rejects the next with TOO_MANY_REQUESTS', async () => {

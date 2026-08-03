@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { parseTagsQueryParam } from './tags';
+import { parseTagsQueryParam } from '#/utils/tags';
 
 describe('parseTagsQueryParam', () => {
     it('splits a comma-separated string into trimmed tags', () => {

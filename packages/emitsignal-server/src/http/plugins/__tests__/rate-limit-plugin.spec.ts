@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 
-import { consumeLimit } from './rate-limit-plugin';
+import { consumeLimit } from '#/http/plugins/rate-limit-plugin';
 
 describe('consumeLimit', () => {
     it('returns undefined when under limit', async () => {

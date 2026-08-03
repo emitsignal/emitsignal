@@ -5,7 +5,7 @@ import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
-import { serializeMessage } from './message';
+import { serializeMessage } from '#/services/message';
 
 describe('serializeMessage', () => {
     const dbMessage = {
