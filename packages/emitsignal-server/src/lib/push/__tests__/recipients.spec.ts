@@ -1,10 +1,10 @@
 import { describe, expect, it, mock } from 'bun:test';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { resolvePushTokens } from '../recipients';
+import { resolvePushTokens } from '#/lib/push/recipients';
 
 describe('resolvePushTokens', () => {
     it('returns an empty list when the topic has no subscriptions', async () => {

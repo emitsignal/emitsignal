@@ -1,4 +1,4 @@
-import { environment } from '../schema/environment';
+import { environment } from '#/schema/environment';
 
 // Empty/unset list => allowlist disabled, everyone allowed.
 export function getAllowedEmails(): string[] {

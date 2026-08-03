@@ -1,19 +1,19 @@
 import { parseTemplate, renderTemplate } from '@emitsignal/shared/webhook-template';
 import Elysia, { t } from 'elysia';
 
-import type { Action } from '../../lib/actions';
+import type { Action } from '#/lib/actions';
 
-import { consumeLimit } from '../../http/plugins/rate-limit-plugin';
-import { validateActions } from '../../lib/actions';
-import { getUserPlan } from '../../lib/billing/get-user-plan';
-import { messageExpiresAt, messageRetentionDays } from '../../lib/billing/retention';
-import { bus } from '../../lib/event-bus';
-import { prisma } from '../../lib/prisma';
-import { pushQueue } from '../../lib/queue';
-import { webhookReceiveLimiter } from '../../lib/rate-limit';
-import { getOrCreateTopic, serializeMessage } from '../../lib/topic';
-import { canPublishToTopicName } from '../../lib/topic-access';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { consumeLimit } from '#/http/plugins/rate-limit-plugin';
+import { validateActions } from '#/lib/actions';
+import { getUserPlan } from '#/lib/billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '#/lib/billing/retention';
+import { bus } from '#/lib/event-bus';
+import { prisma } from '#/lib/prisma';
+import { pushQueue } from '#/lib/queue';
+import { webhookReceiveLimiter } from '#/lib/rate-limit';
+import { getOrCreateTopic, serializeMessage } from '#/lib/topic';
+import { canPublishToTopicName } from '#/lib/topic-access';
 
 // Public endpoint: cap the inbound payload so a single caller can't store huge
 // WebhookDelivery rows or exhaust memory. 64 KB is generous for webhook JSON.

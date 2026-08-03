@@ -1,8 +1,8 @@
 import { createTransport } from 'nodemailer';
 
-import type { EmailOptions, EmailProvider } from './provider';
+import { logger } from '#/lib/logger';
 
-import { logger } from '../logger';
+import type { EmailOptions, EmailProvider } from './provider';
 
 interface SmtpConfig {
     from: string;

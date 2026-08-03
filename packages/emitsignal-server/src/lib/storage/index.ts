@@ -1,6 +1,7 @@
+import { type Environment } from '#/schema/environment';
+
 import type { FileStorage } from './provider';
 
-import { type Environment } from '../../schema/environment';
 import { LocalFileStorage } from './local-provider';
 import { S3FileStorage } from './s3-provider';
 

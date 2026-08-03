@@ -1,8 +1,8 @@
 import Elysia from 'elysia';
 
-import { duration } from '../../lib/duration';
-import { prisma } from '../../lib/prisma';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { duration } from '#/lib/duration';
+import { prisma } from '#/lib/prisma';
 
 export const getWebhook = new Elysia().get('/webhooks/:id', async ({ headers, params, status }) => {
     const userId = await resolveUserId({ headers });

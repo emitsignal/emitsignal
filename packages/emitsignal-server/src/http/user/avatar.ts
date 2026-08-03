@@ -1,9 +1,9 @@
 import Elysia, { t } from 'elysia';
 import path from 'node:path';
 
-import { prisma } from '../../lib/prisma';
-import { AVATAR_MAX_SIZE, FileStorageService, isAllowedMimeType } from '../../lib/storage';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
+import { AVATAR_MAX_SIZE, FileStorageService, isAllowedMimeType } from '#/lib/storage';
 
 const AVATAR_EXTENSION_BY_MIME: Record<string, string> = {
     'image/gif': '.gif',

@@ -2,7 +2,7 @@ import type { PlanLimits, PlanName } from '@emitsignal/shared';
 
 import { PLANS } from '@emitsignal/shared';
 
-import { environment } from '../../schema/environment';
+import { environment } from '#/schema/environment';
 
 export { PLAN_ORDER, PLANS } from '@emitsignal/shared';
 export type { PlanDefinition, PlanLimits, PlanName } from '@emitsignal/shared';

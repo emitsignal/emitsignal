@@ -5,17 +5,17 @@
 // The only difference between them is where the topic names come from and which
 // concurrency budget the connection draws on.
 
-import type { MessageEvent } from '../../lib/event-bus';
-import type { ServerLike } from '../../lib/ip';
+import type { MessageEvent } from '#/lib/event-bus';
+import type { ServerLike } from '#/lib/ip';
 
-import { bus } from '../../lib/event-bus';
-import { getClientIP } from '../../lib/ip';
-import { prisma } from '../../lib/prisma';
-import { acquireSseSlot } from '../../lib/rate-limit';
-import { createSseStream, sseHeaders } from '../../lib/sse';
-import { serializeMessage } from '../../lib/topic';
-import { resolveTopicCapabilities } from '../../lib/topic-access';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { bus } from '#/lib/event-bus';
+import { getClientIP } from '#/lib/ip';
+import { prisma } from '#/lib/prisma';
+import { acquireSseSlot } from '#/lib/rate-limit';
+import { createSseStream, sseHeaders } from '#/lib/sse';
+import { serializeMessage } from '#/lib/topic';
+import { resolveTopicCapabilities } from '#/lib/topic-access';
 
 const BACKLOG_LIMIT = 200;
 const SSE_MAX_ANON = 3;

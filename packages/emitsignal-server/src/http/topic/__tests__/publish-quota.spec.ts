@@ -1,29 +1,29 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
 const mockBus = { publish: mock(), subscribe: mock() };
 const mockPushQueue = { add: mock(() => Promise.resolve()) };
 const mockScheduleQueue = { add: mock(() => Promise.resolve()) };
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/event-bus', () => ({ bus: mockBus }));
-mock.module('../../../lib/queue', () => ({
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/event-bus', () => ({ bus: mockBus }));
+mock.module('#/lib/queue', () => ({
     pushQueue: mockPushQueue,
     scheduleQueue: mockScheduleQueue,
 }));
 // Header-driven so a leak into other test files behaves like the real module
 // (no test header → anonymous).
-mock.module('../../auth/plugin', () => ({
+mock.module('#/http/auth/plugin', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));
 
-import { resetUserPlansForTests, setUserPlanForTests } from '../../../lib/billing/get-user-plan';
-import { PLANS } from '../../../lib/billing/plans';
-import { resetUsageForTests } from '../../../lib/billing/usage';
-import { publish } from '../publish';
+import { publish } from '#/http/topic/publish';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
+import { PLANS } from '#/lib/billing/plans';
+import { resetUsageForTests } from '#/lib/billing/usage';
 
 describe('POST /topic/:name — plan quotas', () => {
     const app = new Elysia().use(publish);

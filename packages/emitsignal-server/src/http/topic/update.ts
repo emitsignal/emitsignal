@@ -1,8 +1,8 @@
 import Elysia, { t } from 'elysia';
 
-import { topicNameCache } from '../../lib/cache';
-import { prisma } from '../../lib/prisma';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { topicNameCache } from '#/lib/cache';
+import { prisma } from '#/lib/prisma';
 
 export const updateTopic = new Elysia().patch(
     '/topics/:name',

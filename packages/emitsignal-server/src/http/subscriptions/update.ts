@@ -1,11 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { prisma } from '../../lib/prisma';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
 import {
     parseSubscriptionSettings,
     serializeSubscriptionSettings,
-} from '../../lib/subscription-settings';
-import { resolveUserId } from '../auth/plugin';
+} from '#/lib/subscription-settings';
 
 export const updateSubscription = new Elysia({ prefix: '/subscriptions' }).patch(
     '/:id',

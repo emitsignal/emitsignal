@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 
-import { environment } from '../schema/environment';
+import { environment } from '#/schema/environment';
+
 import { getAllowedEmails, isEmailAllowed } from './email-allowlist';
 
 const originalAllowedEmails = environment.AUTH_ALLOWED_EMAILS;

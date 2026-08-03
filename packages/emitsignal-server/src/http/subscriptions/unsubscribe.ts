@@ -1,8 +1,8 @@
 import Elysia, { t } from 'elysia';
 
-import { prisma } from '../../lib/prisma';
-import { TOPIC_NAME_MAX_LENGTH } from '../../lib/topic';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
+import { TOPIC_NAME_MAX_LENGTH } from '#/lib/topic';
 
 export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
     '/',

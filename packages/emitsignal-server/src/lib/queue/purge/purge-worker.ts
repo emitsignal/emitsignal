@@ -1,12 +1,12 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ConnectionOptions, Worker } from 'bullmq';
 
-import type { PurgeJob } from './types';
+import { logger } from '#/lib/logger';
+import { prisma } from '#/lib/prisma';
+import { redisConnection } from '#/lib/queue/connection';
+import { FileStorageService } from '#/lib/storage';
 
-import { logger } from '../../logger';
-import { prisma } from '../../prisma';
-import { FileStorageService } from '../../storage';
-import { redisConnection } from '../connection';
+import type { PurgeJob } from './types';
 
 // How many attachment/message rows to remove per sweep pass, looped until the
 // backlog is drained. Bounds the memory and the size of each DELETE so a large

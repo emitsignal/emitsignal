@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test';
 
-import { bus, type MessageEvent } from '../event-bus';
+import { bus, type MessageEvent } from '#/lib/event-bus';
 
 describe('EmitSignalBus', () => {
     it('delivers published events to subscribers of the same topic', () => {

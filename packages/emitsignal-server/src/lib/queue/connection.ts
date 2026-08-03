@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-import { environment } from '../../schema/environment';
+import { environment } from '#/schema/environment';
 
 export const redisConnection = new Redis(environment.REDIS_URL, {
     enableReadyCheck: false,

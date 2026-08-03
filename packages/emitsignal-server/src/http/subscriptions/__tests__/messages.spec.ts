@@ -1,12 +1,12 @@
 import { describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
-import { listSubscriptionMessages } from '../../subscriptions/messages';
+import { listSubscriptionMessages } from '#/http/subscriptions/messages';
 
 const subscribedAt = new Date(1700000000000);
 

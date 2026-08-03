@@ -1,5 +1,5 @@
-import { logger } from '../logger';
-import { prisma } from '../prisma';
+import { logger } from '#/lib/logger';
+import { prisma } from '#/lib/prisma';
 
 const MAX_PUSH_FANOUT = 1_000;
 

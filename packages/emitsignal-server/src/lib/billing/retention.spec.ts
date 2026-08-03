@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
-import { duration } from '../duration';
+import { duration } from '#/lib/duration';
+
 import {
     ANON_RETENTION_DAYS,
     ATTACHMENT_MAX_RETENTION_DAYS,

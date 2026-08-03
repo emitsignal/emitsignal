@@ -1,7 +1,7 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
-import { duration } from '../../duration';
-import { redisConnection } from '../connection';
+import { duration } from '#/lib/duration';
+import { redisConnection } from '#/lib/queue/connection';
 
 export interface ScheduleJob {
     messageId: string;

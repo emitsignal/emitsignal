@@ -2,7 +2,7 @@ import type { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible'
 
 import { APIError } from 'better-auth/api';
 
-import { logger } from '../logger';
+import { logger } from '#/lib/logger';
 
 // Consume a rate limiter from inside a Better Auth middleware. Unlike the
 // Elysia `consumeLimit` in rate-limit-plugin.ts, this raises Better Auth's own

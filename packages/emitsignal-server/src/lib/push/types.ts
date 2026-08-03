@@ -1,4 +1,4 @@
-import type { Action } from '../actions';
+import type { Action } from '#/lib/actions';
 
 export interface PushJob {
     actions: Action[];

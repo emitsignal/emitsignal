@@ -1,8 +1,8 @@
 import Elysia, { t } from 'elysia';
 
-import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
-import { prisma } from '../../lib/prisma';
-import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
+import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
+import { prisma } from '#/lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
 
 const CURATED = [
     {

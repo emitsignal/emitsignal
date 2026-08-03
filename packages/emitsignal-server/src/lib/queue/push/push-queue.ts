@@ -1,9 +1,9 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
-import type { PushJob } from '../../push';
+import type { PushJob } from '#/lib/push';
 
-import { duration } from '../../duration';
-import { redisConnection } from '../connection';
+import { duration } from '#/lib/duration';
+import { redisConnection } from '#/lib/queue/connection';
 
 export const pushQueue = new Queue<PushJob, void, 'push-message'>('push', {
     connection: redisConnection as ConnectionOptions,

@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
 
-import type { EmailOptions, EmailProvider } from './provider';
+import { logger } from '#/lib/logger';
 
-import { logger } from '../logger';
+import type { EmailOptions, EmailProvider } from './provider';
 
 export class ResendProvider implements EmailProvider {
     private client: Resend;

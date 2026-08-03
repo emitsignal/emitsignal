@@ -1,15 +1,15 @@
 import { describe, expect, it, mock } from 'bun:test';
 import Elysia from 'elysia';
 
-import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
-mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
-import { getMessage } from '../../messages/get';
+import { getMessage } from '#/http/messages/get';
 
 describe('GET /messages/:id', () => {
     const app = new Elysia().use(getMessage);

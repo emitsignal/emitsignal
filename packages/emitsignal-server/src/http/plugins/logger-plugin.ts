@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/bun';
 import Elysia from 'elysia';
 
-import { logger } from '../../lib/logger';
+import { logger } from '#/lib/logger';
 
 function contentLength(set: { headers: Record<string, string | undefined> }, body: unknown) {
     const header = set.headers['content-length'];

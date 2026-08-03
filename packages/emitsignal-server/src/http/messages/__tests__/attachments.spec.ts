@@ -1,17 +1,17 @@
 import { afterEach, describe, expect, it, mock } from 'bun:test';
 import Elysia from 'elysia';
 
-import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
-import { duration } from '../../../lib/duration';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
+import { duration } from '#/lib/duration';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
-mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
-import { resetUserPlansForTests, setUserPlanForTests } from '../../../lib/billing/get-user-plan';
-import { attachments } from '../attachments';
+import { attachments } from '#/http/messages/attachments';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
 
 const unclaimedTopicMessage = {
     id: 'msg-1',

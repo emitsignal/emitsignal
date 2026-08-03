@@ -1,10 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { prisma } from '../../lib/prisma';
-import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
-import { parseSubscriptionSettings } from '../../lib/subscription-settings';
-import { parseTagsQueryParam, serializeMessage } from '../../lib/topic';
-import { authAwareBeforeHandle } from '../plugins/rate-limit-plugin';
+import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
+import { prisma } from '#/lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
+import { parseSubscriptionSettings } from '#/lib/subscription-settings';
+import { parseTagsQueryParam, serializeMessage } from '#/lib/topic';
+
 import { resolveSubscriptions } from './resolve';
 
 export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' }).get(

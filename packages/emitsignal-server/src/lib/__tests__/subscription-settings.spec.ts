@@ -4,7 +4,7 @@ import {
     DEFAULT_SUBSCRIPTION_SETTINGS,
     parseSubscriptionSettings,
     serializeSubscriptionSettings,
-} from '../subscription-settings';
+} from '#/lib/subscription-settings';
 
 describe('parseSubscriptionSettings', () => {
     it('returns defaults for an empty object', () => {

@@ -1,24 +1,24 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
 const mockBusSubscribe = mock(() => () => {});
 const mockBusPublish = mock();
 
-mock.module('../../../lib/event-bus', () => ({
+mock.module('#/lib/event-bus', () => ({
     bus: {
         publish: mockBusPublish,
         subscribe: mockBusSubscribe,
     },
 }));
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
-mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
-import { listenMulti } from '../../topic/listen-multi';
+import { listenMulti } from '#/http/topic/listen-multi';
 
 describe('GET /listen (SSE multi-topic)', () => {
     const app = new Elysia().use(listenMulti);

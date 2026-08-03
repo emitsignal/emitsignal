@@ -1,9 +1,9 @@
 import Elysia, { t } from 'elysia';
 
-import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
-import { prisma } from '../../lib/prisma';
-import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
+import { prisma } from '#/lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
 
 export const listTopics = new Elysia().get(
     '/topics',

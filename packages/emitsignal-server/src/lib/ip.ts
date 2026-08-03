@@ -1,4 +1,4 @@
-import { environment } from '../schema/environment';
+import { environment } from '#/schema/environment';
 
 const PRIVATE_IP_PATTERNS = [
     /^127\./,

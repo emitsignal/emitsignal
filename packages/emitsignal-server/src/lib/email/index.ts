@@ -1,4 +1,5 @@
-import type { Environment } from '../../schema/environment';
+import type { Environment } from '#/schema/environment';
+
 import type { EmailProvider } from './provider';
 
 import { LogProvider } from './log-provider';

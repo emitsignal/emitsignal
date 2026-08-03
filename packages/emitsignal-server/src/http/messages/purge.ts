@@ -1,7 +1,7 @@
 import Elysia from 'elysia';
 
-import { purgeQueue } from '../../lib/queue';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { purgeQueue } from '#/lib/queue';
 
 // Deletes every signal the authenticated user is responsible for — messages in
 // topics they own plus messages they sent into others' topics — keeping channels

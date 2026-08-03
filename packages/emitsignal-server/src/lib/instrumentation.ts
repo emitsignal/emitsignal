@@ -4,8 +4,9 @@ import { BatchSpanProcessor, NodeTracerProvider } from '@opentelemetry/sdk-trace
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import * as Sentry from '@sentry/bun';
 
+import { environment } from '#/schema/environment';
+
 import pkg from '../../package.json';
-import { environment } from '../schema/environment';
 
 if (environment.SENTRY_ENABLED && environment.SENTRY_DSN) {
     Sentry.init({

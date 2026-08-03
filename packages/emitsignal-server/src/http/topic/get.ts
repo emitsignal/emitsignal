@@ -1,8 +1,8 @@
 import Elysia from 'elysia';
 
-import { prisma } from '../../lib/prisma';
-import { resolveTopicCapabilities } from '../../lib/topic-access';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
+import { resolveTopicCapabilities } from '#/lib/topic-access';
 
 export const getTopic = new Elysia().get('/topics/:name', async ({ headers, params, status }) => {
     const topic = await prisma.topic.findUnique({

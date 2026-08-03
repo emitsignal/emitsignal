@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 // Header-driven so a leak into other test files behaves like the real module
 // (no test header → anonymous).
-mock.module('../../auth/plugin', () => ({
+mock.module('#/http/auth/plugin', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));
 
-import { resetUserPlansForTests, setUserPlanForTests } from '../../../lib/billing/get-user-plan';
-import { PLANS } from '../../../lib/billing/plans';
-import { createWebhook } from '../create';
+import { createWebhook } from '#/http/webhooks/create';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
+import { PLANS } from '#/lib/billing/plans';
 
 describe('POST /webhooks', () => {
     const app = new Elysia().use(createWebhook);

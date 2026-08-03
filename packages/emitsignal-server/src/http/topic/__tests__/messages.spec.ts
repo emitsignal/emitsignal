@@ -1,12 +1,12 @@
 import { describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
-import { messages } from '../../topic/messages';
+import { messages } from '#/http/topic/messages';
 
 describe('GET /topics/:name/messages', () => {
     const app = new Elysia().use(messages);

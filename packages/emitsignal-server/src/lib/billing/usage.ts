@@ -1,5 +1,5 @@
-import { duration } from '../duration';
-import { rateLimitRedis } from '../rate-limit';
+import { duration } from '#/lib/duration';
+import { rateLimitRedis } from '#/lib/rate-limit';
 
 export interface QuotaResult {
     allowed: boolean;

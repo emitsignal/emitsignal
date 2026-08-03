@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { normalizeMediaInput, validateMessageMedia } from '../media-refs';
+import { normalizeMediaInput, validateMessageMedia } from '#/lib/media-refs';
 
 describe('normalizeMediaInput', () => {
     it('returns empty for null/undefined', () => {
