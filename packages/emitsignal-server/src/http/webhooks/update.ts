@@ -2,7 +2,7 @@ import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
-import { canPublishToTopicName } from '#/lib/topic-access';
+import { canPublishToTopicName } from '#/services/topic-access';
 
 export const updateWebhook = new Elysia().patch(
     '/webhooks/:id',

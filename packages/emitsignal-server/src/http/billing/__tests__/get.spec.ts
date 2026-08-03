@@ -12,9 +12,9 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { getBilling } from '#/http/billing/get';
-import { resetUserPlansForTests } from '#/lib/billing/get-user-plan';
-import { PLANS } from '#/lib/billing/plans';
-import { consumeDailyQuota, resetUsageForTests } from '#/lib/billing/usage';
+import { resetUserPlansForTests } from '#/services/billing/get-user-plan';
+import { PLANS } from '#/services/billing/plans';
+import { consumeDailyQuota, resetUsageForTests } from '#/services/billing/usage';
 
 describe('GET /billing', () => {
     const app = new Elysia().use(getBilling);

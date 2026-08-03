@@ -1,10 +1,10 @@
 import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
-import { getUserPlan } from '#/lib/billing/get-user-plan';
-import { PLANS } from '#/lib/billing/plans';
 import { prisma } from '#/lib/prisma';
-import { canPublishToTopicName } from '#/lib/topic-access';
+import { getUserPlan } from '#/services/billing/get-user-plan';
+import { PLANS } from '#/services/billing/plans';
+import { canPublishToTopicName } from '#/services/topic-access';
 
 function randomSlug(prefix: string): string {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';

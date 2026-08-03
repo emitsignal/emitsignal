@@ -5,14 +5,15 @@ import type { Action } from '#/utils/actions';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { consumeLimit } from '#/http/plugins/rate-limit-plugin';
-import { getUserPlan } from '#/lib/billing/get-user-plan';
-import { messageExpiresAt, messageRetentionDays } from '#/lib/billing/retention';
 import { bus } from '#/lib/event-bus';
 import { prisma } from '#/lib/prisma';
 import { pushQueue } from '#/lib/queue';
 import { webhookReceiveLimiter } from '#/lib/rate-limit';
-import { getOrCreateTopic, serializeMessage } from '#/lib/topic';
-import { canPublishToTopicName } from '#/lib/topic-access';
+import { getUserPlan } from '#/services/billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
+import { serializeMessage } from '#/services/message';
+import { getOrCreateTopic } from '#/services/topic';
+import { canPublishToTopicName } from '#/services/topic-access';
 import { validateActions } from '#/utils/actions';
 
 // Public endpoint: cap the inbound payload so a single caller can't store huge

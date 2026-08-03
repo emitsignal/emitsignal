@@ -10,8 +10,8 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { claimTopic } from '#/http/topic/claim';
-import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
-import { PLANS } from '#/lib/billing/plans';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
+import { PLANS } from '#/services/billing/plans';
 
 function topicRow(overrides: Record<string, unknown> = {}) {
     return {

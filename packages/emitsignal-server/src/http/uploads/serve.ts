@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
-import { resolveTopicCapabilities } from '#/lib/topic-access';
 import { environment } from '#/schema/environment';
+import { resolveTopicCapabilities } from '#/services/topic-access';
 
 const HARDENED_HEADERS: Record<string, string> = {
     'content-security-policy': "default-src 'none'; sandbox",

@@ -11,7 +11,7 @@ const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resol
 mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { attachments } from '#/http/messages/attachments';
-import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
 
 const unclaimedTopicMessage = {
     id: 'msg-1',

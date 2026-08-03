@@ -1,14 +1,14 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ConnectionOptions, Worker } from 'bullmq';
 
-import { getUserPlan } from '#/lib/billing/get-user-plan';
-import { messageExpiresAt, messageRetentionDays } from '#/lib/billing/retention';
 import { bus } from '#/lib/event-bus';
 import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { redisConnection } from '#/lib/queue/connection';
 import { pushQueue } from '#/lib/queue/push/push-queue';
-import { serializeMessage } from '#/lib/topic';
+import { getUserPlan } from '#/services/billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
+import { serializeMessage } from '#/services/message';
 import { parseActions } from '#/utils/actions';
 
 import type { ScheduleJob } from './schedule-queue';
