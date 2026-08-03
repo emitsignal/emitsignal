@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { parseActions, validateActions } from '#/utils/actions';
+import { parseActions, validateActions } from './actions';
 
 describe('validateActions', () => {
     describe('empty / non-array input', () => {

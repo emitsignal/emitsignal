@@ -2,9 +2,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { existsSync, mkdirSync, rmSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 
-import { LocalFileStorage } from '#/lib/storage/local-provider';
-import { extensionForMimeType, isAllowedMimeType } from '#/lib/storage/provider';
-import { S3FileStorage } from '#/lib/storage/s3-provider';
+import { LocalFileStorage } from './local-provider';
+import { extensionForMimeType, isAllowedMimeType } from './provider';
+import { S3FileStorage } from './s3-provider';
 
 describe('LocalFileStorage', () => {
     const testDir = path.join(import.meta.dir, 'test-uploads');
