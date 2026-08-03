@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, mock } from 'bun:test';
 import Elysia from 'elysia';
 
 import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
-import { duration } from '#/lib/duration';
+import { duration } from '#/utils/duration';
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));

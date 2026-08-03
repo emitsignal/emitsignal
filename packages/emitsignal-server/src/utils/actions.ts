@@ -6,6 +6,31 @@ export interface Action {
     url?: string;
 }
 
+// Reads the JSON string column back into actions. Unlike validateActions this is
+// lenient: stored rows are already trusted, so bad data is dropped, not reported.
+export function parseActions(raw: string): Action[] {
+    if (!raw) {
+        return [];
+    }
+
+    try {
+        const actions = JSON.parse(raw);
+
+        if (!Array.isArray(actions)) {
+            return [];
+        }
+
+        return actions.filter(
+            (action: unknown): action is Action =>
+                typeof action === 'object' &&
+                action !== null &&
+                ((action as Action).type === 'acknowledge' || (action as Action).type === 'view'),
+        );
+    } catch {
+        return [];
+    }
+}
+
 export function validateActions(raw: unknown): { actions: Action[]; ok: true } | { error: string } {
     if (!Array.isArray(raw) || raw.length === 0) {
         return { actions: [], ok: true };

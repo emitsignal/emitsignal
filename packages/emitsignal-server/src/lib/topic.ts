@@ -1,8 +1,7 @@
-import type { MediaRef } from '@emitsignal/shared';
-
 import { isValidTopicName } from '@emitsignal/shared';
 
-import type { Action } from './actions';
+import { parseActions } from '#/utils/actions';
+import { parseMediaRef, parseMediaRefs } from '#/utils/media-refs';
 
 import { topicNameCache } from './cache';
 import { prisma } from './prisma';
@@ -65,80 +64,6 @@ export async function getOrCreateTopic(topicName: string) {
     topicNameCache.set(name, topic);
 
     return topic;
-}
-
-export function parseActions(raw: string): Action[] {
-    if (!raw) {
-        return [];
-    }
-
-    try {
-        const actions = JSON.parse(raw);
-
-        if (!Array.isArray(actions)) {
-            return [];
-        }
-
-        return actions.filter(
-            (action: unknown): action is Action =>
-                typeof action === 'object' &&
-                action !== null &&
-                ((action as Action).type === 'acknowledge' || (action as Action).type === 'view'),
-        );
-    } catch {
-        return [];
-    }
-}
-
-export function parseMediaRef(raw: null | string): MediaRef | null {
-    const refs = parseMediaRefs(raw ?? '');
-
-    return refs[0] ?? null;
-}
-
-export function parseMediaRefs(raw: string): MediaRef[] {
-    if (!raw) {
-        return [];
-    }
-
-    try {
-        const parsed = JSON.parse(raw);
-        const items = Array.isArray(parsed) ? parsed : [parsed];
-
-        return items
-            .filter(
-                (item: unknown): item is MediaRef =>
-                    typeof item === 'object' &&
-                    item !== null &&
-                    typeof (item as MediaRef).href === 'string',
-            )
-            .map((item) => {
-                const ref: MediaRef = { href: item.href };
-
-                if (typeof item.title === 'string' && item.title) {
-                    ref.title = item.title;
-                }
-
-                return ref;
-            });
-    } catch {
-        return [];
-    }
-}
-
-export function parseTagsQueryParam(raw: string | undefined): string[] {
-    if (!raw) {
-        return [];
-    }
-
-    return Array.from(
-        new Set(
-            raw
-                .split(',')
-                .map((tag) => tag.trim())
-                .filter(Boolean),
-        ),
-    );
 }
 
 export async function serializeMessage(

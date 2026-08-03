@@ -2,9 +2,9 @@
 // heartbeat/cleanup lifecycle. Nothing here knows about topics or webhooks —
 // callers supply what to subscribe to via `onStart`.
 
-import type { SseSlot } from './rate-limit';
+import { duration } from '#/utils/duration';
 
-import { duration } from './duration';
+import type { SseSlot } from './rate-limit';
 
 // Passing `null` as the event name emits a bare `data: ...` frame, which is
 // what the webhook delivery stream sends.

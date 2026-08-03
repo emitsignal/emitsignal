@@ -6,7 +6,7 @@ import type { MediaRef } from '@emitsignal/shared';
 
 import { EventEmitter } from 'node:events';
 
-import type { Action } from './actions';
+import type { Action } from '#/utils/actions';
 
 export interface AttachmentInfo {
     filename: string;

@@ -4,8 +4,9 @@ import { resolveUserId } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
-import { parseTagsQueryParam, serializeMessage } from '#/lib/topic';
+import { serializeMessage } from '#/lib/topic';
 import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { parseTagsQueryParam } from '#/utils/tags';
 
 export const messages = new Elysia().get(
     '/topics/:name/messages',

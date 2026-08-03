@@ -1,8 +1,8 @@
 import Redis from 'ioredis';
 import { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible';
 
-import { duration } from '#/lib/duration';
 import { environment } from '#/schema/environment';
+import { duration } from '#/utils/duration';
 
 // Dedicated connection with maxRetriesPerRequest: 0 so that consume() fails
 // immediately when Redis is unavailable instead of blocking indefinitely.

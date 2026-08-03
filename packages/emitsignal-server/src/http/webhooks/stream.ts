@@ -2,9 +2,9 @@ import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { bus } from '#/lib/event-bus';
-import { getClientIP } from '#/lib/ip';
 import { acquireSseSlot } from '#/lib/rate-limit';
 import { createSseStream, sseHeaders } from '#/lib/sse';
+import { getClientIP } from '#/utils/ip';
 
 const SSE_MAX_AUTH = 10;
 

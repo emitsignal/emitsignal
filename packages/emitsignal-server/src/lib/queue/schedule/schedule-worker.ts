@@ -8,7 +8,8 @@ import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { redisConnection } from '#/lib/queue/connection';
 import { pushQueue } from '#/lib/queue/push/push-queue';
-import { parseActions, serializeMessage } from '#/lib/topic';
+import { serializeMessage } from '#/lib/topic';
+import { parseActions } from '#/utils/actions';
 
 import type { ScheduleJob } from './schedule-queue';
 

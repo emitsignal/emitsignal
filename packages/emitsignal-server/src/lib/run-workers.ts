@@ -2,8 +2,9 @@ import type { Worker } from 'bullmq';
 
 import * as Sentry from '@sentry/bun';
 
+import { redisConnection } from '#/lib/queue/connection';
+
 import { logger } from './logger';
-import { redisConnection } from './queue/connection';
 
 export function runWorkers(workers: Worker[]) {
     let isShuttingDown = false;

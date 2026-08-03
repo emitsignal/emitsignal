@@ -1,8 +1,8 @@
 import Elysia, { t } from 'elysia';
 
 import { Prisma } from '#/generated/prisma/client';
-import { duration } from '#/lib/duration';
 import { prisma } from '#/lib/prisma';
+import { duration } from '#/utils/duration';
 
 import { resolveSubscriptions } from './resolve';
 
