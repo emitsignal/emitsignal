@@ -56,18 +56,21 @@ CLI                       ┘                    │                  Redis
 ### Server (`packages/emitsignal-server`)
 
 - **Framework:** Elysia on Bun; routes are Elysia plugins in `src/http/`
+- **Source layering:** `src/lib/` is infrastructure only — singletons, side effects, and external connectors (Prisma, logger, auth, event bus, cache, queues, storage, rate limiting). `src/utils/` holds pure, stateless helpers with no Prisma/Redis/singleton dependency. `src/services/` holds application rules that may touch the database (topic, message, topic access, billing, push, transactional emails). Put new code in the narrowest of the three that fits; if a helper needs Prisma, it is a service, not a util.
+- **Path alias:** `#/*` → `./src/*`. Use it for every cross-folder import; keep `./sibling` relative only within the same directory.
+- **Tests:** colocated as `<module>.spec.ts` next to the module under test.
 - **Database:** PostgreSQL via Prisma; schema at `prisma/schema.prisma`; generated client at `src/generated/prisma/`
 - **Queues:** BullMQ backed by Redis (`src/lib/queue/`); three queues — `email`, `push`, `schedule`; workers run in `src/workers/`
 - **SSE fanout:** `src/lib/event-bus.ts` — an in-process `EventEmitter` that powers the listen endpoints. Single-node only; replace with Redis pub/sub for multi-node. Transport plumbing (headers, frame encoding, heartbeat/cleanup) lives in `src/lib/sse.ts`; `GET /topics/:name/listen` and `GET /listen` are thin wrappers over one shared handler in `src/http/topic/sse-listen.ts`.
 - **Auth:** Better Auth (`src/lib/auth.ts`) — magic link, passkey, API keys, optional GitHub OAuth. Auth is resolved per-request in `src/http/auth/plugin.ts`; supports cookie-based sessions (web) and `Bearer <session-token>` (mobile/CLI).
-- **Rate limiting:** `rate-limiter-flexible` via Redis (`src/lib/rate-limit.ts`); applied globally via `src/http/plugins/rate-limit-plugin.ts`. Fails open if Redis is unavailable.
+- **Rate limiting:** `rate-limiter-flexible` via Redis (`src/lib/rate-limit/`); applied globally via `src/http/plugins/rate-limit-plugin.ts`. Fails open if Redis is unavailable.
 - **File storage:** provider-switched via `FILE_STORAGE_PROVIDER` env — `local` (default) or `s3` (`src/lib/storage/`)
 - **Email provider:** switched via `EMAIL_PROVIDER` env — `log` (default/dev), `smtp`, or `resend`
 - **Environment:** validated at startup by TypeBox schema in `src/schema/environment.ts`; all config accessed via the `environment` export
 
 ### Publish API
 
-`POST /topic/:name` accepts either JSON body or a header-based format (parsed in `src/lib/header-publish.ts`). Non-JSON requests use headers like `title`, `x-priority` (`1`–`5` or `low`/`high`/`urgent`), `x-tags`, `x-delay` (unix timestamp or relative like `5m`, `2h`). Publish immediately fires the in-process bus and enqueues a push job; scheduled messages skip the bus and go straight to the schedule queue.
+`POST /topic/:name` accepts either JSON body or a header-based format (parsed in `src/http/topic/header-publish.ts`). Non-JSON requests use headers like `title`, `x-priority` (`1`–`5` or `low`/`high`/`urgent`), `x-tags`, `x-delay` (unix timestamp or relative like `5m`, `2h`). Publish immediately fires the in-process bus and enqueues a push job; scheduled messages skip the bus and go straight to the schedule queue.
 
 ### Website (`packages/emitsignal-website`)
 
