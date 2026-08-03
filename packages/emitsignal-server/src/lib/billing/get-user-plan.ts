@@ -2,9 +2,9 @@ import type { PlanLimits, PlanName } from '@emitsignal/shared';
 
 import { isPlanName, PLANS } from '@emitsignal/shared';
 
-import { duration } from '../duration';
-import { prisma } from '../prisma';
-import { rateLimitRedis } from '../rate-limit';
+import { duration } from '#/lib/duration';
+import { prisma } from '#/lib/prisma';
+import { rateLimitRedis } from '#/lib/rate-limit';
 
 const PLAN_CACHE_TTL_SECONDS = 60;
 

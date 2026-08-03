@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 
-import { parseSubscriptionSettings } from '../../lib/subscription-settings';
+import { parseSubscriptionSettings } from '#/lib/subscription-settings';
+
 import { resolveSubscriptions } from './resolve';
 
 export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(

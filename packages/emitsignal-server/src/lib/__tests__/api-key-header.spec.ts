@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { getApiKeyFromHeaders } from '../api-key-header';
+import { getApiKeyFromHeaders } from '#/lib/api-key-header';
 
 describe('getApiKeyFromHeaders', () => {
     it('extracts an API token from the Authorization: Bearer header', () => {

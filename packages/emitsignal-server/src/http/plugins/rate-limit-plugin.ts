@@ -3,10 +3,10 @@ import type { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible'
 import * as Sentry from '@sentry/bun';
 import Elysia from 'elysia';
 
-import { getClientIP, ServerLike } from '../../lib/ip';
-import { logger } from '../../lib/logger';
-import { globalAnonLimiter, globalAuthLimiter } from '../../lib/rate-limit';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { getClientIP, ServerLike } from '#/lib/ip';
+import { logger } from '#/lib/logger';
+import { globalAnonLimiter, globalAuthLimiter } from '#/lib/rate-limit';
 
 const LIMITER_UNAVAILABLE_RETRY_SECONDS = 30;
 

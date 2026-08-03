@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
-mock.module('../../auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
 
-import { claimSubscriptions } from '../../subscriptions/claim';
+import { claimSubscriptions } from '#/http/subscriptions/claim';
 
 describe('POST /subscriptions/claim', () => {
     const app = new Elysia().use(claimSubscriptions);

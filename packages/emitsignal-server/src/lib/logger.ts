@@ -1,7 +1,7 @@
 import { trace } from '@opentelemetry/api';
 import pino from 'pino';
 
-import { environment } from '../schema/environment';
+import { environment } from '#/schema/environment';
 
 const isProduction = Bun.env.NODE_ENV === 'production';
 

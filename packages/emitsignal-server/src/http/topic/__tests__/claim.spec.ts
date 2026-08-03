@@ -1,17 +1,17 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../auth/plugin', () => ({
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/http/auth/plugin', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));
 
-import { resetUserPlansForTests, setUserPlanForTests } from '../../../lib/billing/get-user-plan';
-import { PLANS } from '../../../lib/billing/plans';
-import { claimTopic } from '../claim';
+import { claimTopic } from '#/http/topic/claim';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/lib/billing/get-user-plan';
+import { PLANS } from '#/lib/billing/plans';
 
 function topicRow(overrides: Record<string, unknown> = {}) {
     return {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { Elysia, t } from 'elysia';
 
-import { errorResponsePlugin } from '../error-response-plugin';
-import { loggerPlugin } from '../logger-plugin';
+import { errorResponsePlugin } from '#/http/plugins/error-response-plugin';
+import { loggerPlugin } from '#/http/plugins/logger-plugin';
 
 describe('errorResponsePlugin onError', () => {
     const app = new Elysia()

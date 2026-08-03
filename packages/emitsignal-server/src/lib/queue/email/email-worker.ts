@@ -1,11 +1,11 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ConnectionOptions, Worker } from 'bullmq';
 
-import type { EmailOptions } from '../../email/provider';
+import type { EmailOptions } from '#/lib/email/provider';
 
-import { Email } from '../../email';
-import { logger } from '../../logger';
-import { redisConnection } from '../connection';
+import { Email } from '#/lib/email';
+import { logger } from '#/lib/logger';
+import { redisConnection } from '#/lib/queue/connection';
 
 const tracer = trace.getTracer('emitsignal.worker');
 

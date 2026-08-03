@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test';
 
-import { createSseStream, formatEvent, sseHeaders } from '../sse';
+import { createSseStream, formatEvent, sseHeaders } from '#/lib/sse';
 
 describe('formatEvent', () => {
     it('emits a named event frame', () => {

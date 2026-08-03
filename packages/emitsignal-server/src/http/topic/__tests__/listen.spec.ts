@@ -1,21 +1,21 @@
 import { afterAll, beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 
 const mockBusSubscribe = mock(() => () => {});
 const mockBusPublish = mock();
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
-mock.module('../../../lib/event-bus', () => ({
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/lib/event-bus', () => ({
     bus: {
         publish: mockBusPublish,
         subscribe: mockBusSubscribe,
     },
 }));
 
-import { listen } from '../../topic/listen';
+import { listen } from '#/http/topic/listen';
 
 const publicTopic = { accessMode: 'public', id: 't1', name: 'test-topic', ownerId: null };
 

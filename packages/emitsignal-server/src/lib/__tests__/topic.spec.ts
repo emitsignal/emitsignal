@@ -1,9 +1,9 @@
 import { describe, expect, it, mock } from 'bun:test';
 
-import { fileStorageMock, prismaMock } from '../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 
-mock.module('../prisma', () => ({ prisma: prismaMock }));
-mock.module('../storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
 import {
     getOrCreateTopic,
@@ -13,7 +13,7 @@ import {
     serializeMessage,
     TOPIC_NAME_MAX_LENGTH,
     TOPIC_NAME_REGEX,
-} from '../topic';
+} from '#/lib/topic';
 
 describe('TOPIC_NAME_REGEX', () => {
     const validNames = ['my-topic', 'a/b_c', 'a1', 'UPPER', 'CamelCase', 'test-ns/my-topic', 'abc'];

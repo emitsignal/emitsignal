@@ -1,8 +1,8 @@
 import { Expo, type ExpoPushMessage } from 'expo-server-sdk';
 
-import type { PushJob } from './types';
+import { environment } from '#/schema/environment';
 
-import { environment } from '../../schema/environment';
+import type { PushJob } from './types';
 
 const MAX_BODY_LENGTH = 160;
 

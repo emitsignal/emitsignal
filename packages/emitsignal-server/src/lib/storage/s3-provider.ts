@@ -1,6 +1,7 @@
+import { duration } from '#/lib/duration';
+
 import type { FileMetadata, FileStorage, FileUploadInput, StorageBucket } from './provider';
 
-import { duration } from '../duration';
 import { extensionForMimeType } from './provider';
 
 interface S3Client {

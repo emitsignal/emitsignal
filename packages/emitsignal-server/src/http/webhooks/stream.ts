@@ -1,10 +1,10 @@
 import Elysia, { t } from 'elysia';
 
-import { bus } from '../../lib/event-bus';
-import { getClientIP } from '../../lib/ip';
-import { acquireSseSlot } from '../../lib/rate-limit';
-import { createSseStream, sseHeaders } from '../../lib/sse';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { bus } from '#/lib/event-bus';
+import { getClientIP } from '#/lib/ip';
+import { acquireSseSlot } from '#/lib/rate-limit';
+import { createSseStream, sseHeaders } from '#/lib/sse';
 
 const SSE_MAX_AUTH = 10;
 

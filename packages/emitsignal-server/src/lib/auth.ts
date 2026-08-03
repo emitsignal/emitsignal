@@ -12,7 +12,8 @@ import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
-import { environment, isProduction } from '../schema/environment';
+import { environment, isProduction } from '#/schema/environment';
+
 import { API_KEY_PREFIX, getApiKeyFromHeaders } from './api-key-header';
 import { invalidateUserPlanCache } from './billing/get-user-plan';
 import { isStripeBillingEnabled, stripePlanConfig } from './billing/plans';

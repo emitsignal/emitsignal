@@ -1,9 +1,9 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
-import type { PurgeJob } from './types';
+import { duration } from '#/lib/duration';
+import { redisConnection } from '#/lib/queue/connection';
 
-import { duration } from '../../duration';
-import { redisConnection } from '../connection';
+import type { PurgeJob } from './types';
 
 export const purgeQueue = new Queue<
     PurgeJob,

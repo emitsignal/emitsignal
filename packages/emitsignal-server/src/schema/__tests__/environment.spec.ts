@@ -1,7 +1,7 @@
 import { Value } from '@sinclair/typebox/value';
 import { describe, expect, it } from 'bun:test';
 
-import { environmentSchema } from '../environment';
+import { environmentSchema } from '#/schema/environment';
 
 // The schema runs at import time, so anything it rejects is a boot failure with
 // no route to a health check. These cases all reached production configs before.

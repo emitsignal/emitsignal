@@ -1,7 +1,7 @@
 import Elysia from 'elysia';
 
-import { prisma } from '../../lib/prisma';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
 
 export const listPushTokens = new Elysia({ prefix: '/push-tokens' }).get(
     '/',

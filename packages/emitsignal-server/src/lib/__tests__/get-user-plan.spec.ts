@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { prismaMock } from '../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
 import {
     getUserLimits,
@@ -10,8 +10,8 @@ import {
     invalidateUserPlanCache,
     resetUserPlansForTests,
     setUserPlanForTests,
-} from '../billing/get-user-plan';
-import { PLANS } from '../billing/plans';
+} from '#/lib/billing/get-user-plan';
+import { PLANS } from '#/lib/billing/plans';
 
 function subscriptionRow(overrides: Record<string, unknown> = {}) {
     return {

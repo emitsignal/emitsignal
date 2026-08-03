@@ -1,16 +1,16 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { ConnectionOptions, Worker } from 'bullmq';
 
-import type { ScheduleJob } from './schedule-queue';
+import { getUserPlan } from '#/lib/billing/get-user-plan';
+import { messageExpiresAt, messageRetentionDays } from '#/lib/billing/retention';
+import { bus } from '#/lib/event-bus';
+import { logger } from '#/lib/logger';
+import { prisma } from '#/lib/prisma';
+import { redisConnection } from '#/lib/queue/connection';
+import { pushQueue } from '#/lib/queue/push/push-queue';
+import { parseActions, serializeMessage } from '#/lib/topic';
 
-import { getUserPlan } from '../../billing/get-user-plan';
-import { messageExpiresAt, messageRetentionDays } from '../../billing/retention';
-import { bus } from '../../event-bus';
-import { logger } from '../../logger';
-import { prisma } from '../../prisma';
-import { parseActions, serializeMessage } from '../../topic';
-import { redisConnection } from '../connection';
-import { pushQueue } from '../push/push-queue';
+import type { ScheduleJob } from './schedule-queue';
 
 const tracer = trace.getTracer('emitsignal.worker');
 

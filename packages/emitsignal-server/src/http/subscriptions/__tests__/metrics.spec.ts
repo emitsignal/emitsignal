@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { subscriptionMetrics } from '../../subscriptions/metrics';
+import { subscriptionMetrics } from '#/http/subscriptions/metrics';
 
 describe('GET /subscriptions/metrics', () => {
     const app = new Elysia().use(subscriptionMetrics);

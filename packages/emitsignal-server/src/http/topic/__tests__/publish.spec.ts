@@ -1,21 +1,21 @@
 import { describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { fileStorageMock, prismaMock } from '../../../__tests__/mocks';
+import { fileStorageMock, prismaMock } from '#/__tests__/mocks';
 
 const mockBus = { publish: mock(), subscribe: mock() };
 const mockPushQueue = { add: mock(() => Promise.resolve()) };
 const mockScheduleQueue = { add: mock(() => Promise.resolve()) };
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/event-bus', () => ({ bus: mockBus }));
-mock.module('../../../lib/queue', () => ({
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/event-bus', () => ({ bus: mockBus }));
+mock.module('#/lib/queue', () => ({
     pushQueue: mockPushQueue,
     scheduleQueue: mockScheduleQueue,
 }));
-mock.module('../../../lib/storage', () => ({ FileStorageService: fileStorageMock }));
+mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
-import { publish } from '../../topic/publish';
+import { publish } from '#/http/topic/publish';
 
 describe('POST /topic/:name', () => {
     const app = new Elysia().use(publish);

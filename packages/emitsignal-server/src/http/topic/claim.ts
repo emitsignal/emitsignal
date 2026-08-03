@@ -1,15 +1,15 @@
 import { isValidTopicName, PAID_PLAN_NAMES } from '@emitsignal/shared';
 import Elysia, { t } from 'elysia';
 
-import type { Topic } from '../../generated/prisma/client';
+import type { Topic } from '#/generated/prisma/client';
 
-import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
-import { getUserPlan } from '../../lib/billing/get-user-plan';
-import { PLANS } from '../../lib/billing/plans';
-import { topicNameCache } from '../../lib/cache';
-import { prisma } from '../../lib/prisma';
-import { readAnonLimiter, readAuthLimiter } from '../../lib/rate-limit';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
+import { getUserPlan } from '#/lib/billing/get-user-plan';
+import { PLANS } from '#/lib/billing/plans';
+import { topicNameCache } from '#/lib/cache';
+import { prisma } from '#/lib/prisma';
+import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
 
 // Ownership is derived from Topic.ownerId, so these writes are done sequentially
 // rather than in a transaction: if the owner TopicAccess row ever fails to write,

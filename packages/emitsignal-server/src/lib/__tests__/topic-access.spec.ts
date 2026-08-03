@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 
-import { prismaMock } from '../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { resolveTopicCapabilities } from '../topic-access';
+import { resolveTopicCapabilities } from '#/lib/topic-access';
 
 describe('resolveTopicCapabilities', () => {
     beforeEach(() => {

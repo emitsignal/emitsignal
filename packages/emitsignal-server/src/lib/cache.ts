@@ -1,6 +1,7 @@
 import { LRUCache } from 'lru-cache';
 
-import { Topic } from '../generated/prisma/client';
+import { Topic } from '#/generated/prisma/client';
+
 import { duration } from './duration';
 
 // Resolved user id per auth-header fingerprint. Short TTL so logout / session

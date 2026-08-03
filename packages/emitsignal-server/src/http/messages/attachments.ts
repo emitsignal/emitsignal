@@ -1,15 +1,15 @@
 import Elysia, { t } from 'elysia';
 
-import { authAwareBeforeHandle } from '../../http/plugins/rate-limit-plugin';
-import { getUserPlan } from '../../lib/billing/get-user-plan';
-import { PLANS } from '../../lib/billing/plans';
-import { attachmentExpiresAt, messageRetentionDays } from '../../lib/billing/retention';
-import { prisma } from '../../lib/prisma';
-import { uploadAnonLimiter, uploadAuthLimiter } from '../../lib/rate-limit';
-import { FileStorageService } from '../../lib/storage';
-import { isAllowedMimeType } from '../../lib/storage/provider';
-import { resolveTopicCapabilities } from '../../lib/topic-access';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
+import { getUserPlan } from '#/lib/billing/get-user-plan';
+import { PLANS } from '#/lib/billing/plans';
+import { attachmentExpiresAt, messageRetentionDays } from '#/lib/billing/retention';
+import { prisma } from '#/lib/prisma';
+import { uploadAnonLimiter, uploadAuthLimiter } from '#/lib/rate-limit';
+import { FileStorageService } from '#/lib/storage';
+import { isAllowedMimeType } from '#/lib/storage/provider';
+import { resolveTopicCapabilities } from '#/lib/topic-access';
 
 export const attachments = new Elysia({ prefix: '/messages' }).post(
     '/:id/attachments',

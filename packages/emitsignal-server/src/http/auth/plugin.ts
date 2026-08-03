@@ -1,5 +1,5 @@
-import { auth } from '../../lib/auth';
-import { sessionUserIdCache } from '../../lib/cache';
+import { auth } from '#/lib/auth';
+import { sessionUserIdCache } from '#/lib/cache';
 
 export async function resolveUserId({
     headers,

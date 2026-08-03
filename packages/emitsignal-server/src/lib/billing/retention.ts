@@ -2,7 +2,7 @@ import type { PlanName } from '@emitsignal/shared';
 
 import { PLANS } from '@emitsignal/shared';
 
-import { duration } from '../duration';
+import { duration } from '#/lib/duration';
 
 export const ANON_RETENTION_DAYS = 7;
 export const ATTACHMENT_MAX_RETENTION_DAYS = 14;

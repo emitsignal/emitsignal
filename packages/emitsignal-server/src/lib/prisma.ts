@@ -1,8 +1,8 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import { PrismaClient } from '../generated/prisma/client';
-import { environment } from '../schema/environment';
+import { PrismaClient } from '#/generated/prisma/client';
+import { environment } from '#/schema/environment';
 
 const tracer = trace.getTracer('emitsignal.prisma');
 

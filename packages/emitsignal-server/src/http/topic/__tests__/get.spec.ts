@@ -1,11 +1,11 @@
 import { describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
-import { getTopic } from '../../topic/get';
+import { getTopic } from '#/http/topic/get';
 
 describe('GET /topics/:name', () => {
     const app = new Elysia().use(getTopic);

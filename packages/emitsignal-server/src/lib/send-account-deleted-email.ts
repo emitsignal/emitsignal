@@ -1,7 +1,8 @@
 import { AccountDeletedEmail, render } from '@emitsignal/emails';
 import { createElement } from 'react';
 
-import { environment } from '../schema/environment';
+import { environment } from '#/schema/environment';
+
 import { EmailService } from './email-service';
 import { logger } from './logger';
 

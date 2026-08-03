@@ -1,25 +1,25 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
-import { prismaMock } from '../../../__tests__/mocks';
+import { prismaMock } from '#/__tests__/mocks';
 
 const mockBus = { publish: mock(), publishWebhookDelivery: mock(), subscribe: mock() };
 const mockPushQueue = { add: mock(() => Promise.resolve()) };
 
-mock.module('../../../lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('../../../lib/event-bus', () => ({ bus: mockBus }));
-mock.module('../../../lib/queue', () => ({
+mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
+mock.module('#/lib/event-bus', () => ({ bus: mockBus }));
+mock.module('#/lib/queue', () => ({
     pushQueue: mockPushQueue,
     scheduleQueue: { add: mock(() => Promise.resolve()) },
 }));
 // Header-driven so a leak into other test files behaves like the real module
 // (no test header → anonymous).
-mock.module('../../auth/plugin', () => ({
+mock.module('#/http/auth/plugin', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));
 
-import { receiveWebhook } from '../receive';
+import { receiveWebhook } from '#/http/webhooks/receive';
 
 describe('POST /h/:slug link → view action', () => {
     const app = new Elysia().use(receiveWebhook);

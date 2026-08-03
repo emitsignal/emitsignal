@@ -1,15 +1,15 @@
-import { Email } from '../lib/email';
-import { logger } from '../lib/logger';
+import { Email } from '#/lib/email';
+import { logger } from '#/lib/logger';
 import {
     createEmailWorker,
     createPurgeWorker,
     createPushWorker,
     createScheduleWorker,
     scheduleRetentionSweep,
-} from '../lib/queue';
-import { runWorkers } from '../lib/run-workers';
-import { FileStorageService } from '../lib/storage';
-import { environment } from '../schema/environment';
+} from '#/lib/queue';
+import { runWorkers } from '#/lib/run-workers';
+import { FileStorageService } from '#/lib/storage';
+import { environment } from '#/schema/environment';
 
 Email.init(environment);
 FileStorageService.init(environment);

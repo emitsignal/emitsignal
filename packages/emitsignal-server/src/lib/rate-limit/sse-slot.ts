@@ -1,4 +1,5 @@
-import { duration } from '../duration';
+import { duration } from '#/lib/duration';
+
 import { rateLimitRedis } from './limiters';
 
 const SLOT_TTL_SECONDS = duration.minutes(2).as('seconds');

@@ -1,10 +1,10 @@
 import Elysia from 'elysia';
 import path from 'node:path';
 
-import { prisma } from '../../lib/prisma';
-import { resolveTopicCapabilities } from '../../lib/topic-access';
-import { environment } from '../../schema/environment';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
+import { resolveTopicCapabilities } from '#/lib/topic-access';
+import { environment } from '#/schema/environment';
 
 const HARDENED_HEADERS: Record<string, string> = {
     'content-security-policy': "default-src 'none'; sandbox",

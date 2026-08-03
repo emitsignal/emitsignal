@@ -1,8 +1,8 @@
 import Elysia, { t } from 'elysia';
 
-import { prisma } from '../../lib/prisma';
-import { canPublishToTopicName } from '../../lib/topic-access';
-import { resolveUserId } from '../auth/plugin';
+import { resolveUserId } from '#/http/auth/plugin';
+import { prisma } from '#/lib/prisma';
+import { canPublishToTopicName } from '#/lib/topic-access';
 
 export const updateWebhook = new Elysia().patch(
     '/webhooks/:id',
