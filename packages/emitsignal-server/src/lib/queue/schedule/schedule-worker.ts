@@ -67,6 +67,7 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
                         pushQueue.add('push-message', {
                             actions: parseActions(message.actions),
                             body: message.body,
+                            createdAt: message.createdAt.getTime(),
                             messageId: message.id,
                             priority: message.priority,
                             title: message.title,

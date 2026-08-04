@@ -158,6 +158,7 @@ export const publish = new Elysia().post(
         pushQueue.add('push-message', {
             actions,
             body: messageBody,
+            createdAt: message.createdAt.getTime(),
             messageId: message.id,
             priority: message.priority,
             title,

@@ -24,10 +24,15 @@ export function buildExpoMessages(tokens: string[], job: PushJob): ExpoPushMessa
             categoryId: hasActions ? 'emitsignal-message' : undefined,
             data: {
                 actions: hasActions ? JSON.stringify(job.actions) : undefined,
+                createdAt: job.createdAt,
                 messageId: job.messageId,
+                priority: job.priority,
                 topicId: job.topicId,
                 topicName: job.topicName,
             },
+            // Lets the iOS notification service extension patch the widget
+            // snapshot before the notification is shown.
+            mutableContent: true,
             priority: job.priority >= 4 ? 'high' : 'normal',
             subtitle: job.title,
             title: job.topicDisplayName,
