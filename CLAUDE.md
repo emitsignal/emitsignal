@@ -107,6 +107,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `<prefix>: <de
 
 - Run `bun format` before committing; if Prettier modifies files, stage them and add a final `chore: Source Format` commit as the last commit in the sequence.
 - Do **not** add `Co-authored-by:` trailers.
+- Do **not** add AI attribution footers anywhere — no "🤖 Generated with Claude Code" (or similar) in commit messages, PR descriptions, or issue comments.
 - Avoid commit bodies/footers unless the change has a breaking or high-impact side effect.
 - Split commits by logical area; keep each commit focused on one concern.
 
