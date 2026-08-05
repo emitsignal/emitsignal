@@ -1,9 +1,11 @@
 import type { Message, Subscription, SubscriptionMetricsMap } from '@emitsignal/shared/api';
 
-// Mirrors WidgetSnapshot in targets/widgets/Snapshot.swift. Bump schemaVersion
-// on breaking changes; the widget falls back to its placeholder when the
-// versions disagree. Kept free of react-native imports so it can run under
-// `bun test`.
+// Mirrors WidgetSnapshot in targets/_shared/widget-snapshot-shared.swift. Every
+// field added here MUST be mirrored there: the notification service extension
+// decodes and re-encodes the snapshot, silently dropping unknown JSON keys.
+// Bump schemaVersion on breaking changes; the widget falls back to its
+// placeholder when the versions disagree. Kept free of react-native imports so
+// it can run under `bun test`.
 
 export interface BuildWidgetSnapshotInput {
     messages: Message[];

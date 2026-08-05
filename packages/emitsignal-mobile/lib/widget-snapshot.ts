@@ -23,15 +23,40 @@ export { buildWidgetSnapshot } from '@/lib/widget-snapshot-builder';
 
 export interface SyncWidgetSnapshotOptions {
     deviceId: null | string;
+    mode?: WidgetSyncMode;
     scheme: string;
     scope: string;
     userId: null | string;
 }
 
+// 'cached-only' skips the metrics network fetch so the snapshot write cannot
+// be cut short by iOS suspending the app (used when the app backgrounds).
+export type WidgetSyncMode = 'cached-only' | 'full';
+
+type WidgetSyncListener = () => void;
+
+const widgetSyncListeners = new Set<WidgetSyncListener>();
+
+// Lets non-hook code (e.g. the notification received listener) ask the mounted
+// useWidgetSync hook for a debounced re-sync.
+export function requestWidgetSync(): void {
+    for (const listener of widgetSyncListeners) {
+        listener();
+    }
+}
+
+export function subscribeWidgetSyncRequests(listener: WidgetSyncListener): () => void {
+    widgetSyncListeners.add(listener);
+
+    return () => {
+        widgetSyncListeners.delete(listener);
+    };
+}
+
 // Assembles a snapshot from the react-query cache (feed + subscriptions) plus
 // a metrics fetch (cached 180s), then hands it to the widget extension.
 export async function syncWidgetSnapshot(options: SyncWidgetSnapshotOptions): Promise<void> {
-    const { deviceId, scheme, scope, userId } = options;
+    const { deviceId, mode = 'full', scheme, scope, userId } = options;
 
     if (!scope) {
         return;
@@ -46,7 +71,12 @@ export async function syncWidgetSnapshot(options: SyncWidgetSnapshotOptions): Pr
 
     let metrics: SubscriptionMetricsMap = {};
 
-    if (subscriptions.length > 0) {
+    if (mode === 'cached-only') {
+        metrics =
+            queryClient.getQueryData<SubscriptionMetricsMap>(
+                queryKeys.subscriptionMetrics(scope),
+            ) ?? {};
+    } else if (subscriptions.length > 0) {
         try {
             metrics = await queryClient.fetchQuery({
                 queryFn: () =>
