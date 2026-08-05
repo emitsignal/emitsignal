@@ -2,10 +2,9 @@ import { ExpoConfig } from 'expo/config';
 
 import { version } from './package.json';
 
-const appMode = process.env.APP_MODE;
 const appleTeamId = process.env.APPLE_TEAM_ID;
-
-const projectId = '1424f0ee-b60d-4b18-b09c-4a3bd2740ae8';
+const appMode = process.env.APP_MODE;
+const projectId = process.env.PROJECT_ID;
 
 function getProjectConfig() {
     if (appMode === 'development') {
@@ -20,7 +19,7 @@ function getProjectConfig() {
     if (appMode === 'preview') {
         return {
             bundleIdentifier: 'com.emitsignal.preview',
-            iosIcon: './assets/emitsignal-development-ios.icon',
+            iosIcon: './assets/emitsignal-preview-ios.icon',
             name: 'EmitSignal (Preview)',
             scheme: 'emitsignal-preview',
         };

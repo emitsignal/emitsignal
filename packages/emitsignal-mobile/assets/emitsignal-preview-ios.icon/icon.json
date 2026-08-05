@@ -1,0 +1,73 @@
+{
+    "fill-specializations": [
+        {
+            "value": {
+                "linear-gradient": [
+                    "display-p3:0.10235,0.25096,0.39791,1.00000",
+                    "display-p3:0.22939,0.19511,0.29937,1.00000"
+                ],
+                "orientation": {
+                    "start": {
+                        "x": 0.5,
+                        "y": 0
+                    },
+                    "stop": {
+                        "x": 0.5,
+                        "y": 0.7
+                    }
+                }
+            }
+        },
+        {
+            "appearance": "dark",
+            "value": {
+                "linear-gradient": [
+                    "display-p3:0.13725,0.10980,0.21176,1.00000",
+                    "srgb:0.12157,0.09804,0.18824,1.00000"
+                ],
+                "orientation": {
+                    "start": {
+                        "x": 0.5,
+                        "y": 0
+                    },
+                    "stop": {
+                        "x": 0.5,
+                        "y": 0.7
+                    }
+                }
+            }
+        }
+    ],
+    "groups": [
+        {
+            "layers": [
+                {
+                    "fill": {
+                        "solid": "extended-gray:1.00000,1.00000"
+                    },
+                    "glass": true,
+                    "hidden": false,
+                    "image-name": "icon.png",
+                    "name": "icon",
+                    "opacity": 0.75,
+                    "position": {
+                        "scale": 1,
+                        "translation-in-points": [0, 0]
+                    }
+                }
+            ],
+            "shadow": {
+                "kind": "neutral",
+                "opacity": 0.5
+            },
+            "translucency": {
+                "enabled": true,
+                "value": 0.5
+            }
+        }
+    ],
+    "supported-platforms": {
+        "circles": ["watchOS"],
+        "squares": "shared"
+    }
+}
