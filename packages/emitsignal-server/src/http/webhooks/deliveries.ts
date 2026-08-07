@@ -31,6 +31,7 @@ export const listDeliveries = new Elysia().get(
             orderBy: { createdAt: 'desc' },
             select: {
                 createdAt: true,
+                expiresAt: true,
                 id: true,
                 messageId: true,
                 ms: true,
@@ -47,6 +48,7 @@ export const listDeliveries = new Elysia().get(
             channel: webhook.topicName,
             createdAt: Math.floor(delivery.createdAt.getTime() / 1000),
             durationMs: delivery.ms,
+            expiresAt: delivery.expiresAt ? Math.floor(delivery.expiresAt.getTime() / 1000) : null,
             id: delivery.id,
             messageId: delivery.messageId,
             payload: JSON.parse(delivery.payload) as unknown,

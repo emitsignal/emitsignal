@@ -160,7 +160,36 @@ async function purgeExpired(): Promise<void> {
         }
     }
 
-    logger.info({ expiredAttachments, retiredMessages }, 'retention sweep completed');
+    let expiredDeliveries = 0;
+
+    // Webhook deliveries own no storage objects, so they can be removed directly —
+    // the batching only bounds the size of each DELETE.
+    for (;;) {
+        const batch = await prisma.webhookDelivery.findMany({
+            select: { id: true },
+            take: RETENTION_BATCH_SIZE,
+            where: { expiresAt: { lt: now, not: null } },
+        });
+
+        if (batch.length === 0) {
+            break;
+        }
+
+        const { count } = await prisma.webhookDelivery.deleteMany({
+            where: { id: { in: batch.map((delivery) => delivery.id) } },
+        });
+
+        expiredDeliveries += count;
+
+        if (batch.length < RETENTION_BATCH_SIZE) {
+            break;
+        }
+    }
+
+    logger.info(
+        { expiredAttachments, expiredDeliveries, retiredMessages },
+        'retention sweep completed',
+    );
 }
 
 async function purgeSignals(userId: string): Promise<void> {
