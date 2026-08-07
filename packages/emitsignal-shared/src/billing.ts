@@ -33,6 +33,7 @@ export interface PlanLimits {
     // 0 means "keep forever" (no expiry is ever set). Attachments derive their
     // own, shorter window from this — see the server retention helper.
     retentionDays: number;
+    webhookRetentionDays: number;
 }
 
 export type PlanName = 'beam' | 'free' | 'pulse';
@@ -59,6 +60,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             maxWebhooks: 30,
             messagesPerDay: 20_000,
             retentionDays: 0,
+            webhookRetentionDays: 30,
         },
         name: 'beam',
         priceMonthlyUsd: 12,
@@ -75,6 +77,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             maxWebhooks: 2,
             messagesPerDay: 100,
             retentionDays: 90,
+            webhookRetentionDays: 3,
         },
         name: 'free',
         priceMonthlyUsd: 0,
@@ -91,6 +94,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
             maxWebhooks: 10,
             messagesPerDay: 2500,
             retentionDays: 365,
+            webhookRetentionDays: 14,
         },
         name: 'pulse',
         priceMonthlyUsd: 5,
