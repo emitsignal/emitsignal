@@ -36,7 +36,6 @@ function WebhookDeliveriesPage() {
                         </button>
                     </div>
                 }
-                subtitle="last 24h"
                 title={
                     <span className="flex items-center gap-2">
                         <Link className="text-dim no-underline hover:text-fg" to="/app/webhooks">

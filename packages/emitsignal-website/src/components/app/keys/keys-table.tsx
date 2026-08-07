@@ -6,37 +6,7 @@ import type { ApiKey } from '#/hooks/use-api-keys';
 import { Dot } from '#/components/ui/dot';
 import { Pill } from '#/components/ui/pill';
 import { Sparkline } from '#/components/ui/sparkline';
-
-function formatExpiry(date: Date | null): { expired: boolean; text: string } {
-    if (!date) {
-        return { expired: false, text: 'Never' };
-    }
-
-    const diff = new Date(date).getTime() - Date.now();
-
-    if (diff <= 0) {
-        return { expired: true, text: 'Expired' };
-    }
-    const days = Math.ceil(diff / 86_400_000);
-
-    if (days <= 1) {
-        return { expired: false, text: 'Today' };
-    }
-
-    if (days < 7) {
-        return { expired: false, text: `${days}d` };
-    }
-
-    if (days < 30) {
-        return { expired: false, text: `${Math.round(days / 7)}w` };
-    }
-
-    if (days < 365) {
-        return { expired: false, text: `${Math.round(days / 30)}mo` };
-    }
-
-    return { expired: false, text: `${Math.round(days / 365)}y` };
-}
+import { formatExpiry } from '#/lib/format';
 
 function timeAgo(date: Date | null): string {
     if (!date) {

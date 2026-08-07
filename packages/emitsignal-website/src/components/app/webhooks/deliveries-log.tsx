@@ -8,6 +8,7 @@ import type { WebhookDelivery, WebhookTemplate } from '#/lib/api';
 import { useWebhook } from '#/hooks/use-webhook';
 import { useWebhookDeliveries } from '#/hooks/use-webhook-deliveries';
 import { API_URL } from '#/lib/api';
+import { formatExpiry } from '#/lib/format';
 
 import type { WebhookSource } from './source-glyph';
 
@@ -148,6 +149,7 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                                     <span className="font-mono text-[10px] text-faint">
                                         {delivery.durationMs}ms
                                     </span>
+                                    <ExpiryLabel expiresAt={delivery.expiresAt} />
                                     {delivery.templated ? (
                                         <span
                                             className="rounded px-1.5 py-0.5 font-mono text-[9.5px] text-accent"
@@ -184,6 +186,7 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                         <div className="ml-auto flex items-center gap-3.5 font-mono text-[11px]">
                             <span className="text-success">● {active.status} OK</span>
                             <span className="text-dim">{active.durationMs}ms</span>
+                            <ExpiryLabel expiresAt={active.expiresAt} />
                         </div>
                     </div>
 
@@ -301,6 +304,26 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                 </div>
             )}
         </div>
+    );
+}
+
+// How long this delivery record survives before the retention sweep removes it.
+// The API sends unix seconds.
+function ExpiryLabel({ expiresAt }: { expiresAt: null | number }) {
+    if (!expiresAt) {
+        return null;
+    }
+
+    const expiry = formatExpiry(expiresAt * 1000);
+
+    return (
+        <span
+            className="font-mono text-[10px]"
+            style={{ color: expiry.expired ? 'var(--color-danger)' : 'var(--color-faint)' }}
+            title={`Delivery record removed on ${new Date(expiresAt * 1000).toLocaleString()}`}
+        >
+            {expiry.expired ? 'expired' : `expires ${expiry.text.toLowerCase()}`}
+        </span>
     );
 }
 

@@ -127,6 +127,7 @@ export interface WebhookDelivery {
     channel: string;
     createdAt: number;
     durationMs: number;
+    expiresAt: null | number;
     id: string;
     messageId: null | string;
     payload: Record<string, unknown>;

@@ -1,3 +1,39 @@
+export function formatExpiry(value: Date | null | number | string): {
+    expired: boolean;
+    text: string;
+} {
+    if (value === null) {
+        return { expired: false, text: 'Never' };
+    }
+
+    const timestamp = typeof value === 'number' ? value : new Date(value).getTime();
+    const diff = timestamp - Date.now();
+
+    if (diff <= 0) {
+        return { expired: true, text: 'Expired' };
+    }
+
+    const days = Math.ceil(diff / 86_400_000);
+
+    if (days <= 1) {
+        return { expired: false, text: 'Today' };
+    }
+
+    if (days < 7) {
+        return { expired: false, text: `${days}d` };
+    }
+
+    if (days < 30) {
+        return { expired: false, text: `${Math.round(days / 7)}w` };
+    }
+
+    if (days < 365) {
+        return { expired: false, text: `${Math.round(days / 30)}mo` };
+    }
+
+    return { expired: false, text: `${Math.round(days / 365)}y` };
+}
+
 export function formatSize(bytes: number): string {
     if (!bytes || bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
