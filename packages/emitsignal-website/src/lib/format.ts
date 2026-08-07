@@ -1,1 +1,1 @@
-export { formatSize, relativeTime } from '@emitsignal/shared/format';
+export { formatExpiry, formatSize, relativeTime } from '@emitsignal/shared/format';
