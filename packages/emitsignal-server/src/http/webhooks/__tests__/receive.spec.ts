@@ -20,6 +20,8 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { receiveWebhook } from '#/http/webhooks/receive';
+import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
+import { duration } from '#/utils/duration';
 
 describe('POST /h/:slug link → view action', () => {
     const app = new Elysia().use(receiveWebhook);
@@ -188,5 +190,74 @@ describe('POST /h/:slug link → view action', () => {
 
         expect(res.status).toBe(200);
         expect(storedActions()).toEqual([]);
+    });
+});
+
+describe('POST /h/:slug delivery retention', () => {
+    const app = new Elysia().use(receiveWebhook);
+
+    function request() {
+        return new Request('http://localhost/h/cw_abc1234', {
+            body: JSON.stringify({ event: { name: 'deploy' } }),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+        });
+    }
+
+    // Days between the stored delivery's expiry and now, rounded to whole days.
+    function storedExpiryDays(): number {
+        const calls = prismaMock.webhookDelivery.create.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown as [{ data: Record<string, unknown> }];
+        const expiresAt = lastCall[0].data.expiresAt as Date;
+
+        return Math.round((expiresAt.getTime() - Date.now()) / duration.days(1).as('ms'));
+    }
+
+    function withOwner(userId: null | string) {
+        prismaMock.webhook.findUnique.mockResolvedValue({
+            id: 'wh-1',
+            source: 'custom',
+            status: 'active',
+            template: null,
+            topicName: 'deploys',
+            userId,
+        });
+    }
+
+    beforeEach(() => {
+        resetUserPlansForTests();
+        prismaMock.webhookDelivery.create.mockClear();
+        prismaMock.topic.findUnique.mockResolvedValue({
+            displayName: 'deploys',
+            id: 'topic-1',
+            name: 'deploys',
+        });
+    });
+
+    it('expires a free owner’s delivery after 3 days', async () => {
+        withOwner('user-free');
+        setUserPlanForTests('user-free', 'free');
+
+        const res = await app.handle(request());
+
+        expect(res.status).toBe(200);
+        expect(storedExpiryDays()).toBe(3);
+    });
+
+    it('expires a beam owner’s delivery after 30 days, unlike their messages', async () => {
+        withOwner('user-beam');
+        setUserPlanForTests('user-beam', 'beam');
+
+        await app.handle(request());
+
+        expect(storedExpiryDays()).toBe(30);
+    });
+
+    it('expires an unowned webhook’s delivery on the anonymous window', async () => {
+        withOwner(null);
+
+        await app.handle(request());
+
+        expect(storedExpiryDays()).toBe(3);
     });
 });

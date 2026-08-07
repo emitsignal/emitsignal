@@ -1,11 +1,15 @@
+import { PLAN_ORDER, PLANS } from '@emitsignal/shared';
 import { describe, expect, it } from 'bun:test';
 
 import {
     ANON_RETENTION_DAYS,
+    ANON_WEBHOOK_RETENTION_DAYS,
     ATTACHMENT_MAX_RETENTION_DAYS,
     attachmentExpiresAt,
     messageExpiresAt,
     messageRetentionDays,
+    webhookDeliveryExpiresAt,
+    webhookRetentionDays,
 } from '#/services/billing/retention';
 import { duration } from '#/utils/duration';
 
@@ -36,6 +40,40 @@ describe('messageExpiresAt', () => {
         expect((expiresAt as Date).getTime() - deliveredAt.getTime()).toBe(
             duration.days(7).as('ms'),
         );
+    });
+});
+
+describe('webhookRetentionDays', () => {
+    it('maps each plan to its webhook window', () => {
+        expect(webhookRetentionDays('beam')).toBe(30);
+        expect(webhookRetentionDays('free')).toBe(3);
+        expect(webhookRetentionDays('pulse')).toBe(14);
+    });
+
+    it('uses the anonymous window when there is no plan', () => {
+        expect(ANON_WEBHOOK_RETENTION_DAYS).toBe(3);
+        expect(webhookRetentionDays(null)).toBe(ANON_WEBHOOK_RETENTION_DAYS);
+    });
+
+    it('never keeps deliveries forever, on any plan', () => {
+        for (const plan of PLAN_ORDER) {
+            expect(PLANS[plan].limits.webhookRetentionDays).toBeGreaterThan(0);
+        }
+    });
+
+    it('stays shorter than the message window it accompanies', () => {
+        expect(webhookRetentionDays('free')).toBeLessThan(messageRetentionDays('free'));
+        expect(webhookRetentionDays('pulse')).toBeLessThan(messageRetentionDays('pulse'));
+    });
+});
+
+describe('webhookDeliveryExpiresAt', () => {
+    const createdAt = new Date('2026-01-01T00:00:00.000Z');
+
+    it('adds the retention window to the delivery time', () => {
+        const expiresAt = webhookDeliveryExpiresAt(createdAt, 3);
+
+        expect(expiresAt.getTime() - createdAt.getTime()).toBe(duration.days(3).as('ms'));
     });
 });
 

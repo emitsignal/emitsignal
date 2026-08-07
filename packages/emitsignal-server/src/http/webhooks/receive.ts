@@ -10,7 +10,12 @@ import { prisma } from '#/lib/prisma';
 import { pushQueue } from '#/lib/queue';
 import { webhookReceiveLimiter } from '#/lib/rate-limit';
 import { getUserPlan } from '#/services/billing/get-user-plan';
-import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
+import {
+    messageExpiresAt,
+    messageRetentionDays,
+    webhookDeliveryExpiresAt,
+    webhookRetentionDays,
+} from '#/services/billing/retention';
 import { serializeMessage } from '#/services/message';
 import { getOrCreateTopic } from '#/services/topic';
 import { canPublishToTopicName } from '#/services/topic-access';
@@ -125,8 +130,11 @@ export const receiveWebhook = new Elysia().post(
 
         const ms = Date.now() - start;
 
+        const deliveryExpiresAt = webhookDeliveryExpiresAt(deliveredAt, webhookRetentionDays(plan));
+
         const delivery = await prisma.webhookDelivery.create({
             data: {
+                expiresAt: deliveryExpiresAt,
                 messageId: message.id,
                 ms,
                 payload: JSON.stringify(payload),
@@ -139,6 +147,7 @@ export const receiveWebhook = new Elysia().post(
 
         bus.publishWebhookDelivery(webhook.userId, {
             channel: webhook.topicName,
+            expiresAt: Math.floor(deliveryExpiresAt.getTime() / 1000),
             id: delivery.id,
             ms,
             payload,

@@ -35,6 +35,7 @@ export interface MessageEvent {
 
 export interface WebhookDeliveryEvent {
     channel: string;
+    expiresAt: number;
     id: string;
     ms: number;
     payload: Record<string, unknown>;

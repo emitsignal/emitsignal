@@ -5,6 +5,7 @@ import { PLANS } from '@emitsignal/shared';
 import { duration } from '#/utils/duration';
 
 export const ANON_RETENTION_DAYS = 7;
+export const ANON_WEBHOOK_RETENTION_DAYS = 3;
 export const ATTACHMENT_MAX_RETENTION_DAYS = 14;
 
 export function attachmentExpiresAt(deliveredAt: Date, retentionDays: number): Date {
@@ -27,4 +28,12 @@ export function messageExpiresAt(deliveredAt: Date, retentionDays: number): Date
 
 export function messageRetentionDays(plan: null | PlanName): number {
     return plan ? PLANS[plan].limits.retentionDays : ANON_RETENTION_DAYS;
+}
+
+export function webhookDeliveryExpiresAt(createdAt: Date, retentionDays: number): Date {
+    return new Date(createdAt.getTime() + duration.days(retentionDays).as('ms'));
+}
+
+export function webhookRetentionDays(plan: null | PlanName): number {
+    return plan ? PLANS[plan].limits.webhookRetentionDays : ANON_WEBHOOK_RETENTION_DAYS;
 }
