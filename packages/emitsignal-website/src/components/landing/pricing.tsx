@@ -6,7 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import { cn } from '#/lib/cn';
 
 import { Eyebrow } from './eyebrow';
-import { Section } from './section';
+import { Section } from './pricing-section';
 
 interface Tier {
     cta: string;
@@ -29,7 +29,7 @@ function planTier(plan: PlanDefinition): Tier {
         `${Math.floor(limits.attachmentMaxBytes / (1024 * 1024))} MB per attachment`,
         `${limits.maxOwnedTopics} owned topics`,
         `${limits.maxWebhooks} webhooks`,
-        'Push + email + SSE',
+        'Push + SSE + web inbox',
     ];
 
     if (plan.name === 'free') {

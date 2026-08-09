@@ -23,7 +23,7 @@ interface InternalLink extends BaseProps {
     to: string;
 }
 
-type Variant = 'primary' | 'secondary';
+type Variant = 'contrast' | 'primary' | 'secondary';
 
 const BASE_CLASS =
     'inline-flex cursor-pointer items-center gap-2 rounded-lg px-[18px] py-[11px] text-[13.5px] font-semibold no-underline transition-colors active:translate-y-px';
@@ -33,6 +33,7 @@ function isExternal(href: string): boolean {
 }
 
 const VARIANT_CLASS: Record<Variant, string> = {
+    contrast: 'bg-fg text-bg hover:bg-fg/90',
     primary: 'bg-accent text-bg hover:bg-accent-hover',
     secondary: 'border border-line text-fg hover:bg-elev',
 };
