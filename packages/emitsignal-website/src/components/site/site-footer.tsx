@@ -19,34 +19,34 @@ const COLUMNS: FooterColumn[] = [
     {
         heading: 'product',
         links: [
-            { label: 'Mobile', to: '/mobile' },
             { href: `${DOCS_URL}/api`, label: 'API' },
             { label: 'Changelog', to: '/changelog' },
+            { label: 'Mobile', to: '/mobile' },
         ],
     },
     {
         heading: 'developers',
         links: [
-            { href: DOCS_URL, label: 'Docs' },
             { label: 'Blog', to: '/blog' },
-            { href: '/#open-source', label: 'Open source' },
+            { href: `${DOCS_URL}/cli`, label: 'CLI' },
+            { href: DOCS_URL, label: 'Docs' },
         ],
     },
     {
         heading: 'legal',
         links: [
-            { label: 'Privacy', to: '/privacy' },
-            { label: 'Terms', to: '/terms' },
-            { label: 'Code of conduct', to: '/code-of-conduct' },
             {
                 href: LICENSE_URL,
                 label: 'AGPLv3 License',
             },
+            { label: 'Code of conduct', to: '/code-of-conduct' },
+            { label: 'Privacy', to: '/privacy' },
+            { label: 'Terms', to: '/terms' },
         ],
     },
 ];
 
-export function Footer() {
+export function SiteFooter() {
     return (
         <footer className="border-t border-line bg-deep px-5 pb-8 pt-10 sm:px-8 md:px-16 md:pt-14">
             <div className="mx-auto max-w-[1280px]">
@@ -56,7 +56,7 @@ export function Footer() {
                         <p className="mt-4 max-w-[280px] text-[13px] leading-[1.6] text-muted">
                             A pubsub layer for humans.
                             <br />
-                            One curl. Everywhere you read.
+                            Publish once, read it anywhere.
                         </p>
                         <a
                             className="mt-4.5 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-1.5 font-mono text-[11.5px] text-muted no-underline hover:bg-elev hover:text-fg"

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { Footer } from '#/components/landing/footer';
-import { Nav } from '#/components/landing/nav';
+import { SiteFooter } from '#/components/site/site-footer';
+import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 
 const DESCRIPTION =
     'The standards of behaviour we expect from everyone who participates in the EmitSignal community — our platform, repositories, and communication channels.';
@@ -41,7 +41,9 @@ const TABLE_OF_CONTENTS: TableOfContentsEntry[] = [
 export default function CodeOfConductPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
-            <Nav />
+            <SiteNav variant="pinned">
+                <SiteNavWordmark />
+            </SiteNav>
 
             {/* Hero */}
             <div className="px-5 pb-10 pt-16 sm:px-8 md:px-16 md:pt-20">
@@ -250,7 +252,7 @@ export default function CodeOfConductPage() {
                 </div>
             </div>
 
-            <Footer />
+            <SiteFooter />
         </div>
     );
 }

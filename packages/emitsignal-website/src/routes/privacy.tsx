@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { Footer } from '#/components/landing/footer';
-import { Nav } from '#/components/landing/nav';
+import { SiteFooter } from '#/components/site/site-footer';
+import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 
 const DESCRIPTION =
     'How EmitSignal collects, uses, shares, and retains personal data, and your rights under the GDPR and the LGPD.';
@@ -96,7 +96,9 @@ const PROCESSORS: ProcessorRow[] = [
 export default function PrivacyPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
-            <Nav />
+            <SiteNav variant="pinned">
+                <SiteNavWordmark />
+            </SiteNav>
 
             {/* Hero */}
             <div className="px-5 pb-10 pt-16 sm:px-8 md:px-16 md:pt-20">
@@ -458,7 +460,7 @@ export default function PrivacyPage() {
                 </div>
             </div>
 
-            <Footer />
+            <SiteFooter />
         </div>
     );
 }
