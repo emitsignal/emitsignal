@@ -17,6 +17,8 @@ const RULES: RoutingRule[] = [
     { color: 'text-danger', condition: 'tag:sev2', target: 'page on-call rotation' },
 ];
 
+const ROUTING_ENABLED = false;
+
 interface Props {
     subscription: null | Subscription;
 }
@@ -38,17 +40,21 @@ export function RoutingRail({ subscription }: Props) {
                 </div>
             )}
 
+            {ROUTING_ENABLED && (
+                <>
+                    <div className="mb-4.5">
+                        {RULES.map((rule, index) => (
+                            <RuleRow key={index} rule={rule} />
+                        ))}
+
+                        <button className="flex items-center gap-1 pt-2.5 font-mono text-[11px] text-accent">
+                            <Plus size={11} /> add rule
+                        </button>
+                    </div>
+                </>
+            )}
+
             <SubHeading>ROUTING</SubHeading>
-
-            <div className="mb-4.5">
-                {RULES.map((rule, index) => (
-                    <RuleRow key={index} rule={rule} />
-                ))}
-
-                <button className="flex items-center gap-1 pt-2.5 font-mono text-[11px] text-accent">
-                    <Plus size={11} /> add rule
-                </button>
-            </div>
 
             <SubHeading>PUBLISH A MESSAGE</SubHeading>
 
