@@ -14,8 +14,8 @@ export const Term = ({
             <style>{'@keyframes esCaret { 50% { opacity: 0; } }'}</style>
             <div
                 style={{
-                    background: '#06030f',
-                    border: '1px solid #2a2340',
+                    background: '#030304',
+                    border: '1px solid #232427',
                     borderRadius: 11,
                     boxShadow: '0 18px 50px -24px rgba(0,0,0,0.7)',
                     fontFamily: "'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace",
@@ -27,8 +27,8 @@ export const Term = ({
                 <div
                     style={{
                         alignItems: 'center',
-                        background: '#1a1625',
-                        borderBottom: '1px solid #2a2340',
+                        background: '#111113',
+                        borderBottom: '1px solid #232427',
                         display: 'flex',
                         gap: 7,
                         height: 34,
@@ -64,7 +64,7 @@ export const Term = ({
                     />
                     <span
                         style={{
-                            color: '#7a6d99',
+                            color: '#71717a',
                             flex: 1,
                             fontFamily:
                                 "'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace",
@@ -79,7 +79,7 @@ export const Term = ({
                 {/* Body */}
                 <div
                     style={{
-                        color: '#f5f0ff',
+                        color: '#f7f7f8',
                         fontSize: 13,
                         lineHeight: dense ? 1.5 : 1.7,
                         overflowX: 'auto',
@@ -154,10 +154,10 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
     };
 
     const COLOR_MAP = {
-        arg: { color: '#f5f0ff' },
+        arg: { color: '#f7f7f8' },
         bin: { color: '#a78bfa', fontWeight: 600 },
         flag: { color: '#fbbf24' },
-        op: { color: '#7a6d99' },
+        op: { color: '#71717a' },
         str: { color: '#4ade80' },
         sub: { color: '#67e8f9' },
     };
@@ -194,10 +194,10 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
 // ── Output helpers ─────────────────────────────────────────────
 
 export const Cmt = ({ children }) => (
-    <div style={{ color: '#7a6d99', padding: '2px 0', whiteSpace: 'pre-wrap' }}>{children}</div>
+    <div style={{ color: '#71717a', padding: '2px 0', whiteSpace: 'pre-wrap' }}>{children}</div>
 );
 
-export const Out = ({ children, color = '#b8a9d9' }) => (
+export const Out = ({ children, color = '#a1a1a6' }) => (
     <div style={{ color, padding: '2px 0', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
         {children}
     </div>
@@ -212,7 +212,7 @@ export const ErrLine = ({ children }) => (
 );
 
 export const Arrow = ({ children }) => (
-    <div style={{ color: '#7a6d99', padding: '2px 0', whiteSpace: 'pre-wrap' }}>→ {children}</div>
+    <div style={{ color: '#71717a', padding: '2px 0', whiteSpace: 'pre-wrap' }}>→ {children}</div>
 );
 
 export const Sp = () => <div style={{ height: 10 }} />;

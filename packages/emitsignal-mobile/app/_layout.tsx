@@ -28,7 +28,7 @@ import { setupQuerySync } from '@/lib/query-online';
 setupQuerySync();
 
 // Keep the native splash up until the JS bundle is ready, then hand off to the
-// in-app animated intro. Both share the #0f0a1a background so the swap is seamless.
+// in-app animated intro. Both share the #08080a background so the swap is seamless.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {

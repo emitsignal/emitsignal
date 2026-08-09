@@ -44,7 +44,7 @@ export function ImageGallery({ images, onClose, startIndex = 0 }: ImageGalleryPr
         <div
             className="fixed inset-0 z-50 flex flex-col"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(6,3,15,0.9)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.9)' }}
         >
             <div
                 className="flex items-center justify-between px-5 py-3.5"

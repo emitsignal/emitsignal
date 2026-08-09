@@ -40,7 +40,7 @@ const appGroup = `group.${bundleIdentifier}`;
 const config: ExpoConfig = {
     android: {
         adaptiveIcon: {
-            backgroundColor: '#14091e',
+            backgroundColor: '#08080a',
             backgroundImage: './assets/images/android-icon-background.png',
             foregroundImage: './assets/images/android-icon-foreground.png',
             monochromeImage: './assets/images/android-icon-monochrome.png',
@@ -49,7 +49,7 @@ const config: ExpoConfig = {
         package: bundleIdentifier,
         predictiveBackGestureEnabled: false,
     },
-    backgroundColor: '#0f0a1a',
+    backgroundColor: '#08080a',
     experiments: {
         reactCompiler: true,
         typedRoutes: false,
@@ -90,9 +90,9 @@ const config: ExpoConfig = {
         [
             'expo-splash-screen',
             {
-                backgroundColor: '#0f0a1a',
+                backgroundColor: '#08080a',
                 dark: {
-                    backgroundColor: '#0f0a1a',
+                    backgroundColor: '#08080a',
                 },
                 image: './assets/images/splash-icon.png',
                 imageWidth: 160,

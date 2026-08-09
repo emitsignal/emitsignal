@@ -320,7 +320,7 @@ function App({
           : (initialFilter ?? 'priority>=1');
 
     return (
-        <Box backgroundColor="#06030f" flexDirection="column" height={rows}>
+        <Box backgroundColor="#030304" flexDirection="column" height={rows}>
             <TopBar subCount={subscriptions.length} unread={filteredEvents.length} user={user} />
 
             {mode === 'help' ? (
@@ -368,7 +368,7 @@ function ChannelList({
     return (
         <Box
             borderBottom={false}
-            borderColor="#2a2340"
+            borderColor="#232427"
             borderLeft={false}
             borderRight
             borderStyle="single"
@@ -378,7 +378,7 @@ function ChannelList({
         >
             <Box
                 borderBottom
-                borderColor="#2a2340"
+                borderColor="#232427"
                 borderLeft={false}
                 borderRight={false}
                 borderStyle="single"
@@ -386,7 +386,7 @@ function ChannelList({
                 paddingLeft={1}
                 paddingRight={1}
             >
-                <Text color={focused ? '#a78bfa' : '#7a6d99'}>{'CHANNELS [c]'}</Text>
+                <Text color={focused ? '#a78bfa' : '#71717a'}>{'CHANNELS [c]'}</Text>
             </Box>
 
             {channels.map((ch, i) => {
@@ -395,11 +395,11 @@ function ChannelList({
                 return (
                     <Box
                         alignItems="center"
-                        backgroundColor={active ? '#231c33' : selected ? '#1a1625' : undefined}
+                        backgroundColor={active ? '#191a1d' : selected ? '#111113' : undefined}
                         borderBottom={false}
                         // Left accent: bright when the pane is focused, dim while the
                         // selection just persists in the background
-                        borderColor={active ? '#a78bfa' : selected ? '#4a4166' : '#06030f'}
+                        borderColor={active ? '#a78bfa' : selected ? '#3f3f46' : '#030304'}
                         borderLeft
                         borderRight={false}
                         borderStyle="single"
@@ -413,7 +413,7 @@ function ChannelList({
                         <Text color={channelColor(ch.name)}>{'●'}</Text>
                         <Box flexGrow={1}>
                             <Text
-                                color={active ? '#f5f0ff' : selected ? '#d9cff0' : '#b8a9d9'}
+                                color={active ? '#f7f7f8' : selected ? '#d4d4d8' : '#a1a1a6'}
                                 wrap="truncate-end"
                             >
                                 {ch.name}
@@ -434,7 +434,7 @@ function Detail({ event, focused }: { event: Message | undefined; focused: boole
         <Box flexDirection="column" width={34}>
             <Box
                 borderBottom
-                borderColor="#2a2340"
+                borderColor="#232427"
                 borderLeft={false}
                 borderRight={false}
                 borderStyle="single"
@@ -442,12 +442,12 @@ function Detail({ event, focused }: { event: Message | undefined; focused: boole
                 paddingLeft={1}
                 paddingRight={1}
             >
-                <Text color={focused ? '#a78bfa' : '#7a6d99'}>{'DETAIL [↵]'}</Text>
+                <Text color={focused ? '#a78bfa' : '#71717a'}>{'DETAIL [↵]'}</Text>
             </Box>
 
             {!event ? (
                 <Box paddingLeft={1} paddingTop={1}>
-                    <Text color="#4a4166">select an event</Text>
+                    <Text color="#3f3f46">select an event</Text>
                 </Box>
             ) : (
                 <Box flexDirection="column" paddingLeft={1} paddingRight={1} paddingTop={1}>
@@ -456,41 +456,41 @@ function Detail({ event, focused }: { event: Message | undefined; focused: boole
                     </Text>
                     <Box height={1} />
 
-                    <Text color="#f5f0ff">{event.title}</Text>
+                    <Text color="#f7f7f8">{event.title}</Text>
                     <Box height={1} />
 
-                    <Text color="#b8a9d9" wrap="wrap">
+                    <Text color="#a1a1a6" wrap="wrap">
                         {event.body}
                     </Text>
                     <Box height={1} />
 
-                    <Text color="#7a6d99">{'METRIC · 5M'}</Text>
+                    <Text color="#71717a">{'METRIC · 5M'}</Text>
                     <SparkBar />
 
                     <Box height={1} />
 
-                    <Text color="#7a6d99">ACTIONS</Text>
+                    <Text color="#71717a">ACTIONS</Text>
                     <Box height={1} />
 
                     <Box flexDirection="row" gap={2}>
                         <Box flexDirection="row">
                             <Text color="#a78bfa">{'[a]'}</Text>
-                            <Text color="#b8a9d9">{' ack'}</Text>
+                            <Text color="#a1a1a6">{' ack'}</Text>
                         </Box>
                         <Box flexDirection="row">
                             <Text color="#a78bfa">{'[s]'}</Text>
-                            <Text color="#b8a9d9">{' snooze 1h'}</Text>
+                            <Text color="#a1a1a6">{' snooze 1h'}</Text>
                         </Box>
                     </Box>
 
                     <Box flexDirection="row">
                         <Text color="#a78bfa">{'[o]'}</Text>
-                        <Text color="#b8a9d9">{' open in console'}</Text>
+                        <Text color="#a1a1a6">{' open in console'}</Text>
                     </Box>
 
                     <Box flexDirection="row">
                         <Text color="#a78bfa">{'[r]'}</Text>
-                        <Text color="#b8a9d9">{' reply'}</Text>
+                        <Text color="#a1a1a6">{' reply'}</Text>
                     </Box>
                 </Box>
             )}
@@ -503,7 +503,7 @@ function Detail({ event, focused }: { event: Message | undefined; focused: boole
 function HelpOverlay() {
     return (
         <Box
-            backgroundColor="#1a1625"
+            backgroundColor="#111113"
             borderColor="#a78bfa"
             borderStyle="round"
             flexDirection="column"
@@ -520,11 +520,11 @@ function HelpOverlay() {
                     <Box width={14}>
                         <Text color="#a78bfa">{key}</Text>
                     </Box>
-                    <Text color="#b8a9d9">{desc}</Text>
+                    <Text color="#a1a1a6">{desc}</Text>
                 </Box>
             ))}
             <Box height={1} />
-            <Text color="#4a4166">press any key to close</Text>
+            <Text color="#3f3f46">press any key to close</Text>
         </Box>
     );
 }
@@ -551,9 +551,9 @@ function StatusBar({
         return (
             <Box
                 alignItems="center"
-                backgroundColor="#1a1625"
+                backgroundColor="#111113"
                 borderBottom={false}
-                borderColor="#2a2340"
+                borderColor="#232427"
                 borderLeft={false}
                 borderRight={false}
                 borderStyle="single"
@@ -563,7 +563,7 @@ function StatusBar({
                 paddingRight={1}
             >
                 <Text color="#a78bfa">{prefix}</Text>
-                <Text color="#f5f0ff">{cmdInput}</Text>
+                <Text color="#f7f7f8">{cmdInput}</Text>
                 <Text color="#a78bfa">{'█'}</Text>
             </Box>
         );
@@ -572,9 +572,9 @@ function StatusBar({
     return (
         <Box
             alignItems="center"
-            backgroundColor="#1a1625"
+            backgroundColor="#111113"
             borderBottom={false}
-            borderColor="#2a2340"
+            borderColor="#232427"
             borderLeft={false}
             borderRight={false}
             borderStyle="single"
@@ -584,15 +584,15 @@ function StatusBar({
             paddingLeft={1}
             paddingRight={1}
         >
-            <Text backgroundColor="#a78bfa" color="#0f0a1a">
+            <Text backgroundColor="#a78bfa" color="#08080a">
                 {' NORMAL '}
             </Text>
-            <Text color="#7a6d99">{pos}</Text>
-            <Text color="#4a4166">·</Text>
-            <Text color="#7a6d99">{'filter: '}</Text>
+            <Text color="#71717a">{pos}</Text>
+            <Text color="#3f3f46">·</Text>
+            <Text color="#71717a">{'filter: '}</Text>
             <Text color="#a78bfa">{filter}</Text>
             <Box flexGrow={1} />
-            <Text color="#7a6d99">{'  : cmd   / search   ? help   q quit'}</Text>
+            <Text color="#71717a">{'  : cmd   / search   ? help   q quit'}</Text>
         </Box>
     );
 }
@@ -611,7 +611,7 @@ function Stream({
     return (
         <Box
             borderBottom={false}
-            borderColor="#2a2340"
+            borderColor="#232427"
             borderLeft={false}
             borderRight
             borderStyle="single"
@@ -622,7 +622,7 @@ function Stream({
             <Box
                 alignItems="center"
                 borderBottom
-                borderColor="#2a2340"
+                borderColor="#232427"
                 borderLeft={false}
                 borderRight={false}
                 borderStyle="single"
@@ -631,9 +631,9 @@ function Stream({
                 paddingLeft={1}
                 paddingRight={1}
             >
-                <Text color={focused ? '#a78bfa' : '#7a6d99'}>STREAM</Text>
+                <Text color={focused ? '#a78bfa' : '#71717a'}>STREAM</Text>
                 <Box flexGrow={1} />
-                <Text color="#4a4166">live · ws</Text>
+                <Text color="#3f3f46">live · ws</Text>
             </Box>
 
             {events.map((e, i) => {
@@ -641,9 +641,9 @@ function Stream({
                 return (
                     <Box
                         alignItems="center"
-                        backgroundColor={sel ? '#231c33' : undefined}
+                        backgroundColor={sel ? '#191a1d' : undefined}
                         borderBottom={false}
-                        borderColor={sel ? '#a78bfa' : '#06030f'}
+                        borderColor={sel ? '#a78bfa' : '#030304'}
                         borderLeft
                         borderRight={false}
                         borderStyle="single"
@@ -654,16 +654,16 @@ function Stream({
                         paddingLeft={1}
                         paddingRight={1}
                     >
-                        <Text color="#4a4166">{formatTime(e.createdAt)}</Text>
+                        <Text color="#3f3f46">{formatTime(e.createdAt)}</Text>
                         <Text color={priorityHex(e.priority)}>{'●'}</Text>
                         <Box width={12}>
-                            <Text color={sel ? '#a78bfa' : '#7a6d99'} wrap="truncate-end">
+                            <Text color={sel ? '#a78bfa' : '#71717a'} wrap="truncate-end">
                                 {e.topicName ?? ''}
                             </Text>
                         </Box>
-                        <Text color="#4a4166">{`p${e.priority}`}</Text>
+                        <Text color="#3f3f46">{`p${e.priority}`}</Text>
                         <Box flexGrow={1}>
-                            <Text color={sel ? '#f5f0ff' : '#b8a9d9'} wrap="truncate-end">
+                            <Text color={sel ? '#f7f7f8' : '#a1a1a6'} wrap="truncate-end">
                                 {e.title}
                             </Text>
                         </Box>
@@ -689,7 +689,7 @@ function TopBar({
         <Box
             alignItems="center"
             borderBottom
-            borderColor="#2a2340"
+            borderColor="#232427"
             borderLeft={false}
             borderRight={false}
             borderStyle="single"
@@ -700,11 +700,11 @@ function TopBar({
             paddingRight={2}
         >
             <Text color="#a78bfa">{'● emitsignal'}</Text>
-            <Text color="#7a6d99">{'tui (ink)'}</Text>
-            <Text color="#4a4166">·</Text>
-            <Text color="#7a6d99">{user ? `${user.name} <${user.email}>` : '…'}</Text>
+            <Text color="#71717a">{'tui (ink)'}</Text>
+            <Text color="#3f3f46">·</Text>
+            <Text color="#71717a">{user ? `${user.name} <${user.email}>` : '…'}</Text>
             <Box flexGrow={1} />
-            <Text color="#7a6d99">{`${subCount} subscriptions · ${unread} unread`}</Text>
+            <Text color="#71717a">{`${subCount} subscriptions · ${unread} unread`}</Text>
             <Text color="#4ade80">{'◷ live'}</Text>
         </Box>
     );

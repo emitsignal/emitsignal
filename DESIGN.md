@@ -46,8 +46,8 @@ Color on light: `#5b21b6` (violet deep)
 | Platform    | Background                                          | Corner radius  |
 | ----------- | --------------------------------------------------- | -------------- |
 | iOS         | `linear-gradient(180deg, #2d2150 0%, #18102b 100%)` | `size × 0.224` |
-| Android bg  | `radial-gradient(#3a2868 → #14091e)`                | circle mask    |
-| Web favicon | solid `#0f0a1a`                                     | `size × 0.22`  |
+| Android bg  | `radial-gradient(#3a2868 → #0d0d0f)`                | circle mask    |
+| Web favicon | solid `#08080a`                                     | `size × 0.22`  |
 
 ---
 
@@ -66,20 +66,20 @@ Color on light: `#5b21b6` (violet deep)
 
 | Token     | Hex       | Usage                   |
 | --------- | --------- | ----------------------- |
-| `bg`      | `#0f0a1a` | Canvas, page background |
-| `bgElev`  | `#1a1625` | Cards, sheets           |
-| `bgElev2` | `#231c33` | Hover, nested surfaces  |
-| `bgLine`  | `#2a2340` | Borders, dividers       |
-| `bgChip`  | `#1f1930` | Tags, pills             |
+| `bg`      | `#08080a` | Canvas, page background |
+| `bgElev`  | `#111113` | Cards, sheets           |
+| `bgElev2` | `#191a1d` | Hover, nested surfaces  |
+| `bgLine`  | `#232427` | Borders, dividers       |
+| `bgChip`  | `#141517` | Tags, pills             |
 
 ### Foreground
 
 | Token     | Hex       | Usage          |
 | --------- | --------- | -------------- |
-| `fg`      | `#f5f0ff` | Primary text   |
-| `fgMuted` | `#b8a9d9` | Secondary text |
-| `fgDim`   | `#7a6d99` | Meta, labels   |
-| `fgFaint` | `#4a4166` | Placeholders   |
+| `fg`      | `#f7f7f8` | Primary text   |
+| `fgMuted` | `#a1a1a6` | Secondary text |
+| `fgDim`   | `#71717a` | Meta, labels   |
+| `fgFaint` | `#3f3f46` | Placeholders   |
 
 ### Semantic
 
@@ -161,7 +161,7 @@ Elevated cards cast a subtle shadow:
 box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
 ```
 
-Hairline dividers: `1px solid #2a2340` (W.bgLine)
+Hairline dividers: `1px solid #232427` (W.bgLine)
 
 ---
 
@@ -180,8 +180,8 @@ A monogram avatar derived from the channel name using a deterministic hash → h
 Monospace label in a chip:
 
 ```
-background: #1f1930
-border: 1px solid #2a2340
+background: #141517
+border: 1px solid #232427
 border-radius: 999px
 padding: 4px 10px
 font: Geist Mono 11px
@@ -193,7 +193,7 @@ States: `● live` (green) · `delivered` (violet) · `queued` (amber) · `faile
 
 ```
 background: #a78bfa
-color: #0f0a1a
+color: #08080a
 font: Geist 600 13px
 border-radius: 8px
 padding: 10px 16px
@@ -203,8 +203,8 @@ padding: 10px 16px
 
 ```
 background: transparent
-color: #f5f0ff
-border: 1px solid #2a2340
+color: #f7f7f8
+border: 1px solid #232427
 font: Geist 500 13px
 border-radius: 8px
 padding: 10px 16px
@@ -213,8 +213,8 @@ padding: 10px 16px
 ### Code block
 
 ```
-background: #06030f
-border: 1px solid #2a2340
+background: #030304
+border: 1px solid #232427
 border-radius: 8px
 padding: 10px 12px
 font: Geist Mono 11.5px / 1.55
