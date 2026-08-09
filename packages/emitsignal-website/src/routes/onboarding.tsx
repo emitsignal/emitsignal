@@ -177,7 +177,7 @@ function OnboardingPage() {
         <div
             className="relative min-h-screen overflow-hidden font-sans"
             style={{
-                background: '#0f0a1a',
+                background: '#08080a',
                 backgroundImage: `radial-gradient(640px 460px at 50% 60px, rgba(109,40,217,0.38), transparent 68%)`,
             }}
         >
@@ -261,7 +261,7 @@ function OnboardingPage() {
                             onClick={() => fileInputRef.current?.click()}
                             style={{
                                 background: '#a78bfa',
-                                border: '4px solid #0f0a1a',
+                                border: '4px solid #08080a',
                                 borderRadius: 99,
                                 bottom: -2,
                                 cursor: 'pointer',
@@ -327,7 +327,7 @@ function OnboardingPage() {
                                 </span>
                                 <span
                                     className="font-mono text-[10.5px]"
-                                    style={{ color: pickedCount ? '#a78bfa' : '#7a6d99' }}
+                                    style={{ color: pickedCount ? '#a78bfa' : '#71717a' }}
                                 >
                                     {pickedCount} selected · optional
                                 </span>
@@ -403,8 +403,8 @@ function TopicChip({
             className="flex cursor-pointer items-center gap-2.5 rounded-[10px] border-0 px-[11px] py-[9px] text-left transition-colors"
             onClick={onToggle}
             style={{
-                background: on ? 'rgba(124,58,237,0.12)' : '#0f0a1a',
-                border: `1px solid ${on ? 'rgba(124,58,237,0.53)' : '#2a2340'}`,
+                background: on ? 'rgba(124,58,237,0.12)' : '#08080a',
+                border: `1px solid ${on ? 'rgba(124,58,237,0.53)' : '#232427'}`,
             }}
             type="button"
         >
@@ -423,7 +423,7 @@ function TopicChip({
                 className="flex shrink-0 items-center justify-center transition-colors"
                 style={{
                     background: on ? '#a78bfa' : 'transparent',
-                    border: `1px solid ${on ? '#a78bfa' : '#2a2340'}`,
+                    border: `1px solid ${on ? '#a78bfa' : '#232427'}`,
                     borderRadius: 99,
                     height: 20,
                     width: 20,
@@ -443,7 +443,7 @@ function TopicChip({
                     <svg
                         className="h-3 w-3"
                         fill="none"
-                        stroke="#7a6d99"
+                        stroke="#71717a"
                         strokeWidth={2.2}
                         viewBox="0 0 12 12"
                     >
