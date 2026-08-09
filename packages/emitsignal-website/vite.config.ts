@@ -17,7 +17,10 @@ const config = defineConfig({
     },
     plugins: [
         devtools(),
-        nitro({ rollupConfig: { external: [/^@sentry\//, /^@resvg\//] } }),
+        nitro({
+            rollupConfig: { external: [/^@sentry\//] },
+            traceDeps: ['@resvg/resvg-js*'],
+        }),
         tailwindcss(),
         {
             enforce: 'pre',
@@ -34,7 +37,6 @@ const config = defineConfig({
         tsconfigPaths: true,
     },
     ssr: {
-        external: ['@resvg/resvg-js'],
         noExternal: [],
     },
 });
