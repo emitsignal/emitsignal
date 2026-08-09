@@ -1,4 +1,7 @@
 .expo
+.nitro
+.output
+.vercel
 *.lock
 **/src/generated/**
 **/routeTree.gen.ts

@@ -7,6 +7,7 @@ export default [
             '**/.expo/**',
             '**/.output/**',
             '**/.tanstack/**',
+            '**/.vercel/**',
             '**/*.config.js',
             '**/*.config.mjs',
             '**/android/**',
