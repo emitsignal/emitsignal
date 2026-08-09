@@ -19,7 +19,7 @@ const STREAM: StreamEvent[] = [
     {
         channel: 'alerts/prod',
         color: 'var(--color-danger)',
-        message: 'High memory on api-02 — mem.used > 92%',
+        message: 'Production API latency spike, p99 6.4s',
         priority: 5,
         time: '21:52:14',
     },
@@ -33,7 +33,7 @@ const STREAM: StreamEvent[] = [
     {
         channel: 'github/acme',
         color: 'var(--color-info)',
-        message: 'PR #482 reviewed by maya — approved',
+        message: 'PR #482 reviewed by maya, approved',
         priority: 2,
         time: '21:53:44',
     },
@@ -95,7 +95,11 @@ const STREAM: StreamEvent[] = [
     },
 ];
 
-export function HeroTerminal() {
+interface HeroTerminalProps {
+    streamHeight?: number;
+}
+
+export function HeroTerminal({ streamHeight = 360 }: HeroTerminalProps = {}) {
     const events = [...STREAM, ...STREAM];
 
     return (
@@ -108,7 +112,7 @@ export function HeroTerminal() {
                     <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
                 </span>
                 <span className="ml-3 font-mono text-[11.5px] text-dim">
-                    emitsignal listen — 8 channels · live
+                    emitsignal listen · 8 channels live
                 </span>
                 <span className="ml-auto flex items-center gap-1.5 font-mono text-[10.5px] text-success">
                     <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_6px_var(--color-success)]" />
@@ -124,8 +128,9 @@ export function HeroTerminal() {
 
             {/* scrolling stream */}
             <div
-                className="relative h-[360px] overflow-hidden"
+                className="relative overflow-hidden"
                 style={{
+                    height: streamHeight,
                     maskImage:
                         'linear-gradient(180deg, transparent, black 12%, black 70%, transparent)',
                     WebkitMaskImage:

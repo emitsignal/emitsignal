@@ -109,6 +109,36 @@
     }
 }
 
+@keyframes signal-float {
+    0%,
+    100% {
+        transform: translateY(0) rotate(var(--tile-rotate, 0deg));
+    }
+    50% {
+        transform: translateY(-14px) rotate(calc(var(--tile-rotate, 0deg) + 2deg));
+    }
+}
+
+@keyframes signal-progress {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes signal-rise {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
