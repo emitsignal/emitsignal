@@ -87,6 +87,12 @@ export default function MessageDetailScreen() {
                     <Text style={styles.title}>{message.title}</Text>
                     <Text style={styles.body}>{message.body}</Text>
 
+                    <View style={styles.tagsRow}>
+                        {message.tags.map((tag, index) => (
+                            <WChip key={index}>{`#${tag}`}</WChip>
+                        ))}
+                    </View>
+
                     <MessageMedia
                         bannerImage={message.bannerImage}
                         inlineAttachments={message.inlineAttachments}
@@ -120,12 +126,6 @@ export default function MessageDetailScreen() {
                             })}
                         </View>
                     )}
-
-                    <View style={styles.tagsRow}>
-                        {message.tags.map((tag, index) => (
-                            <WChip key={index}>{`#${tag}`}</WChip>
-                        ))}
-                    </View>
 
                     {message.actions.length > 0 && (
                         <View style={styles.actions}>
