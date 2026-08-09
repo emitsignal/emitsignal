@@ -47,34 +47,34 @@ emitsignal listen [topic|expression] [flags]
 <Term title="emitsignal — zsh">
     <Cmd>emitsignal listen --priority &gt;=2 --format pretty</Cmd>
     <Arrow>connected · 8 subscriptions · filter priority&gt;=2 · ctrl-c to quit</Arrow>
-    <div style={{ borderBottom: '1px dashed #2a2340', height: 8, margin: '8px 0' }} />
+    <div style={{ borderBottom: '1px dashed #232427', height: 8, margin: '8px 0' }} />
     <div style={{ display: 'flex', gap: 10, padding: '1px 0' }}>
-        <span style={{ color: '#4a4166' }}>21:52:01</span>
+        <span style={{ color: '#3f3f46' }}>21:52:01</span>
         <Dot level={4} />
-        <span style={{ color: '#7a6d99', width: 110 }}>deploy/prod</span>
-        <span style={{ color: '#4a4166' }}>p4</span>
-        <span style={{ color: '#f5f0ff' }}>Deploy succeeded · api-gateway → v2.14.3</span>
+        <span style={{ color: '#71717a', width: 110 }}>deploy/prod</span>
+        <span style={{ color: '#3f3f46' }}>p4</span>
+        <span style={{ color: '#f7f7f8' }}>Deploy succeeded · api-gateway → v2.14.3</span>
     </div>
     <div style={{ display: 'flex', gap: 10, padding: '1px 0' }}>
-        <span style={{ color: '#4a4166' }}>21:52:14</span>
+        <span style={{ color: '#3f3f46' }}>21:52:14</span>
         <Dot level={5} />
-        <span style={{ color: '#7a6d99', width: 110 }}>alerts/prod</span>
-        <span style={{ color: '#4a4166' }}>p5</span>
-        <span style={{ color: '#f5f0ff' }}>High memory on api-02 — mem.used &gt; 92%</span>
+        <span style={{ color: '#71717a', width: 110 }}>alerts/prod</span>
+        <span style={{ color: '#3f3f46' }}>p5</span>
+        <span style={{ color: '#f7f7f8' }}>High memory on api-02 — mem.used &gt; 92%</span>
     </div>
     <div style={{ display: 'flex', gap: 10, padding: '1px 0' }}>
-        <span style={{ color: '#4a4166' }}>21:52:22</span>
+        <span style={{ color: '#3f3f46' }}>21:52:22</span>
         <Dot level={3} />
-        <span style={{ color: '#7a6d99', width: 110 }}>ci/web</span>
-        <span style={{ color: '#4a4166' }}>p3</span>
-        <span style={{ color: '#f5f0ff' }}>Build passed · feat/oauth-pkce (247 tests)</span>
+        <span style={{ color: '#71717a', width: 110 }}>ci/web</span>
+        <span style={{ color: '#3f3f46' }}>p3</span>
+        <span style={{ color: '#f7f7f8' }}>Build passed · feat/oauth-pkce (247 tests)</span>
     </div>
     <div style={{ display: 'flex', gap: 10, padding: '1px 0' }}>
-        <span style={{ color: '#4a4166' }}>21:55:02</span>
+        <span style={{ color: '#3f3f46' }}>21:55:02</span>
         <Dot level={2} />
-        <span style={{ color: '#7a6d99', width: 110 }}>github/core</span>
-        <span style={{ color: '#4a4166' }}>p2</span>
-        <span style={{ color: '#f5f0ff' }}>PR #482 reviewed by maya — approved</span>
+        <span style={{ color: '#71717a', width: 110 }}>github/core</span>
+        <span style={{ color: '#3f3f46' }}>p2</span>
+        <span style={{ color: '#f7f7f8' }}>PR #482 reviewed by maya — approved</span>
     </div>
     <div style={{ marginTop: 4 }}>
         <span style={{ color: '#4ade80' }}>$</span>
@@ -96,9 +96,9 @@ emitsignal listen [topic|expression] [flags]
 
 <Term title="emitsignal — zsh">
     <Cmd>emitsignal listen -f json | jq -r '.title'</Cmd>
-    <Out color="#f5f0ff">High memory on api-02</Out>
-    <Out color="#f5f0ff">TypeError spike</Out>
-    <Out color="#f5f0ff">Disk pressure · api-03</Out>
+    <Out color="#f7f7f8">High memory on api-02</Out>
+    <Out color="#f7f7f8">TypeError spike</Out>
+    <Out color="#f7f7f8">Disk pressure · api-03</Out>
     <div style={{ marginTop: 4 }}>
         <span style={{ color: '#4ade80' }}>$</span>
         <Caret />

@@ -17,7 +17,7 @@ export function LogoHeader() {
             <Column style={{ paddingLeft: '8px', verticalAlign: 'middle' }}>
                 <Text
                     style={{
-                        color: '#f5f0ff',
+                        color: '#f7f7f8',
                         fontFamily:
                             'Geist Mono, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
                         fontSize: '14px',

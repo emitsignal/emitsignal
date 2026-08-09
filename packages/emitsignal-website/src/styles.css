@@ -3,18 +3,18 @@
 
 @theme {
     /* Backgrounds */
-    --color-bg: #0f0a1a;
-    --color-elev: #1a1625;
-    --color-elev-2: #231c33;
-    --color-line: #2a2340;
-    --color-chip: #1f1930;
-    --color-deep: #06030f;
+    --color-bg: #08080a;
+    --color-elev: #111113;
+    --color-elev-2: #191a1d;
+    --color-line: #232427;
+    --color-chip: #141517;
+    --color-deep: #030304;
 
     /* Text */
-    --color-fg: #f5f0ff;
-    --color-muted: #b8a9d9;
-    --color-dim: #8b7db0;
-    --color-faint: #4a4166;
+    --color-fg: #f7f7f8;
+    --color-muted: #a1a1a6;
+    --color-dim: #71717a;
+    --color-faint: #3f3f46;
 
     /* Accent (violet) */
     --color-accent: #a78bfa;
@@ -48,18 +48,18 @@
     color-scheme: light;
 
     /* Backgrounds */
-    --color-bg: #f5f3ff;
+    --color-bg: #fafafa;
     --color-elev: #ffffff;
-    --color-elev-2: #f3eefc;
-    --color-line: #e0d6f5;
-    --color-chip: #ece6fb;
-    --color-deep: #ede7fb;
+    --color-elev-2: #f4f4f5;
+    --color-line: #e4e4e7;
+    --color-chip: #ebebed;
+    --color-deep: #f4f4f5;
 
     /* Text */
-    --color-fg: #1a1625;
-    --color-muted: #4a4166;
-    --color-dim: #6b6190;
-    --color-faint: #a99fc4;
+    --color-fg: #18181b;
+    --color-muted: #52525b;
+    --color-dim: #71717a;
+    --color-faint: #a1a1a6;
 
     /* Accent (violet) — deep enough that `bg-accent text-bg` stays legible */
     --color-accent: #7c3aed;

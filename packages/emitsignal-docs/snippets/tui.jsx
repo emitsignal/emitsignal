@@ -2,8 +2,8 @@ export const CliTuiDemo = () => (
     <div style={{ margin: '16px 0' }}>
         <div
             style={{
-                background: '#06030f',
-                border: '1px solid #2a2340',
+                background: '#030304',
+                border: '1px solid #232427',
                 borderRadius: 11,
                 boxShadow: '0 18px 50px -24px rgba(0,0,0,0.7)',
                 fontFamily: "'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace",
@@ -14,8 +14,8 @@ export const CliTuiDemo = () => (
             <div
                 style={{
                     height: 34,
-                    background: '#1a1625',
-                    borderBottom: '1px solid #2a2340',
+                    background: '#111113',
+                    borderBottom: '1px solid #232427',
                     display: 'flex',
                     alignItems: 'center',
                     padding: '0 12px',
@@ -54,7 +54,7 @@ export const CliTuiDemo = () => (
                         flex: 1,
                         textAlign: 'center',
                         fontSize: 11.5,
-                        color: '#7a6d99',
+                        color: '#71717a',
                         marginLeft: -54,
                     }}
                 >
@@ -76,17 +76,17 @@ export const CliTuiDemo = () => (
                 <div
                     style={{
                         padding: '7px 14px',
-                        borderBottom: '1px solid #2a2340',
+                        borderBottom: '1px solid #232427',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 12,
                     }}
                 >
                     <span style={{ color: '#a78bfa' }}>● emitsignal</span>
-                    <span style={{ color: '#7a6d99' }}>tui</span>
-                    <span style={{ color: '#4a4166' }}>·</span>
-                    <span style={{ color: '#7a6d99' }}>alex@acme.io</span>
-                    <span style={{ marginLeft: 'auto', color: '#7a6d99' }}>
+                    <span style={{ color: '#71717a' }}>tui</span>
+                    <span style={{ color: '#3f3f46' }}>·</span>
+                    <span style={{ color: '#71717a' }}>alex@acme.io</span>
+                    <span style={{ marginLeft: 'auto', color: '#71717a' }}>
                         7 subscriptions · 7 unread
                     </span>
                     <span style={{ color: '#4ade80' }}>◷ live</span>
@@ -99,13 +99,13 @@ export const CliTuiDemo = () => (
                         style={{
                             width: 194,
                             flexShrink: 0,
-                            borderRight: '1px solid #2a2340',
+                            borderRight: '1px solid #232427',
                             display: 'flex',
                             flexDirection: 'column',
                         }}
                     >
-                        <div style={{ padding: '7px 12px 6px', borderBottom: '1px solid #2a2340' }}>
-                            <span style={{ color: '#7a6d99', letterSpacing: 1.5, fontSize: 10.5 }}>
+                        <div style={{ padding: '7px 12px 6px', borderBottom: '1px solid #232427' }}>
+                            <span style={{ color: '#71717a', letterSpacing: 1.5, fontSize: 10.5 }}>
                                 CHANNELS [c]
                             </span>
                         </div>
@@ -116,7 +116,7 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
@@ -149,8 +149,8 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    background: '#231c33',
-                                    color: '#f5f0ff',
+                                    background: '#191a1d',
+                                    color: '#f7f7f8',
                                     borderLeft: '2px solid #a78bfa',
                                 }}
                             >
@@ -183,7 +183,7 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
@@ -215,7 +215,7 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
@@ -248,7 +248,7 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
@@ -280,7 +280,7 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
@@ -313,7 +313,7 @@ export const CliTuiDemo = () => (
                                     display: 'flex',
                                     gap: 8,
                                     alignItems: 'center',
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
@@ -347,7 +347,7 @@ export const CliTuiDemo = () => (
                         style={{
                             flex: 1,
                             minWidth: 340,
-                            borderRight: '1px solid #2a2340',
+                            borderRight: '1px solid #232427',
                             display: 'flex',
                             flexDirection: 'column',
                         }}
@@ -355,15 +355,15 @@ export const CliTuiDemo = () => (
                         <div
                             style={{
                                 padding: '7px 12px 6px',
-                                borderBottom: '1px solid #2a2340',
+                                borderBottom: '1px solid #232427',
                                 display: 'flex',
                                 alignItems: 'center',
                             }}
                         >
-                            <span style={{ color: '#7a6d99', letterSpacing: 1.5, fontSize: 10.5 }}>
+                            <span style={{ color: '#71717a', letterSpacing: 1.5, fontSize: 10.5 }}>
                                 STREAM
                             </span>
-                            <span style={{ marginLeft: 'auto', color: '#4a4166', fontSize: 10.5 }}>
+                            <span style={{ marginLeft: 'auto', color: '#3f3f46', fontSize: 10.5 }}>
                                 live · ws
                             </span>
                         </div>
@@ -373,12 +373,12 @@ export const CliTuiDemo = () => (
                                     padding: '3px 14px',
                                     display: 'flex',
                                     gap: 9,
-                                    background: '#231c33',
-                                    color: '#f5f0ff',
+                                    background: '#191a1d',
+                                    color: '#f7f7f8',
                                     borderLeft: '2px solid #a78bfa',
                                 }}
                             >
-                                <span style={{ color: '#4a4166', width: 54, flexShrink: 0 }}>
+                                <span style={{ color: '#3f3f46', width: 54, flexShrink: 0 }}>
                                     21:52:14
                                 </span>
                                 <span style={{ color: '#f87171', flexShrink: 0 }}>●</span>
@@ -394,7 +394,7 @@ export const CliTuiDemo = () => (
                                 >
                                     alerts/prod
                                 </span>
-                                <span style={{ color: '#4a4166', flexShrink: 0 }}>p5</span>
+                                <span style={{ color: '#3f3f46', flexShrink: 0 }}>p5</span>
                                 <span
                                     style={{
                                         flex: 1,
@@ -412,17 +412,17 @@ export const CliTuiDemo = () => (
                                     padding: '3px 14px',
                                     display: 'flex',
                                     gap: 9,
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
-                                <span style={{ color: '#4a4166', width: 54, flexShrink: 0 }}>
+                                <span style={{ color: '#3f3f46', width: 54, flexShrink: 0 }}>
                                     21:52:01
                                 </span>
                                 <span style={{ color: '#a78bfa', flexShrink: 0 }}>●</span>
                                 <span
                                     style={{
-                                        color: '#7a6d99',
+                                        color: '#71717a',
                                         width: 92,
                                         flexShrink: 0,
                                         overflow: 'hidden',
@@ -432,7 +432,7 @@ export const CliTuiDemo = () => (
                                 >
                                     deploy/prod
                                 </span>
-                                <span style={{ color: '#4a4166', flexShrink: 0 }}>p4</span>
+                                <span style={{ color: '#3f3f46', flexShrink: 0 }}>p4</span>
                                 <span
                                     style={{
                                         flex: 1,
@@ -450,17 +450,17 @@ export const CliTuiDemo = () => (
                                     padding: '3px 14px',
                                     display: 'flex',
                                     gap: 9,
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
-                                <span style={{ color: '#4a4166', width: 54, flexShrink: 0 }}>
+                                <span style={{ color: '#3f3f46', width: 54, flexShrink: 0 }}>
                                     21:51:28
                                 </span>
                                 <span style={{ color: '#4ade80', flexShrink: 0 }}>●</span>
                                 <span
                                     style={{
-                                        color: '#7a6d99',
+                                        color: '#71717a',
                                         width: 92,
                                         flexShrink: 0,
                                         overflow: 'hidden',
@@ -470,7 +470,7 @@ export const CliTuiDemo = () => (
                                 >
                                     ci/web
                                 </span>
-                                <span style={{ color: '#4a4166', flexShrink: 0 }}>p3</span>
+                                <span style={{ color: '#3f3f46', flexShrink: 0 }}>p3</span>
                                 <span
                                     style={{
                                         flex: 1,
@@ -488,17 +488,17 @@ export const CliTuiDemo = () => (
                                     padding: '3px 14px',
                                     display: 'flex',
                                     gap: 9,
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
-                                <span style={{ color: '#4a4166', width: 54, flexShrink: 0 }}>
+                                <span style={{ color: '#3f3f46', width: 54, flexShrink: 0 }}>
                                     21:50:55
                                 </span>
                                 <span style={{ color: '#67e8f9', flexShrink: 0 }}>●</span>
                                 <span
                                     style={{
-                                        color: '#7a6d99',
+                                        color: '#71717a',
                                         width: 92,
                                         flexShrink: 0,
                                         overflow: 'hidden',
@@ -508,7 +508,7 @@ export const CliTuiDemo = () => (
                                 >
                                     github/core
                                 </span>
-                                <span style={{ color: '#4a4166', flexShrink: 0 }}>p2</span>
+                                <span style={{ color: '#3f3f46', flexShrink: 0 }}>p2</span>
                                 <span
                                     style={{
                                         flex: 1,
@@ -526,17 +526,17 @@ export const CliTuiDemo = () => (
                                     padding: '3px 14px',
                                     display: 'flex',
                                     gap: 9,
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
-                                <span style={{ color: '#4a4166', width: 54, flexShrink: 0 }}>
+                                <span style={{ color: '#3f3f46', width: 54, flexShrink: 0 }}>
                                     21:49:02
                                 </span>
                                 <span style={{ color: '#fbbf24', flexShrink: 0 }}>●</span>
                                 <span
                                     style={{
-                                        color: '#7a6d99',
+                                        color: '#71717a',
                                         width: 92,
                                         flexShrink: 0,
                                         overflow: 'hidden',
@@ -546,7 +546,7 @@ export const CliTuiDemo = () => (
                                 >
                                     cron/backup
                                 </span>
-                                <span style={{ color: '#4a4166', flexShrink: 0 }}>p3</span>
+                                <span style={{ color: '#3f3f46', flexShrink: 0 }}>p3</span>
                                 <span
                                     style={{
                                         flex: 1,
@@ -564,17 +564,17 @@ export const CliTuiDemo = () => (
                                     padding: '3px 14px',
                                     display: 'flex',
                                     gap: 9,
-                                    color: '#b8a9d9',
+                                    color: '#a1a1a6',
                                     borderLeft: '2px solid transparent',
                                 }}
                             >
-                                <span style={{ color: '#4a4166', width: 54, flexShrink: 0 }}>
+                                <span style={{ color: '#3f3f46', width: 54, flexShrink: 0 }}>
                                     21:43:21
                                 </span>
                                 <span style={{ color: '#f87171', flexShrink: 0 }}>●</span>
                                 <span
                                     style={{
-                                        color: '#7a6d99',
+                                        color: '#71717a',
                                         width: 92,
                                         flexShrink: 0,
                                         overflow: 'hidden',
@@ -584,7 +584,7 @@ export const CliTuiDemo = () => (
                                 >
                                     errors/web
                                 </span>
-                                <span style={{ color: '#4a4166', flexShrink: 0 }}>p5</span>
+                                <span style={{ color: '#3f3f46', flexShrink: 0 }}>p5</span>
                                 <span
                                     style={{
                                         flex: 1,
@@ -609,8 +609,8 @@ export const CliTuiDemo = () => (
                             flexDirection: 'column',
                         }}
                     >
-                        <div style={{ padding: '7px 12px 6px', borderBottom: '1px solid #2a2340' }}>
-                            <span style={{ color: '#7a6d99', letterSpacing: 1.5, fontSize: 10.5 }}>
+                        <div style={{ padding: '7px 12px 6px', borderBottom: '1px solid #232427' }}>
+                            <span style={{ color: '#71717a', letterSpacing: 1.5, fontSize: 10.5 }}>
                                 DETAIL [↵]
                             </span>
                         </div>
@@ -618,17 +618,17 @@ export const CliTuiDemo = () => (
                             <div style={{ color: '#f87171', marginBottom: 4 }}>
                                 ● PRIORITY 5 · alerts/prod
                             </div>
-                            <div style={{ color: '#f5f0ff', fontSize: 13, marginBottom: 8 }}>
+                            <div style={{ color: '#f7f7f8', fontSize: 13, marginBottom: 8 }}>
                                 High memory on api-02
                             </div>
-                            <div style={{ color: '#b8a9d9', marginBottom: 12, lineHeight: 1.6 }}>
+                            <div style={{ color: '#a1a1a6', marginBottom: 12, lineHeight: 1.6 }}>
                                 mem.used &gt; 92% for 5m
                                 <br />
                                 host i-0a3f2b · us-east-1
                             </div>
                             <div
                                 style={{
-                                    color: '#7a6d99',
+                                    color: '#71717a',
                                     marginBottom: 5,
                                     fontSize: 10.5,
                                     letterSpacing: 1.2,
@@ -662,7 +662,7 @@ export const CliTuiDemo = () => (
                             </div>
                             <div
                                 style={{
-                                    color: '#7a6d99',
+                                    color: '#71717a',
                                     marginBottom: 5,
                                     fontSize: 10.5,
                                     letterSpacing: 1.2,
@@ -670,17 +670,17 @@ export const CliTuiDemo = () => (
                             >
                                 ACTIONS
                             </div>
-                            <div style={{ color: '#b8a9d9', marginBottom: 2 }}>
+                            <div style={{ color: '#a1a1a6', marginBottom: 2 }}>
                                 <span style={{ color: '#a78bfa' }}>[a]</span>
                                 {' ack   '}
                                 <span style={{ color: '#a78bfa' }}>[s]</span>
                                 {' snooze 1h'}
                             </div>
-                            <div style={{ color: '#b8a9d9', marginBottom: 2 }}>
+                            <div style={{ color: '#a1a1a6', marginBottom: 2 }}>
                                 <span style={{ color: '#a78bfa' }}>[o]</span>
                                 {' open in console'}
                             </div>
-                            <div style={{ color: '#b8a9d9' }}>
+                            <div style={{ color: '#a1a1a6' }}>
                                 <span style={{ color: '#a78bfa' }}>[r]</span>
                                 {' reply'}
                             </div>
@@ -692,19 +692,19 @@ export const CliTuiDemo = () => (
                 <div
                     style={{
                         padding: '5px 12px',
-                        borderTop: '1px solid #2a2340',
+                        borderTop: '1px solid #232427',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 12,
-                        background: '#1a1625',
-                        color: '#7a6d99',
+                        background: '#111113',
+                        color: '#71717a',
                         fontSize: 10.5,
                     }}
                 >
                     <span
                         style={{
                             background: '#a78bfa',
-                            color: '#0f0a1a',
+                            color: '#08080a',
                             padding: '0 7px',
                             fontWeight: 600,
                         }}
@@ -712,7 +712,7 @@ export const CliTuiDemo = () => (
                         NORMAL
                     </span>
                     <span>1/7</span>
-                    <span style={{ color: '#4a4166' }}>·</span>
+                    <span style={{ color: '#3f3f46' }}>·</span>
                     <span>
                         filter: <span style={{ color: '#a78bfa' }}>priority&gt;=2</span>
                     </span>
@@ -753,7 +753,7 @@ export const TuiKeybindings = () => (
                     alignItems: 'center',
                     gap: 10,
                     padding: '7px 0',
-                    borderBottom: '1px solid #2a2340',
+                    borderBottom: '1px solid #232427',
                 }}
             >
                 <span style={{ display: 'flex', gap: 5, width: 64, flexShrink: 0 }}>
@@ -764,10 +764,10 @@ export const TuiKeybindings = () => (
                                 fontFamily:
                                     "'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace",
                                 fontSize: 11,
-                                color: '#f5f0ff',
-                                background: '#231c33',
-                                border: '1px solid #2a2340',
-                                borderBottom: '2px solid #2a2340',
+                                color: '#f7f7f8',
+                                background: '#191a1d',
+                                border: '1px solid #232427',
+                                borderBottom: '2px solid #232427',
                                 borderRadius: 5,
                                 padding: '2px 7px',
                                 minWidth: 18,
@@ -784,7 +784,7 @@ export const TuiKeybindings = () => (
                         fontFamily:
                             "'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
                         fontSize: 13,
-                        color: '#b8a9d9',
+                        color: '#a1a1a6',
                     }}
                 >
                     {desc}
@@ -800,16 +800,16 @@ export const TuiCode = () => (
             margin: '16px 0',
             borderRadius: 11,
             overflow: 'hidden',
-            border: '1px solid #2a2340',
-            background: '#06030f',
+            border: '1px solid #232427',
+            background: '#030304',
             boxShadow: '0 18px 50px -24px rgba(0,0,0,0.7)',
         }}
     >
         <div
             style={{
                 height: 34,
-                background: '#1a1625',
-                borderBottom: '1px solid #2a2340',
+                background: '#111113',
+                borderBottom: '1px solid #232427',
                 display: 'flex',
                 alignItems: 'center',
                 padding: '0 12px',
@@ -849,7 +849,7 @@ export const TuiCode = () => (
                     textAlign: 'center',
                     fontFamily: "'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace",
                     fontSize: 11.5,
-                    color: '#7a6d99',
+                    color: '#71717a',
                     marginLeft: -54,
                 }}
             >
@@ -861,130 +861,130 @@ export const TuiCode = () => (
                 fontFamily: "'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace",
                 fontSize: 13,
                 lineHeight: 1.65,
-                color: '#f5f0ff',
+                color: '#f7f7f8',
                 padding: '16px 18px',
                 overflowX: 'auto',
             }}
         >
-            <div style={{ color: '#7a6d99', padding: '1px 0', whiteSpace: 'pre' }}>
+            <div style={{ color: '#71717a', padding: '1px 0', whiteSpace: 'pre' }}>
                 {'import { Box, Text, useInput, useApp } from "ink";'}
             </div>
             <div style={{ height: 8 }} />
             <div style={{ padding: '1px 0' }}>
                 <span style={{ color: '#67e8f9' }}>const</span>{' '}
-                <span style={{ color: '#f5f0ff' }}>App</span>
+                <span style={{ color: '#f7f7f8' }}>App</span>
                 {' = () => {'}
             </div>
-            <div style={{ padding: '1px 0', color: '#f5f0ff' }}>
+            <div style={{ padding: '1px 0', color: '#f7f7f8' }}>
                 {'  const stream = '}
                 <span style={{ color: '#a78bfa' }}>useSignalStream</span>
                 {'("priority>=2");'}
             </div>
-            <div style={{ padding: '1px 0', color: '#f5f0ff' }}>
+            <div style={{ padding: '1px 0', color: '#f7f7f8' }}>
                 {'  const [sel, setSel] = '}
                 <span style={{ color: '#a78bfa' }}>useState</span>
                 {'(0);'}
             </div>
-            <div style={{ padding: '1px 0', color: '#f5f0ff' }}>
+            <div style={{ padding: '1px 0', color: '#f7f7f8' }}>
                 {'  '}
                 <span style={{ color: '#a78bfa' }}>useInput</span>
                 {'((input, key) => { /* j/k, a, : … */ });'}
             </div>
             <div style={{ height: 6 }} />
-            <div style={{ color: '#7a6d99', padding: '1px 0' }}>{'  return ('}</div>
+            <div style={{ color: '#71717a', padding: '1px 0' }}>{'  return ('}</div>
             <div style={{ padding: '1px 0' }}>
                 {'    '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>Box</span>{' '}
                 <span style={{ color: '#67e8f9' }}>flexDirection</span>
-                <span style={{ color: '#7a6d99' }}>{'='}</span>
+                <span style={{ color: '#71717a' }}>{'='}</span>
                 <span style={{ color: '#4ade80' }}>{'"column"'}</span>{' '}
                 <span style={{ color: '#67e8f9' }}>height</span>
-                <span style={{ color: '#7a6d99' }}>{'={'}</span>
-                <span style={{ color: '#7a6d99' }}>{'{'}</span>
+                <span style={{ color: '#71717a' }}>{'={'}</span>
+                <span style={{ color: '#71717a' }}>{'{'}</span>
                 <span style={{ color: '#fbbf24' }}>{'"100%"'}</span>
-                <span style={{ color: '#7a6d99' }}>{'}>'}</span>
+                <span style={{ color: '#71717a' }}>{'}>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'      '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>TopBar</span>{' '}
                 <span style={{ color: '#67e8f9' }}>user</span>
-                <span style={{ color: '#7a6d99' }}>{'='}</span>
+                <span style={{ color: '#71717a' }}>{'='}</span>
                 <span style={{ color: '#4ade80' }}>{'"alex@acme.io"'}</span>{' '}
-                <span style={{ color: '#7a6d99' }}>{'/>'}</span>
+                <span style={{ color: '#71717a' }}>{'/>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'      '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>Box</span>{' '}
                 <span style={{ color: '#67e8f9' }}>flexGrow</span>
-                <span style={{ color: '#7a6d99' }}>{'={'}</span>
-                <span style={{ color: '#7a6d99' }}>{'{'}</span>
+                <span style={{ color: '#71717a' }}>{'={'}</span>
+                <span style={{ color: '#71717a' }}>{'{'}</span>
                 <span style={{ color: '#fbbf24' }}>1</span>
-                <span style={{ color: '#7a6d99' }}>{'}>'}</span>
+                <span style={{ color: '#71717a' }}>{'}>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'        '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>ChannelList</span>{' '}
                 <span style={{ color: '#67e8f9' }}>width</span>
-                <span style={{ color: '#7a6d99' }}>{'={'}</span>
-                <span style={{ color: '#7a6d99' }}>{'{'}</span>
+                <span style={{ color: '#71717a' }}>{'={'}</span>
+                <span style={{ color: '#71717a' }}>{'{'}</span>
                 <span style={{ color: '#fbbf24' }}>22</span>
-                <span style={{ color: '#7a6d99' }}>{'}'}</span>{' '}
-                <span style={{ color: '#7a6d99' }}>{'/>'}</span>
+                <span style={{ color: '#71717a' }}>{'}'}</span>{' '}
+                <span style={{ color: '#71717a' }}>{'/>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'        '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>Stream</span>{' '}
                 <span style={{ color: '#67e8f9' }}>events</span>
-                <span style={{ color: '#7a6d99' }}>{'={'}</span>
-                <span style={{ color: '#7a6d99' }}>{'{'}</span>
-                <span style={{ color: '#f5f0ff' }}>stream</span>
-                <span style={{ color: '#7a6d99' }}>{'}'}</span>{' '}
+                <span style={{ color: '#71717a' }}>{'={'}</span>
+                <span style={{ color: '#71717a' }}>{'{'}</span>
+                <span style={{ color: '#f7f7f8' }}>stream</span>
+                <span style={{ color: '#71717a' }}>{'}'}</span>{' '}
                 <span style={{ color: '#67e8f9' }}>selected</span>
-                <span style={{ color: '#7a6d99' }}>{'={'}</span>
-                <span style={{ color: '#7a6d99' }}>{'{'}</span>
-                <span style={{ color: '#f5f0ff' }}>sel</span>
-                <span style={{ color: '#7a6d99' }}>{'}'}</span>{' '}
-                <span style={{ color: '#7a6d99' }}>{'/>'}</span>
+                <span style={{ color: '#71717a' }}>{'={'}</span>
+                <span style={{ color: '#71717a' }}>{'{'}</span>
+                <span style={{ color: '#f7f7f8' }}>sel</span>
+                <span style={{ color: '#71717a' }}>{'}'}</span>{' '}
+                <span style={{ color: '#71717a' }}>{'/>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'        '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>Detail</span>{' '}
                 <span style={{ color: '#67e8f9' }}>event</span>
-                <span style={{ color: '#7a6d99' }}>{'={'}</span>
-                <span style={{ color: '#7a6d99' }}>{'{'}</span>
-                <span style={{ color: '#f5f0ff' }}>stream[sel]</span>
-                <span style={{ color: '#7a6d99' }}>{'}'}</span>{' '}
-                <span style={{ color: '#7a6d99' }}>{'/>'}</span>
+                <span style={{ color: '#71717a' }}>{'={'}</span>
+                <span style={{ color: '#71717a' }}>{'{'}</span>
+                <span style={{ color: '#f7f7f8' }}>stream[sel]</span>
+                <span style={{ color: '#71717a' }}>{'}'}</span>{' '}
+                <span style={{ color: '#71717a' }}>{'/>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'      '}
-                <span style={{ color: '#7a6d99' }}>{'</'}</span>
+                <span style={{ color: '#71717a' }}>{'</'}</span>
                 <span style={{ color: '#fbbf24' }}>Box</span>
-                <span style={{ color: '#7a6d99' }}>{'>'}</span>
+                <span style={{ color: '#71717a' }}>{'>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'      '}
-                <span style={{ color: '#7a6d99' }}>{'<'}</span>
+                <span style={{ color: '#71717a' }}>{'<'}</span>
                 <span style={{ color: '#fbbf24' }}>StatusBar</span>{' '}
                 <span style={{ color: '#67e8f9' }}>mode</span>
-                <span style={{ color: '#7a6d99' }}>{'='}</span>
+                <span style={{ color: '#71717a' }}>{'='}</span>
                 <span style={{ color: '#4ade80' }}>{'"NORMAL"'}</span>{' '}
-                <span style={{ color: '#7a6d99' }}>{'/>'}</span>
+                <span style={{ color: '#71717a' }}>{'/>'}</span>
             </div>
             <div style={{ padding: '1px 0' }}>
                 {'    '}
-                <span style={{ color: '#7a6d99' }}>{'</'}</span>
+                <span style={{ color: '#71717a' }}>{'</'}</span>
                 <span style={{ color: '#fbbf24' }}>Box</span>
-                <span style={{ color: '#7a6d99' }}>{'>'}</span>
+                <span style={{ color: '#71717a' }}>{'>'}</span>
             </div>
-            <div style={{ color: '#7a6d99', padding: '1px 0' }}>{'  );'}</div>
-            <div style={{ color: '#f5f0ff', padding: '1px 0' }}>{'};'}</div>
+            <div style={{ color: '#71717a', padding: '1px 0' }}>{'  );'}</div>
+            <div style={{ color: '#f7f7f8', padding: '1px 0' }}>{'};'}</div>
         </div>
     </div>
 );

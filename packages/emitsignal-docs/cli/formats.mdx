@@ -14,12 +14,12 @@ Human-readable, color-coded by priority. One event per block.
 
 <Term title="emitsignal — zsh">
     <div style={{ display: 'flex', gap: 9 }}>
-        <span style={{ color: '#4a4166' }}>21:52:14</span>
+        <span style={{ color: '#3f3f46' }}>21:52:14</span>
         <span style={{ color: '#f87171' }}>●</span>
-        <span style={{ color: '#7a6d99' }}>alerts/prod</span>
+        <span style={{ color: '#71717a' }}>alerts/prod</span>
         <span style={{ color: '#f87171' }}>p5</span>
     </div>
-    <Out color="#f5f0ff">&nbsp;&nbsp;High memory on api-02</Out>
+    <Out color="#f7f7f8">&nbsp;&nbsp;High memory on api-02</Out>
     <Out>&nbsp;&nbsp;mem.used &gt; 92% for 5m · #sev2</Out>
 </Term>
 
@@ -28,11 +28,11 @@ Human-readable, color-coded by priority. One event per block.
 One line per event. Good for tailing in a tmux pane.
 
 <Term title="emitsignal — zsh">
-    <Out color="#f5f0ff">21:52:14 p5 alerts/prod</Out>
-    <Out color="#b8a9d9">&nbsp;&nbsp;High memory on api-02 #sev2</Out>
+    <Out color="#f7f7f8">21:52:14 p5 alerts/prod</Out>
+    <Out color="#a1a1a6">&nbsp;&nbsp;High memory on api-02 #sev2</Out>
     <div style={{ height: 6 }} />
-    <Out color="#f5f0ff">21:52:22 p3 ci/web</Out>
-    <Out color="#b8a9d9">&nbsp;&nbsp;Build passed (247 tests)</Out>
+    <Out color="#f7f7f8">21:52:22 p3 ci/web</Out>
+    <Out color="#a1a1a6">&nbsp;&nbsp;Build passed (247 tests)</Out>
 </Term>
 
 ## json
@@ -62,9 +62,9 @@ Tab-separated: `ts\ttopic\tpriority\ttitle`. Pipe to `awk`, `cut`, or `sort`.
 
 <Term title="emitsignal — zsh">
     <Cmd>emitsignal listen -f json | jq -r '.title'</Cmd>
-    <Out color="#f5f0ff">High memory on api-02</Out>
-    <Out color="#f5f0ff">TypeError spike</Out>
-    <Out color="#f5f0ff">Disk pressure · api-03</Out>
+    <Out color="#f7f7f8">High memory on api-02</Out>
+    <Out color="#f7f7f8">TypeError spike</Out>
+    <Out color="#f7f7f8">Disk pressure · api-03</Out>
     <div style={{ marginTop: 4 }}>
         <span style={{ color: '#4ade80' }}>$</span>
         <Caret />
@@ -73,8 +73,8 @@ Tab-separated: `ts\ttopic\tpriority\ttitle`. Pipe to `awk`, `cut`, or `sort`.
 
 <Term title="emitsignal — zsh">
     <Cmd>{"emitsignal listen -f tsv | awk -F'\\t' '{ print $3, $2 }'"}</Cmd>
-    <Out color="#f5f0ff">5 alerts/prod</Out>
-    <Out color="#f5f0ff">3 ci/web</Out>
+    <Out color="#f7f7f8">5 alerts/prod</Out>
+    <Out color="#f7f7f8">3 ci/web</Out>
 </Term>
 
 <Term title="emitsignal — zsh">

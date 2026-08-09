@@ -63,7 +63,7 @@ function AuthorAvatar({ color, name, size }: { color: string; name: string; size
                 alignItems: 'center',
                 background: `linear-gradient(180deg, ${color}, ${color}77)`,
                 borderRadius: '50%',
-                color: '#0c0716',
+                color: '#08080a',
                 display: 'flex',
                 flexShrink: 0,
                 fontSize: size * 0.38,
@@ -104,7 +104,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
     return (
         <div
             style={{
-                background: '#0f0a1a',
+                background: '#08080a',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
@@ -130,7 +130,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
             {/* Dot grid texture */}
             <div
                 style={{
-                    backgroundImage: `radial-gradient(#2a2340 1px, transparent 1px)`,
+                    backgroundImage: `radial-gradient(#232427 1px, transparent 1px)`,
                     backgroundSize: '26px 26px',
                     height: '100%',
                     left: 0,
@@ -153,7 +153,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
                 <div
                     style={{
                         alignItems: 'center',
-                        color: '#f5f0ff',
+                        color: '#f7f7f8',
                         display: 'flex',
                         fontFamily: 'Inter',
                         fontSize: 20,
@@ -167,7 +167,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
                 </div>
                 <span
                     style={{
-                        color: '#7a6d99',
+                        color: '#71717a',
                         fontFamily: 'Inter',
                         fontSize: 16,
                         letterSpacing: 0.5,
@@ -213,7 +213,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
 
                 <div
                     style={{
-                        color: '#f5f0ff',
+                        color: '#f7f7f8',
                         fontFamily: 'Inter',
                         fontSize: fs,
                         fontWeight: 700,
@@ -230,7 +230,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
             <div
                 style={{
                     alignItems: 'center',
-                    borderTop: '1px solid #2a2340',
+                    borderTop: '1px solid #232427',
                     display: 'flex',
                     gap: 16,
                     paddingTop: 22,
@@ -241,7 +241,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span
                         style={{
-                            color: '#f5f0ff',
+                            color: '#f7f7f8',
                             fontFamily: 'Inter',
                             fontSize: 20,
                             fontWeight: 700,
@@ -249,7 +249,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
                     >
                         {author}
                     </span>
-                    <span style={{ color: '#7a6d99', fontFamily: 'Inter', fontSize: 14 }}>
+                    <span style={{ color: '#71717a', fontFamily: 'Inter', fontSize: 14 }}>
                         {readTime} min read · {fmtDate(date)}
                     </span>
                 </div>
@@ -270,7 +270,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
     return (
         <div
             style={{
-                background: '#0f0a1a',
+                background: '#08080a',
                 display: 'flex',
                 height: '100%',
                 overflow: 'hidden',
@@ -319,7 +319,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                 <div
                     style={{
                         alignItems: 'center',
-                        color: '#0c0716',
+                        color: '#08080a',
                         display: 'flex',
                         fontFamily: 'Inter',
                         fontSize: 18,
@@ -328,7 +328,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                         position: 'relative',
                     }}
                 >
-                    <PulseMark color="#0c0716" size={22} />
+                    <PulseMark color="#08080a" size={22} />
                     <span>emitsignal</span>
                 </div>
 
@@ -348,7 +348,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                     </span>
                     <span
                         style={{
-                            color: '#0c0716',
+                            color: '#08080a',
                             fontFamily: 'Inter',
                             fontSize: 50,
                             fontWeight: 700,
@@ -400,7 +400,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
 
                 <div
                     style={{
-                        color: '#f5f0ff',
+                        color: '#f7f7f8',
                         fontFamily: 'Inter',
                         fontSize: fs,
                         fontWeight: 700,
@@ -414,7 +414,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
 
                 <div
                     style={{
-                        color: '#b8a9d9',
+                        color: '#a1a1a6',
                         fontFamily: 'Inter',
                         fontSize: 18,
                         lineHeight: 1.5,
@@ -438,7 +438,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                     <AuthorAvatar color={cat.color} name={author} size={42} />
                     <span
                         style={{
-                            color: '#f5f0ff',
+                            color: '#f7f7f8',
                             fontFamily: 'Inter',
                             fontSize: 18,
                             fontWeight: 700,
@@ -448,13 +448,13 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                     </span>
                     <div
                         style={{
-                            backgroundColor: '#4a4166',
+                            backgroundColor: '#3f3f46',
                             borderRadius: '50%',
                             height: 4,
                             width: 4,
                         }}
                     />
-                    <span style={{ color: '#7a6d99', fontFamily: 'Inter', fontSize: 14 }}>
+                    <span style={{ color: '#71717a', fontFamily: 'Inter', fontSize: 14 }}>
                         {readTime} min read · {fmtDate(date)}
                     </span>
                 </div>

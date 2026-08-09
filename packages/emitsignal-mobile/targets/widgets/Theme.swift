@@ -3,24 +3,24 @@ import SwiftUI
 // Palette values mirror constants/theme.ts darkPalette (widgets render dark-fixed,
 // matching the design which only defines the dark gradient card).
 enum Theme {
-    static let bg = Color(hex: 0x0F0A1A)
-    static let bgElev = Color(hex: 0x1A1625)
-    static let bgLine = Color(hex: 0x2A2340)
-    static let fg = Color(hex: 0xF5F0FF)
-    static let fgMuted = Color(hex: 0xB8A9D9)
-    static let fgDim = Color(hex: 0x7A6D99)
-    static let fgFaint = Color(hex: 0x4A4166)
-    static let violet = Color(hex: 0xA78BFA)
-    static let violetDim = Color(hex: 0x7C3AED)
-    static let violetDeep = Color(hex: 0x5B21B6)
-    static let green = Color(hex: 0x4ADE80)
     static let amber = Color(hex: 0xFBBF24)
-    static let red = Color(hex: 0xF87171)
+    static let bg = Color(hex: 0x08080a)
+    static let bgElev = Color(hex: 0x111113)
+    static let bgLine = Color(hex: 0x232427)
+    static let fg = Color(hex: 0xf7f7f8)
+    static let fgDim = Color(hex: 0x71717a)
+    static let fgFaint = Color(hex: 0x3f3f46)
+    static let fgMuted = Color(hex: 0xa1a1a6)
+    static let green = Color(hex: 0x4ADE80)
     static let pink = Color(hex: 0xF0ABFC)
+    static let red = Color(hex: 0xF87171)
+    static let violet = Color(hex: 0xA78BFA)
+    static let violetDeep = Color(hex: 0x5B21B6)
+    static let violetDim = Color(hex: 0x7C3AED)
 
-    // CSS: linear-gradient(165deg, #1b1429 0%, #110b1d 100%)
+    // CSS: linear-gradient(165deg, #141517 0%, #0a0a0c 100%)
     static let containerGradient = LinearGradient(
-        colors: [Color(hex: 0x1B1429), Color(hex: 0x110B1D)],
+        colors: [Color(hex: 0x141517), Color(hex: 0x0a0a0c)],
         startPoint: UnitPoint(x: 0.37, y: 0),
         endPoint: UnitPoint(x: 0.63, y: 1)
     )

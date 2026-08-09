@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { cn } from '#/lib/cn';
 
 const C = {
-    com: '#7a6d99',
-    def: '#f5f0ff',
+    com: '#71717a',
+    def: '#f7f7f8',
     flag: '#a78bfa',
     fn: '#67e8f9',
     kw: '#c4b5fd',
     num: '#f0abfc',
-    op: '#b8a9d9',
+    op: '#a1a1a6',
     prompt: '#4ade80',
     str: '#fbbf24',
 };

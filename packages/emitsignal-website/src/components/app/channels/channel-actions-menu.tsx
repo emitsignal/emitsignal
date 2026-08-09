@@ -275,7 +275,7 @@ function ChannelSettingsDialog({
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(6,3,15,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
         >
             <div
                 className="w-full max-w-[480px] overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"
@@ -430,7 +430,7 @@ function ManageTopicDialog({
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(6,3,15,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
         >
             <div
                 className="w-full max-w-[480px] overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"

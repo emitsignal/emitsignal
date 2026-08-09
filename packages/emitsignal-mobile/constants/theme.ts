@@ -7,23 +7,23 @@ export { PRIORITY_HEX as PriorityColors } from '@emitsignal/shared/priority';
 
 export const darkPalette = {
     amber: '#fbbf24',
-    // Backgrounds
-    bg: '#0f0a1a',
-    bgChip: '#1f1930',
-    bgCode: '#06030f',
-    bgElev: '#1a1625',
-    bgElev2: '#231c33',
-    bgLine: '#2a2340',
+    // Backgrounds — neutral near-black; violet stays the only brand hue
+    bg: '#08080a',
+    bgChip: '#141517',
+    bgCode: '#030304',
+    bgElev: '#111113',
+    bgElev2: '#191a1d',
+    bgLine: '#232427',
     // Control overlay on the media lightbox (sits on a black backdrop)
     controlOverlay: 'rgba(255,255,255,0.12)',
     cyan: '#67e8f9',
     // Semantic tint backgrounds
     dangerBg: 'rgba(248,113,113,0.10)',
     // Text
-    fg: '#f5f0ff',
-    fgDim: '#7a6d99',
-    fgFaint: '#4a4166',
-    fgMuted: '#b8a9d9',
+    fg: '#f7f7f8',
+    fgDim: '#71717a',
+    fgFaint: '#3f3f46',
+    fgMuted: '#a1a1a6',
     // Semantic
     green: '#4ade80',
     infoBg: 'rgba(103,232,249,0.12)',
@@ -39,7 +39,7 @@ export const darkPalette = {
     pink: '#f0abfc',
     red: '#f87171',
     // Dialog scrim
-    scrim: 'rgba(6,3,15,0.72)',
+    scrim: 'rgba(3,3,4,0.72)',
     // Accents
     violet: '#a78bfa',
     violetBg: 'rgba(124,58,237,0.12)',
@@ -52,21 +52,21 @@ export type Palette = typeof darkPalette;
 
 export const lightPalette: Palette = {
     amber: '#d97706',
-    // Backgrounds
-    bg: '#f5f3ff',
-    bgChip: '#ece6fb',
-    bgCode: '#ede7fb',
+    // Backgrounds — neutral greys, mirroring the website's [data-theme='light']
+    bg: '#fafafa',
+    bgChip: '#ebebed',
+    bgCode: '#f4f4f5',
     bgElev: '#ffffff',
-    bgElev2: '#f3eefc',
-    bgLine: '#e0d6f5',
+    bgElev2: '#f4f4f5',
+    bgLine: '#e4e4e7',
     controlOverlay: 'rgba(255,255,255,0.12)',
     cyan: '#0891b2',
     dangerBg: 'rgba(220,38,38,0.08)',
     // Text (darkest = primary, lightening toward faint)
-    fg: '#1a1625',
-    fgDim: '#6b6190',
-    fgFaint: '#a99fc4',
-    fgMuted: '#4a4166',
+    fg: '#18181b',
+    fgDim: '#71717a',
+    fgFaint: '#a1a1a6',
+    fgMuted: '#52525b',
     // Semantic
     green: '#16a34a',
     infoBg: 'rgba(8,145,178,0.10)',
@@ -80,7 +80,7 @@ export const lightPalette: Palette = {
     p5: '#dc2626',
     pink: '#c026d3',
     red: '#dc2626',
-    scrim: 'rgba(20,16,40,0.45)',
+    scrim: 'rgba(24,24,27,0.45)',
     // Accents
     violet: '#7c3aed',
     violetBg: 'rgba(124,58,237,0.10)',

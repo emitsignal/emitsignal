@@ -49,11 +49,11 @@ can no longer authenticate, and a second call on the now-deactivated key
 <Term title="emitsignal — zsh">
     <Cmt># mint a key for CI — the full secret is shown exactly once</Cmt>
     <Cmd wrap>emitsignal keys create -n ci-runner -e 90d</Cmd>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         &nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hK3n8QpZ2mVx9rLd0a99
     </Out>
-    <Out color="#f5f0ff">&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp; ci-runner</Out>
-    <Out color="#f5f0ff">&nbsp;&nbsp;expires&nbsp; in 90d</Out>
+    <Out color="#f7f7f8">&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp; ci-runner</Out>
+    <Out color="#f7f7f8">&nbsp;&nbsp;expires&nbsp; in 90d</Out>
     <Out>
         &nbsp;&nbsp;secret&nbsp;&nbsp;{' '}
         <span style={{ color: '#fbbf24' }}>es_live_c8f4_9Qk2Lr7vN3pXa1Ze6Bd0Yw</span>
@@ -62,13 +62,13 @@ can no longer authenticate, and a second call on the now-deactivated key
     <Sp />
     <Cmt># list shows the id (first column) — that is what revoke takes</Cmt>
     <Cmd>emitsignal keys list</Cmd>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         {'p9k2Lm4vX8nQr1Td0Zs  prod-write    es_live_p9k2_••••   4m ago     active'}
     </Out>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         {'hK3n8QpZ2mVx9rLd0a99  ci-runner     es_live_c8f4_••••   just now   active'}
     </Out>
-    <Out color="#b8a9d9">
+    <Out color="#a1a1a6">
         {'o12kWn5rT7yUe3Pxa9Q7  old-staging   es_live_o12k_••••   3d ago     revoked'}
     </Out>
     <Sp />

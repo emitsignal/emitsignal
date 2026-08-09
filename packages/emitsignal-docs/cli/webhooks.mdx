@@ -57,17 +57,17 @@ or leave it off to forward the payload untouched.
 <Term title="emitsignal — zsh">
     <Cmt># create an endpoint for GitHub, publishing to ci/deploys</Cmt>
     <Cmd wrap>emitsignal webhooks create -n deploy-hook -s github -c ci/deploys</Cmd>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         &nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clx8f2a0b00deploy01
     </Out>
-    <Out color="#f5f0ff">&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; deploy-hook</Out>
-    <Out color="#f5f0ff">&nbsp;&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp; github</Out>
-    <Out color="#f5f0ff">&nbsp;&nbsp;channel&nbsp;&nbsp; ci/deploys</Out>
+    <Out color="#f7f7f8">&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; deploy-hook</Out>
+    <Out color="#f7f7f8">&nbsp;&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp; github</Out>
+    <Out color="#f7f7f8">&nbsp;&nbsp;channel&nbsp;&nbsp; ci/deploys</Out>
     <Out>
         &nbsp;&nbsp;endpoint&nbsp;&nbsp;
         <span style={{ color: '#fbbf24' }}>/h/gh_a1b2c3d</span>
     </Out>
-    <Out color="#7a6d99">&nbsp;&nbsp;template&nbsp; no (raw passthrough)</Out>
+    <Out color="#71717a">&nbsp;&nbsp;template&nbsp; no (raw passthrough)</Out>
     <Ok>webhook created — point your service at the endpoint above</Ok>
 </Term>
 
@@ -81,17 +81,17 @@ The first column is the endpoint `id` — pass it to `set-template` and `delete`
 
 <Term title="emitsignal — zsh">
     <Cmd>emitsignal webhooks list</Cmd>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         {
             'clx8f2a0b00deploy01  deploy-hook           /h/gh_a1b2c3d   ci/deploys          raw        2m       active'
         }
     </Out>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         {
             'clx9k3b1c11stripe22  stripe-events         /h/st_9f8e7d6   billing/stripe      templated  just now active'
         }
     </Out>
-    <Out color="#b8a9d9">
+    <Out color="#a1a1a6">
         {
             'clxa4l5d22grafana33  old-grafana           /h/gf_44a1c0b   alerts/infra        raw        never    paused'
         }
@@ -125,10 +125,10 @@ inline snippet of the payload.
     <Cmd>emitsignal webhooks listen</Cmd>
     <Arrow>tailing webhooks · ● templated · ○ raw · filter:all sources · ctrl-c to quit</Arrow>
     <Sp />
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         {'21:03:11  ○  ci/deploys        200  42ms    raw → {"ref":"refs/heads/main",…}'}
     </Out>
-    <Out color="#f5f0ff">
+    <Out color="#f7f7f8">
         {'21:04:02  ●  billing/stripe    200  18ms    Payment succeeded · inv_8842 · $42.00'}
     </Out>
     <Sp />
