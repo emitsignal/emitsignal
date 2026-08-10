@@ -101,6 +101,31 @@ Common TypeScript types (`Message`, `Topic`, `Subscription`, `Webhook`, etc.) an
 - Generics: descriptive names (`TResponse`, not `T`)
 - File names: kebab-case; component names: PascalCase
 
+### Comments
+
+Comment sparingly. A comment earns its place only when the code alone would let
+someone break something important — otherwise leave it out and let the code speak.
+
+Write one when, and only when:
+
+- Removing it would let a reader silently break correctness or security (e.g. why
+  webhook signatures verify against the raw body, not the re-serialized JSON).
+- Ordering or placement is load-bearing and not obvious from reading top to bottom.
+- The code looks wrong or redundant but is deliberate (a loop that intentionally
+  does not short-circuit, an early return that is safe despite appearances).
+- An external contract is being matched (a provider's wire format, a spec).
+
+Do **not** write one to:
+
+- Restate what the next line does (`// Only whether a secret exists` above
+  `hasSecret: !!secretCiphertext`).
+- Label a section, a constant, or an obviously-named function.
+- Explain where code was placed or which folder it belongs to.
+- Narrate a change, decision history, or what the code used to do.
+
+Prefer one tight line over three. If a comment needs a paragraph, the code
+probably needs a better name or a smaller function instead.
+
 ## Commit Rules
 
 Use [Conventional Commits](https://www.conventionalcommits.org/): `<prefix>: <description>`.
