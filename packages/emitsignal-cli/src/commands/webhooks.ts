@@ -1,6 +1,7 @@
+import type { VerificationScheme } from '@emitsignal/shared';
 import type { Command } from 'commander';
 
-import { relativeTime } from '@emitsignal/shared';
+import { defaultVerificationForSource, relativeTime } from '@emitsignal/shared';
 import { readFileSync } from 'node:fs';
 
 import { getBaseUrl, getToken } from '../config.ts';
@@ -30,6 +31,7 @@ interface Delivery {
 
 interface Webhook {
     count24h: number;
+    hasSecret?: boolean;
     id: string;
     lastDeliveryAt?: null | number;
     name: string;
@@ -38,6 +40,7 @@ interface Webhook {
     status: 'active' | 'error' | 'paused';
     templated: boolean;
     topicName: string;
+    verification?: VerificationScheme;
 }
 
 export function registerWebhooksCommand(program: Command): void {
@@ -55,6 +58,12 @@ export function registerWebhooksCommand(program: Command): void {
             'Source type (github|grafana|stripe|vercel|custom)',
             'custom',
         )
+        .option(
+            '--verification <scheme>',
+            'Verify inbound signatures (none|github|stripe|svix|hmac|token)',
+        )
+        .option('--secret <value>', 'Signing secret from the sending provider')
+        .option('--verification-config <json>', 'Header config, required for hmac and token')
         .action(async (opts) => {
             try {
                 if (!opts.channel) {
@@ -63,8 +72,10 @@ export function registerWebhooksCommand(program: Command): void {
                     process.exit(1);
                 }
 
+                const source = (opts.source as string) ?? 'custom';
+
                 const body: Record<string, string> = {
-                    source: (opts.source as string) ?? 'custom',
+                    source,
                     topicName: opts.channel as string,
                 };
 
@@ -74,6 +85,19 @@ export function registerWebhooksCommand(program: Command): void {
 
                 if (opts.template) {
                     body['template'] = readTemplateFile(opts.template as string);
+                }
+
+                if (opts.secret) {
+                    body['secret'] = opts.secret as string;
+                    // A secret with no scheme verifies the way the source normally signs.
+                    body['verification'] =
+                        (opts.verification as string) ?? defaultVerificationForSource(source);
+                } else if (opts.verification) {
+                    body['verification'] = opts.verification as string;
+                }
+
+                if (opts.verificationConfig) {
+                    body['verificationConfig'] = opts.verificationConfig as string;
                 }
 
                 const webhook = await webhookRequest<{ endpointUrl: string } & Webhook>(
@@ -97,6 +121,13 @@ export function registerWebhooksCommand(program: Command): void {
                 );
                 console.log(
                     `  template  ${webhook.templated ? color.violet('yes') : color.fgDim('no (raw passthrough)')}`,
+                );
+                console.log(
+                    `  verify    ${
+                        webhook.verification && webhook.verification !== 'none'
+                            ? color.green(webhook.verification)
+                            : color.amber('none — anyone with the URL can post')
+                    }`,
                 );
 
                 ok('webhook created — point your service at the endpoint above');
