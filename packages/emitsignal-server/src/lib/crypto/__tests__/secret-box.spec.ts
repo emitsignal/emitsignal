@@ -2,19 +2,19 @@ import { describe, expect, it } from 'bun:test';
 
 import { decryptSecret, encryptSecret } from '#/lib/crypto/secret-box';
 
-const SECRET = 'whsec_M2E4YmZhNzQtNGYxYy00ZjQzLTk1YzMtY2Y5ZDNhNzE=';
+const PLAINTEXT = 'fixture-plaintext-not-a-credential';
 
 describe('secret box', () => {
     it('round-trips a secret', () => {
-        expect(decryptSecret(encryptSecret(SECRET))).toBe(SECRET);
+        expect(decryptSecret(encryptSecret(PLAINTEXT))).toBe(PLAINTEXT);
     });
 
     it('never stores the plaintext in the ciphertext', () => {
-        expect(encryptSecret(SECRET)).not.toContain(SECRET);
+        expect(encryptSecret(PLAINTEXT)).not.toContain(PLAINTEXT);
     });
 
     it('produces a different ciphertext each time (fresh nonce)', () => {
-        expect(encryptSecret(SECRET)).not.toBe(encryptSecret(SECRET));
+        expect(encryptSecret(PLAINTEXT)).not.toBe(encryptSecret(PLAINTEXT));
     });
 
     it('round-trips unicode and empty strings', () => {
@@ -24,7 +24,7 @@ describe('secret box', () => {
 
     it('rejects a tampered ciphertext rather than returning garbage', () => {
         const [version, initializationVector, ciphertext, authenticationTag] =
-            encryptSecret(SECRET).split('.');
+            encryptSecret(PLAINTEXT).split('.');
         const flipped = Buffer.from(ciphertext as string, 'base64');
 
         flipped[0] = (flipped[0] ?? 0) ^ 0xff;
@@ -39,7 +39,7 @@ describe('secret box', () => {
     });
 
     it('rejects a tampered authentication tag', () => {
-        const parts = encryptSecret(SECRET).split('.');
+        const parts = encryptSecret(PLAINTEXT).split('.');
 
         parts[3] = Buffer.alloc(16).toString('base64');
 

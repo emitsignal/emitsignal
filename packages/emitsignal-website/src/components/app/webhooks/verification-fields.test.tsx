@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import { VerificationFields } from './verification-fields';
 
-function renderFields(secret = 'whsec_abc123', scheme: VerificationScheme = 'github') {
+function renderFields(secret = 'fixture-secret-value', scheme: VerificationScheme = 'github') {
     return render(
         <VerificationFields
             config={{ algorithm: 'sha256', encoding: 'hex', header: '', prefix: '' }}
