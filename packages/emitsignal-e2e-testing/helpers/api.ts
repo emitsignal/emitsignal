@@ -107,7 +107,7 @@ export const api = {
         },
     ) {
         return request<{ message: string; messageId: string }>(
-            `/topic/${encodeURIComponent(topicName)}`,
+            `/publish/${encodeURIComponent(topicName)}`,
             {
                 body: JSON.stringify(payload),
                 method: 'POST',
