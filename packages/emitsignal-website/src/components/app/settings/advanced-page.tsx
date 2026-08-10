@@ -126,13 +126,6 @@ export function AdvancedPage() {
                             <SettingsInput monospace suffix="req/min" value="600" />
                         </SettingsField>
                     </div>
-
-                    <SettingsField
-                        hint="Used to verify the X-Signal-Signature HMAC on every outbound webhook"
-                        label="Webhook signing secret"
-                    >
-                        <SettingsInput monospace suffix="rotate" value="whsec_9f2a••••c41e" />
-                    </SettingsField>
                 </SettingsCard>
 
                 <SettingsCard
