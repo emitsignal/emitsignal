@@ -16,6 +16,7 @@ export const getWebhook = new Elysia().get('/webhooks/:id', async ({ headers, pa
             createdAt: true,
             id: true,
             name: true,
+            secretCiphertext: true,
             slug: true,
             source: true,
             status: true,
@@ -23,6 +24,8 @@ export const getWebhook = new Elysia().get('/webhooks/:id', async ({ headers, pa
             topicName: true,
             updatedAt: true,
             userId: true,
+            verification: true,
+            verificationConfig: true,
         },
         where: { id: params.id },
     });
@@ -51,6 +54,7 @@ export const getWebhook = new Elysia().get('/webhooks/:id', async ({ headers, pa
     return {
         count24h,
         createdAt: Math.floor(webhook.createdAt.getTime() / 1000),
+        hasSecret: !!webhook.secretCiphertext,
         id: webhook.id,
         lastDeliveryAt: lastDelivery ? Math.floor(lastDelivery.createdAt.getTime() / 1000) : null,
         name: webhook.name,
@@ -61,5 +65,7 @@ export const getWebhook = new Elysia().get('/webhooks/:id', async ({ headers, pa
         templated: !!webhook.template,
         topicName: webhook.topicName,
         updatedAt: Math.floor(webhook.updatedAt.getTime() / 1000),
+        verification: webhook.verification,
+        verificationConfig: webhook.verificationConfig,
     };
 });

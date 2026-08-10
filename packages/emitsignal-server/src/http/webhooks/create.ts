@@ -1,10 +1,16 @@
 import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
+import {
+    validateVerificationBody,
+    verificationBodySchema,
+} from '#/http/webhooks/verification-input';
+import { encryptSecret } from '#/lib/crypto/secret-box';
 import { prisma } from '#/lib/prisma';
 import { getUserPlan } from '#/services/billing/get-user-plan';
 import { PLANS } from '#/services/billing/plans';
 import { canPublishToTopicName } from '#/services/topic-access';
+import { schemeNeedsConfig } from '#/utils/webhook-signature';
 
 function randomSlug(prefix: string): string {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -55,18 +61,30 @@ export const createWebhook = new Elysia().post(
             });
         }
 
+        const verification = validateVerificationBody(body, false);
+
+        if ('error' in verification) {
+            return status(400, { error: verification.error });
+        }
+
         const prefix = SOURCE_PREFIX[body.source ?? 'custom'] ?? 'cw';
         const slug = randomSlug(prefix);
 
         const webhook = await prisma.webhook.create({
             data: {
                 name: body.name || `${body.source ?? 'custom'} webhook`,
+                secretCiphertext: body.secret ? encryptSecret(body.secret) : null,
                 slug,
                 source: body.source ?? 'custom',
                 template: body.template ?? null,
                 topicName: body.topicName,
                 userId,
+                verification: verification.scheme,
+                verificationConfig: schemeNeedsConfig(verification.scheme)
+                    ? (body.verificationConfig ?? null)
+                    : null,
             },
+            // secretCiphertext is deliberately absent: the secret is write-only.
             select: {
                 createdAt: true,
                 id: true,
@@ -76,6 +94,8 @@ export const createWebhook = new Elysia().post(
                 status: true,
                 template: true,
                 topicName: true,
+                verification: true,
+                verificationConfig: true,
             },
         });
 
@@ -83,6 +103,7 @@ export const createWebhook = new Elysia().post(
             ...webhook,
             createdAt: Math.floor(webhook.createdAt.getTime() / 1000),
             endpointUrl: `/h/${webhook.slug}`,
+            hasSecret: !!body.secret,
             templated: !!webhook.template,
         };
     },
@@ -92,6 +113,7 @@ export const createWebhook = new Elysia().post(
             source: t.Optional(t.String({ default: 'custom' })),
             template: t.Optional(t.Nullable(t.String())),
             topicName: t.String(),
+            ...verificationBodySchema,
         }),
     },
 );
