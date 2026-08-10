@@ -335,7 +335,6 @@ function ExpiryLabel({ expiresAt }: { expiresAt: null | number }) {
     );
 }
 
-// Rejected deliveries carry a reason instead of a provider payload.
 const REJECTION_LABELS: Record<string, string> = {
     bad_config: 'rejected · verification misconfigured',
     bad_signature: 'rejected · signature did not match',
