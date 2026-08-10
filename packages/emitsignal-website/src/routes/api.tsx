@@ -536,7 +536,7 @@ ci/web-app/main`}</Block>
                             <Endpoint
                                 auth
                                 desc="Update a webhook."
-                                method="PUT"
+                                method="PATCH"
                                 path="/webhooks/:id"
                             />
                             <Endpoint
@@ -552,47 +552,61 @@ ci/web-app/main`}</Block>
                                 path="/webhooks/:id/deliveries"
                             />
                             <Endpoint
-                                auth
-                                desc="Replay a failed delivery."
+                                desc="Receive a delivery from your provider."
                                 method="POST"
-                                path="/webhooks/:id/deliveries/:delivery_id/replay"
+                                path="/h/:slug"
                             />
                         </div>
 
-                        <H3>Webhook payload</H3>
-                        <Block>{`POST https://your-server.example.com/emitsignal-hook
+                        <H3>Receiving a delivery</H3>
+                        <p className="mb-3 text-[13.5px] leading-relaxed text-muted">
+                            EmitSignal receives webhooks — point your provider at the endpoint below
+                            and each delivery is published to the webhook&rsquo;s channel.
+                        </p>
+                        <Block>{`POST https://api.emitsignal.com/h/gh_9f2ac41e8b3d
 Content-Type: application/json
-X-EmitSignal-Signature: sha256=xxxxxxxxxxxxxxxx
-X-EmitSignal-Delivery: del_01j9xz3p4q5r
+X-Hub-Signature-256: sha256=xxxxxxxxxxxxxxxx
 
 {
-  "event": "signal.published",
-  "signal": {
-    "id":       "sig_01j9xz3p4q5r6s7t8u9v0w1x2y",
-    "topic":    "deploy/prod",
-    "title":    "v2.14.3 shipped",
-    "message":  "api-gateway deployed · 1m 42s",
-    "priority": 4,
-    "tags":     ["deploy", "production"],
-    "published_at": "2026-05-28T21:52:01Z"
-  }
+  "action": "completed",
+  "workflow_run": { "name": "deploy", "conclusion": "success" }
 }`}</Block>
 
                         <div className="mt-4">
-                            <H3>Signature verification</H3>
-                            <Block>{`// Node.js
-import crypto from 'crypto'
+                            <H3>Verifying the sender</H3>
+                            <p className="mb-3 text-[13.5px] leading-relaxed text-muted">
+                                Without a secret, anyone who learns the endpoint URL can post to it.
+                                Add the signing secret your provider issued and every delivery is
+                                checked against the raw request body before it is published —
+                                requests that fail are rejected with{' '}
+                                <code className="font-mono text-[12.5px] text-accent">401</code> and
+                                recorded in the delivery log so you can debug them.
+                            </p>
+                            <Block>{`{
+  "topicName": "deploy/prod",
+  "source": "github",
+  "verification": "github",     // github | stripe | svix | hmac | token | none
+  "secret": "the-secret-from-your-provider"
+}
 
-function verifySignature(payload, signature, secret) {
-  const expected = 'sha256=' + crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex')
-  return crypto.timingSafeEqual(
-    Buffer.from(expected),
-    Buffer.from(signature)
-  )
+// hmac and token also take a header config:
+{
+  "verification": "hmac",
+  "secret": "...",
+  "verificationConfig": "{\\"header\\":\\"x-vercel-signature\\",\\"algorithm\\":\\"sha1\\",\\"encoding\\":\\"hex\\"}"
 }`}</Block>
+                            <p className="mt-3 text-[13.5px] leading-relaxed text-muted">
+                                The secret is write-only: it is encrypted at rest and never returned
+                                by the API. Webhook responses carry{' '}
+                                <code className="font-mono text-[12.5px] text-accent">
+                                    hasSecret
+                                </code>{' '}
+                                and{' '}
+                                <code className="font-mono text-[12.5px] text-accent">
+                                    verification
+                                </code>{' '}
+                                only.
+                            </p>
                         </div>
                     </Section>
 
