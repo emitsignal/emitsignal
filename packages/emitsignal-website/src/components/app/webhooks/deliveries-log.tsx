@@ -143,7 +143,11 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                                     {summary}
                                 </div>
                                 <div className="mt-1.5 flex items-center gap-2">
-                                    <span className="font-mono text-[10px] text-success">
+                                    <span
+                                        className={`font-mono text-[10px] ${
+                                            isRejected(delivery) ? 'text-danger' : 'text-success'
+                                        }`}
+                                    >
                                         {delivery.status}
                                     </span>
                                     <span className="font-mono text-[10px] text-faint">
@@ -184,7 +188,11 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
                             </div>
                         </div>
                         <div className="ml-auto flex items-center gap-3.5 font-mono text-[11px]">
-                            <span className="text-success">● {active.status} OK</span>
+                            {isRejected(active) ? (
+                                <span className="text-danger">● {active.status} REJECTED</span>
+                            ) : (
+                                <span className="text-success">● {active.status} OK</span>
+                            )}
                             <span className="text-dim">{active.durationMs}ms</span>
                             <ExpiryLabel expiresAt={active.expiresAt} />
                         </div>
@@ -327,15 +335,32 @@ function ExpiryLabel({ expiresAt }: { expiresAt: null | number }) {
     );
 }
 
+// Rejected deliveries carry a reason instead of a provider payload.
+const REJECTION_LABELS: Record<string, string> = {
+    bad_config: 'rejected · verification misconfigured',
+    bad_signature: 'rejected · signature did not match',
+    missing_signature: 'rejected · no signature sent',
+    stale_timestamp: 'rejected · timestamp outside the allowed window',
+};
+
 function getSummary(delivery: WebhookDelivery): string {
     if (typeof delivery.payload === 'object' && delivery.payload !== null) {
         const payload = delivery.payload as Record<string, unknown>;
+
+        if (isRejected(delivery) && typeof payload['reason'] === 'string') {
+            return REJECTION_LABELS[payload['reason']] ?? `rejected · ${payload['reason']}`;
+        }
+
         if (typeof payload['type'] === 'string') return payload['type'];
         if (typeof payload['event'] === 'string') return payload['event'];
         if (typeof payload['action'] === 'string')
             return `${delivery.source} · ${payload['action']}`;
     }
     return `${delivery.source} delivery`;
+}
+
+function isRejected(delivery: WebhookDelivery): boolean {
+    return delivery.status >= 400;
 }
 
 function SectionLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
