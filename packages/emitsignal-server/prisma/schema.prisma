@@ -324,6 +324,10 @@ model Webhook {
     topicName String
     userId    String
 
+    secretCiphertext   String?
+    verification       String  @default("none")
+    verificationConfig String?
+
     deliveries WebhookDelivery[]
     user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 

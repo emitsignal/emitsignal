@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
+import { createHmac } from 'node:crypto';
 
 import { prismaMock } from '#/__tests__/mocks';
 
@@ -20,6 +21,7 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { receiveWebhook } from '#/http/webhooks/receive';
+import { encryptSecret } from '#/lib/crypto/secret-box';
 import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
 import { duration } from '#/utils/duration';
 
@@ -33,11 +35,14 @@ describe('POST /h/:slug link → view action', () => {
     function withTemplate(template: Record<string, string>) {
         prismaMock.webhook.findUnique.mockResolvedValue({
             id: 'wh-1',
+            secretCiphertext: null,
             source: 'custom',
             status: 'active',
             template: JSON.stringify(template),
             topicName: 'deploys',
             userId: null,
+            verification: 'none',
+            verificationConfig: null,
         });
     }
 
@@ -108,11 +113,14 @@ describe('POST /h/:slug link → view action', () => {
     it('stores no action when the template has no link at all', async () => {
         prismaMock.webhook.findUnique.mockResolvedValue({
             id: 'wh-1',
+            secretCiphertext: null,
             source: 'custom',
             status: 'active',
             template: JSON.stringify({ title: '{{event.name}}' }),
             topicName: 'deploys',
             userId: null,
+            verification: 'none',
+            verificationConfig: null,
         });
 
         const res = await app.handle(request({ event: { name: 'deploy' } }));
@@ -124,11 +132,14 @@ describe('POST /h/:slug link → view action', () => {
     it('stores no action for an untemplated passthrough delivery', async () => {
         prismaMock.webhook.findUnique.mockResolvedValue({
             id: 'wh-1',
+            secretCiphertext: null,
             source: 'custom',
             status: 'active',
             template: null,
             topicName: 'deploys',
             userId: null,
+            verification: 'none',
+            verificationConfig: null,
         });
 
         const res = await app.handle(request({ event: { name: 'deploy' } }));
@@ -216,11 +227,14 @@ describe('POST /h/:slug delivery retention', () => {
     function withOwner(userId: null | string) {
         prismaMock.webhook.findUnique.mockResolvedValue({
             id: 'wh-1',
+            secretCiphertext: null,
             source: 'custom',
             status: 'active',
             template: null,
             topicName: 'deploys',
             userId,
+            verification: 'none',
+            verificationConfig: null,
         });
     }
 
@@ -259,5 +273,190 @@ describe('POST /h/:slug delivery retention', () => {
         await app.handle(request());
 
         expect(storedExpiryDays()).toBe(3);
+    });
+});
+
+describe('POST /h/:slug signature verification', () => {
+    const app = new Elysia().use(receiveWebhook);
+
+    const SECRET = 'a-github-webhook-secret';
+    const PAYLOAD = { action: 'opened', number: 7 };
+    const RAW_BODY = JSON.stringify(PAYLOAD);
+
+    function githubSignature(body: string, secret: string): string {
+        return `sha256=${createHmac('sha256', secret).update(body, 'utf8').digest('hex')}`;
+    }
+
+    function withVerification(verification: string, secret: null | string) {
+        prismaMock.webhook.findUnique.mockResolvedValue({
+            id: 'wh-1',
+            secretCiphertext: secret ? encryptSecret(secret) : null,
+            source: 'github',
+            status: 'active',
+            template: null,
+            topicName: 'deploys',
+            userId: 'user-free',
+            verification,
+            verificationConfig: null,
+        });
+    }
+
+    function request(headers: Record<string, string> = {}, body = RAW_BODY) {
+        return new Request('http://localhost/h/gh_abc1234', {
+            body,
+            headers: { 'Content-Type': 'application/json', ...headers },
+            method: 'POST',
+        });
+    }
+
+    function storedDelivery(): Record<string, unknown> {
+        const calls = prismaMock.webhookDelivery.create.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown as [{ data: Record<string, unknown> }];
+
+        return lastCall[0].data;
+    }
+
+    beforeEach(() => {
+        resetUserPlansForTests();
+        setUserPlanForTests('user-free', 'free');
+        prismaMock.message.create.mockClear();
+        prismaMock.webhookDelivery.create.mockClear();
+        mockBus.publish.mockClear();
+        mockBus.publishWebhookDelivery.mockClear();
+        mockPushQueue.add.mockClear();
+        prismaMock.topic.findUnique.mockResolvedValue({
+            displayName: 'deploys',
+            id: 'topic-1',
+            name: 'deploys',
+        });
+    });
+
+    it('accepts a correctly signed delivery and publishes it', async () => {
+        withVerification('github', SECRET);
+
+        const res = await app.handle(
+            request({ 'x-hub-signature-256': githubSignature(RAW_BODY, SECRET) }),
+        );
+
+        expect(res.status).toBe(200);
+        expect(prismaMock.message.create).toHaveBeenCalled();
+        expect(mockBus.publish).toHaveBeenCalled();
+        expect(mockPushQueue.add).toHaveBeenCalled();
+        expect(storedDelivery().status).toBe(200);
+    });
+
+    it('rejects a delivery signed with the wrong secret without publishing anything', async () => {
+        withVerification('github', SECRET);
+
+        const res = await app.handle(
+            request({ 'x-hub-signature-256': githubSignature(RAW_BODY, 'not-the-secret') }),
+        );
+
+        expect(res.status).toBe(401);
+        await expect(res.json()).resolves.toEqual({
+            error: 'invalid_signature',
+            reason: 'bad_signature',
+        });
+        expect(prismaMock.message.create).not.toHaveBeenCalled();
+        expect(mockBus.publish).not.toHaveBeenCalled();
+        expect(mockPushQueue.add).not.toHaveBeenCalled();
+    });
+
+    it('rejects an unsigned delivery to a verified webhook', async () => {
+        withVerification('github', SECRET);
+
+        const res = await app.handle(request());
+
+        expect(res.status).toBe(401);
+        await expect(res.json()).resolves.toEqual({
+            error: 'invalid_signature',
+            reason: 'missing_signature',
+        });
+        expect(prismaMock.message.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects a body altered after it was signed', async () => {
+        withVerification('github', SECRET);
+
+        const res = await app.handle(
+            request(
+                { 'x-hub-signature-256': githubSignature(RAW_BODY, SECRET) },
+                JSON.stringify({ action: 'closed', number: 7 }),
+            ),
+        );
+
+        expect(res.status).toBe(401);
+        expect(prismaMock.message.create).not.toHaveBeenCalled();
+    });
+
+    it('logs the rejection as a 401 delivery with a truncated payload', async () => {
+        withVerification('github', SECRET);
+
+        await app.handle(request());
+
+        const delivery = storedDelivery();
+
+        expect(delivery.status).toBe(401);
+        expect(delivery.messageId).toBeNull();
+        expect(delivery.templated).toBe(false);
+        expect(JSON.parse(delivery.payload as string)).toEqual({
+            preview: RAW_BODY,
+            reason: 'missing_signature',
+            truncated: false,
+        });
+        expect(mockBus.publishWebhookDelivery).toHaveBeenCalled();
+    });
+
+    it('rejects when verification is on but no secret is stored', async () => {
+        withVerification('github', null);
+
+        const res = await app.handle(
+            request({ 'x-hub-signature-256': githubSignature(RAW_BODY, SECRET) }),
+        );
+
+        expect(res.status).toBe(401);
+        await expect(res.json()).resolves.toEqual({
+            error: 'invalid_signature',
+            reason: 'bad_config',
+        });
+    });
+
+    it('rejects an unrecognized scheme rather than letting the delivery through', async () => {
+        withVerification('paypal', SECRET);
+
+        const res = await app.handle(request());
+
+        expect(res.status).toBe(401);
+        expect(prismaMock.message.create).not.toHaveBeenCalled();
+    });
+
+    it('leaves unverified webhooks working exactly as before', async () => {
+        withVerification('none', null);
+
+        const res = await app.handle(request());
+
+        expect(res.status).toBe(200);
+        expect(prismaMock.message.create).toHaveBeenCalled();
+    });
+
+    it('rejects a malformed JSON body with 400', async () => {
+        withVerification('none', null);
+
+        const res = await app.handle(request({}, '{not-json'));
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_json' });
+        expect(prismaMock.message.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects a body over the size cap even when content-length lies', async () => {
+        withVerification('none', null);
+
+        const res = await app.handle(
+            request({ 'content-length': '10' }, JSON.stringify({ blob: 'x'.repeat(70_000) })),
+        );
+
+        expect(res.status).toBe(413);
+        expect(prismaMock.message.create).not.toHaveBeenCalled();
     });
 });
