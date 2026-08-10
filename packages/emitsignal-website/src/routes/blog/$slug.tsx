@@ -23,7 +23,7 @@ export const Route = createFileRoute('/blog/$slug')({
 
         const author = AUTHORS[frontmatter.author];
         const description = frontmatter.excerpt;
-        const title = `${frontmatter.title} — EmitSignal Blog`;
+        const title = `${frontmatter.title} - EmitSignal Blog`;
         const url = `${SITE_URL}/blog/${params.slug}`;
 
         const ogImage =
