@@ -17,11 +17,11 @@ mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
 import { publish } from '#/http/topic/publish';
 
-describe('POST /topic/:name', () => {
+describe('POST /publish/:name', () => {
     const app = new Elysia().use(publish);
 
     function request(topicName: string, body: unknown) {
-        return new Request(`http://localhost/topic/${topicName}`, {
+        return new Request(`http://localhost/publish/${topicName}`, {
             body: JSON.stringify(body),
             headers: { 'Content-Type': 'application/json' },
             method: 'POST',
@@ -182,7 +182,7 @@ describe('POST /topic/:name', () => {
             body: string,
             headers: Record<string, string> = {},
         ) {
-            return new Request(`http://localhost/topic/${topicName}`, {
+            return new Request(`http://localhost/publish/${topicName}`, {
                 body,
                 headers: { 'Content-Type': 'text/plain', ...headers },
                 method: 'POST',
@@ -276,5 +276,63 @@ describe('POST /topic/:name', () => {
 
             expect(res.status).toBe(200);
         });
+    });
+});
+
+describe('publish routing', () => {
+    const app = new Elysia().use(publish);
+
+    function request(path: string) {
+        return new Request(`http://localhost${path}`, {
+            body: JSON.stringify({ body: 'Test message body', priority: 3, title: 'Test Title' }),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+        });
+    }
+
+    it('accepts a topic name containing slashes without encoding', async () => {
+        const res = await app.handle(request('/publish/ci/web'));
+
+        expect(res.status).toBe(200);
+        expect(await res.json()).toEqual({ message: 'posted', messageId: 'msg-1' });
+    });
+
+    it('still accepts a percent-encoded slash', async () => {
+        const res = await app.handle(request('/publish/ci%2Fweb'));
+
+        expect(res.status).toBe(200);
+    });
+
+    it('rejects a malformed percent-encoded topic name', async () => {
+        const res = await app.handle(request('/publish/ci%2'));
+
+        expect(res.status).toBe(400);
+    });
+
+    it('rejects a publish with no topic name', async () => {
+        const res = await app.handle(request('/publish/'));
+
+        expect(res.status).toBe(400);
+    });
+
+    it('does not mark the canonical path deprecated', async () => {
+        const res = await app.handle(request('/publish/test-topic'));
+
+        expect(res.headers.get('deprecation')).toBeNull();
+        expect(res.headers.get('link')).toBeNull();
+    });
+
+    it('still serves the legacy /topic path, including slashes', async () => {
+        const res = await app.handle(request('/topic/ci/web'));
+
+        expect(res.status).toBe(200);
+        expect(await res.json()).toEqual({ message: 'posted', messageId: 'msg-1' });
+    });
+
+    it('announces the deprecation on the legacy /topic path', async () => {
+        const res = await app.handle(request('/topic/test-topic'));
+
+        expect(res.headers.get('deprecation')).toBe('@1786320000');
+        expect(res.headers.get('link')).toBe('</publish/*>; rel="successor-version"');
     });
 });

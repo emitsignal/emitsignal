@@ -22,7 +22,7 @@ import { publish } from '#/http/topic/publish';
 import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
 import { resetUsageForTests } from '#/services/billing/usage';
 
-describe('POST /topic/:name — message media', () => {
+describe('POST /publish/<topic> — message media', () => {
     const app = new Elysia().use(publish);
 
     function urls(count: number): string[] {
@@ -33,7 +33,7 @@ describe('POST /topic/:name — message media', () => {
     }
 
     function request(body: Record<string, unknown>, userId?: string) {
-        return new Request('http://localhost/topic/media-topic', {
+        return new Request('http://localhost/publish/media-topic', {
             body: JSON.stringify({
                 body: 'Media test',
                 priority: 3,
