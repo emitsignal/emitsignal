@@ -372,7 +372,10 @@ function printDelivery(delivery: Delivery, asJson: boolean): void {
     const ch = color.fgDim((delivery.channel ?? '').padEnd(18));
     const dot = delivery.templated ? color.violet('●') : color.fgDim('○');
     const ms = color.fgFaint(`${delivery.ms}ms`.padEnd(8));
-    const status = color.green(String(delivery.status));
+    const status =
+        delivery.status >= 400
+            ? color.red(String(delivery.status))
+            : color.green(String(delivery.status));
     const time = color.fgFaint(formatTime(delivery.t * 1000));
 
     if (delivery.templated && delivery.renderedTitle) {
