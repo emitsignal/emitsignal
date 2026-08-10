@@ -314,7 +314,7 @@ function verifyDelivery(
 }
 
 // The rendered link comes from the caller's payload on a public endpoint, so it
-// is untrusted: run it through the same validator `POST /topic/:name` uses so
+// is untrusted: run it through the same validator `POST /publish/<topic>` uses so
 // only http(s) URLs are ever stored. Unlike publish, a link we cannot use never
 // fails the delivery — the notification still goes out, just without a button.
 function viewActionFor(link: string, label: string): Action[] {

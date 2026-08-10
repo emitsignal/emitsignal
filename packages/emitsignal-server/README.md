@@ -48,29 +48,30 @@ The server listens on port `5001` by default (`EMIT_SIGNAL_HTTP_PORT`).
 
 ## Endpoints
 
-| Method   | Path                              | Description                       |
-| -------- | --------------------------------- | --------------------------------- |
-| `GET`    | `/`                               | Health check / version            |
-| `POST`   | `/auth/magic-link`                | Request a magic sign-in code      |
-| `POST`   | `/auth/verify`                    | Verify code and get session token |
-| `GET`    | `/auth/me`                        | Current user (Bearer token)       |
-| `GET`    | `/topics`                         | List topics (`?q=` for search)    |
-| `GET`    | `/topics/:name`                   | Topic details with message count  |
-| `GET`    | `/topics/:name/messages?limit=50` | Topic message history             |
-| `GET`    | `/topics/:name/listen?since=<ms>` | SSE — backfill + live stream      |
-| `GET`    | `/listen?topics=a,b,c&since=<ms>` | SSE — multi-topic backfill + live |
-| `POST`   | `/topic/:name`                    | Publish a message                 |
-| `GET`    | `/suggestions`                    | Topic name suggestions (`?q=`)    |
-| `GET`    | `/messages/:id`                   | Get a single message              |
-| `POST`   | `/messages/:id/acknowledge`       | Acknowledge a message             |
-| `POST`   | `/messages/:id/attachments`       | Upload a file attachment          |
-| `GET`    | `/uploads/:file`                  | Serve a locally stored attachment |
-| `GET`    | `/subscriptions?deviceId=…`       | List device subscriptions         |
-| `POST`   | `/subscriptions`                  | Subscribe device to topic         |
-| `DELETE` | `/subscriptions`                  | Unsubscribe device from topic     |
-| `GET`    | `/push-tokens`                    | List push tokens for a device     |
-| `POST`   | `/push-tokens`                    | Register Expo push token          |
-| `PATCH`  | `/push-tokens/:id`                | Update a push token               |
+| Method   | Path                              | Description                               |
+| -------- | --------------------------------- | ----------------------------------------- |
+| `GET`    | `/`                               | Health check / version                    |
+| `POST`   | `/auth/magic-link`                | Request a magic sign-in code              |
+| `POST`   | `/auth/verify`                    | Verify code and get session token         |
+| `GET`    | `/auth/me`                        | Current user (Bearer token)               |
+| `GET`    | `/topics`                         | List topics (`?q=` for search)            |
+| `GET`    | `/topics/:name`                   | Topic details with message count          |
+| `GET`    | `/topics/:name/messages?limit=50` | Topic message history                     |
+| `GET`    | `/topics/:name/listen?since=<ms>` | SSE — backfill + live stream              |
+| `GET`    | `/listen?topics=a,b,c&since=<ms>` | SSE — multi-topic backfill + live         |
+| `POST`   | `/publish/*`                      | Publish a message (topic may contain `/`) |
+| `POST`   | `/topic/*`                        | Publish a message (deprecated alias)      |
+| `GET`    | `/suggestions`                    | Topic name suggestions (`?q=`)            |
+| `GET`    | `/messages/:id`                   | Get a single message                      |
+| `POST`   | `/messages/:id/acknowledge`       | Acknowledge a message                     |
+| `POST`   | `/messages/:id/attachments`       | Upload a file attachment                  |
+| `GET`    | `/uploads/:file`                  | Serve a locally stored attachment         |
+| `GET`    | `/subscriptions?deviceId=…`       | List device subscriptions                 |
+| `POST`   | `/subscriptions`                  | Subscribe device to topic                 |
+| `DELETE` | `/subscriptions`                  | Unsubscribe device from topic             |
+| `GET`    | `/push-tokens`                    | List push tokens for a device             |
+| `POST`   | `/push-tokens`                    | Register Expo push token                  |
+| `PATCH`  | `/push-tokens/:id`                | Update a push token                       |
 
 ### SSE event format
 

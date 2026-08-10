@@ -29,7 +29,7 @@ No SDK required to send — if it can make an HTTP request, it can emit a signal
 **Publish a message** — header-based, no body parsing required:
 
 ```bash
-curl -X POST https://emitsignal.com/topic/alerts \
+curl -X POST https://api.emitsignal.com/publish/alerts \
   -H "X-Title: Deploy finished" \
   -H "X-Priority: high" \
   -H "X-Tags: ci,prod" \
@@ -39,7 +39,7 @@ curl -X POST https://emitsignal.com/topic/alerts \
 **Or send JSON, authenticated with an API key:**
 
 ```bash
-curl -X POST https://emitsignal.com/topic/alerts \
+curl -X POST https://api.emitsignal.com/publish/alerts \
   -H "Authorization: Bearer es_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{ "title": "Latency alert", "body": "p99 over 800ms", "priority": 5, "tags": ["prod"] }'
@@ -49,16 +49,16 @@ curl -X POST https://emitsignal.com/topic/alerts \
 
 ```bash
 # one topic
-curl -N https://emitsignal.com/topics/alerts/listen
+curl -N https://api.emitsignal.com/topics/alerts/listen
 
 # several at once, replaying the last 10 minutes first
-curl -N "https://emitsignal.com/listen?topics=alerts,ci,deploys&since=$(($(date +%s000) - 600000))"
+curl -N "https://api.emitsignal.com/listen?topics=alerts,ci,deploys&since=$(($(date +%s000) - 600000))"
 ```
 
 **Schedule for later** — relative durations (`30m`, `2h`, `1d`) or a unix timestamp:
 
 ```bash
-curl -X POST https://emitsignal.com/topic/reminders \
+curl -X POST https://api.emitsignal.com/publish/reminders \
   -H "X-Title: Stand-up in 30 minutes" \
   -H "X-Delay: 30m" \
   -d "Don't forget the daily"
@@ -68,7 +68,7 @@ curl -X POST https://emitsignal.com/topic/reminders \
 
 # Features
 
-- **Topics** — publish to any named topic; subscribers tune in by name, no pre-registration.
+- **Topics** — `POST /publish/<topic>` to any named topic; subscribers tune in by name, no pre-registration. Topic names may contain slashes (`alerts/prod`, `ci/web`).
 - **Live delivery (SSE)** — `GET /topics/:name/listen` or `GET /listen?topics=a,b,c`, both with `?since=` backlog replay and heartbeats.
 - **Push notifications** — delivered to the Expo mobile app (iOS, Android) via queued workers.
 - **Priorities** — `1`–`5`, or the aliases `min` / `low` / `default` / `high` / `urgent`.
@@ -107,7 +107,7 @@ bun install
 docker compose -f packages/emitsignal-docker/docker-compose.dev.yml up
 ```
 
-That brings up the whole stack with hot reload — PostgreSQL, Redis, an SMTP inbox ([localhost:3134](http://localhost:3134)), all BullMQ workers, the API server ([localhost:5100](https://emitsignal.com)) and the website ([localhost:5173](http://localhost:5173)).
+That brings up the whole stack with hot reload — PostgreSQL, Redis, an SMTP inbox ([localhost:3134](http://localhost:3134)), all BullMQ workers, the API server ([localhost:5100](http://localhost:5100)) and the website ([localhost:5173](http://localhost:5173)).
 
 <details>
 <summary>Run pieces by hand (without Docker)</summary>

@@ -18,6 +18,17 @@ interface ChangeEntry {
 const RELEASES: ChangeEntry[] = [
     {
         added: [
+            'POST /publish/<topic>, the canonical publish endpoint. Topic names containing slashes (ci/web) no longer need encoding',
+        ],
+        date: '2026-08-10',
+        improved: [
+            'POST /topic/<topic> still publishes, but is now deprecated and answers with Deprecation and Link headers pointing at /publish/',
+            'The CLI, web, and mobile clients publish through /publish/',
+        ],
+        version: '1.1.0',
+    },
+    {
+        added: [
             'GDPR/LGPD privacy policy and terms-of-service pages',
             'Account deletion with cascading data erasure, plus DELETE /me/signals purge (async purge queue + worker)',
             'Apple and GitHub social sign-in',
