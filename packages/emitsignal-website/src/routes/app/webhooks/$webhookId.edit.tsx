@@ -40,6 +40,7 @@ function EditWebhookPage() {
             ) : webhook ? (
                 <WebhookCreate
                     initialData={{
+                        hasSecret: webhook.hasSecret,
                         id: webhook.id,
                         name: webhook.name,
                         samplePayload,
@@ -47,6 +48,8 @@ function EditWebhookPage() {
                         source: webhook.source,
                         template: webhook.template ?? null,
                         topicName: webhook.topicName,
+                        verification: webhook.verification,
+                        verificationConfig: webhook.verificationConfig,
                     }}
                 />
             ) : (
