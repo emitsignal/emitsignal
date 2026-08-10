@@ -17,26 +17,32 @@ Framework-level errors return a consistent envelope:
 Individual endpoints return their own machine-readable `error` codes (usually
 `{ "error": "<code>" }`, sometimes with extra fields). The ones you'll meet:
 
-| Status | Code                         | Where                                                  |
-| ------ | ---------------------------- | ------------------------------------------------------ |
-| `400`  | `missing_content`            | Publish with neither title nor body.                   |
-| `400`  | `invalid_topic_name`         | Publish/subscribe with an invalid topic name.          |
-| `400`  | `invalid_media`              | Publish with a malformed media reference.              |
-| `400`  | `invalid_mime_type`          | Attachment/avatar of a disallowed type.                |
-| `400`  | `file_too_large`             | Attachment exceeds the plan's size limit.              |
-| `400`  | `too_many_files`             | More than one file in an attachment upload.            |
-| `400`  | `at_least_one_file_required` | Attachment upload with no file.                        |
-| `400`  | `payload_too_large`          | Avatar exceeds the size limit.                         |
-| `401`  | `missing_token`              | Endpoint requires auth and none was resolved.          |
-| `401`  | `unauthorized`               | Avatar endpoints without auth.                         |
-| `403`  | `forbidden`                  | Authenticated but not the owner of the resource.       |
-| `403`  | `plan_limit_reached`         | `{ error, limit, metric, plan }` — topics or webhooks. |
-| `404`  | `topic_not_found`            | Topic doesn't exist.                                   |
-| `404`  | `message_not_found`          | Message doesn't exist.                                 |
-| `404`  | `not_found`                  | Subscription / push token / webhook doesn't exist.     |
-| `409`  | `attachment_already_exists`  | Message already has an attachment.                     |
-| `429`  | `daily_quota_exceeded`       | `{ error, limit, metric: "messages", resetAt }`.       |
-| `429`  | `too_many_sse_connections`   | `{ error, max, retryAfter: 60 }` — SSE connection cap. |
-| `503`  | `webhook_paused`             | Posting to a paused webhook receiver.                  |
+| Status | Code                          | Where                                                  |
+| ------ | ----------------------------- | ------------------------------------------------------ |
+| `400`  | `missing_content`             | Publish with neither title nor body.                   |
+| `400`  | `invalid_topic_name`          | Publish/subscribe with an invalid topic name.          |
+| `400`  | `invalid_media`               | Publish with a malformed media reference.              |
+| `400`  | `invalid_mime_type`           | Attachment/avatar of a disallowed type.                |
+| `400`  | `file_too_large`              | Attachment exceeds the plan's size limit.              |
+| `400`  | `too_many_files`              | More than one file in an attachment upload.            |
+| `400`  | `at_least_one_file_required`  | Attachment upload with no file.                        |
+| `400`  | `payload_too_large`           | Avatar exceeds the size limit.                         |
+| `400`  | `invalid_json`                | Webhook receiver body is not a JSON object.            |
+| `400`  | `missing_secret`              | Webhook verification enabled with no signing secret.   |
+| `400`  | `invalid_verification_scheme` | Unknown webhook `verification` value.                  |
+| `400`  | `invalid_verification_config` | `hmac`/`token` webhook without a usable header config. |
+| `401`  | `missing_token`               | Endpoint requires auth and none was resolved.          |
+| `401`  | `unauthorized`                | Avatar endpoints without auth.                         |
+| `401`  | `invalid_signature`           | `{ error, reason }` — webhook signature check failed.  |
+| `403`  | `forbidden`                   | Authenticated but not the owner of the resource.       |
+| `403`  | `plan_limit_reached`          | `{ error, limit, metric, plan }` — topics or webhooks. |
+| `404`  | `topic_not_found`             | Topic doesn't exist.                                   |
+| `404`  | `message_not_found`           | Message doesn't exist.                                 |
+| `404`  | `not_found`                   | Subscription / push token / webhook doesn't exist.     |
+| `409`  | `attachment_already_exists`   | Message already has an attachment.                     |
+| `413`  | `payload_too_large`           | Webhook receiver body over 64 KB.                      |
+| `429`  | `daily_quota_exceeded`        | `{ error, limit, metric: "messages", resetAt }`.       |
+| `429`  | `too_many_sse_connections`    | `{ error, max, retryAfter: 60 }` — SSE connection cap. |
+| `503`  | `webhook_paused`              | Posting to a paused webhook receiver.                  |
 
 See [Rate limits](/api/rate-limits) for the `429` cases.
