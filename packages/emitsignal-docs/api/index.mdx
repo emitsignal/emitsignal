@@ -37,11 +37,11 @@ root.
 
 ```bash No auth — public publish
 # Publish to any topic. The topic is created on first publish.
-curl -d "hello from curl" https://api.emitsignal.com/topic/welcome
+curl -d "hello from curl" https://api.emitsignal.com/publish/welcome
 ```
 
 ```bash Authenticated publish
-curl https://api.emitsignal.com/topic/deploy/prod \
+curl https://api.emitsignal.com/publish/deploy/prod \
   -H "Authorization: Bearer es_xxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{"title": "v2.14.3 shipped", "body": "api-gateway deployed", "priority": 4}'

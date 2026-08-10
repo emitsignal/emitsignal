@@ -4,13 +4,19 @@ description: 'Send a signal to a topic. JSON body or header-based format. Topic 
 ---
 
 ```
-POST /topic/:name
+POST /publish/<topic>
 ```
 
 Publishes a message to a topic. The topic is created automatically on first publish.
 **Auth is optional** — anonymous publishes are allowed (per-IP rate limited); an
 authenticated publish applies your plan's daily message quota and attributes the
 sender.
+
+<Note>
+    `POST /topic/<topic>` is the former path for this endpoint. It still works and behaves
+    identically, but it is deprecated: responses carry a `Deprecation` header and a `Link` header
+    pointing at `/publish/`. Move publishers to `/publish/` when convenient.
+</Note>
 
 ## JSON body
 
@@ -55,7 +61,7 @@ Send `Content-Type: application/json` with any of these fields. At least one of
 </ParamField>
 
 ```bash
-curl https://api.emitsignal.com/topic/deploy/prod \
+curl https://api.emitsignal.com/publish/deploy/prod \
   -H "Authorization: Bearer es_xxx" \
   -H "Content-Type: application/json" \
   -d '{
@@ -72,7 +78,7 @@ If the request `Content-Type` is **not** `application/json`, the raw body become
 message and metadata is read from headers. This is what `curl -d` uses by default.
 
 ```bash
-curl https://api.emitsignal.com/topic/alerts/prod \
+curl https://api.emitsignal.com/publish/alerts/prod \
   -H "Authorization: Bearer es_xxx" \
   -H "title: High memory on api-02" \
   -H "x-priority: urgent" \

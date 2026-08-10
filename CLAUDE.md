@@ -70,7 +70,7 @@ CLI                       ┘                    │                  Redis
 
 ### Publish API
 
-`POST /topic/:name` accepts either JSON body or a header-based format (parsed in `src/http/topic/header-publish.ts`). Non-JSON requests use headers like `title`, `x-priority` (`1`–`5` or `low`/`high`/`urgent`), `x-tags`, `x-delay` (unix timestamp or relative like `5m`, `2h`). Publish immediately fires the in-process bus and enqueues a push job; scheduled messages skip the bus and go straight to the schedule queue.
+`POST /publish/<topic>` accepts either JSON body or a header-based format (parsed in `src/http/topic/header-publish.ts`). Non-JSON requests use headers like `title`, `x-priority` (`1`–`5` or `low`/`high`/`urgent`), `x-tags`, `x-delay` (unix timestamp or relative like `5m`, `2h`). Publish immediately fires the in-process bus and enqueues a push job; scheduled messages skip the bus and go straight to the schedule queue.
 
 ### Website (`packages/emitsignal-website`)
 

@@ -13,7 +13,7 @@ callers get the lower limit.
 | Endpoint group                        | Anonymous            | Authenticated |
 | ------------------------------------- | -------------------- | ------------- |
 | Global (catch-all)                    | 100 / min            | 500 / min     |
-| Publish (`POST /topic/:name`)         | 10 / min             | 60 / min      |
+| Publish (`POST /publish/<topic>`)     | 10 / min             | 60 / min      |
 | Reads (topics, messages, suggestions) | 30 / min             | 120 / min     |
 | Attachment upload                     | 5 / hour             | 20 / hour     |
 | Webhook receiver (`POST /h/:slug`)    | 120 / min (per slug) |

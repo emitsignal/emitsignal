@@ -45,14 +45,14 @@ export const globalAuthLimiter = makeLimiter(
 // POST /auth/magic-link — keyed by IP+email to block email spam
 export const magicLinkLimiter = makeLimiter('rl:magic-link', 3, duration.minutes(15).as('seconds'));
 
-// POST /topic/:name — anonymous publisher
+// POST /publish/<topic> — anonymous publisher
 export const publishAnonLimiter = makeLimiter(
     'rl:publish:anon',
     10,
     duration.minutes(1).as('seconds'),
 );
 
-// POST /topic/:name — authenticated publisher
+// POST /publish/<topic> — authenticated publisher
 export const publishAuthLimiter = makeLimiter(
     'rl:publish:auth',
     60,
