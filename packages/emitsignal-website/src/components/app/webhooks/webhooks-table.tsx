@@ -196,7 +196,21 @@ function WebhookRow({
             <div className="flex min-w-0 items-center gap-3">
                 <SourceGlyph size={34} source={webhook.source as WebhookSource} />
                 <div className="min-w-0">
-                    <div className="text-[13.5px] font-semibold">{webhook.name}</div>
+                    <div className="flex min-w-0 items-center gap-2">
+                        <span className="truncate text-[13.5px] font-semibold">{webhook.name}</span>
+                        {webhook.verification === 'none' && (
+                            <span
+                                className="shrink-0 rounded-full border px-2 py-0.5 font-mono text-[9.5px] text-warn"
+                                style={{
+                                    borderColor:
+                                        'color-mix(in srgb, var(--color-warn) 30%, transparent)',
+                                }}
+                                title="No signing secret — anyone with the endpoint URL can post to this webhook"
+                            >
+                                unverified
+                            </span>
+                        )}
+                    </div>
                     <div className="mt-0.5 font-mono text-[10.5px] text-dim">
                         → {webhook.topicName}
                     </div>
