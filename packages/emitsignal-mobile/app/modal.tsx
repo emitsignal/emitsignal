@@ -152,7 +152,7 @@ export default function SubscribeModal() {
                                 <Text style={styles.sectionLabel}>PUBLISH FROM</Text>
                                 <WCode language="BASH">
                                     {`# from your shell
-curl -d "hello" ${api.baseUrl}/topic/${topic}
+curl -d "hello" ${api.baseUrl}/publish/${topic}
 
 # from EmitSignal cli
 emitsignal publish ${topic} "deploy ok"`}

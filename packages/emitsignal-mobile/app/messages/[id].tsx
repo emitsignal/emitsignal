@@ -204,7 +204,7 @@ export default function MessageDetailScreen() {
                         <SectionHead>reproduce · curl</SectionHead>
                         <View style={styles.codeWrap}>
                             <WCode language="BASH">
-                                {`curl -X POST ${api.baseUrl}/topic/${message.topicName} \\
+                                {`curl -X POST ${api.baseUrl}/publish/${message.topicName} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
       actions: message.actions.length ? message.actions : undefined,
