@@ -138,3 +138,109 @@ describe('POST /webhooks', () => {
         });
     });
 });
+
+describe('POST /webhooks signing secrets', () => {
+    const app = new Elysia().use(createWebhook);
+
+    function request(body: Record<string, unknown>) {
+        return new Request('http://localhost/webhooks', {
+            body: JSON.stringify({ topicName: 'deploys', ...body }),
+            headers: { 'Content-Type': 'application/json', 'x-test-user-id': 'user-1' },
+            method: 'POST',
+        });
+    }
+
+    function storedData(): Record<string, unknown> {
+        const calls = prismaMock.webhook.create.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown as [{ data: Record<string, unknown> }];
+
+        return lastCall[0].data;
+    }
+
+    beforeEach(() => {
+        resetUserPlansForTests();
+        setUserPlanForTests('user-1', 'free');
+        prismaMock.webhook.count.mockReset();
+        prismaMock.webhook.count.mockResolvedValue(0);
+        prismaMock.webhook.create.mockClear();
+        prismaMock.topic.findUnique.mockResolvedValue(null);
+    });
+
+    it('defaults to no verification when the fields are omitted', async () => {
+        const res = await app.handle(request({}));
+
+        expect(res.status).toBe(200);
+        expect(storedData().verification).toBe('none');
+        expect(storedData().secretCiphertext).toBeNull();
+        expect((await res.json()).hasSecret).toBe(false);
+    });
+
+    it('encrypts the secret and never returns it', async () => {
+        const res = await app.handle(
+            request({ secret: 'super-secret-value', source: 'github', verification: 'github' }),
+        );
+
+        expect(res.status).toBe(200);
+
+        const stored = storedData().secretCiphertext as string;
+
+        expect(stored).toStartWith('v1.');
+        expect(stored).not.toContain('super-secret-value');
+
+        const payload = await res.json();
+
+        expect(payload.hasSecret).toBe(true);
+        expect(JSON.stringify(payload)).not.toContain('super-secret-value');
+        expect(payload.secret).toBeUndefined();
+        expect(payload.secretCiphertext).toBeUndefined();
+    });
+
+    it('rejects a verified webhook with no secret', async () => {
+        const res = await app.handle(request({ verification: 'github' }));
+
+        expect(res.status).toBe(400);
+        expect((await res.json()).error).toBe('missing_secret');
+        expect(prismaMock.webhook.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects an unknown verification scheme', async () => {
+        const res = await app.handle(request({ secret: 'x', verification: 'paypal' }));
+
+        expect(res.status).toBe(400);
+        expect((await res.json()).error).toBe('invalid_verification_scheme');
+    });
+
+    it('rejects an hmac webhook without a usable config', async () => {
+        const res = await app.handle(request({ secret: 'x', verification: 'hmac' }));
+
+        expect(res.status).toBe(400);
+        expect((await res.json()).error).toBe('invalid_verification_config');
+    });
+
+    it('stores the config for an hmac webhook', async () => {
+        const verificationConfig = JSON.stringify({
+            algorithm: 'sha256',
+            header: 'x-signature',
+        });
+
+        const res = await app.handle(
+            request({ secret: 'x', verification: 'hmac', verificationConfig }),
+        );
+
+        expect(res.status).toBe(200);
+        expect(storedData().verificationConfig).toBe(verificationConfig);
+    });
+
+    it('drops a config that the chosen scheme does not use', async () => {
+        const res = await app.handle(
+            request({
+                secret: 'x',
+                verification: 'github',
+                verificationConfig: JSON.stringify({ header: 'x-signature' }),
+            }),
+        );
+
+        expect(res.status).toBe(200);
+        expect(storedData().verificationConfig).toBeNull();
+    });
+});
