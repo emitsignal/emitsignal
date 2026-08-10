@@ -95,6 +95,10 @@ export const environmentSchema = Type.Object({
     ),
 
     UPLOAD_DIR: Type.String({ default: './uploads' }),
+
+    // Base64 32-byte key encrypting webhook signing secrets at rest. When unset,
+    // derived from BETTER_AUTH_SECRET; set it to rotate the two independently.
+    WEBHOOK_SECRET_KEY: Type.Optional(Type.String()),
 });
 
 export type Environment = typeof environment;
