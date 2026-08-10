@@ -6,3 +6,4 @@ export * from './priority.ts';
 export * from './topic.ts';
 export * from './url.ts';
 export * from './webhook-template.ts';
+export * from './webhook-verification.ts';
