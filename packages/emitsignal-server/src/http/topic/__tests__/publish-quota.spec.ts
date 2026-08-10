@@ -25,11 +25,11 @@ import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/
 import { PLANS } from '#/services/billing/plans';
 import { resetUsageForTests } from '#/services/billing/usage';
 
-describe('POST /topic/:name — plan quotas', () => {
+describe('POST /publish/<topic> — plan quotas', () => {
     const app = new Elysia().use(publish);
 
     function request(userId?: string) {
-        return new Request('http://localhost/topic/quota-topic', {
+        return new Request('http://localhost/publish/quota-topic', {
             body: JSON.stringify({
                 body: 'Quota test',
                 priority: 3,
