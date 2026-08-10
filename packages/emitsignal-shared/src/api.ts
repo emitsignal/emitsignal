@@ -1,5 +1,6 @@
 import type { BillingInfo } from './billing.ts';
 import type { MessageFilterParams } from './message-filters.ts';
+import type { VerificationScheme } from './webhook-verification.ts';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -111,6 +112,7 @@ export interface TopicWithCounts extends Topic {
 export interface Webhook {
     count24h: number;
     createdAt: number;
+    hasSecret: boolean;
     id: string;
     lastDeliveryAt: null | number;
     name: string;
@@ -121,6 +123,8 @@ export interface Webhook {
     templated: boolean;
     topicName: string;
     updatedAt: number;
+    verification: VerificationScheme;
+    verificationConfig?: null | string;
 }
 
 export interface WebhookDelivery {
@@ -145,6 +149,13 @@ export interface WebhookTemplate {
     priority?: string;
     tags?: string;
     title?: string;
+}
+
+export interface WebhookVerificationInput {
+    // null clears the stored secret; omitted leaves it untouched.
+    secret?: null | string;
+    verification?: VerificationScheme;
+    verificationConfig?: null | string;
 }
 
 export function createApiClient(baseUrl: string) {
@@ -223,12 +234,14 @@ export function createApiClient(baseUrl: string) {
             });
         },
 
-        createWebhook(input: {
-            name?: string;
-            source?: string;
-            template?: null | string;
-            topicName: string;
-        }) {
+        createWebhook(
+            input: {
+                name?: string;
+                source?: string;
+                template?: null | string;
+                topicName: string;
+            } & WebhookVerificationInput,
+        ) {
             return request<{ endpointUrl: string } & Webhook>('/webhooks', {
                 body: JSON.stringify(input),
                 method: 'POST',
@@ -444,7 +457,12 @@ export function createApiClient(baseUrl: string) {
 
         updateWebhook(
             id: string,
-            input: { name?: string; status?: string; template?: null | string; topicName?: string },
+            input: {
+                name?: string;
+                status?: string;
+                template?: null | string;
+                topicName?: string;
+            } & WebhookVerificationInput,
         ) {
             return request<Webhook>(`/webhooks/${encodeURIComponent(id)}`, {
                 body: JSON.stringify(input),
