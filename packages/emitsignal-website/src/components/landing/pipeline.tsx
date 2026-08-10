@@ -16,7 +16,7 @@ const SOURCES: Node[] = [
     {
         detail: 'POST a body from any shell, script, CI job, or Lambda.',
         icon: Upload,
-        tag: 'POST /topic/:name',
+        tag: 'POST /publish/<topic>',
         title: 'HTTP',
     },
     {

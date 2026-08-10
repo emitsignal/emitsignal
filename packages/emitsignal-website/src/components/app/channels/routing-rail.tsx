@@ -59,7 +59,7 @@ export function RoutingRail({ subscription }: Props) {
             <SubHeading>PUBLISH A MESSAGE</SubHeading>
 
             <Code language="POST">
-                {topicName ? `${API_URL}/topic/${topicName}` : 'subscribe to a channel first'}
+                {topicName ? `${API_URL}/publish/${topicName}` : 'subscribe to a channel first'}
             </Code>
         </aside>
     );

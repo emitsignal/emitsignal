@@ -65,7 +65,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
         2,
     );
 
-    const curlCommand = `curl -X POST ${API_URL}/topic/${encodeURIComponent(channel)} \\
+    const curlCommand = `curl -X POST ${API_URL}/publish/${encodeURIComponent(channel)} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
       actions: message.actions.length ? message.actions : undefined,

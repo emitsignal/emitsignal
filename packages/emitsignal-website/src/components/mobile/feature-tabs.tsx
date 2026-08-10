@@ -198,7 +198,7 @@ function QuickstartCard() {
                     <span className="text-warn">&quot;Content-Type: application/json&quot;</span>
                     <span className="text-dim"> \</span>
                     {'\n  '}
-                    <span className="text-accent">{API_URL_CLEAN}/topic/deploy/prod</span>
+                    <span className="text-accent">{API_URL_CLEAN}/publish/deploy/prod</span>
                 </code>
             </div>
 
