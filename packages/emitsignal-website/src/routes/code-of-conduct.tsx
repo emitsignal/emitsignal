@@ -5,7 +5,7 @@ import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 
 const DESCRIPTION =
     'The standards of behaviour we expect from everyone who participates in the EmitSignal community — our platform, repositories, and communication channels.';
-const TITLE = 'Code of Conduct — EmitSignal';
+const TITLE = 'Code of Conduct - EmitSignal';
 
 export const Route = createFileRoute('/code-of-conduct')({
     component: CodeOfConductPage,
@@ -275,7 +275,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
 
 function Li({ children }: { children: React.ReactNode }) {
     return (
-        <li className="relative pl-5 text-[14px] leading-[1.65] text-muted before:absolute before:left-0 before:text-accent before:content-['—']">
+        <li className="relative pl-5 text-[14px] leading-[1.65] text-muted before:absolute before:left-0 before:text-accent before:content-['-']">
             {children}
         </li>
     );

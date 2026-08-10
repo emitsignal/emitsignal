@@ -5,7 +5,7 @@ import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 
 const DESCRIPTION =
     'How EmitSignal collects, uses, shares, and retains personal data, and your rights under the GDPR and the LGPD.';
-const TITLE = 'Privacy Policy — EmitSignal';
+const TITLE = 'Privacy Policy - EmitSignal';
 
 export const Route = createFileRoute('/privacy')({
     component: PrivacyPage,

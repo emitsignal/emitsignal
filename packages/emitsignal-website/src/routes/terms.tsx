@@ -5,7 +5,7 @@ import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 
 const DESCRIPTION =
     'The terms and conditions that govern your use of EmitSignal — accounts, acceptable use, plans, billing, liability, and termination.';
-const TITLE = 'Terms of Service — EmitSignal';
+const TITLE = 'Terms of Service - EmitSignal';
 
 export const Route = createFileRoute('/terms')({
     component: TermsPage,
@@ -393,7 +393,7 @@ function Kicker({ children }: { children: React.ReactNode }) {
 
 function Li({ children }: { children: React.ReactNode }) {
     return (
-        <li className="relative pl-5 text-[14px] leading-[1.65] text-muted before:absolute before:left-0 before:text-accent before:content-['—']">
+        <li className="relative pl-5 text-[14px] leading-[1.65] text-muted before:absolute before:left-0 before:text-accent before:content-['-']">
             {children}
         </li>
     );
