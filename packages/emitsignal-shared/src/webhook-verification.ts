@@ -1,4 +1,3 @@
-// Identifiers and presentation metadata only; verification runs on the server.
 export interface VerificationConfig {
     algorithm?: 'sha1' | 'sha256' | 'sha512';
     encoding?: 'base64' | 'hex';

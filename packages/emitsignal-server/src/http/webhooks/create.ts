@@ -84,7 +84,6 @@ export const createWebhook = new Elysia().post(
                     ? (body.verificationConfig ?? null)
                     : null,
             },
-            // secretCiphertext is deliberately absent: the secret is write-only.
             select: {
                 createdAt: true,
                 id: true,

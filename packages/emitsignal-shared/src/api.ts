@@ -152,7 +152,6 @@ export interface WebhookTemplate {
 }
 
 export interface WebhookVerificationInput {
-    // null clears the stored secret; omitted leaves it untouched.
     secret?: null | string;
     verification?: VerificationScheme;
     verificationConfig?: null | string;
