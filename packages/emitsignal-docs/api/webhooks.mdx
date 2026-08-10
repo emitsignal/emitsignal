@@ -5,7 +5,8 @@ description: 'Turn inbound HTTP from third parties into signals, and stream deli
 
 A webhook gives you a public URL (`/h/:slug`) that turns an inbound HTTP POST — from
 Slack, GitHub, Grafana, Stripe, Vercel, or anything custom — into a signal on a topic.
-Management endpoints require authentication; the receiver is public.
+Management endpoints require authentication; the receiver is public, and should be
+given a signing secret so only your provider can post to it.
 
 ## Create a webhook
 
@@ -26,6 +27,17 @@ POST /webhooks
 <ParamField body="template" type="string | null">
     Optional template used to render incoming payloads into a message.
 </ParamField>
+<ParamField body="verification" type="string" default='"none"'>
+    One of `none`, `github`, `stripe`, `svix`, `hmac`, `token`. Anything other than `none` requires
+    a `secret`. See [Verifying the sender](#verifying-the-sender).
+</ParamField>
+<ParamField body="secret" type="string | null">
+    The signing secret issued by the sending provider. Write-only — it is encrypted at rest and
+    never returned by any endpoint.
+</ParamField>
+<ParamField body="verificationConfig" type="string | null">
+    JSON string describing the header to check. Required for `hmac` and `token`, ignored otherwise.
+</ParamField>
 
 Enforces your plan's `maxWebhooks` limit (`403 plan_limit_reached`).
 
@@ -33,6 +45,7 @@ Enforces your plan's `maxWebhooks` limit (`403 plan_limit_reached`).
 {
     "createdAt": 1790000000,
     "endpointUrl": "/h/cw_ab12cd",
+    "hasSecret": false,
     "id": "...",
     "name": "ci hook",
     "slug": "cw_ab12cd",
@@ -40,7 +53,9 @@ Enforces your plan's `maxWebhooks` limit (`403 plan_limit_reached`).
     "status": "active",
     "template": null,
     "templated": false,
-    "topicName": "ci/web"
+    "topicName": "ci/web",
+    "verification": "none",
+    "verificationConfig": null
 }
 ```
 
@@ -57,6 +72,7 @@ GET /webhooks
     {
         "count24h": 12,
         "createdAt": 1790000000,
+        "hasSecret": true,
         "id": "...",
         "lastDeliveryAt": 1790000000,
         "name": "ci hook",
@@ -65,7 +81,8 @@ GET /webhooks
         "status": "active",
         "templated": false,
         "topicName": "ci/web",
-        "updatedAt": 1790000000
+        "updatedAt": 1790000000,
+        "verification": "github"
     }
 ]
 ```
@@ -79,7 +96,13 @@ DELETE /webhooks/:id
 ```
 
 All **auth required** and ownership-gated (`404 not_found`, `403 forbidden`). `PATCH`
-accepts any of `name`, `status`, `template`, `topicName`. `DELETE` returns `204`.
+accepts any of `name`, `status`, `template`, `topicName`, `verification`, `secret`,
+`verificationConfig`. `DELETE` returns `204`.
+
+The secret is never readable — `GET` and `PATCH` return `hasSecret` and `verification`
+instead. On `PATCH`, omitting `secret` keeps the stored one, sending a new string
+rotates it, and sending `null` clears it (which also requires `verification: "none"`,
+otherwise the request fails with `400 missing_secret`).
 
 ## List deliveries
 
@@ -111,6 +134,10 @@ GET /webhooks/:id/deliveries
 ]
 ```
 
+Deliveries rejected by signature verification are recorded too, with `status` `401`, a
+null `messageId`, and a `payload` of `{ "preview", "reason", "truncated" }` holding the
+first 2 KB of the unverified body.
+
 ## Stream deliveries live
 
 ```
@@ -130,14 +157,57 @@ auth connection cap 10).
 POST /h/:slug
 ```
 
-**Public** — anyone with the slug can post any JSON body. The payload is turned into a
-message on the webhook's topic: if a `template` is set it renders title/body/priority/
-tags, otherwise a default message is built (title `"<source> delivery"`, body = pretty
-JSON, priority 3, tag `[source]`). The message fires the live bus and enqueues push.
+**Public.** With `verification: "none"` anyone who knows the slug can post any JSON
+body; with a scheme configured, the request must carry a valid signature. The payload
+is turned into a message on the webhook's topic: if a `template` is set it renders
+title/body/priority/tags, otherwise a default message is built (title
+`"<source> delivery"`, body = pretty JSON, priority 3, tag `[source]`). The message
+fires the live bus and enqueues push.
 
+- `400 invalid_json` — body is not a JSON object
+- `401 invalid_signature` — `{ error, reason }`; see below
 - `404 not_found` — unknown slug
+- `413 payload_too_large` — body over 64 KB
 - `503 webhook_paused` — the webhook's `status` is `paused`
 
 ```json
 { "messageId": "...", "ok": true }
 ```
+
+## Verifying the sender
+
+Because the receiver is public, the slug is the only thing standing between your topic
+and anyone who has seen the URL in a log or a screenshot. Setting a `secret` makes
+EmitSignal check each delivery's signature against the **raw request bytes** before
+anything is published — no message, no push, no live fanout on a failed check.
+
+| `verification` | Header(s) checked                             | Secret to paste                   |
+| -------------- | --------------------------------------------- | --------------------------------- |
+| `github`       | `X-Hub-Signature-256`                         | Repo → Settings → Webhooks secret |
+| `stripe`       | `Stripe-Signature`                            | `whsec_…` signing secret          |
+| `svix`         | `svix-id`, `svix-timestamp`, `svix-signature` | `whsec_…` (Resend, Clerk, …)      |
+| `hmac`         | Whatever `verificationConfig.header` names    | Provider's shared secret          |
+| `token`        | Whatever `verificationConfig.header` names    | The static token itself           |
+
+`stripe` and `svix` also reject deliveries whose signed timestamp is more than 5
+minutes old, so a captured request cannot be replayed indefinitely.
+
+For `hmac` and `token`, `verificationConfig` is a JSON **string**:
+
+```json
+{
+    "algorithm": "sha1",
+    "encoding": "hex",
+    "header": "x-vercel-signature",
+    "prefix": ""
+}
+```
+
+`algorithm` is one of `sha1`, `sha256` (default), `sha512`; `encoding` is `hex`
+(default) or `base64`; `prefix` is stripped from the header value before comparison
+(e.g. `"sha256="` or `"Bearer "`). `token` uses only `header` and `prefix` — the header
+carries the secret itself rather than a signature.
+
+A rejected delivery returns `401` with a `reason` of `missing_signature`,
+`bad_signature`, `stale_timestamp`, or `bad_config`, and is recorded in the delivery
+log so you can see it in [the live stream](#stream-deliveries-live).
