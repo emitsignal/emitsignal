@@ -1,3 +1,10 @@
+import type { VerificationConfig, VerificationScheme } from '@emitsignal/shared';
+
+import {
+    DEFAULT_CONFIG_BY_SOURCE,
+    defaultVerificationForSource,
+    schemeNeedsConfig,
+} from '@emitsignal/shared';
 import { applyTemplate as applyTemplateExact } from '@emitsignal/shared/webhook-template';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -14,6 +21,7 @@ import { queryKeys } from '#/lib/query-client';
 import { JsonView } from './json-view';
 import { NotifPreview } from './notif-preview';
 import { applyTemplate } from './template-string';
+import { VerificationFields } from './verification-fields';
 
 const SOURCE_DATA: Record<
     string,
@@ -116,10 +124,39 @@ const EMPTY_TEMPLATE: WebhookTemplate = {
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface WebhookCreateProps {
-    initialData?: { samplePayload?: null | string; template: null | string } & Pick<
+    initialData?: {
+        samplePayload?: null | string;
+        template: null | string;
+    } & Pick<
         Webhook,
-        'id' | 'name' | 'slug' | 'source' | 'topicName'
+        | 'hasSecret'
+        | 'id'
+        | 'name'
+        | 'slug'
+        | 'source'
+        | 'topicName'
+        | 'verification'
+        | 'verificationConfig'
     >;
+}
+
+const EMPTY_CONFIG: VerificationConfig = {
+    algorithm: 'sha256',
+    encoding: 'hex',
+    header: '',
+    prefix: '',
+};
+
+function parseConfig(raw: null | string | undefined): null | VerificationConfig {
+    if (!raw) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(raw) as VerificationConfig;
+    } catch {
+        return null;
+    }
 }
 
 const EMPTY_PAYLOAD = '{\n  \n}';
@@ -152,6 +189,10 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     const [previewMode, setPreviewMode] = useState<'pretty' | 'raw'>('pretty');
     const [saveError, setSaveError] = useState<null | string>(null);
     const [saving, setSaving] = useState(false);
+    const [secret, setSecret] = useState('');
+    const [scheme, setScheme] = useState<VerificationScheme>(
+        initialData?.verification ?? defaultVerificationForSource(initialSource),
+    );
     const [source, setSource] = useState<Source>(initialSource);
     const [templateFields, setTemplateFields] = useState<WebhookTemplate>(
         initialTemplate ?? EMPTY_TEMPLATE,
@@ -159,6 +200,13 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     const [topicName, setTopicName] = useState(initialData?.topicName ?? '');
     const [useTemplate, setUseTemplate] = useState(initialTemplate !== null);
     const templateDirtyRef = useRef(false);
+
+    const [verificationConfig, setVerificationConfig] = useState<VerificationConfig>(
+        parseConfig(initialData?.verificationConfig) ??
+            DEFAULT_CONFIG_BY_SOURCE[initialSource] ??
+            EMPTY_CONFIG,
+    );
+    const verificationDirtyRef = useRef(false);
 
     // Active payload for preview
     const activePayload: Record<string, unknown> =
@@ -201,6 +249,21 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         setUseTemplate(template !== null);
 
         templateDirtyRef.current = false;
+
+        if (!verificationDirtyRef.current) {
+            setScheme(defaultVerificationForSource(source));
+            setVerificationConfig(DEFAULT_CONFIG_BY_SOURCE[source] ?? EMPTY_CONFIG);
+        }
+    }
+
+    function handleSchemeChange(next: VerificationScheme) {
+        verificationDirtyRef.current = true;
+
+        setScheme(next);
+
+        if (schemeNeedsConfig(next) && !verificationConfig.header) {
+            setVerificationConfig(DEFAULT_CONFIG_BY_SOURCE[source] ?? EMPTY_CONFIG);
+        }
     }
 
     function handleTemplateFieldChange(field: keyof WebhookTemplate, value: string) {
@@ -236,17 +299,37 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
             return setSaveError('Channel name is required');
         }
 
+        const hasStoredSecret = !!initialData?.hasSecret;
+
+        if (scheme !== 'none' && !secret.trim() && !hasStoredSecret) {
+            return setSaveError('Paste the signing secret, or set verification to None');
+        }
+
+        if (scheme !== 'none' && schemeNeedsConfig(scheme) && !verificationConfig.header.trim()) {
+            return setSaveError('A header name is required for this verification scheme');
+        }
+
         setSaving(true);
         setSaveError(null);
 
         try {
             const template = useTemplate ? JSON.stringify(templateFields) : null;
 
+            const verification = {
+                // Blank keeps the stored secret; switching to None clears it.
+                secret: secret.trim() ? secret.trim() : scheme === 'none' ? null : undefined,
+                verification: scheme,
+                verificationConfig: schemeNeedsConfig(scheme)
+                    ? JSON.stringify(verificationConfig)
+                    : null,
+            };
+
             if (isEdit && initialData) {
                 await api.updateWebhook(initialData.id, {
                     name: `${source} webhook`,
                     template,
                     topicName: topicName.trim(),
+                    ...verification,
                 });
             } else {
                 await api.createWebhook({
@@ -254,6 +337,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     source,
                     template,
                     topicName: topicName.trim(),
+                    ...verification,
                 });
             }
 
@@ -287,6 +371,11 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         })();
         setTemplateFields(template ?? EMPTY_TEMPLATE);
         setUseTemplate(template !== null);
+
+        setScheme(initialData.verification ?? 'none');
+        setSecret('');
+        setVerificationConfig(parseConfig(initialData.verificationConfig) ?? EMPTY_CONFIG);
+        verificationDirtyRef.current = false;
     }, [initialData?.id]);
 
     // Seed the custom payload editor once deliveries resolve (the sample payload
@@ -404,6 +493,16 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     )}
                 </div>
             </div>
+
+            <VerificationFields
+                config={verificationConfig}
+                hasStoredSecret={!!initialData?.hasSecret}
+                onConfigChange={setVerificationConfig}
+                onSchemeChange={handleSchemeChange}
+                onSecretChange={setSecret}
+                scheme={scheme}
+                secret={secret}
+            />
 
             {/* editor split */}
             <div className="flex min-h-0 flex-1">
