@@ -108,7 +108,9 @@ payload.
 
 <Term title="emitsignal — zsh">
     <Cmt># scheme inferred from --source</Cmt>
-    <Cmd wrap>emitsignal webhooks create -s stripe -c billing/stripe --secret whsec_9f2ac41e</Cmd>
+    <Cmd wrap>
+        emitsignal webhooks create -s stripe -c billing/stripe --secret $STRIPE_WEBHOOK_SECRET
+    </Cmd>
     <Sp />
     <Cmt># a provider we don't special-case: name the header yourself</Cmt>
     <Cmd wrap>
