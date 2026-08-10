@@ -63,7 +63,7 @@ export default function PublishScreen() {
 
     const curl = `curl -d "${body}" \\
   -H "Content-Type: application/json" \\
-  ${api.baseUrl}/topic/${topic}`;
+  ${api.baseUrl}/publish/${topic}`;
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
