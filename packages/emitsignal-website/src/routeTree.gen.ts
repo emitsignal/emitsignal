@@ -10,12 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiRouteImport } from './routes/api'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as CodeOfConductRouteImport } from './routes/code-of-conduct'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -47,11 +45,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiRoute = ApiRouteImport.update({
-  id: '/api',
-  path: '/api',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -70,11 +63,6 @@ const ChangelogRoute = ChangelogRouteImport.update({
 const CodeOfConductRoute = CodeOfConductRouteImport.update({
   id: '/code-of-conduct',
   path: '/code-of-conduct',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MobileRoute = MobileRouteImport.update({
@@ -108,9 +96,9 @@ const VerifyRoute = VerifyRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiOgRoute = ApiOgRouteImport.update({
-  id: '/og',
-  path: '/og',
-  getParentRoute: () => ApiRoute,
+  id: '/api/og',
+  path: '/api/og',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
@@ -206,12 +194,10 @@ const AppWebhooksWebhookIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api': typeof ApiRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/code-of-conduct': typeof CodeOfConductRoute
-  '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -240,10 +226,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api': typeof ApiRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/code-of-conduct': typeof CodeOfConductRoute
-  '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -272,12 +256,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api': typeof ApiRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/code-of-conduct': typeof CodeOfConductRoute
-  '/dashboard': typeof DashboardRoute
   '/mobile': typeof MobileRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -308,12 +290,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/api'
     | '/app'
     | '/blog'
     | '/changelog'
     | '/code-of-conduct'
-    | '/dashboard'
     | '/mobile'
     | '/onboarding'
     | '/privacy'
@@ -342,10 +322,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/api'
     | '/changelog'
     | '/code-of-conduct'
-    | '/dashboard'
     | '/mobile'
     | '/onboarding'
     | '/privacy'
@@ -373,12 +351,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/api'
     | '/app'
     | '/blog'
     | '/changelog'
     | '/code-of-conduct'
-    | '/dashboard'
     | '/mobile'
     | '/onboarding'
     | '/privacy'
@@ -408,18 +384,17 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiRoute: typeof ApiRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   BlogRoute: typeof BlogRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
   CodeOfConductRoute: typeof CodeOfConductRoute
-  DashboardRoute: typeof DashboardRoute
   MobileRoute: typeof MobileRoute
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
   TermsRoute: typeof TermsRoute
   VerifyRoute: typeof VerifyRoute
+  ApiOgRoute: typeof ApiOgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -429,13 +404,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api': {
-      id: '/api'
-      path: '/api'
-      fullPath: '/api'
-      preLoaderRoute: typeof ApiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -464,13 +432,6 @@ declare module '@tanstack/react-router' {
       path: '/code-of-conduct'
       fullPath: '/code-of-conduct'
       preLoaderRoute: typeof CodeOfConductRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mobile': {
@@ -517,10 +478,10 @@ declare module '@tanstack/react-router' {
     }
     '/api/og': {
       id: '/api/og'
-      path: '/og'
+      path: '/api/og'
       fullPath: '/api/og'
       preLoaderRoute: typeof ApiOgRouteImport
-      parentRoute: typeof ApiRoute
+      parentRoute: typeof rootRouteImport
     }
     '/app/': {
       id: '/app/'
@@ -651,16 +612,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ApiRouteChildren {
-  ApiOgRoute: typeof ApiOgRoute
-}
-
-const ApiRouteChildren: ApiRouteChildren = {
-  ApiOgRoute: ApiOgRoute,
-}
-
-const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
-
 interface AppSettingsRouteChildren {
   AppSettingsAccountRoute: typeof AppSettingsAccountRoute
   AppSettingsAdvancedRoute: typeof AppSettingsAdvancedRoute
@@ -734,18 +685,17 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiRoute: ApiRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   BlogRoute: BlogRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
   CodeOfConductRoute: CodeOfConductRoute,
-  DashboardRoute: DashboardRoute,
   MobileRoute: MobileRoute,
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
   TermsRoute: TermsRoute,
   VerifyRoute: VerifyRoute,
+  ApiOgRoute: ApiOgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
