@@ -223,6 +223,8 @@ export const auth = betterAuth({
             enabled: true,
             maxAge: duration.minutes(5).as('seconds'),
         },
+        expiresIn: duration.days(30).as('seconds'),
+        updateAge: duration.days(1).as('seconds'),
     },
     socialProviders: {
         ...(isAppleAuthEnabled
