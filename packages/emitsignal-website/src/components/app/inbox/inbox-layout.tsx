@@ -121,7 +121,7 @@ function dayLabel(createdAt: number): string {
         return 'Yesterday';
     }
 
-    return new Date(createdAt).toLocaleDateString();
+    return new Date(createdAt).toLocaleDateString('en-US');
 }
 
 function NotificationList({

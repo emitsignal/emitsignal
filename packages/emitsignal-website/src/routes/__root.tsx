@@ -3,7 +3,7 @@ import type { QueryClient } from '@tanstack/react-query';
 import * as Sentry from '@sentry/tanstackstart-react';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
-import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router';
+import { createRootRouteWithContext, HeadContent, Link, Scripts } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { useEffect } from 'react';
 
@@ -47,6 +47,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             { title: DEFAULT_TITLE },
         ],
     }),
+    notFoundComponent: () => <RootNotFound />,
     shellComponent: RootDocument,
 });
 
@@ -88,6 +89,26 @@ function RootErrorFallback({ error }: { error: Error }) {
     return (
         <div style={{ padding: '2rem', textAlign: 'center' }}>
             <p>Something went wrong.</p>
+        </div>
+    );
+}
+
+function RootNotFound() {
+    return (
+        <div className="flex min-h-full w-full flex-col items-center justify-center gap-4 bg-bg px-5 py-24 text-center font-sans text-fg">
+            <p className="m-0 font-mono text-[11px] uppercase tracking-[1.6px] text-accent">404</p>
+
+            <h1 className="m-0 text-[40px] font-semibold leading-[1.1] tracking-[-1.2px]">
+                Page not found
+            </h1>
+
+            <p className="m-0 max-w-[420px] text-[15px] leading-[1.6] text-muted">
+                That page does not exist, or it moved somewhere else.
+            </p>
+
+            <Link className="text-[14px] text-accent no-underline hover:underline" to="/">
+                Back to home
+            </Link>
         </div>
     );
 }

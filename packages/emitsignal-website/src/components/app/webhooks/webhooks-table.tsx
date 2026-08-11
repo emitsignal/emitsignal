@@ -268,7 +268,7 @@ function WebhookRow({
             </div>
 
             {/* 24h / last */}
-            <div className="font-mono text-[12px]">{webhook.count24h.toLocaleString()}</div>
+            <div className="font-mono text-[12px]">{webhook.count24h.toLocaleString('en-US')}</div>
             <div className="font-mono text-[11.5px] text-dim">{lastLabel}</div>
 
             {/* Status + kebab */}
