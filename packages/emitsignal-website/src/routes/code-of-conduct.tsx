@@ -38,7 +38,7 @@ const TABLE_OF_CONTENTS: TableOfContentsEntry[] = [
     { id: 'attribution', label: '7. Attribution' },
 ];
 
-export default function CodeOfConductPage() {
+function CodeOfConductPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
             <SiteNav variant="pinned">

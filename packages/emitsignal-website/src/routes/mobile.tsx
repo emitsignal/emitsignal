@@ -29,7 +29,7 @@ export const Route = createFileRoute('/mobile')({
 const SHOT_HEIGHT = 1348;
 const SHOT_WIDTH = 620;
 
-export default function MobilePage() {
+function MobilePage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
             <SiteNav variant="pinned">
