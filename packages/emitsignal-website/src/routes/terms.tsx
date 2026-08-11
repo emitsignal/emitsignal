@@ -49,7 +49,7 @@ const TABLE_OF_CONTENTS: TableOfContentsEntry[] = [
     { id: 'contact', label: '18. Contact' },
 ];
 
-export default function TermsPage() {
+function TermsPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
             <SiteNav variant="pinned">

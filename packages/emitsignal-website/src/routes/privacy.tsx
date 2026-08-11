@@ -93,7 +93,7 @@ const PROCESSORS: ProcessorRow[] = [
     },
 ];
 
-export default function PrivacyPage() {
+function PrivacyPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
             <SiteNav variant="pinned">

@@ -193,7 +193,7 @@ const RELEASES: ChangeEntry[] = [
     },
 ];
 
-export default function ChangelogPage() {
+function ChangelogPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
             <SiteNav variant="pinned">
