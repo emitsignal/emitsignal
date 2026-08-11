@@ -28,4 +28,8 @@ export const authClient = createAuthClient({
         emailOTPClient(),
         inferAdditionalFields({ user: { onboarded: { type: 'boolean' } } }),
     ],
+    sessionOptions: {
+        refetchOnWindowFocus: true,
+        refetchWhenOffline: true,
+    },
 });
