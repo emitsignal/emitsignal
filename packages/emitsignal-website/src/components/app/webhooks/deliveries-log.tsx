@@ -328,7 +328,7 @@ function ExpiryLabel({ expiresAt }: { expiresAt: null | number }) {
         <span
             className="font-mono text-[10px]"
             style={{ color: expiry.expired ? 'var(--color-danger)' : 'var(--color-faint)' }}
-            title={`Delivery record removed on ${new Date(expiresAt * 1000).toLocaleString()}`}
+            title={`Delivery record removed on ${new Date(expiresAt * 1000).toLocaleString('en-US')}`}
         >
             {expiry.expired ? 'expired' : `expires ${expiry.text.toLowerCase()}`}
         </span>

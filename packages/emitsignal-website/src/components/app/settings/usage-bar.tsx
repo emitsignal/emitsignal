@@ -17,10 +17,10 @@ export function UsageBar({ color = 'var(--color-accent)', total, unit = '', used
         <div>
             <div className="mb-[7px] flex items-baseline justify-between">
                 <span className="font-mono text-[12.5px] text-fg">
-                    {used.toLocaleString()}
+                    {used.toLocaleString('en-US')}
                     <span className="text-dim">
                         {' '}
-                        / {total.toLocaleString()}
+                        / {total.toLocaleString('en-US')}
                         {unit}
                     </span>
                 </span>

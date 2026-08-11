@@ -517,8 +517,8 @@ function planFeatures(plan: PlanDefinition): string[] {
     const { limits } = plan;
 
     return [
-        `${limits.messagesPerDay.toLocaleString()} messages / day`,
-        `${limits.emailsPerDay.toLocaleString()} emails / day`,
+        `${limits.messagesPerDay.toLocaleString('en-US')} messages / day`,
+        `${limits.emailsPerDay.toLocaleString('en-US')} emails / day`,
         `${Math.floor(limits.attachmentMaxBytes / (1024 * 1024))} MB per attachment`,
         `${limits.maxOwnedTopics} owned topics`,
         `${limits.maxWebhooks} webhooks`,

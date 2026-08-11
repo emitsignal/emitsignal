@@ -168,7 +168,7 @@ export function KeysTable({
                         {/* REQUESTS */}
                         <div className="flex items-center gap-2.5">
                             <span className="font-mono text-[12px] text-fg">
-                                {apiKey.requestCount.toLocaleString()}
+                                {apiKey.requestCount.toLocaleString('en-US')}
                             </span>
 
                             {apiKey.requestCount > 0 && (
