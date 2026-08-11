@@ -37,7 +37,11 @@ const config = defineConfig({
         tsconfigPaths: true,
     },
     ssr: {
-        noExternal: [],
+        // Externalized in SSR, this package resolves `@tanstack/react-query` through Node
+        // from the hoisted root copy, bypassing `resolve.dedupe` — its QueryClientProvider
+        // then lands in a different module instance than the one `src/` imports, so every
+        // server-side `useQueryClient()` throws "No QueryClient set".
+        noExternal: ['@tanstack/react-router-ssr-query'],
     },
 });
 
