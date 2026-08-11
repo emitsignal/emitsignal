@@ -4,7 +4,7 @@ import { version } from './package.json';
 
 const appleTeamId = process.env.APPLE_TEAM_ID;
 const appMode = process.env.APP_MODE;
-const projectId = process.env.PROJECT_ID;
+const projectId = '1424f0ee-b60d-4b18-b09c-4a3bd2740ae8';
 
 function getProjectConfig() {
     if (appMode === 'development') {
