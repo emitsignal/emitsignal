@@ -94,6 +94,7 @@ const config: ExpoConfig = {
         'expo-notifications',
         'expo-router',
         'expo-secure-store',
+        'expo-sharing',
         'expo-web-browser',
         [
             'expo-splash-screen',
