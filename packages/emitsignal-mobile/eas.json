@@ -5,7 +5,8 @@
             "distribution": "internal",
             "env": {
                 "APP_MODE": "development",
-                "EXPO_PUBLIC_SENTRY_ENABLED": "false"
+                "EXPO_PUBLIC_SENTRY_ENABLED": "false",
+                "SENTRY_DISABLE_AUTO_UPLOAD": "true"
             }
         },
         "ios-simulator": {
@@ -19,14 +20,16 @@
             "distribution": "internal",
             "env": {
                 "APP_MODE": "preview",
-                "EXPO_PUBLIC_SENTRY_ENABLED": "false"
+                "EXPO_PUBLIC_SENTRY_ENABLED": "true",
+                "SENTRY_DISABLE_AUTO_UPLOAD": "true"
             }
         },
         "production": {
             "autoIncrement": true,
             "channel": "production",
             "env": {
-                "EXPO_PUBLIC_SENTRY_ENABLED": "false"
+                "EXPO_PUBLIC_SENTRY_ENABLED": "true",
+                "SENTRY_DISABLE_AUTO_UPLOAD": "true"
             }
         }
     },
