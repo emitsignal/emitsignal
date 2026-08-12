@@ -20,13 +20,17 @@
             "distribution": "internal",
             "env": {
                 "APP_MODE": "preview",
-                "EXPO_PUBLIC_SENTRY_ENABLED": "true",
+                "EXPO_PUBLIC_SENTRY_ENABLED": "false",
                 "SENTRY_DISABLE_AUTO_UPLOAD": "true"
             }
         },
         "production": {
             "autoIncrement": true,
-            "channel": "production"
+            "channel": "production",
+            "env": {
+                "APP_MODE": "production",
+                "SENTRY_DISABLE_XCODE_DEBUG_UPLOAD": "true"
+            }
         }
     },
     "cli": {
