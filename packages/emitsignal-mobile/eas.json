@@ -26,11 +26,7 @@
         },
         "production": {
             "autoIncrement": true,
-            "channel": "production",
-            "env": {
-                "EXPO_PUBLIC_SENTRY_ENABLED": "true",
-                "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-            }
+            "channel": "production"
         }
     },
     "cli": {
