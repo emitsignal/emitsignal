@@ -13,7 +13,7 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic
 import * as Sentry from '@sentry/bun';
 
 import { environment } from '#/schema/environment';
-import { isUnobservedPath } from '#/utils/observability';
+import { isUnobservedPath, resolveServiceName } from '#/utils/observability';
 
 import pkg from '../../package.json';
 
@@ -50,7 +50,10 @@ let tracerProvider: NodeTracerProvider | undefined;
 if (environment.OTEL_ENABLED) {
     tracerProvider = new NodeTracerProvider({
         resource: resourceFromAttributes({
-            [ATTR_SERVICE_NAME]: environment.OTEL_SERVICE_NAME,
+            [ATTR_SERVICE_NAME]: resolveServiceName(Bun.argv, {
+                serviceName: environment.OTEL_SERVICE_NAME,
+                workerServiceName: environment.OTEL_WORKER_SERVICE_NAME,
+            }),
             [ATTR_SERVICE_VERSION]: pkg.version,
             'deployment.environment': Bun.env.NODE_ENV ?? 'development',
         }),
