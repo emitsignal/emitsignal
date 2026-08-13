@@ -46,6 +46,7 @@ import { updateWebhook } from '#/http/webhooks/update';
 import { auth } from '#/lib/auth';
 import { Email } from '#/lib/email';
 import { EmailService } from '#/lib/email-service';
+import { shutdownTelemetry } from '#/lib/instrumentation';
 import { logger } from '#/lib/logger';
 import { emailQueue, purgeQueue, pushQueue, redisConnection, scheduleQueue } from '#/lib/queue';
 import { rateLimitRedis } from '#/lib/rate-limit';
@@ -170,6 +171,7 @@ async function shutdown() {
 
     server.stop();
 
+    await shutdownTelemetry();
     await Sentry.close(2000);
 
     process.exit(0);

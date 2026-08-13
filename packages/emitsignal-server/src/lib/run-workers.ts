@@ -2,6 +2,7 @@ import type { Worker } from 'bullmq';
 
 import * as Sentry from '@sentry/bun';
 
+import { shutdownTelemetry } from '#/lib/instrumentation';
 import { redisConnection } from '#/lib/queue/connection';
 
 import { logger } from './logger';
@@ -26,6 +27,8 @@ export function runWorkers(workers: Worker[]) {
 
         await Promise.all(workers.map((worker) => worker.close()));
         await redisConnection.quit();
+
+        await shutdownTelemetry();
         await Sentry.close(2000);
 
         process.exit(0);

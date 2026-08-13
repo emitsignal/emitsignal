@@ -45,8 +45,10 @@ if (environment.SENTRY_ENABLED && environment.SENTRY_DSN) {
     });
 }
 
+let tracerProvider: NodeTracerProvider | undefined;
+
 if (environment.OTEL_ENABLED) {
-    const provider = new NodeTracerProvider({
+    tracerProvider = new NodeTracerProvider({
         resource: resourceFromAttributes({
             [ATTR_SERVICE_NAME]: environment.OTEL_SERVICE_NAME,
             [ATTR_SERVICE_VERSION]: pkg.version,
@@ -62,5 +64,12 @@ if (environment.OTEL_ENABLED) {
         ],
     });
 
-    provider.register();
+    tracerProvider.register();
+}
+
+// BatchSpanProcessor holds finished spans in memory until its export interval.
+// Without this the buffer dies with the process on every deploy, taking the
+// traces of whatever happened just before the restart with it.
+export async function shutdownTelemetry(): Promise<void> {
+    await tracerProvider?.shutdown();
 }
