@@ -6,8 +6,6 @@ import { captureTraceContext, traceContextFrom } from '../trace-context';
 
 describe('trace context propagation', () => {
     beforeAll(() => {
-        // register() installs the W3C propagator and context manager the same way
-        // instrumentation.ts does; without it inject/extract are no-ops.
         new NodeTracerProvider().register();
     });
 

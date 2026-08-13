@@ -30,7 +30,6 @@ export function createEmailWorker(): Worker<Traced<EmailOptions>> {
                     try {
                         logger.info({ jobId: job.id, to: job.data.to }, 'processing email job');
 
-                        // Providers read named fields, so the extra traceContext is inert.
                         await Email.provider.send(job.data);
 
                         span.setStatus({ code: SpanStatusCode.OK });

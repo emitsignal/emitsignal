@@ -9,10 +9,7 @@ import type { PushJob } from '#/services/push/types';
 
 const exporter = new InMemorySpanExporter();
 
-// Both statements must run before expo-client is imported: it resolves its
-// tracer at module load, so a provider registered afterwards never sees its
-// spans. disable() is needed because an earlier spec file may already hold the
-// global registration, which is otherwise first-write-wins.
+// Must beat the import below; disable() because registration is first-write-wins.
 trace.disable();
 new NodeTracerProvider({ spanProcessors: [new SimpleSpanProcessor(exporter)] }).register();
 
