@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/bun';
 import Elysia from 'elysia';
 
 import { logger } from '#/lib/logger';
+import { isUnobservedPath } from '#/utils/observability';
 
 function contentLength(set: { headers: Record<string, string | undefined> }, body: unknown) {
     const header = set.headers['content-length'];
@@ -32,10 +33,15 @@ export const loggerPlugin = new Elysia({ name: 'logger' })
         store.requestStart = performance.now();
     })
     .onAfterResponse(({ request, responseValue, set, store }) => {
-        const durationMs = (performance.now() - store.requestStart).toFixed(3);
         const status = set.status ?? 200;
 
         const path = new URL(request.url).pathname;
+
+        if (isUnobservedPath(path) && (status as number) < 400) {
+            return;
+        }
+
+        const durationMs = (performance.now() - store.requestStart).toFixed(3);
         const length = contentLength(set as never, responseValue);
         const message = `${request.method} ${path} ${status} ${durationMs} ms - ${length}`;
 
@@ -45,7 +51,7 @@ export const loggerPlugin = new Elysia({ name: 'logger' })
             return;
         }
 
-        logger.info(`${request.method} ${path} ${status} ${durationMs} ms - ${length}`);
+        logger.info(message);
     })
     .onError(({ code, error, request }) => {
         const path = new URL(request.url).pathname;

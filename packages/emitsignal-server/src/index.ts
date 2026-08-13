@@ -5,6 +5,7 @@ import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
 
 import { getBilling } from '#/http/billing/get';
+import { health } from '#/http/health/get';
 import { acknowledge } from '#/http/messages/acknowledge';
 import { attachments } from '#/http/messages/attachments';
 import { getMessage } from '#/http/messages/get';
@@ -50,8 +51,7 @@ import { emailQueue, purgeQueue, pushQueue, redisConnection, scheduleQueue } fro
 import { rateLimitRedis } from '#/lib/rate-limit';
 import { FileStorageService } from '#/lib/storage';
 import { environment, isProduction } from '#/schema/environment';
-
-import pkg from '../package.json';
+import { isUnobservedPath } from '#/utils/observability';
 
 Email.init(environment);
 EmailService.init(emailQueue);
@@ -67,7 +67,11 @@ const app = new Elysia({
         maxRequestBodySize: MAX_REQUEST_BODY_BYTES,
     },
 })
-    .use(opentelemetry())
+    .use(
+        opentelemetry({
+            checkIfShouldTrace: (request) => !isUnobservedPath(new URL(request.url).pathname),
+        }),
+    )
     .use(loggerPlugin)
     .use(errorResponsePlugin)
     .use(rateLimitPlugin)
@@ -81,7 +85,9 @@ const app = new Elysia({
         }),
     )
     .all('/api/auth/*', (ctx) => auth.handler(ctx.request))
-    .get('/', () => ({ name: 'emitsignal', version: pkg.version }))
+    .get('/', () => ({
+        name: 'Welcome to EmitSignal',
+    }))
     .use(acknowledge)
     .use(attachments)
     .use(claimSubscriptions)
@@ -92,6 +98,7 @@ const app = new Elysia({
     .use(getMessage)
     .use(getTopic)
     .use(getWebhook)
+    .use(health)
     .use(listDeliveries)
     .use(listen)
     .use(listenMulti)
