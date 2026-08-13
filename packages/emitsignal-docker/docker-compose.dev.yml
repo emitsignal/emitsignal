@@ -141,7 +141,7 @@ services:
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             OTEL_ENABLED: 'true'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
-            OTEL_SERVICE_NAME: 'emitsignal-worker'
+            OTEL_WORKER_SERVICE_NAME: 'emitsignal-worker'
             EMAIL_FROM: 'EmitSignal Dev <dev@emitsignal.com>'
             EMAIL_PROVIDER: 'smtp'
             FILE_STORAGE_PROVIDER: 'local'
