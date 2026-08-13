@@ -70,9 +70,7 @@ if (environment.OTEL_ENABLED) {
     tracerProvider.register();
 }
 
-// BatchSpanProcessor holds finished spans in memory until its export interval.
-// Without this the buffer dies with the process on every deploy, taking the
-// traces of whatever happened just before the restart with it.
+// Without this the batched spans die with the process on every deploy.
 export async function shutdownTelemetry(): Promise<void> {
     await tracerProvider?.shutdown();
 }

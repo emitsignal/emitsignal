@@ -54,13 +54,8 @@ export async function sendExpoMessages(
     await Promise.all(chunks.map((chunk) => sendChunk(chunk, send)));
 }
 
-// Bun's fetch is not auto-instrumented by Sentry or the OTel SDK, so without
-// this span the Expo round trip — most of a push job's wall time — shows up as
-// an unexplained gap between the last query and the end of the job.
+// Bun's fetch is not auto-instrumented; without this span the call is invisible.
 async function sendChunk(chunk: ExpoPushMessage[], send: ExpoSender): Promise<void> {
-    // Resolved per call rather than at module load: whichever module is
-    // imported before the SDK registers would otherwise hold a tracer bound to
-    // a provider that no longer exports anything.
     await trace.getTracer('emitsignal.push').startActiveSpan(
         'expo.push.send',
         {
@@ -76,9 +71,7 @@ async function sendChunk(chunk: ExpoPushMessage[], send: ExpoSender): Promise<vo
             try {
                 const tickets = await send(chunk);
 
-                // Expo reports per-token failures in the ticket body rather than
-                // by rejecting, so a fully "successful" call can still deliver
-                // nothing. Surfacing the count keeps that from staying silent.
+                // Expo reports per-token failures in the tickets, not by rejecting.
                 const rejected = tickets.filter((ticket) => ticket.status === 'error');
 
                 span.setAttribute('expo.push.rejected_count', rejected.length);
