@@ -7,6 +7,7 @@ import {
     NodeTracerProvider,
     ParentBasedSampler,
     SamplingDecision,
+    TraceIdRatioBasedSampler,
 } from '@opentelemetry/sdk-trace-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 import * as Sentry from '@sentry/bun';
@@ -16,23 +17,29 @@ import { isUnobservedPath } from '#/utils/observability';
 
 import pkg from '../../package.json';
 
+const ratioSampler = new TraceIdRatioBasedSampler(environment.OTEL_TRACES_SAMPLE_RATE);
+
 const unobservedPathSampler: Sampler = {
-    shouldSample(_context, _traceId, _spanName, _spanKind, attributes): SamplingResult {
+    shouldSample(context, traceId, _spanName, _spanKind, attributes): SamplingResult {
         const path = attributes['url.path'];
 
         if (typeof path === 'string' && isUnobservedPath(path)) {
             return { decision: SamplingDecision.NOT_RECORD };
         }
 
-        return { decision: SamplingDecision.RECORD_AND_SAMPLED };
+        return ratioSampler.shouldSample(context, traceId);
     },
     toString: () => 'ObservabilitySampler',
 };
+
+const NOISY_SENTRY_INTEGRATIONS = new Set(['Postgres', 'PostgresJs', 'Prisma']);
 
 if (environment.SENTRY_ENABLED && environment.SENTRY_DSN) {
     Sentry.init({
         dsn: environment.SENTRY_DSN,
         environment: Bun.env.NODE_ENV ?? 'development',
+        integrations: (defaults) =>
+            defaults.filter((integration) => !NOISY_SENTRY_INTEGRATIONS.has(integration.name)),
         skipOpenTelemetrySetup: true,
         tracesSampleRate: 1.0,
     });

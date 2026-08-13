@@ -53,6 +53,7 @@ export const environmentSchema = Type.Object({
     OTEL_ENABLED: Type.Boolean({ default: false }),
     OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String()),
     OTEL_SERVICE_NAME: Type.String({ default: 'emitsignal-server' }),
+    OTEL_TRACES_SAMPLE_RATE: Type.Number({ default: 1, maximum: 1, minimum: 0 }),
     OTEL_VERBOSE_LOG: Type.Boolean({ default: false }),
     OTEL_WORKER_SERVICE_NAME: Type.String({ default: 'emitsignal-worker' }),
 
