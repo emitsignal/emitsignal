@@ -2,6 +2,7 @@ import type { Queue } from 'bullmq';
 
 import type { EmailOptions } from '#/lib/email/provider';
 
+import { captureTraceContext, Traced } from '#/lib/trace-context';
 import { getUserPlan } from '#/services/billing/get-user-plan';
 import { PlanLimitError, PLANS } from '#/services/billing/plans';
 import { consumeDailyQuota } from '#/services/billing/usage';
@@ -11,9 +12,9 @@ export interface EmailQuotaOptions {
 }
 
 export class EmailService {
-    private static queue: Queue<EmailOptions>;
+    private static queue: Queue<Traced<EmailOptions>>;
 
-    static init(queue: Queue<EmailOptions>): void {
+    static init(queue: Queue<Traced<EmailOptions>>): void {
         EmailService.queue = queue;
     }
 
@@ -30,6 +31,9 @@ export class EmailService {
             }
         }
 
-        await EmailService.queue.add('send-email', options);
+        await EmailService.queue.add('send-email', {
+            ...options,
+            traceContext: captureTraceContext(),
+        });
     }
 }

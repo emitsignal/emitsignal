@@ -5,12 +5,13 @@ import type { PushJob } from '#/services/push';
 
 import { logger } from '#/lib/logger';
 import { redisConnection } from '#/lib/queue/connection';
+import { traceContextFrom, Traced } from '#/lib/trace-context';
 import { sendPushNotifications } from '#/services/push';
 
 const tracer = trace.getTracer('emitsignal.worker');
 
-export function createPushWorker(): Worker<PushJob> {
-    const worker = new Worker<PushJob>(
+export function createPushWorker(): Worker<Traced<PushJob>> {
+    const worker = new Worker<Traced<PushJob>>(
         'push',
         async (job) => {
             await tracer.startActiveSpan(
@@ -25,6 +26,7 @@ export function createPushWorker(): Worker<PushJob> {
                     },
                     kind: SpanKind.CONSUMER,
                 },
+                traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
                         logger.info(

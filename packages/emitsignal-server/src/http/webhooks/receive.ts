@@ -11,6 +11,7 @@ import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { pushQueue } from '#/lib/queue';
 import { webhookReceiveLimiter } from '#/lib/rate-limit';
+import { captureTraceContext } from '#/lib/trace-context';
 import { getUserPlan } from '#/services/billing/get-user-plan';
 import {
     messageExpiresAt,
@@ -158,6 +159,7 @@ export const receiveWebhook = new Elysia().post(
             topicDisplayName: topic.displayName,
             topicId: topic.id,
             topicName: topic.name,
+            traceContext: captureTraceContext(),
         });
 
         const ms = Date.now() - start;

@@ -6,6 +6,7 @@ import { bus } from '#/lib/event-bus';
 import { prisma } from '#/lib/prisma';
 import { pushQueue, scheduleQueue } from '#/lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '#/lib/rate-limit';
+import { captureTraceContext } from '#/lib/trace-context';
 import { getUserLimits, getUserPlan } from '#/services/billing/get-user-plan';
 import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
 import { consumeDailyQuota, quotaExceededHeaders } from '#/services/billing/usage';
@@ -181,7 +182,7 @@ function publishRoute(path: string, deprecated: boolean) {
             if (isScheduled) {
                 scheduleQueue.add(
                     'schedule-delivery',
-                    { messageId: message.id },
+                    { messageId: message.id, traceContext: captureTraceContext() },
                     { delay: (scheduledAtUnix - now) * 1000 },
                 );
 
@@ -206,6 +207,7 @@ function publishRoute(path: string, deprecated: boolean) {
                 topicDisplayName: topic.displayName,
                 topicId: topic.id,
                 topicName: topic.name,
+                traceContext: captureTraceContext(),
             });
 
             return { message: 'posted', messageId: message.id };

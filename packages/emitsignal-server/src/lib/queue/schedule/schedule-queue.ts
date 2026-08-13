@@ -1,13 +1,14 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
 import { redisConnection } from '#/lib/queue/connection';
+import { Traced } from '#/lib/trace-context';
 import { duration } from '#/utils/duration';
 
 export interface ScheduleJob {
     messageId: string;
 }
 
-export const scheduleQueue = new Queue<ScheduleJob, void, 'schedule-delivery'>('schedule', {
+export const scheduleQueue = new Queue<Traced<ScheduleJob>, void, 'schedule-delivery'>('schedule', {
     connection: redisConnection as ConnectionOptions,
     defaultJobOptions: {
         attempts: 3,

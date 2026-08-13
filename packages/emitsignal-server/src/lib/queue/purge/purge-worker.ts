@@ -5,6 +5,7 @@ import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { redisConnection } from '#/lib/queue/connection';
 import { FileStorageService } from '#/lib/storage';
+import { traceContextFrom, Traced } from '#/lib/trace-context';
 
 import type { PurgeJob } from './types';
 
@@ -15,8 +16,8 @@ const RETENTION_BATCH_SIZE = 1000;
 
 const tracer = trace.getTracer('emitsignal.worker');
 
-export function createPurgeWorker(): Worker<PurgeJob> {
-    const worker = new Worker<PurgeJob>(
+export function createPurgeWorker(): Worker<Traced<PurgeJob>> {
+    const worker = new Worker<Traced<PurgeJob>>(
         'purge',
         async (job) => {
             await tracer.startActiveSpan(
@@ -31,6 +32,7 @@ export function createPurgeWorker(): Worker<PurgeJob> {
                     },
                     kind: SpanKind.CONSUMER,
                 },
+                traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
                         logger.info({ jobId: job.id, kind: job.data.kind }, 'processing purge job');
