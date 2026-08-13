@@ -1,10 +1,15 @@
-import { Expo, type ExpoPushMessage } from 'expo-server-sdk';
+import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
+import { Expo, type ExpoPushMessage, type ExpoPushTicket } from 'expo-server-sdk';
 
 import { environment } from '#/schema/environment';
 
 import type { PushJob } from './types';
 
 const MAX_BODY_LENGTH = 160;
+
+const EXPO_PUSH_ENDPOINT = 'https://exp.host/--/api/v2/push/send';
+
+export type ExpoSender = (chunk: ExpoPushMessage[]) => Promise<ExpoPushTicket[]>;
 
 const expo = new Expo({
     accessToken: environment.EXPO_ACCESS_TOKEN,
@@ -40,8 +45,52 @@ export function buildExpoMessages(tokens: string[], job: PushJob): ExpoPushMessa
         }));
 }
 
-export async function sendExpoMessages(messages: ExpoPushMessage[]): Promise<void> {
+export async function sendExpoMessages(
+    messages: ExpoPushMessage[],
+    send: ExpoSender = (chunk) => expo.sendPushNotificationsAsync(chunk),
+): Promise<void> {
     const chunks = expo.chunkPushNotifications(messages);
 
-    await Promise.all(chunks.map((chunk) => expo.sendPushNotificationsAsync(chunk)));
+    await Promise.all(chunks.map((chunk) => sendChunk(chunk, send)));
+}
+
+// Bun's fetch is not auto-instrumented by Sentry or the OTel SDK, so without
+// this span the Expo round trip — most of a push job's wall time — shows up as
+// an unexplained gap between the last query and the end of the job.
+async function sendChunk(chunk: ExpoPushMessage[], send: ExpoSender): Promise<void> {
+    // Resolved per call rather than at module load: whichever module is
+    // imported before the SDK registers would otherwise hold a tracer bound to
+    // a provider that no longer exports anything.
+    await trace.getTracer('emitsignal.push').startActiveSpan(
+        'expo.push.send',
+        {
+            attributes: {
+                'http.request.method': 'POST',
+                'messaging.batch.message_count': chunk.length,
+                'server.address': 'exp.host',
+                'url.full': EXPO_PUSH_ENDPOINT,
+            },
+            kind: SpanKind.CLIENT,
+        },
+        async (span) => {
+            try {
+                const tickets = await send(chunk);
+
+                // Expo reports per-token failures in the ticket body rather than
+                // by rejecting, so a fully "successful" call can still deliver
+                // nothing. Surfacing the count keeps that from staying silent.
+                const rejected = tickets.filter((ticket) => ticket.status === 'error');
+
+                span.setAttribute('expo.push.rejected_count', rejected.length);
+                span.setStatus({ code: SpanStatusCode.OK });
+            } catch (error) {
+                span.recordException(error instanceof Error ? error : new Error(String(error)));
+                span.setStatus({ code: SpanStatusCode.ERROR });
+
+                throw error;
+            } finally {
+                span.end();
+            }
+        },
+    );
 }
