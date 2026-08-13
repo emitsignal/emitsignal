@@ -12,6 +12,7 @@ import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
+import { captureTraceContext } from '#/lib/trace-context';
 import { environment, isProduction } from '#/schema/environment';
 import { invalidateUserPlanCache } from '#/services/billing/get-user-plan';
 import { isStripeBillingEnabled, stripePlanConfig } from '#/services/billing/plans';
@@ -281,6 +282,7 @@ export const auth = betterAuth({
                     avatarKey,
                     kind: 'storage',
                     storageKeys: attachments.map((attachment) => attachment.storageKey),
+                    traceContext: captureTraceContext(),
                 });
 
                 // Stripe subscription rows are keyed by referenceId, not a User FK,

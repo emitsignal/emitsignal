@@ -6,11 +6,12 @@ import type { EmailOptions } from '#/lib/email/provider';
 import { Email } from '#/lib/email';
 import { logger } from '#/lib/logger';
 import { redisConnection } from '#/lib/queue/connection';
+import { traceContextFrom, Traced } from '#/lib/trace-context';
 
 const tracer = trace.getTracer('emitsignal.worker');
 
-export function createEmailWorker(): Worker<EmailOptions> {
-    const worker = new Worker<EmailOptions>(
+export function createEmailWorker(): Worker<Traced<EmailOptions>> {
+    const worker = new Worker<Traced<EmailOptions>>(
         'email',
         async (job) => {
             await tracer.startActiveSpan(
@@ -24,9 +25,12 @@ export function createEmailWorker(): Worker<EmailOptions> {
                     },
                     kind: SpanKind.CONSUMER,
                 },
+                traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
                         logger.info({ jobId: job.id, to: job.data.to }, 'processing email job');
+
+                        // Providers read named fields, so the extra traceContext is inert.
                         await Email.provider.send(job.data);
 
                         span.setStatus({ code: SpanStatusCode.OK });

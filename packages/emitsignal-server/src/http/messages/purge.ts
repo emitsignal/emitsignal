@@ -2,6 +2,7 @@ import Elysia from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
 import { purgeQueue } from '#/lib/queue';
+import { captureTraceContext } from '#/lib/trace-context';
 
 // Deletes every signal the authenticated user is responsible for — messages in
 // topics they own plus messages they sent into others' topics — keeping channels
@@ -14,7 +15,11 @@ export const purgeSignals = new Elysia().delete('/me/signals', async ({ headers,
         return status(401, { error: 'missing_token' });
     }
 
-    await purgeQueue.add('purge-signals', { kind: 'signals', userId });
+    await purgeQueue.add('purge-signals', {
+        kind: 'signals',
+        traceContext: captureTraceContext(),
+        userId,
+    });
 
     return status(202, { status: 'queued' });
 });

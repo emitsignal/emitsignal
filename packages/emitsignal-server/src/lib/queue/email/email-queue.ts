@@ -3,9 +3,10 @@ import { ConnectionOptions, Queue } from 'bullmq';
 import type { EmailOptions } from '#/lib/email/provider';
 
 import { redisConnection } from '#/lib/queue/connection';
+import { Traced } from '#/lib/trace-context';
 import { duration } from '#/utils/duration';
 
-export const emailQueue = new Queue<EmailOptions>('email', {
+export const emailQueue = new Queue<Traced<EmailOptions>>('email', {
     connection: redisConnection as ConnectionOptions,
     defaultJobOptions: {
         attempts: 3,

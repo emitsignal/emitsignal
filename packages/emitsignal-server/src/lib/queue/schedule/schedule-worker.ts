@@ -6,6 +6,7 @@ import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { redisConnection } from '#/lib/queue/connection';
 import { pushQueue } from '#/lib/queue/push/push-queue';
+import { captureTraceContext, traceContextFrom, Traced } from '#/lib/trace-context';
 import { getUserPlan } from '#/services/billing/get-user-plan';
 import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
 import { serializeMessage } from '#/services/message';
@@ -15,8 +16,8 @@ import type { ScheduleJob } from './schedule-queue';
 
 const tracer = trace.getTracer('emitsignal.worker');
 
-export function createScheduleWorker(): Worker<ScheduleJob> {
-    const worker = new Worker<ScheduleJob>(
+export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
+    const worker = new Worker<Traced<ScheduleJob>>(
         'schedule',
         async (job) => {
             const messageId = job.data.messageId;
@@ -33,6 +34,7 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
                     },
                     kind: SpanKind.CONSUMER,
                 },
+                traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
                         logger.info({ jobId: job.id, messageId }, 'processing schedule job');
@@ -74,6 +76,7 @@ export function createScheduleWorker(): Worker<ScheduleJob> {
                             topicDisplayName: message.topic.displayName,
                             topicId: message.topic.id,
                             topicName: message.topic.name,
+                            traceContext: captureTraceContext(),
                         });
 
                         const deliveredAt = new Date();

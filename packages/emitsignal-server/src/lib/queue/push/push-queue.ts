@@ -3,9 +3,10 @@ import { ConnectionOptions, Queue } from 'bullmq';
 import type { PushJob } from '#/services/push';
 
 import { redisConnection } from '#/lib/queue/connection';
+import { Traced } from '#/lib/trace-context';
 import { duration } from '#/utils/duration';
 
-export const pushQueue = new Queue<PushJob, void, 'push-message'>('push', {
+export const pushQueue = new Queue<Traced<PushJob>, void, 'push-message'>('push', {
     connection: redisConnection as ConnectionOptions,
     defaultJobOptions: {
         attempts: 3,

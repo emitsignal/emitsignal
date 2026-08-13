@@ -1,12 +1,13 @@
 import { ConnectionOptions, Queue } from 'bullmq';
 
 import { redisConnection } from '#/lib/queue/connection';
+import { Traced } from '#/lib/trace-context';
 import { duration } from '#/utils/duration';
 
 import type { PurgeJob } from './types';
 
 export const purgeQueue = new Queue<
-    PurgeJob,
+    Traced<PurgeJob>,
     void,
     'purge-expired' | 'purge-signals' | 'purge-storage'
 >('purge', {
