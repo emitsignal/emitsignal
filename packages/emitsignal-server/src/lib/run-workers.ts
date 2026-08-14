@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/bun';
 import { shutdownTelemetry } from '#/lib/instrumentation';
 import { redisConnection } from '#/lib/queue/connection';
 
-import { logger } from './logger';
+import { flushLogs, logger } from './logger';
 
 export function runWorkers(workers: Worker[]) {
     let isShuttingDown = false;
@@ -30,6 +30,7 @@ export function runWorkers(workers: Worker[]) {
 
         await shutdownTelemetry();
         await Sentry.close(2000);
+        await flushLogs();
 
         process.exit(0);
     }
