@@ -44,6 +44,17 @@ export const environmentSchema = Type.Object({
     GITHUB_CLIENT_ID: Type.Optional(Type.String()),
     GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
 
+    // Remote log ingestion. `stdout` keeps logs local; any other provider also
+    // needs LOG_INGESTION_TOKEN, and LOG_INGESTION_HOST when the account's
+    // ingesting host differs from the provider default.
+    LOG_INGESTION_HOST: Type.Optional(Type.String()),
+    LOG_INGESTION_PROVIDER: Type.Union([Type.Literal('stdout'), Type.Literal('betterstack')], {
+        default: 'stdout',
+    }),
+    LOG_INGESTION_TOKEN: Type.Optional(Type.String()),
+
+    LOG_LEVEL: Type.Optional(Type.String()),
+
     // Deliberately not a closed union: deployments legitimately use values like
     // "staging" or "ci", and refusing to boot on an unrecognized NODE_ENV would
     // be a regression. Only "production" and "test" carry behavior — see

@@ -1,12 +1,37 @@
+import type { TransportTargetOptions } from 'pino';
+
 import { trace } from '@opentelemetry/api';
+import { hostname } from 'node:os';
 import pino from 'pino';
 
-import { environment } from '#/schema/environment';
+import { environment, isProduction } from '#/schema/environment';
+import { resolveLogIngestionTarget, resolveServiceName } from '#/utils/observability';
 
-const isProduction = Bun.env.NODE_ENV === 'production';
+const service = resolveServiceName(Bun.argv, {
+    serviceName: environment.OTEL_SERVICE_NAME,
+    workerServiceName: environment.OTEL_WORKER_SERVICE_NAME,
+});
+
+const ingestionTarget = resolveLogIngestionTarget({
+    host: environment.LOG_INGESTION_HOST,
+    provider: environment.LOG_INGESTION_PROVIDER,
+    token: environment.LOG_INGESTION_TOKEN,
+});
+
+const localTarget: TransportTargetOptions = isProduction
+    ? { options: { destination: 1 }, target: 'pino/file' }
+    : {
+          options: {
+              colorize: true,
+              ignore: 'pid,hostname,service',
+              translateTime: 'HH:MM:ss.l',
+          },
+          target: 'pino-pretty',
+      };
 
 export const logger = pino({
-    level: Bun.env.LOG_LEVEL ?? (isProduction ? 'info' : 'debug'),
+    base: { hostname: hostname(), pid: process.pid, service },
+    level: environment.LOG_LEVEL ?? (isProduction ? 'info' : 'debug'),
     mixin() {
         if (!environment.OTEL_ENABLED || !environment.OTEL_VERBOSE_LOG) {
             return {};
@@ -19,20 +44,15 @@ export const logger = pino({
         }
 
         const { spanId, traceId } = span.spanContext();
+
         return { span_id: spanId, trace_id: traceId };
     },
-    ...(isProduction
-        ? {}
-        : {
-              msgPrefix: '[EmitSignal] ',
-              redact: { paths: isProduction ? ['code'] : [] },
-              transport: {
-                  options: {
-                      colorize: true,
-                      ignore: 'pid,hostname',
-                      translateTime: 'HH:MM:ss.l',
-                  },
-                  target: 'pino-pretty',
-              },
-          }),
+    transport: { targets: ingestionTarget ? [localTarget, ingestionTarget] : [localTarget] },
+    ...(isProduction ? {} : { msgPrefix: '[EmitSignal] ' }),
 });
+
+export async function flushLogs(): Promise<void> {
+    await new Promise<void>((resolve) => {
+        logger.flush(() => resolve());
+    });
+}
