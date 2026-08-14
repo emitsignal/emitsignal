@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { isUnobservedPath, resolveServiceName } from '../observability';
+import { isUnobservedPath, resolveLogIngestionTarget, resolveServiceName } from '../observability';
 
 describe('isUnobservedPath', () => {
     it('excludes the health check path', () => {
@@ -29,5 +29,41 @@ describe('resolveServiceName', () => {
     it('names every other process as the server', () => {
         expect(resolveServiceName(['bun', '/app/src/index.ts'], names)).toBe('emitsignal-server');
         expect(resolveServiceName(['bun', 'test'], names)).toBe('emitsignal-server');
+    });
+});
+
+describe('resolveLogIngestionTarget', () => {
+    it('keeps logs on stdout when no provider is configured', () => {
+        expect(resolveLogIngestionTarget({ provider: 'stdout', token: 'token' })).toBeUndefined();
+    });
+
+    it('keeps logs on stdout when the provider has no token', () => {
+        expect(resolveLogIngestionTarget({ provider: 'betterstack' })).toBeUndefined();
+    });
+
+    it('builds the Better Stack transport with its default host', () => {
+        expect(resolveLogIngestionTarget({ provider: 'betterstack', token: 'token' })).toEqual({
+            options: {
+                options: { endpoint: 'https://in.logs.betterstack.com' },
+                sourceToken: 'token',
+            },
+            target: '@logtail/pino',
+        });
+    });
+
+    it('prefers an explicitly configured ingesting host', () => {
+        expect(
+            resolveLogIngestionTarget({
+                host: 'https://s123.eu-nbg-2.betterstackdata.com',
+                provider: 'betterstack',
+                token: 'token',
+            }),
+        ).toEqual({
+            options: {
+                options: { endpoint: 'https://s123.eu-nbg-2.betterstackdata.com' },
+                sourceToken: 'token',
+            },
+            target: '@logtail/pino',
+        });
     });
 });
