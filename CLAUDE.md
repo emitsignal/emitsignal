@@ -66,6 +66,7 @@ CLI                       ┘                    │                  Redis
 - **Rate limiting:** `rate-limiter-flexible` via Redis (`src/lib/rate-limit/`); applied globally via `src/http/plugins/rate-limit-plugin.ts`. Fails open if Redis is unavailable.
 - **File storage:** provider-switched via `FILE_STORAGE_PROVIDER` env — `local` (default) or `s3` (`src/lib/storage/`)
 - **Email provider:** switched via `EMAIL_PROVIDER` env — `log` (default/dev), `smtp`, or `resend`
+- **Log ingestion:** switched via `LOG_INGESTION_PROVIDER` env — `stdout` (default) or `betterstack`; when a provider is set, `src/lib/logger.ts` adds a second Pino transport target alongside stdout/pretty. Falls back to stdout-only when `LOG_INGESTION_TOKEN` is missing.
 - **Environment:** validated at startup by TypeBox schema in `src/schema/environment.ts`; all config accessed via the `environment` export
 
 ### Publish API
