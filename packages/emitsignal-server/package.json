@@ -9,6 +9,7 @@
         "@elysiajs/cors": "^1.4.1",
         "@emitsignal/emails": "workspace:*",
         "@emitsignal/shared": "workspace:*",
+        "@logtail/pino": "^0.5.8",
         "@opentelemetry/api": "^1.9.1",
         "@opentelemetry/exporter-trace-otlp-http": "^0.218.0",
         "@opentelemetry/resources": "^2.7.1",
