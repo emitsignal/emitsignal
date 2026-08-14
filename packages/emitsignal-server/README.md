@@ -11,7 +11,7 @@ Bun + Elysia backend for the EmitSignal notification platform. Handles topic-bas
 - **Email:** React Email templates rendered to HTML, delivered via SMTP or Resend
 - **Real-time:** SSE (`text/event-stream`) with in-process `EventEmitter`
 - **File storage:** local disk or S3-compatible object storage
-- **Logging:** Pino
+- **Logging:** Pino, optionally shipped to a log ingestion provider (Better Stack)
 
 ## Scripts
 
