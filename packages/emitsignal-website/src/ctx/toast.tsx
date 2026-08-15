@@ -1,5 +1,7 @@
 import { createContext, type ReactNode, useCallback, useContext, useRef, useState } from 'react';
 
+import { withAlpha } from '#/lib/color';
+
 export type ToastKind = 'danger' | 'ok' | 'warn';
 
 interface ToastContextValue {
@@ -83,7 +85,7 @@ function ToastViewport({
                         style={{
                             animation: 'ktoast .2s ease-out',
                             background: 'var(--color-elev-2)',
-                            borderColor: color + '55',
+                            borderColor: withAlpha(color, 33),
                         }}
                     >
                         <span

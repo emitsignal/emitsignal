@@ -13,6 +13,7 @@ import { SubHeading } from '#/components/ui/sub-head';
 import { useApiKeys } from '#/hooks/use-api-keys';
 import { fetchApiKeysServer } from '#/lib/api-server-fns';
 import { authClient } from '#/lib/auth-client';
+import { withAlpha } from '#/lib/color';
 import { queryKeys } from '#/lib/query-client';
 
 export const Route = createFileRoute('/app/keys')({
@@ -168,7 +169,7 @@ function Toast({ toast }: { toast: Toast }) {
                 className="flex items-center gap-2.5 rounded-[10px] border px-4 py-2.5 shadow-2xl"
                 style={{
                     background: 'var(--color-elev-2)',
-                    borderColor: color + '55',
+                    borderColor: withAlpha(color, 33),
                 }}
             >
                 <span
