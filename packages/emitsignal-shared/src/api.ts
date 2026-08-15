@@ -54,10 +54,14 @@ export interface PaginatedResponse<T> {
 }
 
 export interface PushToken {
+    appId: null | string;
+    createdAt: string;
     deviceId: string;
+    deviceName: null | string;
     id: string;
     platform: string;
     pushEnabled: boolean;
+    updatedAt: string;
 }
 
 export interface Subscription {
@@ -247,6 +251,12 @@ export function createApiClient(baseUrl: string) {
             });
         },
 
+        deletePushToken(id: string) {
+            return request<{ ok: boolean }>(`/push-tokens/${encodeURIComponent(id)}`, {
+                method: 'DELETE',
+            });
+        },
+
         deleteWebhook(id: string) {
             return request<void>(`/webhooks/${encodeURIComponent(id)}`, { method: 'DELETE' });
         },
@@ -388,7 +398,9 @@ export function createApiClient(baseUrl: string) {
         },
 
         registerPushToken(input: {
+            appId?: string;
             deviceId: string;
+            deviceName?: string;
             platform: 'android' | 'ios' | 'web';
             token: string;
         }) {
