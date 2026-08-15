@@ -6,7 +6,7 @@ export default {
         extend: {
             colors: {
                 'es-amber': '#fbbf24',
-                'es-bg': '#08080a',
+                'es-bg': '#000000',
                 'es-bgChip': '#141517',
                 'es-bgElev': '#111113',
                 'es-bgElev2': '#191a1d',
