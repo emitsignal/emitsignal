@@ -3,12 +3,12 @@
 
 @theme {
     /* Backgrounds */
-    --color-bg: #08080a;
+    --color-bg: #000000;
     --color-elev: #111113;
     --color-elev-2: #191a1d;
     --color-line: #232427;
     --color-chip: #141517;
-    --color-deep: #030304;
+    --color-deep: #0a0a0c;
 
     /* Text */
     --color-fg: #f7f7f8;
@@ -36,14 +36,29 @@
     --color-p4: #fbbf24;
     --color-p5: #f87171;
 
+    /* Text drawn on top of a filled accent/semantic surface */
+    --color-on-accent: #1a0d33;
+    --color-on-warn: #2a1a00;
+    --color-on-danger: #2a0a0a;
+
+    /* Dialog scrim and the control overlay on dark media */
+    --color-scrim: rgba(3, 3, 4, 0.72);
+    --color-overlay: rgba(255, 255, 255, 0.08);
+
+    /* macOS window-chrome dots. Physical-object colors — identical in both themes. */
+    --color-term-red: #ff5f56;
+    --color-term-amber: #ffbd2e;
+    --color-term-green: #27c93f;
+
     /* Fonts */
     --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
 }
 
-/* Light theme — scoped to the dashboard subtree via [data-theme='light'] on the
-   /app wrapper. The :root values above stay the global default so public pages
-   remain dark. Mirrors the mobile lightPalette for cross-platform consistency. */
+:root {
+    color-scheme: dark;
+}
+
 [data-theme='light'] {
     color-scheme: light;
 
@@ -80,6 +95,14 @@
     --color-p3: #9333ea;
     --color-p4: #d97706;
     --color-p5: #dc2626;
+
+    /* Accent/semantic fills are dark in this theme, so their on-color inverts */
+    --color-on-accent: #ffffff;
+    --color-on-warn: #ffffff;
+    --color-on-danger: #ffffff;
+
+    --color-scrim: rgba(24, 24, 27, 0.45);
+    --color-overlay: rgba(24, 24, 27, 0.06);
 }
 
 @keyframes signal-pulse {
