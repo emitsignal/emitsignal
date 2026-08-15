@@ -10,7 +10,6 @@ import { useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -35,6 +34,7 @@ import { useTheme } from '@/ctx/theme';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
+import { getAppIdentity } from '@/lib/app-identity';
 import { queryKeys } from '@/lib/query-client';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
@@ -295,13 +295,9 @@ function NotificationsSection() {
             const token = await refreshPushToken();
 
             if (token) {
-                const platform = (
-                    Platform.OS === 'ios' || Platform.OS === 'android' ? Platform.OS : 'web'
-                ) as 'android' | 'ios' | 'web';
-
                 await api.registerPushToken({
+                    ...getAppIdentity(),
                     deviceId,
-                    platform,
                     token,
                 });
 

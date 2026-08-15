@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WLogo } from '@/components/base-theme';
@@ -13,6 +13,7 @@ import { useDevice } from '@/ctx/device';
 import { useSession } from '@/ctx/session';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api, type PushToken } from '@/lib/api';
+import { getAppIdentity } from '@/lib/app-identity';
 import { queryKeys } from '@/lib/query-client';
 
 const PLATFORM_LABEL: Record<string, string> = {
@@ -56,13 +57,9 @@ export default function AuthPerms() {
         }
 
         if (pushToken && deviceId) {
-            const platform = (
-                Platform.OS === 'ios' || Platform.OS === 'android' ? Platform.OS : 'web'
-            ) as 'android' | 'ios' | 'web';
-
             api.registerPushToken({
+                ...getAppIdentity(),
                 deviceId,
-                platform,
                 token: pushToken,
             })
                 .then(() => queryClient.invalidateQueries({ queryKey: queryKeys.pushTokens }))
