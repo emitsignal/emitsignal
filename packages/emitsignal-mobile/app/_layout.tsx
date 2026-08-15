@@ -30,7 +30,7 @@ import { setupQuerySync } from '@/lib/query-online';
 setupQuerySync();
 
 // Keep the native splash up until the JS bundle is ready, then hand off to the
-// in-app animated intro. Both share the #08080a background so the swap is seamless.
+// in-app animated intro. Both share the same scheme background so the swap is seamless.
 SplashScreen.preventAutoHideAsync();
 
 if (process.env.EXPO_PUBLIC_SENTRY_ENABLED === 'true' && process.env.EXPO_PUBLIC_SENTRY_DSN) {

@@ -4,7 +4,7 @@ import SwiftUI
 // matching the design which only defines the dark gradient card).
 enum Theme {
     static let amber = Color(hex: 0xFBBF24)
-    static let bg = Color(hex: 0x08080a)
+    static let bg = Color(hex: 0x000000)
     static let bgElev = Color(hex: 0x111113)
     static let bgLine = Color(hex: 0x232427)
     static let fg = Color(hex: 0xf7f7f8)

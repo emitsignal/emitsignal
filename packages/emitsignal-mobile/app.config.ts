@@ -40,7 +40,7 @@ const appGroup = `group.${bundleIdentifier}`;
 const config: ExpoConfig = {
     android: {
         adaptiveIcon: {
-            backgroundColor: '#08080a',
+            backgroundColor: '#000000',
             backgroundImage: './assets/images/android-icon-background.png',
             foregroundImage: './assets/images/android-icon-foreground.png',
             monochromeImage: './assets/images/android-icon-monochrome.png',
@@ -49,7 +49,7 @@ const config: ExpoConfig = {
         package: bundleIdentifier,
         predictiveBackGestureEnabled: false,
     },
-    backgroundColor: '#08080a',
+    backgroundColor: '#000000',
     experiments: {
         reactCompiler: true,
         typedRoutes: false,
@@ -99,9 +99,10 @@ const config: ExpoConfig = {
         [
             'expo-splash-screen',
             {
-                backgroundColor: '#08080a',
+                // Top level is the light-mode splash; `dark` overrides it.
+                backgroundColor: '#fafafa',
                 dark: {
-                    backgroundColor: '#08080a',
+                    backgroundColor: '#000000',
                 },
                 image: './assets/images/splash-icon.png',
                 imageWidth: 160,

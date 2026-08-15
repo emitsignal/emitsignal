@@ -7,10 +7,9 @@ export { PRIORITY_HEX as PriorityColors } from '@emitsignal/shared/priority';
 
 export const darkPalette = {
     amber: '#fbbf24',
-    // Backgrounds — neutral near-black; violet stays the only brand hue
-    bg: '#08080a',
+    bg: '#000000',
     bgChip: '#141517',
-    bgCode: '#030304',
+    bgCode: '#0a0a0c',
     bgElev: '#111113',
     bgElev2: '#191a1d',
     bgLine: '#232427',
