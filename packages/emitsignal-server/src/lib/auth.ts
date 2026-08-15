@@ -12,6 +12,7 @@ import path from 'node:path';
 import { createElement } from 'react';
 import Stripe from 'stripe';
 
+import { logger } from '#/lib/logger';
 import { captureTraceContext } from '#/lib/trace-context';
 import { environment, isProduction } from '#/schema/environment';
 import { invalidateUserPlanCache } from '#/services/billing/get-user-plan';
@@ -40,15 +41,51 @@ const stripePlugins = isStripeBillingEnabled()
               subscription: {
                   enabled: true,
                   onSubscriptionCancel: async ({ subscription }) => {
+                      logger.info(
+                          {
+                              event: 'cancelled',
+                              plan: subscription.plan,
+                              userId: subscription.referenceId,
+                          },
+                          'subscription changed',
+                      );
+
                       await invalidateUserPlanCache(subscription.referenceId);
                   },
                   onSubscriptionComplete: async ({ subscription }) => {
+                      logger.info(
+                          {
+                              event: 'completed',
+                              plan: subscription.plan,
+                              userId: subscription.referenceId,
+                          },
+                          'subscription changed',
+                      );
+
                       await invalidateUserPlanCache(subscription.referenceId);
                   },
                   onSubscriptionDeleted: async ({ subscription }) => {
+                      logger.info(
+                          {
+                              event: 'deleted',
+                              plan: subscription.plan,
+                              userId: subscription.referenceId,
+                          },
+                          'subscription changed',
+                      );
+
                       await invalidateUserPlanCache(subscription.referenceId);
                   },
                   onSubscriptionUpdate: async ({ subscription }) => {
+                      logger.info(
+                          {
+                              event: 'updated',
+                              plan: subscription.plan,
+                              userId: subscription.referenceId,
+                          },
+                          'subscription changed',
+                      );
+
                       await invalidateUserPlanCache(subscription.referenceId);
                   },
                   plans: stripePlanConfig(),
@@ -130,6 +167,8 @@ export const auth = betterAuth({
                 return;
             }
 
+            logger.info({ userId: ctx.context.session?.user.id }, 'api key created');
+
             await sendApiKeyCreatedEmail(returned);
         }),
         before: createAuthMiddleware(async (ctx) => {
@@ -164,6 +203,8 @@ export const auth = betterAuth({
             );
 
             if (typeof email === 'string' && !isEmailAllowed(email)) {
+                logger.warn('sign-in blocked by the email allowlist');
+
                 throw new APIError('FORBIDDEN', {
                     message: 'This email address is not allowed to sign in.',
                 });
@@ -265,6 +306,8 @@ export const auth = betterAuth({
                 await sendAccountDeletedEmail(user);
             },
             beforeDelete: async (user) => {
+                logger.info({ userId: user.id }, 'deleting account');
+
                 const attachments = await prisma.attachment.findMany({
                     select: { storageKey: true },
                     where: {
