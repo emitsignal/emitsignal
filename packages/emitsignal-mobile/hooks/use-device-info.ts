@@ -5,6 +5,8 @@ import * as Notifications from 'expo-notifications';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
+import { darkPalette } from '@/constants/theme';
+
 function randomUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
         const r = (Math.random() * 16) | 0;
@@ -91,7 +93,7 @@ export function useDeviceInfo() {
             if (Platform.OS === 'android') {
                 Notifications.setNotificationChannelAsync('default', {
                     importance: Notifications.AndroidImportance.MAX,
-                    lightColor: '#FF231F7C',
+                    lightColor: darkPalette.violet,
                     name: 'default',
                     vibrationPattern: [0, 250, 250, 250],
                 });
