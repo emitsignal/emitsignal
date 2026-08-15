@@ -18,16 +18,33 @@ const INTEGRATIONS: Integration[] = [
         name: 'GitHub',
     },
     {
-        color: '#a78bfa',
+        color: 'var(--color-accent)',
         connected: true,
         description: 'Errors → channel',
         events: 34,
         name: 'Sentry',
     },
-    { color: '#67e8f9', connected: true, description: 'Webhooks', events: 18, name: 'Stripe' },
-    { color: '#fbbf24', connected: false, description: 'Alerts', name: 'Datadog' },
-    { color: '#f0abfc', connected: true, description: 'Deploy hooks', events: 56, name: 'Vercel' },
-    { color: '#4ade80', connected: false, description: 'On-call rotation', name: 'PagerDuty' },
+    {
+        color: 'var(--color-info)',
+        connected: true,
+        description: 'Webhooks',
+        events: 18,
+        name: 'Stripe',
+    },
+    { color: 'var(--color-warn)', connected: false, description: 'Alerts', name: 'Datadog' },
+    {
+        color: 'var(--color-pink)',
+        connected: true,
+        description: 'Deploy hooks',
+        events: 56,
+        name: 'Vercel',
+    },
+    {
+        color: 'var(--color-success)',
+        connected: false,
+        description: 'On-call rotation',
+        name: 'PagerDuty',
+    },
 ];
 
 export function IntegrationsGrid() {

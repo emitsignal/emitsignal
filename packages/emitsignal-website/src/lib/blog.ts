@@ -63,25 +63,25 @@ export const AUTHORS: Record<AuthorId, Author> = {
 export const CATEGORIES: Record<PostCategory, Category> = {
     changelog: {
         blurb: 'Every release, every line, dated.',
-        color: '#4ade80',
+        color: 'var(--color-success)',
         key: 'changelog',
         label: 'Changelog',
     },
     engineering: {
         blurb: 'How the pipe is built — deep dives from the team.',
-        color: '#67e8f9',
+        color: 'var(--color-info)',
         key: 'engineering',
         label: 'Engineering',
     },
     product: {
         blurb: 'New capabilities and the thinking behind them.',
-        color: '#a78bfa',
+        color: 'var(--color-accent)',
         key: 'product',
         label: 'Product',
     },
     tutorial: {
         blurb: 'Wire a source to a sink in five minutes.',
-        color: '#fbbf24',
+        color: 'var(--color-warn)',
         key: 'tutorial',
         label: 'Integrations',
     },

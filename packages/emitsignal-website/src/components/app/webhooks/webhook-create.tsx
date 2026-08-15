@@ -719,7 +719,7 @@ function PriorityChip({
     onClick: () => void;
     value: number;
 }) {
-    const hex = ['#818cf8', '#a78bfa', '#c4b5fd', '#fbbf24', '#f87171'][value - 1]!;
+    const hex = `var(--color-p${value})`;
 
     return (
         <button

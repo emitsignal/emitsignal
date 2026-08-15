@@ -5,10 +5,10 @@ import { BlogCode } from './blog-code';
 type CalloutTone = 'amber' | 'green' | 'red' | 'violet';
 
 const CALLOUT_COLORS: Record<CalloutTone, string> = {
-    amber: '#fbbf24',
-    green: '#4ade80',
-    red: '#f87171',
-    violet: '#a78bfa',
+    amber: 'var(--color-warn)',
+    green: 'var(--color-success)',
+    red: 'var(--color-danger)',
+    violet: 'var(--color-accent)',
 };
 
 export function Callout({

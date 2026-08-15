@@ -27,7 +27,7 @@ export function LinkWarningDialog({ link, onClose }: LinkWarningDialogProps) {
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'var(--color-scrim)' }}
         >
             <div
                 className="w-full max-w-[460px] overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"
@@ -38,7 +38,10 @@ export function LinkWarningDialog({ link, onClose }: LinkWarningDialogProps) {
                     <div className="mb-3.5 flex items-center gap-3">
                         <div
                             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                            style={{ background: 'rgba(251,191,36,0.13)' }}
+                            style={{
+                                background:
+                                    'color-mix(in srgb, var(--color-warn) 13%, transparent)',
+                            }}
                         >
                             <AlertTriangle className="text-warn" size={16} />
                         </div>
@@ -74,7 +77,7 @@ export function LinkWarningDialog({ link, onClose }: LinkWarningDialogProps) {
                         className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={!safe}
                         onClick={handleOpen}
-                        style={{ background: 'var(--color-warn)', color: '#2a1a00' }}
+                        style={{ background: 'var(--color-warn)', color: 'var(--color-on-warn)' }}
                         title={safe ? undefined : 'Blocked: unsupported URL scheme'}
                     >
                         <ExternalLink size={13} />

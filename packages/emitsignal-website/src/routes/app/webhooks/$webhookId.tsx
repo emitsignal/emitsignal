@@ -27,7 +27,10 @@ function WebhookDeliveriesPage() {
                         <span className="flex items-center gap-1.5 font-mono text-[11px] text-success">
                             <span
                                 className="inline-block h-1.5 w-1.5 rounded-full bg-success"
-                                style={{ boxShadow: '0 0 7px #4ade8099' }}
+                                style={{
+                                    boxShadow:
+                                        '0 0 7px color-mix(in srgb, var(--color-success) 60%, transparent)',
+                                }}
                             />
                             live
                         </span>

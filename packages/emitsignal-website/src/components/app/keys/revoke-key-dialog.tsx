@@ -32,7 +32,7 @@ export function RevokeKeyDialog({ apiKey, onClose, onConfirm }: RevokeKeyDialogP
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'var(--color-scrim)' }}
         >
             <div
                 className="w-full max-w-[440px] overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"
@@ -43,7 +43,10 @@ export function RevokeKeyDialog({ apiKey, onClose, onConfirm }: RevokeKeyDialogP
                     <div className="mb-3.5 flex items-center gap-3">
                         <div
                             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                            style={{ background: 'rgba(248,113,113,0.13)' }}
+                            style={{
+                                background:
+                                    'color-mix(in srgb, var(--color-danger) 13%, transparent)',
+                            }}
                         >
                             <AlertTriangle className="text-danger" size={16} />
                         </div>
@@ -80,7 +83,10 @@ export function RevokeKeyDialog({ apiKey, onClose, onConfirm }: RevokeKeyDialogP
                         className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-semibold disabled:opacity-50"
                         disabled={loading}
                         onClick={() => void handleConfirm()}
-                        style={{ background: 'var(--color-danger)', color: '#2a0a0a' }}
+                        style={{
+                            background: 'var(--color-danger)',
+                            color: 'var(--color-on-danger)',
+                        }}
                     >
                         <AlertTriangle size={13} />
                         {loading ? 'Revoking...' : 'Revoke key'}

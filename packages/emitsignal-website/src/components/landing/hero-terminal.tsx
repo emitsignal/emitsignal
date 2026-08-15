@@ -107,9 +107,9 @@ export function HeroTerminal({ streamHeight = 360 }: HeroTerminalProps = {}) {
             {/* titlebar */}
             <div className="flex items-center gap-2 border-b border-line px-3.5 py-2.5">
                 <span className="flex gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-term-red" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-term-amber" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-term-green" />
                 </span>
                 <span className="ml-3 font-mono text-[11.5px] text-dim">
                     emitsignal listen · 8 channels live

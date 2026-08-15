@@ -101,7 +101,7 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'var(--color-scrim)' }}
         >
             <div
                 className="w-full overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"
@@ -116,7 +116,10 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
                         <div className="flex items-center gap-3 border-b border-line px-[22px] py-5">
                             <div
                                 className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                                style={{ background: 'rgba(167,139,250,0.15)' }}
+                                style={{
+                                    background:
+                                        'color-mix(in srgb, var(--color-accent) 15%, transparent)',
+                                }}
                             >
                                 <Key className="text-accent" size={16} />
                             </div>
@@ -167,7 +170,7 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
                                             style={{
                                                 background:
                                                     expiry === value
-                                                        ? 'rgba(167,139,250,0.15)'
+                                                        ? 'color-mix(in srgb, var(--color-accent) 15%, transparent)'
                                                         : 'var(--color-bg)',
                                                 borderColor:
                                                     expiry === value
@@ -210,7 +213,10 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
                             <div className="flex items-center gap-3 border-b border-line px-[22px] py-5">
                                 <div
                                     className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                                    style={{ background: 'rgba(74,222,128,0.14)' }}
+                                    style={{
+                                        background:
+                                            'color-mix(in srgb, var(--color-success) 14%, transparent)',
+                                    }}
                                 >
                                     <Check
                                         size={17}
@@ -254,8 +260,10 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
                                 <div
                                     className="mt-4 flex gap-2.5 rounded-[9px] border px-3.5 py-3"
                                     style={{
-                                        background: 'rgba(251,191,36,0.08)',
-                                        borderColor: 'rgba(251,191,36,0.27)',
+                                        background:
+                                            'color-mix(in srgb, var(--color-warn) 8%, transparent)',
+                                        borderColor:
+                                            'color-mix(in srgb, var(--color-warn) 27%, transparent)',
                                     }}
                                 >
                                     <AlertTriangle

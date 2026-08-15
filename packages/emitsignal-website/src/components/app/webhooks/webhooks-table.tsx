@@ -79,9 +79,9 @@ function KebabItem({
 
 function StatusDot({ status }: { status: Webhook['status'] }) {
     const map: Record<Webhook['status'], [string, string]> = {
-        active: ['#4ade80', 'active'],
-        error: ['#f87171', 'error'],
-        paused: ['#fbbf24', 'paused'],
+        active: ['var(--color-success)', 'active'],
+        error: ['var(--color-danger)', 'error'],
+        paused: ['var(--color-warn)', 'paused'],
     };
     const [color, label] = map[status];
     return (

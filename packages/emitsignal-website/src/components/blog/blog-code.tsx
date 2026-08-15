@@ -3,15 +3,15 @@ import { useState } from 'react';
 import { cn } from '#/lib/cn';
 
 const C = {
-    com: '#71717a',
-    def: '#f7f7f8',
-    flag: '#a78bfa',
-    fn: '#67e8f9',
-    kw: '#c4b5fd',
-    num: '#f0abfc',
-    op: '#a1a1a6',
-    prompt: '#4ade80',
-    str: '#fbbf24',
+    com: 'var(--color-dim)',
+    def: 'var(--color-fg)',
+    flag: 'var(--color-accent)',
+    fn: 'var(--color-info)',
+    kw: 'var(--color-p3)',
+    num: 'var(--color-pink)',
+    op: 'var(--color-muted)',
+    prompt: 'var(--color-success)',
+    str: 'var(--color-warn)',
 };
 
 interface BlogCodeProps {
@@ -37,7 +37,11 @@ export function BlogCode({ className, src }: BlogCodeProps) {
         <div className="relative my-4 overflow-hidden rounded-[10px] border border-line bg-deep">
             <div className="flex items-center gap-2 border-b border-line px-3.5 py-2">
                 <span className="flex gap-1.5">
-                    {['#ff5f56', '#ffbd2e', '#27c93f'].map((background) => (
+                    {[
+                        'var(--color-term-red)',
+                        'var(--color-term-amber)',
+                        'var(--color-term-green)',
+                    ].map((background) => (
                         <span
                             className="h-2 w-2 rounded-full opacity-85"
                             key={background}
