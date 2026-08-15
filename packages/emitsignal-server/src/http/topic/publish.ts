@@ -3,6 +3,7 @@ import Elysia, { t } from 'elysia';
 import { resolveUserId } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { bus } from '#/lib/event-bus';
+import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { pushQueue, scheduleQueue } from '#/lib/queue';
 import { publishAnonLimiter, publishAuthLimiter } from '#/lib/rate-limit';
@@ -97,6 +98,11 @@ function publishRoute(path: string, deprecated: boolean) {
                 const quota = await consumeDailyQuota(userId, 'messages', limits.messagesPerDay);
 
                 if (!quota.allowed) {
+                    logger.warn(
+                        { limit: quota.limit, metric: 'messages', userId },
+                        'daily quota exceeded',
+                    );
+
                     Object.assign(set.headers, quotaExceededHeaders(quota));
 
                     return status(429, {

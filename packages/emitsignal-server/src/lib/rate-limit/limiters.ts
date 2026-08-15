@@ -1,20 +1,19 @@
 import Redis from 'ioredis';
 import { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible';
 
+import { logger } from '#/lib/logger';
 import { environment } from '#/schema/environment';
 import { duration } from '#/utils/duration';
 
-// Dedicated connection with maxRetriesPerRequest: 0 so that consume() fails
-// immediately when Redis is unavailable instead of blocking indefinitely.
-// consumeLimit() catches the error and fails-open, keeping the server alive.
 export const rateLimitRedis = new Redis(environment.REDIS_URL, {
     enableReadyCheck: false,
     maxRetriesPerRequest: 0,
 });
 
-// In test mode use in-memory limiters with large points so unit/integration tests
-// that don't explicitly mock this module never hit a rate limit by accident.
-// Bun sets Bun.env.NODE_ENV = 'test' automatically during `bun test` runs.
+rateLimitRedis.on('error', (error: Error) => {
+    logger.error({ error }, 'rate limit redis connection error');
+});
+
 function makeLimiter(keyPrefix: string, points: number, windowSeconds: number) {
     if (Bun.env.NODE_ENV === 'test') {
         return new RateLimiterMemory({ duration: windowSeconds, keyPrefix, points: points * 1000 });
