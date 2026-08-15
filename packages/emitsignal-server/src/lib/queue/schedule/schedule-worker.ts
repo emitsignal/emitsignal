@@ -37,8 +37,6 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info({ jobId: job.id, messageId }, 'processing schedule job');
-
                         const message = await prisma.message.findUnique({
                             include: { topic: true },
                             where: { id: messageId },
@@ -93,10 +91,7 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
                             where: { id: message.id },
                         });
 
-                        logger.info(
-                            { messageId },
-                            'schedule job completed: SSE emitted, push enqueued',
-                        );
+                        logger.info({ messageId }, 'scheduled message delivered');
 
                         span.setStatus({ code: SpanStatusCode.OK });
                     } catch (error) {
@@ -118,12 +113,16 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
         },
     );
 
-    worker.on('completed', (job) => {
-        logger.info({ jobId: job.id }, 'schedule job completed');
-    });
-
-    worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'schedule job failed');
+    worker.on('failed', (job, error) => {
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                error,
+                jobId: job?.id,
+            },
+            'schedule job failed',
+        );
     });
 
     return worker;

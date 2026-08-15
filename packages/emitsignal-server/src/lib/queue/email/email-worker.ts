@@ -57,7 +57,15 @@ export function createEmailWorker(): Worker<Traced<EmailOptions>> {
     });
 
     worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'email job failed');
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                err,
+                jobId: job?.id,
+            },
+            'email job failed',
+        );
     });
 
     return worker;

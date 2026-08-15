@@ -69,8 +69,16 @@ export function createPurgeWorker(): Worker<Traced<PurgeJob>> {
         logger.info({ jobId: job.id }, 'purge job completed');
     });
 
-    worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'purge job failed');
+    worker.on('failed', (job, error) => {
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                error,
+                jobId: job?.id,
+            },
+            'purge job failed',
+        );
     });
 
     return worker;
