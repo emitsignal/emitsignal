@@ -24,7 +24,13 @@ describe('POST /push-tokens', () => {
     function lastUpsertCreate() {
         const calls = prismaMock.pushToken.upsert.mock.calls;
         const callArgs = calls[calls.length - 1] as unknown as [
-            { create: { userId: null | string } },
+            {
+                create: {
+                    appId?: string;
+                    deviceName?: string;
+                    userId: null | string;
+                };
+            },
         ];
         return callArgs[0].create;
     }
@@ -45,7 +51,7 @@ describe('POST /push-tokens', () => {
 
     it('derives userId from the session and ignores a body userId', async () => {
         // The caller is authenticated as user-1 but tries to bind the token to
-        // victim-2 via the body. The body value must be ignored.
+        // user-2 via the body. The body value must be ignored.
         resolveUserIdMock.mockResolvedValueOnce('user-1');
 
         await app.handle(
@@ -53,7 +59,7 @@ describe('POST /push-tokens', () => {
                 deviceId: 'dev-1',
                 platform: 'android',
                 token: 'token-2',
-                userId: 'victim-2',
+                userId: 'user-2',
             }),
         );
 
@@ -66,13 +72,32 @@ describe('POST /push-tokens', () => {
         expect(lastUpsertCreate().userId).toBeNull();
     });
 
+    it('stores the device identity when the client sends it', async () => {
+        await app.handle(
+            request({
+                appId: 'com.emitsignal.preview',
+                deviceId: 'dev-1',
+                deviceName: 'iPhone 15 Pro',
+                platform: 'ios',
+                token: 'token-4',
+            }),
+        );
+
+        const create = lastUpsertCreate();
+
+        expect(create.appId).toBe('com.emitsignal.preview');
+        expect(create.deviceName).toBe('iPhone 15 Pro');
+    });
+
     it('returns 422 for missing required fields', async () => {
         const res = await app.handle(request({ platform: 'ios' }));
+
         expect(res.status).toBe(422);
     });
 
     it('returns 422 for invalid platform', async () => {
         const res = await app.handle(request({ deviceId: 'd1', platform: 'unknown', token: 't1' }));
+
         expect(res.status).toBe(422);
     });
 });

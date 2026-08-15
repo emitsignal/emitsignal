@@ -13,6 +13,7 @@ import { purgeSignals } from '#/http/messages/purge';
 import { errorResponsePlugin } from '#/http/plugins/error-response-plugin';
 import { loggerPlugin } from '#/http/plugins/logger-plugin';
 import { rateLimitPlugin } from '#/http/plugins/rate-limit-plugin';
+import { deletePushToken } from '#/http/push-tokens/delete';
 import { listPushTokens } from '#/http/push-tokens/list';
 import { registerPushToken } from '#/http/push-tokens/register';
 import { updatePushToken } from '#/http/push-tokens/update';
@@ -94,6 +95,7 @@ const app = new Elysia({
     .use(claimSubscriptions)
     .use(claimTopic)
     .use(createWebhook)
+    .use(deletePushToken)
     .use(deleteWebhook)
     .use(getBilling)
     .use(getMessage)

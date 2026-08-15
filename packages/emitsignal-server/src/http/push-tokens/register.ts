@@ -24,12 +24,16 @@ export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
 
         const token = await prisma.pushToken.upsert({
             create: {
+                appId: body.appId,
                 deviceId: body.deviceId,
+                deviceName: body.deviceName,
                 platform: body.platform,
                 token: body.token,
                 userId,
             },
             update: {
+                appId: body.appId,
+                deviceName: body.deviceName,
                 platform: body.platform,
                 // Never downgrade an owned token to anonymous; only set ownership
                 // when adopting a previously unowned token.
@@ -47,7 +51,9 @@ export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
     },
     {
         body: t.Object({
+            appId: t.Optional(t.String({ maxLength: 200, minLength: 1 })),
             deviceId: t.String({ minLength: 1 }),
+            deviceName: t.Optional(t.String({ maxLength: 200, minLength: 1 })),
             platform: t.Union([t.Literal('ios'), t.Literal('android'), t.Literal('web')]),
             token: t.String({ minLength: 1 }),
         }),
