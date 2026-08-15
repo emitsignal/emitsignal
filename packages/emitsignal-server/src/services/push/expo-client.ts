@@ -1,6 +1,7 @@
 import { SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { Expo, type ExpoPushMessage, type ExpoPushTicket } from 'expo-server-sdk';
 
+import { logger } from '#/lib/logger';
 import { environment } from '#/schema/environment';
 
 import type { PushJob } from './types';
@@ -76,9 +77,24 @@ async function sendChunk(chunk: ExpoPushMessage[], send: ExpoSender): Promise<vo
 
                 span.setAttribute('expo.push.rejected_count', rejected.length);
                 span.setStatus({ code: SpanStatusCode.OK });
+
+                if (rejected.length > 0) {
+                    logger.warn(
+                        {
+                            reasons: rejected.map((ticket) =>
+                                ticket.status === 'error' ? ticket.details?.error : undefined,
+                            ),
+                            rejected: rejected.length,
+                            sent: chunk.length,
+                        },
+                        'expo rejected push tokens',
+                    );
+                }
             } catch (error) {
                 span.recordException(error instanceof Error ? error : new Error(String(error)));
                 span.setStatus({ code: SpanStatusCode.ERROR });
+
+                logger.error({ error, sent: chunk.length }, 'expo push send failed');
 
                 throw error;
             } finally {
