@@ -1,6 +1,7 @@
 import Redis from 'ioredis';
 import { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible';
 
+import { logger } from '#/lib/logger';
 import { environment } from '#/schema/environment';
 import { duration } from '#/utils/duration';
 
@@ -10,6 +11,10 @@ import { duration } from '#/utils/duration';
 export const rateLimitRedis = new Redis(environment.REDIS_URL, {
     enableReadyCheck: false,
     maxRetriesPerRequest: 0,
+});
+
+rateLimitRedis.on('error', (error: Error) => {
+    logger.error({ error }, 'rate limit redis connection error');
 });
 
 // In test mode use in-memory limiters with large points so unit/integration tests

@@ -1,3 +1,4 @@
+import { logger } from '#/lib/logger';
 import { duration } from '#/utils/duration';
 
 import type { FileMetadata, FileStorage, FileUploadInput, StorageBucket } from './provider';
@@ -49,8 +50,11 @@ export class S3FileStorage implements FileStorage {
     async delete(storageKey: string, bucket: StorageBucket = 'private'): Promise<void> {
         await this.clientFor(bucket)
             .delete(storageKey)
-            .catch(() => {
-                // object may already be gone — that's fine
+            .catch((error: unknown) => {
+                // The object may already be gone, which is fine — but a credentials
+                // or permission failure looks identical here and used to leave the
+                // object orphaned with nothing recorded anywhere.
+                logger.warn({ bucket, error, storageKey }, 's3 delete failed');
             });
     }
 

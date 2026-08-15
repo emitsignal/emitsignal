@@ -1,6 +1,8 @@
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { logger } from '#/lib/logger';
+
 import type { FileMetadata, FileStorage, FileUploadInput } from './provider';
 
 import { extensionForMimeType } from './provider';
@@ -14,8 +16,12 @@ export class LocalFileStorage implements FileStorage {
     async delete(storageKey: string): Promise<void> {
         const filePath = path.join(this.uploadDir, storageKey);
 
-        await unlink(filePath).catch(() => {
-            // file may already be gone — that's fine
+        await unlink(filePath).catch((error: NodeJS.ErrnoException) => {
+            if (error.code === 'ENOENT') {
+                return;
+            }
+
+            logger.warn({ error, storageKey }, 'local file delete failed');
         });
     }
 
