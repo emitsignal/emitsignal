@@ -26,32 +26,47 @@ function contentLength(set: { headers: Record<string, string | undefined> }, bod
     }
 }
 
+// Client-caused failures (401, 404, 422, 429) are not our errors; logging them
+// as such buries real 5xx incidents and inflates error-rate alerts.
+function levelFor(status: number) {
+    if (status >= 500) {
+        return 'error' as const;
+    }
+
+    if (status >= 400) {
+        return 'warn' as const;
+    }
+
+    return 'info' as const;
+}
+
 export const loggerPlugin = new Elysia({ name: 'logger' })
-    .decorate('logger', logger)
-    .state('requestStart', 0)
-    .onRequest(({ store }) => {
-        store.requestStart = performance.now();
-    })
-    .onAfterResponse(({ request, responseValue, set, store }) => {
-        const status = set.status ?? 200;
+    .derive(() => ({ requestStart: performance.now() }))
+    .onAfterResponse(({ request, requestStart, responseValue, set }) => {
+        const status = (set.status ?? 200) as number;
 
         const path = new URL(request.url).pathname;
 
-        if (isUnobservedPath(path) && (status as number) < 400) {
+        if (isUnobservedPath(path) && status < 400) {
             return;
         }
 
-        const durationMs = (performance.now() - store.requestStart).toFixed(3);
-        const length = contentLength(set as never, responseValue);
-        const message = `${request.method} ${path} ${status} ${durationMs} ms - ${length}`;
+        // No route matched means `derive` never ran, so there is no start time.
+        const start = requestStart as number | undefined;
 
-        if ((status as number) >= 400) {
-            logger.error(message);
-
-            return;
-        }
-
-        logger.info(message);
+        logger[levelFor(status)](
+            {
+                durationMs:
+                    start === undefined
+                        ? undefined
+                        : Number((performance.now() - start).toFixed(3)),
+                length: contentLength(set as never, responseValue),
+                method: request.method,
+                path,
+                status,
+            },
+            'request',
+        );
     })
     .onError(({ code, error, request }) => {
         const path = new URL(request.url).pathname;
@@ -61,9 +76,11 @@ export const loggerPlugin = new Elysia({ name: 'logger' })
         }
 
         if (code === 'VALIDATION') {
-            logger.error(
-                { cause: error.cause, code, method: request.method, url: path },
-                'validation errors',
+            // Only the field paths: the TypeBox cause embeds the offending request
+            // body value, which would put user input into the log pipeline.
+            logger.warn(
+                { code, fields: validationFields(error), method: request.method, url: path },
+                'validation failed',
             );
 
             return;
@@ -77,3 +94,15 @@ export const loggerPlugin = new Elysia({ name: 'logger' })
         });
     })
     .as('global');
+
+function validationFields(error: unknown): string[] {
+    const all = (error as { all?: unknown }).all;
+
+    if (!Array.isArray(all)) {
+        return [];
+    }
+
+    return all
+        .map((issue) => (issue as { path?: unknown }).path)
+        .filter((path): path is string => typeof path === 'string');
+}
