@@ -1,3 +1,5 @@
+import { withAlpha } from '#/lib/color';
+
 interface UsageBarProps {
     color?: string;
     total: number;
@@ -33,7 +35,7 @@ export function UsageBar({ color = 'var(--color-accent)', total, unit = '', used
                     className="h-full rounded-full"
                     style={{
                         background: barColor,
-                        boxShadow: `0 0 8px ${barColor}66`,
+                        boxShadow: `0 0 8px ${withAlpha(barColor, 40)}`,
                         width: `${percentage}%`,
                     }}
                 />
