@@ -3,7 +3,7 @@ module.exports = (config) => ({
     bundleIdentifier: '.widgets',
     colors: {
         $accent: '#a78bfa',
-        $widgetBackground: '#0a0a0c',
+        $widgetBackground: '#000000',
     },
     deploymentTarget: '17.0',
     displayName: 'EmitSignal Widgets',
