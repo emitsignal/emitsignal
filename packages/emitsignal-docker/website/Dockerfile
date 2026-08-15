@@ -7,8 +7,9 @@ FROM oven/bun:1.3.14-slim AS build
 
 WORKDIR /app
 
-# Copy workspace manifest and lockfile
-COPY package.json bun.lock ./
+# Copy workspace manifest and lockfile. bunfig.toml pins the hoisted linker the
+# lockfile was generated with; without it bun installs an isolated tree instead.
+COPY package.json bun.lock bunfig.toml ./
 
 # Copy all workspace package manifests so bun can validate the lockfile
 COPY packages/emitsignal-cli/package.json       ./packages/emitsignal-cli/
