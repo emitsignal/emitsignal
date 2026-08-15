@@ -23,14 +23,14 @@ const localTarget: TransportTargetOptions = isProduction
     : {
           options: {
               colorize: true,
-              ignore: 'pid,hostname,service',
+              ignore: 'hostname,nodeEnv,pid,service',
               translateTime: 'HH:MM:ss.l',
           },
           target: 'pino-pretty',
       };
 
 export const logger = pino({
-    base: { hostname: hostname(), pid: process.pid, service },
+    base: { hostname: hostname(), nodeEnv: environment.NODE_ENV, pid: process.pid, service },
     level: environment.LOG_LEVEL ?? (isProduction ? 'info' : 'debug'),
     mixin() {
         if (!environment.OTEL_ENABLED || !environment.OTEL_VERBOSE_LOG) {
@@ -47,6 +47,7 @@ export const logger = pino({
 
         return { span_id: spanId, trace_id: traceId };
     },
+    redact: { censor: '[redacted]', paths: ['email', 'key', 'to', '*.email', '*.to'] },
     transport: { targets: ingestionTarget ? [localTarget, ingestionTarget] : [localTarget] },
     ...(isProduction ? {} : { msgPrefix: '[EmitSignal] ' }),
 });
