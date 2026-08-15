@@ -1,3 +1,4 @@
+import { logger } from '#/lib/logger';
 import { duration } from '#/utils/duration';
 
 import type { FileMetadata, FileStorage, FileUploadInput, StorageBucket } from './provider';
@@ -49,8 +50,8 @@ export class S3FileStorage implements FileStorage {
     async delete(storageKey: string, bucket: StorageBucket = 'private'): Promise<void> {
         await this.clientFor(bucket)
             .delete(storageKey)
-            .catch(() => {
-                // object may already be gone — that's fine
+            .catch((error: unknown) => {
+                logger.warn({ bucket, error, storageKey }, 's3 delete failed');
             });
     }
 
