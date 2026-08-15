@@ -86,12 +86,12 @@ export const Route = createFileRoute('/app')({
 });
 
 function DashboardShell() {
-    const { theme } = useTheme();
+    const { resolvedTheme } = useTheme();
 
     return (
         <div
             className="flex h-screen w-full overflow-hidden bg-bg font-sans text-fg"
-            data-theme={theme}
+            data-theme={resolvedTheme}
         >
             <Sidebar />
             <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
