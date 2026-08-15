@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, type ReactNode, useContext, useEffect } from 'react';
-import { Platform } from 'react-native';
 
 import { clearOnboardingComplete } from '@/hooks/use-onboarding';
 import { api, setAuthToken } from '@/lib/api';
+import { getAppIdentity } from '@/lib/app-identity';
 import { authClient } from '@/lib/auth-client';
 import { queryClient, queryKeys } from '@/lib/query-client';
 import { clearWidgetSnapshot } from '@/lib/widget-storage';
@@ -57,10 +57,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 return;
             }
 
-            const platform =
-                Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web';
-
-            api.registerPushToken({ deviceId, platform, token }).catch(() => {});
+            api.registerPushToken({ ...getAppIdentity(), deviceId, token }).catch(() => {});
         };
         linkToken();
     }, [data?.user?.id]);
