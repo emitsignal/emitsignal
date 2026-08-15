@@ -275,7 +275,7 @@ function ChannelSettingsDialog({
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'var(--color-scrim)' }}
         >
             <div
                 className="w-full max-w-[480px] overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"
@@ -285,7 +285,9 @@ function ChannelSettingsDialog({
                 <div className="flex items-center gap-3 border-b border-line px-[22px] py-5">
                     <div
                         className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                        style={{ background: 'rgba(167,139,250,0.15)' }}
+                        style={{
+                            background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)',
+                        }}
                     >
                         <Settings2 className="text-accent" size={16} />
                     </div>
@@ -341,7 +343,7 @@ function ChannelSettingsDialog({
                                         onClick={() => setListenSince(option.value)}
                                         style={{
                                             background: selected
-                                                ? 'rgba(167,139,250,0.10)'
+                                                ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)'
                                                 : 'var(--color-bg)',
                                             borderColor: selected
                                                 ? 'var(--color-accent)'
@@ -430,7 +432,7 @@ function ManageTopicDialog({
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-6"
             onClick={onClose}
-            style={{ backdropFilter: 'blur(3px)', background: 'rgba(3,3,4,0.72)' }}
+            style={{ backdropFilter: 'blur(3px)', background: 'var(--color-scrim)' }}
         >
             <div
                 className="w-full max-w-[480px] overflow-hidden rounded-[14px] border border-line bg-elev shadow-2xl"
@@ -440,7 +442,9 @@ function ManageTopicDialog({
                 <div className="flex items-center gap-3 border-b border-line px-[22px] py-5">
                     <div
                         className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg"
-                        style={{ background: 'rgba(167,139,250,0.15)' }}
+                        style={{
+                            background: 'color-mix(in srgb, var(--color-accent) 15%, transparent)',
+                        }}
                     >
                         <Crown className="text-accent" size={16} />
                     </div>
@@ -468,7 +472,7 @@ function ManageTopicDialog({
                                         onClick={() => setAccessMode(option.value)}
                                         style={{
                                             background: selected
-                                                ? 'rgba(167,139,250,0.10)'
+                                                ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)'
                                                 : 'var(--color-bg)',
                                             borderColor: selected
                                                 ? 'var(--color-accent)'
@@ -562,7 +566,7 @@ function MenuItem({
             style={{
                 background: hovered
                     ? danger
-                        ? 'rgba(248,113,113,0.10)'
+                        ? 'color-mix(in srgb, var(--color-danger) 10%, transparent)'
                         : 'var(--color-elev)'
                     : 'transparent',
                 color: danger ? 'var(--color-danger)' : 'var(--color-muted)',

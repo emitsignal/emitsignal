@@ -63,7 +63,7 @@ function AuthorAvatar({ color, name, size }: { color: string; name: string; size
                 alignItems: 'center',
                 background: `linear-gradient(180deg, ${color}, ${color}77)`,
                 borderRadius: '50%',
-                color: '#08080a',
+                color: '#000000',
                 display: 'flex',
                 flexShrink: 0,
                 fontSize: size * 0.38,
@@ -104,7 +104,7 @@ function EditorialCard({ author, category, date, readTime, title }: CardProps) {
     return (
         <div
             style={{
-                background: '#08080a',
+                background: '#000000',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
@@ -270,7 +270,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
     return (
         <div
             style={{
-                background: '#08080a',
+                background: '#000000',
                 display: 'flex',
                 height: '100%',
                 overflow: 'hidden',
@@ -319,7 +319,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                 <div
                     style={{
                         alignItems: 'center',
-                        color: '#08080a',
+                        color: '#000000',
                         display: 'flex',
                         fontFamily: 'Inter',
                         fontSize: 18,
@@ -328,7 +328,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                         position: 'relative',
                     }}
                 >
-                    <PulseMark color="#08080a" size={22} />
+                    <PulseMark color="#000000" size={22} />
                     <span>emitsignal</span>
                 </div>
 
@@ -348,7 +348,7 @@ function FieldCard({ author, category, date, description, readTime, title }: Car
                     </span>
                     <span
                         style={{
-                            color: '#08080a',
+                            color: '#000000',
                             fontFamily: 'Inter',
                             fontSize: 50,
                             fontWeight: 700,

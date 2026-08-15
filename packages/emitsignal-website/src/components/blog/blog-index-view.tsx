@@ -31,7 +31,8 @@ export function BlogIndexView({ category, layout, posts }: BlogIndexViewProps) {
                 <div
                     className="pointer-events-none absolute -left-20 top-5 h-80 w-[420px] rounded-full"
                     style={{
-                        background: 'radial-gradient(circle, #a78bfa22, transparent 65%)',
+                        background:
+                            'radial-gradient(circle, color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 65%)',
                         filter: 'blur(50px)',
                     }}
                 />
@@ -122,7 +123,7 @@ function CatFilterRow({
                 const active = (category ?? 'all') === _category;
                 const c =
                     _category === 'all'
-                        ? { color: '#a78bfa', label: 'All posts' }
+                        ? { color: 'var(--color-accent)', label: 'All posts' }
                         : CATEGORIES[_category];
 
                 return (

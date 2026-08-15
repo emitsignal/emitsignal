@@ -177,8 +177,8 @@ function OnboardingPage() {
         <div
             className="relative min-h-screen overflow-hidden font-sans"
             style={{
-                background: '#08080a',
-                backgroundImage: `radial-gradient(640px 460px at 50% 60px, rgba(109,40,217,0.38), transparent 68%)`,
+                background: 'var(--color-bg)',
+                backgroundImage: `radial-gradient(640px 460px at 50% 60px, color-mix(in srgb, var(--color-accent-dim) 38%, transparent), transparent 68%)`,
             }}
         >
             {/* Top bar */}
@@ -220,7 +220,7 @@ function OnboardingPage() {
                         <div
                             className="pointer-events-none absolute"
                             style={{
-                                border: '1px solid rgba(167,139,250,0.15)',
+                                border: '1px solid color-mix(in srgb, var(--color-accent) 15%, transparent)',
                                 borderRadius: 36,
                                 inset: -22,
                             }}
@@ -229,7 +229,7 @@ function OnboardingPage() {
                         <div
                             className="pointer-events-none absolute"
                             style={{
-                                border: '1px solid rgba(167,139,250,0.25)',
+                                border: '1px solid color-mix(in srgb, var(--color-accent) 25%, transparent)',
                                 borderRadius: 30,
                                 inset: -11,
                             }}
@@ -260,8 +260,8 @@ function OnboardingPage() {
                             className="absolute flex items-center justify-center"
                             onClick={() => fileInputRef.current?.click()}
                             style={{
-                                background: '#a78bfa',
-                                border: '4px solid #08080a',
+                                background: 'var(--color-accent)',
+                                border: '4px solid var(--color-bg)',
                                 borderRadius: 99,
                                 bottom: -2,
                                 cursor: 'pointer',
@@ -327,7 +327,11 @@ function OnboardingPage() {
                                 </span>
                                 <span
                                     className="font-mono text-[10.5px]"
-                                    style={{ color: pickedCount ? '#a78bfa' : '#71717a' }}
+                                    style={{
+                                        color: pickedCount
+                                            ? 'var(--color-accent)'
+                                            : 'var(--color-dim)',
+                                    }}
                                 >
                                     {pickedCount} selected · optional
                                 </span>
@@ -354,8 +358,9 @@ function OnboardingPage() {
                         disabled={busy}
                         onClick={handleFinish}
                         style={{
-                            background: '#a78bfa',
-                            boxShadow: '0 6px 22px rgba(124,58,237,0.35)',
+                            background: 'var(--color-accent)',
+                            boxShadow:
+                                '0 6px 22px color-mix(in srgb, var(--color-accent-dim) 35%, transparent)',
                             fontSize: 14.5,
                             height: 46,
                             letterSpacing: -0.2,
@@ -403,8 +408,10 @@ function TopicChip({
             className="flex cursor-pointer items-center gap-2.5 rounded-[10px] border-0 px-[11px] py-[9px] text-left transition-colors"
             onClick={onToggle}
             style={{
-                background: on ? 'rgba(124,58,237,0.12)' : '#08080a',
-                border: `1px solid ${on ? 'rgba(124,58,237,0.53)' : '#232427'}`,
+                background: on
+                    ? 'color-mix(in srgb, var(--color-accent-dim) 12%, transparent)'
+                    : 'var(--color-bg)',
+                border: `1px solid ${on ? 'color-mix(in srgb, var(--color-accent-dim) 53%, transparent)' : 'var(--color-line)'}`,
             }}
             type="button"
         >
@@ -422,8 +429,8 @@ function TopicChip({
             <div
                 className="flex shrink-0 items-center justify-center transition-colors"
                 style={{
-                    background: on ? '#a78bfa' : 'transparent',
-                    border: `1px solid ${on ? '#a78bfa' : '#232427'}`,
+                    background: on ? 'var(--color-accent)' : 'transparent',
+                    border: `1px solid ${on ? 'var(--color-accent)' : 'var(--color-line)'}`,
                     borderRadius: 99,
                     height: 20,
                     width: 20,
@@ -443,7 +450,7 @@ function TopicChip({
                     <svg
                         className="h-3 w-3"
                         fill="none"
-                        stroke="#71717a"
+                        stroke="var(--color-dim)"
                         strokeWidth={2.2}
                         viewBox="0 0 12 12"
                     >

@@ -12,12 +12,12 @@ interface BlogFeaturedProps {
 }
 
 const STREAM_EVENTS = [
-    { ch: 'deploy/prod', color: '#a78bfa', m: 'v2.14.3 shipped', t: '21:52:01' },
-    { ch: 'alerts/prod', color: '#f87171', m: 'High memory api-02', t: '21:52:14' },
-    { ch: 'ci/web', color: '#4ade80', m: 'Build passed · 247', t: '21:52:22' },
-    { ch: 'github/acme', color: '#67e8f9', m: 'PR #482 approved', t: '21:53:44' },
-    { ch: 'cron/backup', color: '#fbbf24', m: '✓ 14.2 GB → s3', t: '21:55:02' },
-    { ch: 'errors/web', color: '#f87171', m: 'TypeError spike · 34', t: '21:58:11' },
+    { ch: 'deploy/prod', color: 'var(--color-accent)', m: 'v2.14.3 shipped', t: '21:52:01' },
+    { ch: 'alerts/prod', color: 'var(--color-danger)', m: 'High memory api-02', t: '21:52:14' },
+    { ch: 'ci/web', color: 'var(--color-success)', m: 'Build passed · 247', t: '21:52:22' },
+    { ch: 'github/acme', color: 'var(--color-info)', m: 'PR #482 approved', t: '21:53:44' },
+    { ch: 'cron/backup', color: 'var(--color-warn)', m: '✓ 14.2 GB → s3', t: '21:55:02' },
+    { ch: 'errors/web', color: 'var(--color-danger)', m: 'TypeError spike · 34', t: '21:58:11' },
 ];
 
 export function BlogFeatured({ post }: BlogFeaturedProps) {
@@ -83,7 +83,11 @@ export function BlogFeatured({ post }: BlogFeaturedProps) {
             <div className="relative hidden overflow-hidden border-t border-line bg-deep md:block md:border-l md:border-t-0">
                 <div className="flex items-center gap-2 border-b border-line px-3.5 py-2.5 font-mono text-[11px] text-dim">
                     <span className="flex gap-1.5">
-                        {['#ff5f56', '#ffbd2e', '#27c93f'].map((color) => (
+                        {[
+                            'var(--color-term-red)',
+                            'var(--color-term-amber)',
+                            'var(--color-term-green)',
+                        ].map((color) => (
                             <span
                                 className="h-2 w-2 rounded-full"
                                 key={color}
