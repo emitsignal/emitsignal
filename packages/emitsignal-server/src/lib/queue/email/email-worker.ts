@@ -28,8 +28,6 @@ export function createEmailWorker(): Worker<Traced<EmailOptions>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info({ jobId: job.id }, 'processing email job');
-
                         await Email.provider.send(job.data);
 
                         span.setStatus({ code: SpanStatusCode.OK });
@@ -57,7 +55,15 @@ export function createEmailWorker(): Worker<Traced<EmailOptions>> {
     });
 
     worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'email job failed');
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                err,
+                jobId: job?.id,
+            },
+            'email job failed',
+        );
     });
 
     return worker;

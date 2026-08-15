@@ -70,7 +70,15 @@ export function createPurgeWorker(): Worker<Traced<PurgeJob>> {
     });
 
     worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'purge job failed');
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                err,
+                jobId: job?.id,
+            },
+            'purge job failed',
+        );
     });
 
     return worker;

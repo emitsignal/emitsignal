@@ -29,11 +29,6 @@ export function createPushWorker(): Worker<Traced<PushJob>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info(
-                            { jobId: job.id, topicName: job.data.topicName },
-                            'processing push job',
-                        );
-
                         await sendPushNotifications(job.data);
 
                         span.setStatus({ code: SpanStatusCode.OK });
@@ -61,7 +56,15 @@ export function createPushWorker(): Worker<Traced<PushJob>> {
     });
 
     worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'push job failed');
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                err,
+                jobId: job?.id,
+            },
+            'push job failed',
+        );
     });
 
     return worker;
