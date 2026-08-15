@@ -241,9 +241,11 @@ model Message {
 model PushToken {
     id        String   @id @default(cuid())
 
+    appId       String?
     createdAt   DateTime @default(now())
     deviceId    String
-    platform    String // "ios" | "android" | "web"
+    deviceName  String? 
+    platform    String
     pushEnabled Boolean  @default(true)
     token       String
     updatedAt   DateTime @updatedAt

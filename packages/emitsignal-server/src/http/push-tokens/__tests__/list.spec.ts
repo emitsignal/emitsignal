@@ -20,14 +20,44 @@ describe('GET /push-tokens', () => {
     it('returns push tokens for authenticated user', async () => {
         resolveUserIdMock.mockResolvedValueOnce('user-1');
         prismaMock.pushToken.findMany.mockResolvedValueOnce([
-            { deviceId: 'd1', id: 'pt-1', platform: 'ios', pushEnabled: true },
+            {
+                appId: 'com.emitsignal.preview',
+                createdAt: new Date('2026-08-01T00:00:00.000Z'),
+                deviceId: 'd1',
+                deviceName: 'iPhone 15 Pro',
+                id: 'pt-1',
+                platform: 'ios',
+                pushEnabled: true,
+                updatedAt: new Date('2026-08-10T00:00:00.000Z'),
+            },
         ]);
 
         const res = await request();
         expect(res.status).toBe(200);
 
         const data = await res.json();
-        expect(data).toEqual([{ deviceId: 'd1', id: 'pt-1', platform: 'ios', pushEnabled: true }]);
+        expect(data).toEqual([
+            {
+                appId: 'com.emitsignal.preview',
+                createdAt: '2026-08-01T00:00:00.000Z',
+                deviceId: 'd1',
+                deviceName: 'iPhone 15 Pro',
+                id: 'pt-1',
+                platform: 'ios',
+                pushEnabled: true,
+                updatedAt: '2026-08-10T00:00:00.000Z',
+            },
+        ]);
+    });
+
+    it('never selects the delivery token', async () => {
+        resolveUserIdMock.mockResolvedValueOnce('user-1');
+        await request();
+
+        const calls = prismaMock.pushToken.findMany.mock.calls;
+        const [args] = calls[calls.length - 1] as unknown as [{ select: Record<string, boolean> }];
+
+        expect(args.select.token).toBeUndefined();
     });
 
     it('returns 401 when no auth header', async () => {

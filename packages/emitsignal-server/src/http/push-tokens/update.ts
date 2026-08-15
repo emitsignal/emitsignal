@@ -27,7 +27,16 @@ export const updatePushToken = new Elysia({ prefix: '/push-tokens' }).patch(
 
         const updated = await prisma.pushToken.update({
             data: { pushEnabled: body.pushEnabled },
-            select: { deviceId: true, id: true, platform: true, pushEnabled: true },
+            select: {
+                appId: true,
+                createdAt: true,
+                deviceId: true,
+                deviceName: true,
+                id: true,
+                platform: true,
+                pushEnabled: true,
+                updatedAt: true,
+            },
             where: { id },
         });
 
