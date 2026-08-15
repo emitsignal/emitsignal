@@ -133,9 +133,6 @@ logger.info(
         `(env: ${environment.NODE_ENV}, trusted proxy header: ${environment.TRUSTED_PROXY_HEADER})`,
 );
 
-// Almost every production deployment sits behind a proxy. Leaving this unset
-// there collapses every anonymous caller onto the proxy's IP, so the shared
-// rate-limit buckets exhaust platform-wide instead of per client.
 if (isProduction && environment.TRUSTED_PROXY_HEADER === 'none') {
     logger.warn(
         'TRUSTED_PROXY_HEADER is "none" in production: client IPs come from the TCP peer address. ' +
