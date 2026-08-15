@@ -41,6 +41,7 @@ export function createPushWorker(): Worker<Traced<PushJob>> {
                         span.recordException(
                             error instanceof Error ? error : new Error(String(error)),
                         );
+
                         span.setStatus({ code: SpanStatusCode.ERROR });
 
                         throw error;
@@ -57,11 +58,20 @@ export function createPushWorker(): Worker<Traced<PushJob>> {
     );
 
     worker.on('completed', (job) => {
-        logger.info({ jobId: job.id }, 'push job completed');
+        logger.info({ jobId: job.id, topicName: job.data.topicName }, 'push job completed');
     });
 
-    worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'push job failed');
+    worker.on('failed', (job, error) => {
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                error,
+                jobId: job?.id,
+                topicName: job?.data.topicName,
+            },
+            'push job failed',
+        );
     });
 
     return worker;
