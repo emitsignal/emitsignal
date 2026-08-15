@@ -17,6 +17,7 @@ import { authClient } from '#/lib/auth-client';
  *   ['auth', 'sessions']          → authClient.listSessions()
  *   ['billing']                   → api.getBilling()
  *   ['feed', scope]               → api.listSubscriptionMessages()
+ *   ['push-tokens']               → api.listMyPushTokens()
  *   ['session']                   → authClient.getSession()
  *   ['subscriptions', scope]      → api.listSubscriptions()    (scope = userId ?? deviceId)
  *   ['topic-messages', name, filters] → api.listSubscriptionMessages(deviceId, { topicName, ...filters })
@@ -34,6 +35,7 @@ export const queryKeys = {
     authSessions: ['auth', 'sessions'] as const,
     billing: ['billing'] as const,
     feed: (scope: string) => ['feed', scope] as const,
+    pushTokens: ['push-tokens'] as const,
     session: ['session'] as const,
     subscriptions: (scope: string) => ['subscriptions', scope] as const,
     topicMessages: (topicName: string, filters?: MessageFilterParams) =>

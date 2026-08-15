@@ -34,6 +34,7 @@ import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/inde
 import { Route as AppSettingsAccountRouteImport } from './routes/app/settings/account'
 import { Route as AppSettingsAdvancedRouteImport } from './routes/app/settings/advanced'
 import { Route as AppSettingsBillingRouteImport } from './routes/app/settings/billing'
+import { Route as AppSettingsDevicesRouteImport } from './routes/app/settings/devices'
 import { Route as AppSettingsProfileRouteImport } from './routes/app/settings/profile'
 import { Route as AppWebhooksIndexRouteImport } from './routes/app/webhooks/index'
 import { Route as AppWebhooksWebhookIdRouteImport } from './routes/app/webhooks/$webhookId'
@@ -165,6 +166,11 @@ const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AppSettingsRoute,
 } as any)
+const AppSettingsDevicesRoute = AppSettingsDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
 const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/app/settings/account': typeof AppSettingsAccountRoute
   '/app/settings/advanced': typeof AppSettingsAdvancedRoute
   '/app/settings/billing': typeof AppSettingsBillingRoute
+  '/app/settings/devices': typeof AppSettingsDevicesRoute
   '/app/settings/profile': typeof AppSettingsProfileRoute
   '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
   '/app/webhooks/new': typeof AppWebhooksNewRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/app/settings/account': typeof AppSettingsAccountRoute
   '/app/settings/advanced': typeof AppSettingsAdvancedRoute
   '/app/settings/billing': typeof AppSettingsBillingRoute
+  '/app/settings/devices': typeof AppSettingsDevicesRoute
   '/app/settings/profile': typeof AppSettingsProfileRoute
   '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
   '/app/webhooks/new': typeof AppWebhooksNewRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/app/settings/account': typeof AppSettingsAccountRoute
   '/app/settings/advanced': typeof AppSettingsAdvancedRoute
   '/app/settings/billing': typeof AppSettingsBillingRoute
+  '/app/settings/devices': typeof AppSettingsDevicesRoute
   '/app/settings/profile': typeof AppSettingsProfileRoute
   '/app/webhooks/$webhookId': typeof AppWebhooksWebhookIdRouteWithChildren
   '/app/webhooks/new': typeof AppWebhooksNewRoute
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/app/settings/account'
     | '/app/settings/advanced'
     | '/app/settings/billing'
+    | '/app/settings/devices'
     | '/app/settings/profile'
     | '/app/webhooks/$webhookId'
     | '/app/webhooks/new'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/app/settings/account'
     | '/app/settings/advanced'
     | '/app/settings/billing'
+    | '/app/settings/devices'
     | '/app/settings/profile'
     | '/app/webhooks/$webhookId'
     | '/app/webhooks/new'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/app/settings/account'
     | '/app/settings/advanced'
     | '/app/settings/billing'
+    | '/app/settings/devices'
     | '/app/settings/profile'
     | '/app/webhooks/$webhookId'
     | '/app/webhooks/new'
@@ -574,6 +586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsBillingRouteImport
       parentRoute: typeof AppSettingsRoute
     }
+    '/app/settings/devices': {
+      id: '/app/settings/devices'
+      path: '/devices'
+      fullPath: '/app/settings/devices'
+      preLoaderRoute: typeof AppSettingsDevicesRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
     '/app/settings/profile': {
       id: '/app/settings/profile'
       path: '/profile'
@@ -616,6 +635,7 @@ interface AppSettingsRouteChildren {
   AppSettingsAccountRoute: typeof AppSettingsAccountRoute
   AppSettingsAdvancedRoute: typeof AppSettingsAdvancedRoute
   AppSettingsBillingRoute: typeof AppSettingsBillingRoute
+  AppSettingsDevicesRoute: typeof AppSettingsDevicesRoute
   AppSettingsProfileRoute: typeof AppSettingsProfileRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
 }
@@ -624,6 +644,7 @@ const AppSettingsRouteChildren: AppSettingsRouteChildren = {
   AppSettingsAccountRoute: AppSettingsAccountRoute,
   AppSettingsAdvancedRoute: AppSettingsAdvancedRoute,
   AppSettingsBillingRoute: AppSettingsBillingRoute,
+  AppSettingsDevicesRoute: AppSettingsDevicesRoute,
   AppSettingsProfileRoute: AppSettingsProfileRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
 }
