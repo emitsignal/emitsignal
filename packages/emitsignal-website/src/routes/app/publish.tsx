@@ -10,6 +10,7 @@ import { usePublish } from '#/hooks/use-publish';
 import { useTopics } from '#/hooks/use-topics';
 import { api } from '#/lib/api';
 import { cn } from '#/lib/cn';
+import { DELIVERY_FLAG_ENABLED } from '#/lib/feature-flags';
 
 interface DeliveryOption {
     enabled: boolean;
@@ -73,18 +74,13 @@ function ComposePage() {
         <>
             <Toolbar
                 actions={
-                    <div className="flex gap-2">
-                        <button className="rounded-md border border-line px-2.5 py-1 font-mono text-[12px] text-muted hover:bg-elev">
-                            save as template
-                        </button>
-                        <button
-                            className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1 text-[12px] font-semibold text-bg hover:bg-accent-dim disabled:opacity-60"
-                            disabled={loading || !topicName.trim() || !title.trim()}
-                            onClick={handlePublish}
-                        >
-                            <Zap size={12} /> {loading ? 'sending…' : 'Send signal'}
-                        </button>
-                    </div>
+                    <button
+                        className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1 text-[12px] font-semibold text-bg hover:bg-accent-dim disabled:opacity-60"
+                        disabled={loading || !topicName.trim() || !title.trim()}
+                        onClick={handlePublish}
+                    >
+                        <Zap size={12} /> {loading ? 'sending…' : 'Send signal'}
+                    </button>
                 }
                 subtitle={`POST ${api.baseUrl}/:topic`}
                 title="Publish a message"
@@ -138,13 +134,13 @@ function ComposePage() {
 
                     <SubHeading>title</SubHeading>
                     <input
-                        className="mb-4 w-full rounded-lg border border-line bg-elev px-3.5 py-3 font-mono text-[15px] font-semibold text-fg outline-none placeholder:text-faint focus:border-accent"
+                        className="mb-4 w-full rounded-lg border border-line bg-elev px-3.5 py-2.5 font-mono text-[13px] text-fg outline-none placeholder:text-faint focus:border-accent"
                         onChange={(event) => setTitle(event.target.value)}
                         placeholder="Deploy succeeded · api-gateway v2.14.3"
                         value={title}
                     />
 
-                    <SubHeading>body · markdown</SubHeading>
+                    <SubHeading>body</SubHeading>
                     <textarea
                         className="mb-5.5 min-h-[100px] w-full resize-y rounded-lg border border-line bg-elev px-3.5 py-3 font-mono text-[13px] leading-[1.5] text-muted outline-none placeholder:text-faint focus:border-accent"
                         onChange={(event) => setBody(event.target.value)}
@@ -207,12 +203,16 @@ function ComposePage() {
                         </div>
                     </div>
 
-                    <SubHeading>delivery</SubHeading>
-                    <div className="flex flex-wrap gap-2">
-                        {DELIVERY.map((delivery, index) => (
-                            <DeliveryChip key={index} option={delivery} />
-                        ))}
-                    </div>
+                    {DELIVERY_FLAG_ENABLED && (
+                        <>
+                            <SubHeading>delivery</SubHeading>
+                            <div className="flex flex-wrap gap-2">
+                                {DELIVERY.map((delivery, index) => (
+                                    <DeliveryChip key={index} option={delivery} />
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <PreviewColumn

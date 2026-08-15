@@ -2,6 +2,7 @@ import { Code } from '#/components/ui/code';
 import { Dot } from '#/components/ui/dot';
 import { SubHeading } from '#/components/ui/sub-head';
 import { api } from '#/lib/api';
+import { DELIVERY_FLAG_ENABLED } from '#/lib/feature-flags';
 
 interface Props {
     body: string;
@@ -37,24 +38,28 @@ export function PreviewColumn({ body, priority, tags, title, topicName }: Props)
             <SubHeading>EQUIVALENT · curl</SubHeading>
             <Code language="BASH">{curlCmd}</Code>
 
-            <div className="h-4" />
+            {DELIVERY_FLAG_ENABLED && (
+                <>
+                    <div className="h-4" />
 
-            <SubHeading>WILL REACH</SubHeading>
-            <div className="flex flex-col gap-2">
-                {[
-                    'all subscribed devices',
-                    'email · if priority >= 4',
-                    'slack · if configured',
-                ].map((recipient, index) => (
-                    <div
-                        className="flex items-center gap-2 font-mono text-[11.5px] text-muted"
-                        key={index}
-                    >
-                        <Dot level={2} size={5} />
-                        {recipient}
+                    <SubHeading>WILL REACH</SubHeading>
+                    <div className="flex flex-col gap-2">
+                        {[
+                            'all subscribed devices',
+                            'email · if priority >= 4',
+                            'slack · if configured',
+                        ].map((recipient, index) => (
+                            <div
+                                className="flex items-center gap-2 font-mono text-[11.5px] text-muted"
+                                key={index}
+                            >
+                                <Dot level={2} size={5} />
+                                {recipient}
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                </>
+            )}
         </aside>
     );
 }
