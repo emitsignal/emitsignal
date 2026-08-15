@@ -28,9 +28,17 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`;
 export const Route = createRootRouteWithContext<RouterContext>()({
     errorComponent: ({ error }) => <RootErrorFallback error={error} />,
     head: () => ({
-        links: [{ href: appCss, rel: 'stylesheet' }],
+        links: [
+            { href: appCss, rel: 'stylesheet' },
+            { href: '/manifest.json', rel: 'manifest' },
+            { href: '/favicon.svg', rel: 'icon', type: 'image/svg+xml' },
+            { href: '/favicon.ico', rel: 'alternate icon', sizes: 'any' },
+            { href: '/apple-touch-icon.png', rel: 'apple-touch-icon' },
+        ],
         meta: [
             { charSet: 'utf-8' },
+            // The public site is dark-only; only the /app subtree switches themes.
+            { content: '#000000', name: 'theme-color' },
             { content: '1200', property: 'og:image:width' },
             { content: '630', property: 'og:image:height' },
             { content: 'summary_large_image', name: 'twitter:card' },
