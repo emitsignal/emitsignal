@@ -36,14 +36,12 @@
     --color-p4: #fbbf24;
     --color-p5: #f87171;
 
-    /* Text drawn on top of a filled accent/semantic surface */
-    --color-on-accent: #1a0d33;
+    /* Text drawn on top of a filled semantic surface */
     --color-on-warn: #2a1a00;
     --color-on-danger: #2a0a0a;
 
-    /* Dialog scrim and the control overlay on dark media */
+    /* Dialog scrim */
     --color-scrim: rgba(3, 3, 4, 0.72);
-    --color-overlay: rgba(255, 255, 255, 0.08);
 
     /* macOS window-chrome dots. Physical-object colors — identical in both themes. */
     --color-term-red: #ff5f56;
@@ -96,13 +94,11 @@
     --color-p4: #d97706;
     --color-p5: #dc2626;
 
-    /* Accent/semantic fills are dark in this theme, so their on-color inverts */
-    --color-on-accent: #ffffff;
+    /* Semantic fills are dark in this theme, so their on-color inverts */
     --color-on-warn: #ffffff;
     --color-on-danger: #ffffff;
 
     --color-scrim: rgba(24, 24, 27, 0.45);
-    --color-overlay: rgba(24, 24, 27, 0.06);
 }
 
 @keyframes signal-pulse {
