@@ -21,7 +21,7 @@ export const Route = createFileRoute('/privacy')({
     }),
 });
 
-const LAST_UPDATED = 'June 23, 2026';
+const LAST_UPDATED = 'August 14, 2026';
 
 interface TableOfContentsEntry {
     id: string;
@@ -80,6 +80,11 @@ const PROCESSORS: ProcessorRow[] = [
         data: 'Performance trace spans and attributes, account id',
         name: 'OpenTelemetry collector (optional)',
         purpose: 'Performance and reliability observability',
+    },
+    {
+        data: 'Application log records: timestamp, severity, message, service name, host, request method, path and status, and an account id where one is involved',
+        name: 'Log ingestion provider (optional)',
+        purpose: 'Centralised application logging, debugging, and incident investigation',
     },
     {
         data: 'Avatar images and message attachments',
@@ -252,11 +257,18 @@ function PrivacyPage() {
 
                         <H3>Operational logs &amp; usage</H3>
                         <P>
-                            Application logs (which may include your account id, the recipient
-                            address of an email we send, and a provider message id), rate-limit
-                            counters keyed by IP address (for anonymous traffic) or account id, and
-                            daily usage quota counters. If enabled, error-monitoring and tracing
-                            services receive technical diagnostic data.
+                            Application logs (which may include your account id and a provider
+                            message id), rate-limit counters keyed by IP address (for anonymous
+                            traffic) or account id, and daily usage quota counters. If enabled,
+                            error-monitoring and tracing services receive technical diagnostic data.
+                        </P>
+                        <P>
+                            When a log ingestion provider is configured, these application logs are
+                            forwarded to it so that we can debug and investigate incidents from one
+                            place. Direct identifiers — recipient email addresses and IP addresses —
+                            are redacted before a log record leaves our servers, so what the
+                            provider receives is limited to the technical fields listed in the
+                            processor table below.
                         </P>
                     </Section>
 
@@ -359,6 +371,11 @@ function PrivacyPage() {
                             <Li>
                                 <strong>Rate-limit, quota, and cache counters</strong> expire
                                 automatically within minutes to hours.
+                            </Li>
+                            <Li>
+                                <strong>Application logs</strong> forwarded to our log ingestion
+                                provider are retained for up to 30 days, after which the provider
+                                deletes them automatically.
                             </Li>
                             <Li>
                                 <strong>
