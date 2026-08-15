@@ -27,7 +27,10 @@ export async function enforceAuthRateLimit(
             });
         }
 
-        logger.error({ error, key }, 'auth rate limiter error, failing closed');
+        logger.error(
+            { error, limiter: limiter.keyPrefix },
+            'auth rate limiter error, failing closed',
+        );
 
         throw new APIError('TOO_MANY_REQUESTS', {
             message: 'Service temporarily unavailable. Please try again later.',

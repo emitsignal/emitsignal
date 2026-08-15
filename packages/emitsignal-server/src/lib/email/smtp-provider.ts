@@ -33,6 +33,6 @@ export class SmtpProvider implements EmailProvider {
             to: options.to,
         });
 
-        logger.info({ messageId: info.messageId, to: options.to }, 'email sent (smtp)');
+        logger.info({ messageId: info.messageId }, 'email sent (smtp)');
     }
 }

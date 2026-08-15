@@ -80,7 +80,10 @@ export async function consumeLimit(
         // a limiter outage used to be logged and then silently ignored
         // on every route. Surface it as an exception so it actually pages someone,
         // instead of only landing in a log nobody is watching.
-        logger.error({ error, failClosed: options.failClosed === true, key }, 'rate limiter error');
+        logger.error(
+            { error, failClosed: options.failClosed === true, limiter: limiter.keyPrefix },
+            'rate limiter error',
+        );
         reportLimiterError(error);
 
         if (options.failClosed) {

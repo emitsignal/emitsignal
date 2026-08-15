@@ -47,6 +47,10 @@ export const logger = pino({
 
         return { span_id: spanId, trace_id: traceId };
     },
+    // Backstop for the whole process: log records leave the box when an ingestion
+    // provider is configured, and these field names are the ones that carry a
+    // direct identifier (recipient address, rate-limit key = ip or ip:email).
+    redact: { censor: '[redacted]', paths: ['email', 'key', 'to', '*.email', '*.to'] },
     transport: { targets: ingestionTarget ? [localTarget, ingestionTarget] : [localTarget] },
     ...(isProduction ? {} : { msgPrefix: '[EmitSignal] ' }),
 });
