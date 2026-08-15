@@ -47,7 +47,7 @@ Color on light: `#5b21b6` (violet deep)
 | ----------- | --------------------------------------------------- | -------------- |
 | iOS         | `linear-gradient(180deg, #2d2150 0%, #18102b 100%)` | `size × 0.224` |
 | Android bg  | `radial-gradient(#3a2868 → #0d0d0f)`                | circle mask    |
-| Web favicon | solid `#08080a`                                     | `size × 0.22`  |
+| Web favicon | solid `#000000`, `#fafafa` under light scheme       | `size × 0.22`  |
 
 ---
 
@@ -66,11 +66,15 @@ Color on light: `#5b21b6` (violet deep)
 
 | Token     | Hex       | Usage                   |
 | --------- | --------- | ----------------------- |
-| `bg`      | `#08080a` | Canvas, page background |
+| `bg`      | `#000000` | Canvas, page background |
 | `bgElev`  | `#111113` | Cards, sheets           |
 | `bgElev2` | `#191a1d` | Hover, nested surfaces  |
 | `bgLine`  | `#232427` | Borders, dividers       |
 | `bgChip`  | `#141517` | Tags, pills             |
+| `bgCode`  | `#0a0a0c` | Code blocks, insets     |
+
+The canvas is true black, so `bgCode` sits **above** it rather than below — code blocks
+read as raised panels, not recessed wells.
 
 ### Foreground
 
@@ -193,7 +197,7 @@ States: `● live` (green) · `delivered` (violet) · `queued` (amber) · `faile
 
 ```
 background: #a78bfa
-color: #08080a
+color: #000000
 font: Geist 600 13px
 border-radius: 8px
 padding: 10px 16px
@@ -213,7 +217,7 @@ padding: 10px 16px
 ### Code block
 
 ```
-background: #030304
+background: #0a0a0c
 border: 1px solid #232427
 border-radius: 8px
 padding: 10px 12px
