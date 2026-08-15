@@ -1,5 +1,6 @@
 import { Pill } from '#/components/ui/pill';
 import { cn } from '#/lib/cn';
+import { withAlpha } from '#/lib/color';
 
 interface Integration {
     color: string;
@@ -67,7 +68,7 @@ function IntegrationCard({ integration }: { integration: Integration }) {
         >
             <div
                 className="flex h-[38px] w-[38px] items-center justify-center rounded-lg font-mono text-[16px] font-bold"
-                style={{ background: `${integration.color}22`, color: integration.color }}
+                style={{ background: withAlpha(integration.color, 13), color: integration.color }}
             >
                 {integration.name[0]}
             </div>

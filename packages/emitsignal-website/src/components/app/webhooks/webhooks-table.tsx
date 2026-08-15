@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Webhook } from '#/lib/api';
 
 import { API_URL } from '#/lib/api';
+import { withAlpha } from '#/lib/color';
 import { relativeTime } from '#/lib/format';
 
 import type { WebhookSource } from './source-glyph';
@@ -88,7 +89,7 @@ function StatusDot({ status }: { status: Webhook['status'] }) {
         <div className="flex items-center gap-1.5 font-mono text-[10.5px]" style={{ color }}>
             <span
                 className="inline-block h-1.5 w-1.5 rounded-full"
-                style={{ background: color, boxShadow: `0 0 6px ${color}99` }}
+                style={{ background: color, boxShadow: `0 0 6px ${withAlpha(color, 60)}` }}
             />
             {label}
         </div>
