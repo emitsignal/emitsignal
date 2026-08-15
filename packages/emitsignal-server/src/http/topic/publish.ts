@@ -3,8 +3,10 @@ import Elysia, { t } from 'elysia';
 import { resolveUserId } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { bus } from '#/lib/event-bus';
+import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { pushQueue, scheduleQueue } from '#/lib/queue';
+import { enqueueDetached } from '#/lib/queue/enqueue';
 import { publishAnonLimiter, publishAuthLimiter } from '#/lib/rate-limit';
 import { captureTraceContext } from '#/lib/trace-context';
 import { getUserLimits, getUserPlan } from '#/services/billing/get-user-plan';
@@ -97,6 +99,11 @@ function publishRoute(path: string, deprecated: boolean) {
                 const quota = await consumeDailyQuota(userId, 'messages', limits.messagesPerDay);
 
                 if (!quota.allowed) {
+                    logger.warn(
+                        { limit: quota.limit, metric: 'messages', userId },
+                        'daily quota exceeded',
+                    );
+
                     Object.assign(set.headers, quotaExceededHeaders(quota));
 
                     return status(429, {
@@ -180,7 +187,8 @@ function publishRoute(path: string, deprecated: boolean) {
             });
 
             if (isScheduled) {
-                scheduleQueue.add(
+                enqueueDetached(
+                    scheduleQueue,
                     'schedule-delivery',
                     { messageId: message.id, traceContext: captureTraceContext() },
                     { delay: (scheduledAtUnix - now) * 1000 },
@@ -197,7 +205,7 @@ function publishRoute(path: string, deprecated: boolean) {
 
             bus.publish(topic.name, { ...event, topicName: topic.name });
 
-            pushQueue.add('push-message', {
+            enqueueDetached(pushQueue, 'push-message', {
                 actions,
                 body: messageBody,
                 createdAt: message.createdAt.getTime(),

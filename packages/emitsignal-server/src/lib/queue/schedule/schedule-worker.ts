@@ -5,6 +5,7 @@ import { bus } from '#/lib/event-bus';
 import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { redisConnection } from '#/lib/queue/connection';
+import { enqueueDetached } from '#/lib/queue/enqueue';
 import { pushQueue } from '#/lib/queue/push/push-queue';
 import { captureTraceContext, traceContextFrom, Traced } from '#/lib/trace-context';
 import { getUserPlan } from '#/services/billing/get-user-plan';
@@ -37,8 +38,6 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info({ jobId: job.id, messageId }, 'processing schedule job');
-
                         const message = await prisma.message.findUnique({
                             include: { topic: true },
                             where: { id: messageId },
@@ -66,7 +65,7 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
                             topicName: message.topic.name,
                         });
 
-                        pushQueue.add('push-message', {
+                        enqueueDetached(pushQueue, 'push-message', {
                             actions: parseActions(message.actions),
                             body: message.body,
                             createdAt: message.createdAt.getTime(),
@@ -93,10 +92,7 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
                             where: { id: message.id },
                         });
 
-                        logger.info(
-                            { messageId },
-                            'schedule job completed: SSE emitted, push enqueued',
-                        );
+                        logger.info({ messageId }, 'scheduled message delivered');
 
                         span.setStatus({ code: SpanStatusCode.OK });
                     } catch (error) {
@@ -118,12 +114,16 @@ export function createScheduleWorker(): Worker<Traced<ScheduleJob>> {
         },
     );
 
-    worker.on('completed', (job) => {
-        logger.info({ jobId: job.id }, 'schedule job completed');
-    });
-
     worker.on('failed', (job, err) => {
-        logger.error({ err, jobId: job?.id }, 'schedule job failed');
+        logger.error(
+            {
+                attempt: job?.attemptsMade,
+                attempts: job?.opts.attempts,
+                err,
+                jobId: job?.id,
+            },
+            'schedule job failed',
+        );
     });
 
     return worker;

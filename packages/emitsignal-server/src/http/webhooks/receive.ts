@@ -10,6 +10,7 @@ import { bus } from '#/lib/event-bus';
 import { logger } from '#/lib/logger';
 import { prisma } from '#/lib/prisma';
 import { pushQueue } from '#/lib/queue';
+import { enqueueDetached } from '#/lib/queue/enqueue';
 import { webhookReceiveLimiter } from '#/lib/rate-limit';
 import { captureTraceContext } from '#/lib/trace-context';
 import { getUserPlan } from '#/services/billing/get-user-plan';
@@ -149,7 +150,7 @@ export const receiveWebhook = new Elysia().post(
 
         bus.publish(topic.name, { ...event, topicName: topic.name });
 
-        pushQueue.add('push-message', {
+        enqueueDetached(pushQueue, 'push-message', {
             actions,
             body: messageBody,
             createdAt: message.createdAt.getTime(),
