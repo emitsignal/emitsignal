@@ -71,6 +71,8 @@ export async function consumeLimit(
         if (rl?.msBeforeNext !== undefined) {
             const retryAfter = Math.ceil(rl.msBeforeNext / 1000);
 
+            logger.warn({ limiter: limiter.keyPrefix, retryAfter }, 'rate limit exceeded');
+
             set.headers['retry-after'] = String(retryAfter);
             set.status = 429;
 

@@ -1,3 +1,4 @@
+import { logger } from '#/lib/logger';
 import { rateLimitRedis } from '#/lib/rate-limit';
 import { duration } from '#/utils/duration';
 
@@ -42,8 +43,11 @@ export async function consumeDailyQuota(
         }
 
         return { allowed: used <= limit, limit, remaining: Math.max(0, limit - used), resetAt };
-    } catch {
-        // Redis unavailable — fail open, like the request rate limiters
+    } catch (error) {
+        // Redis unavailable — fail open, like the request rate limiters. Log it:
+        // while this branch is live, plan quotas are not being enforced at all.
+        logger.error({ error, metric }, 'daily quota check failed, allowing request');
+
         return { allowed: true, limit, remaining: limit, resetAt };
     }
 }

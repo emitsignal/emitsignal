@@ -22,6 +22,8 @@ export async function enforceAuthRateLimit(
         const rateLimit = error as { msBeforeNext?: number };
 
         if (rateLimit?.msBeforeNext !== undefined) {
+            logger.warn({ limiter: limiter.keyPrefix }, 'auth rate limit exceeded');
+
             throw new APIError('TOO_MANY_REQUESTS', {
                 message: 'Too many requests. Please try again later.',
             });
