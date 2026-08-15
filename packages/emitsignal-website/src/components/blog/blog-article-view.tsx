@@ -6,6 +6,7 @@ import type { PostFrontmatter, PostHeading, PostMeta } from '#/lib/blog';
 
 import { Avatar } from '#/components/ui/avatar';
 import { AUTHORS, CATEGORIES, fmtDate } from '#/lib/blog';
+import { withAlpha } from '#/lib/color';
 
 import { PostCard } from './blog-post-card';
 import { BlogToc } from './blog-toc';
@@ -41,7 +42,7 @@ export function BlogArticleView({
                 <div
                     className="pointer-events-none absolute top-[-60px] w-[500px] rounded-full"
                     style={{
-                        background: `radial-gradient(circle, ${category.color}1c, transparent 65%)`,
+                        background: `radial-gradient(circle, ${withAlpha(category.color, 11)}, transparent 65%)`,
                         filter: 'blur(60px)',
                         height: 320,
                         left: '20%',

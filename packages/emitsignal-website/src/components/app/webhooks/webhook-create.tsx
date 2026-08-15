@@ -16,6 +16,7 @@ import type { Webhook, WebhookTemplate } from '#/lib/api';
 import { Dot } from '#/components/ui/dot';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, API_URL } from '#/lib/api';
+import { withAlpha } from '#/lib/color';
 import { queryKeys } from '#/lib/query-client';
 
 import { JsonView } from './json-view';
@@ -727,7 +728,7 @@ function PriorityChip({
             onClick={onClick}
             style={
                 active
-                    ? { background: `${hex}22`, borderColor: hex, color: hex }
+                    ? { background: withAlpha(hex, 13), borderColor: hex, color: hex }
                     : {
                           background: 'var(--color-elev)',
                           borderColor: 'var(--color-line)',

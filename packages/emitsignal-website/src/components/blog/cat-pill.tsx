@@ -2,6 +2,7 @@ import type { PostCategory } from '#/lib/blog';
 
 import { CATEGORIES } from '#/lib/blog';
 import { cn } from '#/lib/cn';
+import { withAlpha } from '#/lib/color';
 
 interface CatPillProps {
     category: PostCategory;
@@ -20,8 +21,8 @@ export function CatPill({ category, className, size = 'md' }: CatPillProps) {
                 className,
             )}
             style={{
-                background: color + '11',
-                borderColor: color + '44',
+                background: withAlpha(color, 7),
+                borderColor: withAlpha(color, 27),
                 color: color,
             }}
         >

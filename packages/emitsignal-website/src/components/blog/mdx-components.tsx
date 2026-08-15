@@ -1,5 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
+import { withAlpha } from '#/lib/color';
+
 import { BlogCode } from './blog-code';
 
 type CalloutTone = 'amber' | 'green' | 'red' | 'violet';
@@ -22,7 +24,7 @@ export function Callout({
     return (
         <div
             className="my-5 flex gap-3.5 rounded-xl border p-4"
-            style={{ background: color + '0f', borderColor: color + '44' }}
+            style={{ background: withAlpha(color, 6), borderColor: withAlpha(color, 27) }}
         >
             <span className="mt-0.5 shrink-0 text-base" style={{ color }}>
                 ⚡

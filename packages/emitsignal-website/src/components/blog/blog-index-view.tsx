@@ -4,6 +4,7 @@ import type { PostCategory, PostMeta } from '#/lib/blog';
 
 import { CATEGORIES } from '#/lib/blog';
 import { cn } from '#/lib/cn';
+import { withAlpha } from '#/lib/color';
 
 import { BlogFeatured } from './blog-featured';
 import { PostCard, PostRow } from './blog-post-card';
@@ -134,7 +135,7 @@ function CatFilterRow({
                         key={_category}
                         onClick={() => go(_category)}
                         style={{
-                            background: active ? c.color + '1c' : 'transparent',
+                            background: active ? withAlpha(c.color, 11) : 'transparent',
                             borderColor: active ? c.color : 'var(--color-line)',
                             color: active ? c.color : 'var(--color-muted)',
                         }}
