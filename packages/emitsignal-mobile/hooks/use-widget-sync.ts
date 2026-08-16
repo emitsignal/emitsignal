@@ -5,7 +5,11 @@ import { AppState, Platform } from 'react-native';
 import { useDevice } from '@/ctx/device';
 import { useSession } from '@/ctx/session';
 import { queryClient } from '@/lib/query-client';
-import { syncWidgetSnapshot } from '@/lib/widget-snapshot';
+import {
+    subscribeWidgetSyncRequests,
+    syncWidgetSnapshot,
+    type WidgetSyncMode,
+} from '@/lib/widget-snapshot';
 import { subscribeReadIds } from '@/storage/read-messages';
 
 const SYNC_DEBOUNCE_MS = 500;
@@ -14,8 +18,11 @@ const SYNCED_QUERY_DOMAINS = new Set(['feed', 'subscription-metrics', 'subscript
 
 // Keeps the iOS home-screen widgets in sync with the app: whenever the feed,
 // subscriptions, or metrics caches change (initial load, pull-to-refresh, SSE
-// inserts), a message is marked read, the session changes, or the app
-// backgrounds, the widget snapshot is rebuilt and the timelines reloaded.
+// inserts), a message is marked read, the session changes, a sync is requested
+// (foreground push received), or the app foregrounds/backgrounds, the widget
+// snapshot is rebuilt and the timelines reloaded. The foreground sync also
+// reconciles the approximate patches the notification service extension
+// applies while the app is not running.
 export function useWidgetSync(): void {
     const { deviceId } = useDevice();
     const { loading: sessionLoading, user } = useSession();
@@ -33,8 +40,8 @@ export function useWidgetSync(): void {
             return;
         }
 
-        const runSync = () => {
-            syncWidgetSnapshot(syncOptions.current).catch(() => {});
+        const runSync = (mode: WidgetSyncMode = 'full') => {
+            syncWidgetSnapshot({ ...syncOptions.current, mode }).catch(() => {});
         };
 
         const scheduleSync = () => {
@@ -60,13 +67,23 @@ export function useWidgetSync(): void {
 
         const unsubscribeReadIds = subscribeReadIds(scheduleSync);
 
+        const unsubscribeSyncRequests = subscribeWidgetSyncRequests(scheduleSync);
+
         const appStateSubscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                scheduleSync();
+
+                return;
+            }
+
             if (state === 'background') {
                 if (debounceTimer.current) {
                     clearTimeout(debounceTimer.current);
                 }
 
-                runSync();
+                // Cached-only: a network fetch here could be cut short by iOS
+                // suspending the app before the snapshot is written.
+                runSync('cached-only');
             }
         });
 
@@ -77,6 +94,7 @@ export function useWidgetSync(): void {
 
             unsubscribeQueryCache();
             unsubscribeReadIds();
+            unsubscribeSyncRequests();
             appStateSubscription.remove();
         };
     }, []);

@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import { useDevice } from '@/ctx/device';
 import { api } from '@/lib/api';
 import { openExternalUrl } from '@/lib/open-external';
+import { requestWidgetSync } from '@/lib/widget-snapshot';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -43,6 +44,11 @@ export function useForegroundNotifications() {
                 if (__DEV__) {
                     console.log('Notification received in foreground:', notification);
                 }
+
+                // Safety net for foreground pushes SSE might miss: the full
+                // rebuild also wins over the notification service extension's
+                // concurrent approximate patch.
+                requestWidgetSync();
             },
         );
 
