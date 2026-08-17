@@ -1,20 +1,22 @@
 import SwiftUI
 import WidgetKit
 
-// Design S3 "Latest signal" (small), M1 full card (medium), lock-screen rectangular.
-struct LatestSignalWidget: Widget {
+// Design S3 "Latest message" (small), M1 full card (medium), lock-screen rectangular.
+struct LatestMessageWidget: Widget {
     var body: some WidgetConfiguration {
+        // The kind string is the identity WidgetKit persists for already-placed
+        // widgets; renaming it would blank them out on upgrade.
         StaticConfiguration(kind: "LatestSignalWidget", provider: SnapshotTimelineProvider()) { entry in
-            LatestSignalView(snapshot: entry.snapshot)
+            LatestMessageView(snapshot: entry.snapshot)
         }
-        .configurationDisplayName("Latest Signal")
-        .description("The most recent signal from your channels.")
+        .configurationDisplayName("Latest Message")
+        .description("The most recent message from your channels.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
         .contentMarginsDisabled()
     }
 }
 
-struct LatestSignalView: View {
+struct LatestMessageView: View {
     @Environment(\.widgetFamily) private var family
     let snapshot: WidgetSnapshot
 
@@ -54,14 +56,14 @@ struct LatestSignalView: View {
                         .font(Theme.sans(15, weight: .semibold))
                         .kerning(-0.2)
                         .lineLimit(1)
-                    Text("+ \(snapshot.todayMoreCount) more signals")
+                    Text("+ \(snapshot.todayMoreCount) more messages")
                         .font(Theme.mono(11))
                         .opacity(0.7)
                 }
             } else {
                 HStack(spacing: 6) {
                     PulseMark(size: 13, color: .white)
-                    Text("no signals yet")
+                    Text("no messages yet")
                         .font(Theme.mono(12))
                         .opacity(0.7)
                 }

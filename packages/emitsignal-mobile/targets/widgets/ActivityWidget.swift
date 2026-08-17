@@ -8,7 +8,7 @@ struct ActivityWidget: Widget {
             ActivityView(snapshot: entry.snapshot)
         }
         .configurationDisplayName("Activity")
-        .description("Recent signals across your channels.")
+        .description("Recent messages across your channels.")
         .supportedFamilies([.systemMedium, .systemLarge])
         .contentMarginsDisabled()
     }
@@ -72,7 +72,7 @@ struct ActivityView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 PulseMark(size: 18)
-                Text("signals")
+                Text("messages")
                     .font(Theme.mono(14))
                     .kerning(-0.3)
                     .foregroundStyle(Theme.fg)

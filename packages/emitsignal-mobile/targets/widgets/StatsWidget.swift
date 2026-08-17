@@ -8,7 +8,7 @@ struct StatsWidget: Widget {
             StatsView(snapshot: entry.snapshot)
         }
         .configurationDisplayName("Stats")
-        .description("Signal volume over the last 24 hours.")
+        .description("Message volume over the last 24 hours.")
         .supportedFamilies([.systemSmall, .systemLarge])
         .contentMarginsDisabled()
     }
@@ -66,7 +66,7 @@ struct StatsView: View {
     private var small: some View {
         VStack(alignment: .leading, spacing: 0) {
             WgHeader()
-            Text("signals · 24h")
+            Text("messages · 24h")
                 .font(Theme.sans(13))
                 .foregroundStyle(Theme.fgMuted)
                 .padding(.top, 10)
@@ -102,7 +102,7 @@ struct StatsView: View {
                 .foregroundStyle(Theme.fg)
                 .padding(.top, 16)
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text("signals today")
+                Text("messages today")
                     .font(Theme.sans(13))
                     .foregroundStyle(Theme.fgMuted)
                 if let trendText {

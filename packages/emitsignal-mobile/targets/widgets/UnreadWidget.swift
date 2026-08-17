@@ -8,7 +8,7 @@ struct UnreadWidget: Widget {
             UnreadView(snapshot: entry.snapshot)
         }
         .configurationDisplayName("Unread")
-        .description("Unread signal count at a glance.")
+        .description("Unread message count at a glance.")
         .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryInline])
         .contentMarginsDisabled()
     }
@@ -24,7 +24,7 @@ struct UnreadView: View {
             circular
         case .accessoryInline:
             Label {
-                Text("\(snapshot.unreadCount) new signals")
+                Text("\(snapshot.unreadCount) new messages")
             } icon: {
                 Image(systemName: "dot.radiowaves.left.and.right")
             }
@@ -74,7 +74,7 @@ struct UnreadView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.5)
                         .foregroundStyle(Theme.fg)
-                    Text("unread signals")
+                    Text("unread messages")
                         .font(Theme.sans(13))
                         .foregroundStyle(Theme.fgMuted)
                         .padding(.top, 4)
