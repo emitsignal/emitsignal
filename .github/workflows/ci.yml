@@ -8,6 +8,20 @@ on:
 jobs:
     check:
         runs-on: ubuntu-latest
+
+        # The unit suite mocks Prisma but not the Redis-backed singletons, so it opens
+        # real connections to REDIS_URL's default localhost:6379 as a side effect.
+        services:
+            redis:
+                image: redis:7-alpine
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
         steps:
             - uses: actions/checkout@v4
 
