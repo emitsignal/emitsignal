@@ -3,6 +3,8 @@
 .output
 .vercel
 *.lock
+CHANGELOG.md
+**/changelog.generated.ts
 **/src/generated/**
 **/routeTree.gen.ts
 build
@@ -10,4 +12,6 @@ bun.lock
 coverage
 dist
 node_modules
+playwright-report
 prisma/migrations
+test-results
