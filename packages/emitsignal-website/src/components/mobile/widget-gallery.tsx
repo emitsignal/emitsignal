@@ -22,16 +22,23 @@ const FAMILY_META: Record<Family, { label: string; sub: string }> = {
     small: { label: 'Small', sub: '2×2 · 158pt' },
 };
 
+const channels: Array<[string, number, number]> = [
+    ['alerts', 3, 5],
+    ['deploys', 1, 3],
+    ['ci', 0, 2],
+    ['billing', 2, 4],
+];
+
+const rows: Array<[string, string, string, number]> = [
+    ['alerts', 'latency p99 over 800ms', '14:31', 5],
+    ['deploys', 'v2.4.0 shipped to prod', '14:24', 3],
+    ['ci', 'build passed → prod', '14:23', 2],
+    ['billing', 'invoice #2231 paid', '13:58', 2],
+    ['ci', 'flaky test retried ok', '13:40', 1],
+];
+
 /** Activity · large feed. */
 function ActivityLarge() {
-    const rows: Array<[string, string, string, number]> = [
-        ['alerts', 'latency p99 over 800ms', '14:31', 5],
-        ['deploys', 'v2.4.0 shipped to prod', '14:24', 3],
-        ['ci', 'build passed → prod', '14:23', 2],
-        ['billing', 'invoice #2231 paid', '13:58', 2],
-        ['ci', 'flaky test retried ok', '13:40', 1],
-    ];
-
     return (
         <Frame height={354} width={338}>
             <div className="flex h-full flex-col">
@@ -62,9 +69,7 @@ function ActivityLarge() {
                     ))}
                 </div>
 
-                <p className="m-0 mt-1 flex items-center gap-1.5 font-mono text-[11px] text-success">
-                    <LiveDot /> live · alerts/prod
-                </p>
+                <p className="m-0 mt-1 font-mono text-[11px] text-dim">→ alerts/prod</p>
             </div>
         </Frame>
     );
@@ -80,13 +85,7 @@ function ActivityMedium() {
 
     return (
         <Frame height={158} width={338}>
-            <Head
-                right={
-                    <span className="flex items-center gap-[5px] font-mono text-[10px] text-success">
-                        <LiveDot /> live
-                    </span>
-                }
-            />
+            <Head right={<span className="font-mono text-[10px] text-dim">4 ch</span>} />
 
             <div className="mt-2.5 flex flex-col">
                 {rows.map(([channel, title, time, level], index) => (
@@ -112,13 +111,6 @@ function ActivityMedium() {
 
 /** Channels · grid with unread counts. */
 function ChannelsMedium() {
-    const channels: Array<[string, number, number]> = [
-        ['alerts', 3, 5],
-        ['deploys', 1, 3],
-        ['ci', 0, 2],
-        ['billing', 2, 4],
-    ];
-
     return (
         <Frame height={158} width={338}>
             <Head right={<span className="font-mono text-[10px] text-dim">channels</span>} />
@@ -261,52 +253,13 @@ function LatestSmall() {
 
 // ────────────────────────────── medium · 338×158 ──────────────────────────────
 
-/** Static by necessity: a WidgetKit timeline renders snapshots, never animation. */
-function LiveDot({ size = 6 }: { size?: number }) {
-    return (
-        <span
-            className="inline-block shrink-0 rounded-full bg-success"
-            style={{
-                boxShadow: `0 0 ${size * 0.8}px color-mix(in srgb, var(--color-success) 60%, transparent)`,
-                height: size,
-                width: size,
-            }}
-        />
-    );
-}
-
-/**
- * Live Status. The design board draws an animated waveform behind a LIVE pill;
- * `LiveStatusWidget.swift` draws a static dot, the state word, the primary
- * topic and a channel count. This follows the Swift.
- */
-function LiveSmall() {
-    return (
-        <Frame height={158} width={158}>
-            <div className="flex h-full flex-col">
-                <Head />
-
-                <div className="mt-auto flex items-center gap-2">
-                    <LiveDot size={10} />
-                    <span className="font-mono text-[16px] font-semibold text-success">live</span>
-                </div>
-
-                <p className="m-0 mt-2 font-mono text-[15px] tracking-[-0.3px] text-fg">
-                    alerts/prod
-                </p>
-                <p className="m-0 mt-0.5 text-[12px] text-dim">listening · 4 channels</p>
-            </div>
-        </Frame>
-    );
-}
-
 /** Stats · large breakdown. */
 function StatsLarge() {
     const channels: Array<[string, number, string]> = [
-        ['alerts', 9, 'var(--color-danger)'],
-        ['deploys', 5, 'var(--color-pink)'],
-        ['ci', 3, 'var(--color-success)'],
-        ['billing', 2, 'var(--color-accent)'],
+        ['dev/alerts', 15, 'var(--color-danger)'],
+        ['web/deploys', 9, 'var(--color-pink)'],
+        ['ci/web', 3, 'var(--color-success)'],
+        ['stripe/billing', 2, 'var(--color-accent)'],
     ];
 
     return (
@@ -502,13 +455,12 @@ function UnreadSmall() {
 
 const VARIANTS: WidgetVariant[] = [
     { family: 'small', meta: 'hero number', name: 'Unread', render: () => <UnreadSmall /> },
-    { family: 'small', meta: 'live or idle', name: 'Live Status', render: () => <LiveSmall /> },
     { family: 'small', meta: 'top of feed', name: 'Latest Signal', render: () => <LatestSmall /> },
     { family: 'small', meta: '24h sparkline', name: 'Stats', render: () => <StatsSmall /> },
     { family: 'medium', meta: 'full card', name: 'Latest Signal', render: () => <LatestMedium /> },
     { family: 'medium', meta: 'grid + counts', name: 'Channels', render: () => <ChannelsMedium /> },
     { family: 'medium', meta: 'recent 3', name: 'Activity', render: () => <ActivityMedium /> },
-    { family: 'large', meta: 'recent 5 + live', name: 'Activity', render: () => <ActivityLarge /> },
+    { family: 'large', meta: 'recent 5', name: 'Activity', render: () => <ActivityLarge /> },
     { family: 'large', meta: 'count + breakdown', name: 'Stats', render: () => <StatsLarge /> },
     { family: 'accessory', meta: 'circular', name: 'Unread', render: () => <UnreadCircular /> },
     {

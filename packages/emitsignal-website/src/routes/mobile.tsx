@@ -8,7 +8,7 @@ import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 import { APP_STORE_URL, REPO_URL } from '#/lib/links';
 
 const DESCRIPTION =
-    'The EmitSignal app for iOS and Android: live push, an inbox in your terminal, six home-screen and Lock Screen widgets, and publishing from your pocket.';
+    'The EmitSignal app for iOS and Android: live push, an inbox in your terminal, five home-screen and Lock Screen widgets, and publishing from your pocket.';
 const TITLE = 'Mobile - EmitSignal';
 
 export const Route = createFileRoute('/mobile')({
@@ -49,7 +49,7 @@ function Hero() {
                         </h1>
 
                         <p className="m-0 mb-7 max-w-[46ch] text-[18px] leading-[1.6] text-muted">
-                            Push the instant a signal is published, a feed you can filter, six
+                            Push the instant a signal is published, a feed you can filter, five
                             widgets on your home and Lock Screen, and a publisher in your pocket.
                         </p>
 
@@ -282,7 +282,7 @@ function Widgets() {
             <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                 <div>
                     <Kicker>Widgets</Kicker>
-                    <H2>Six widgets, without opening the app.</H2>
+                    <H2>Five widgets, without opening the app.</H2>
                 </div>
 
                 <p className="m-0 max-w-[46ch] text-[15px] leading-[1.6] text-muted md:text-right">
