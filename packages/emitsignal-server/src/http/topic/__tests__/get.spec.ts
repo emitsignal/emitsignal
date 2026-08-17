@@ -43,6 +43,10 @@ describe('GET /topics/:name', () => {
     });
 
     it('returns 404 when topic is not found', async () => {
+        // prismaMock is shared across every spec file and never reset, so specs that set a
+        // persistent findUnique default would otherwise decide this test's outcome.
+        prismaMock.topic.findUnique.mockResolvedValueOnce(null);
+
         const res = await app.handle(new Request('http://localhost/topics/nonexistent'));
 
         expect(res.status).toBe(404);
