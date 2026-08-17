@@ -1,5 +1,6 @@
 import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
     Alert,
@@ -14,13 +15,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ActivitySparkline, WCode, WLogo, WTopicAvatar } from '@/components/base-theme';
+import { WCode, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
+
+const TOPIC_PLACEHOLDER = 'deploy/prod';
 
 export default function PublishScreen() {
     const { palette, styles } = useThemedStyles(createStyles);
@@ -37,8 +40,12 @@ export default function PublishScreen() {
         queryKey: queryKeys.topics(''),
     });
 
+    const hasTopic = Boolean(topic.trim());
+    const hasTitle = Boolean(title.trim());
+    const canPublish = hasTopic && hasTitle;
+
     const handlePublish = async () => {
-        if (!topic.trim() || !title.trim()) {
+        if (!canPublish) {
             return;
         }
         setBusy(true);
@@ -61,9 +68,11 @@ export default function PublishScreen() {
         }
     };
 
+    const curlTopic = topic.trim() || TOPIC_PLACEHOLDER;
+
     const curl = `curl -d "${body}" \\
   -H "Content-Type: application/json" \\
-  ${api.baseUrl}/publish/${topic}`;
+  ${api.baseUrl}/publish/${curlTopic}`;
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
@@ -96,7 +105,7 @@ export default function PublishScreen() {
                             autoCorrect={false}
                             maxLength={TOPIC_NAME_MAX_LENGTH}
                             onChangeText={setTopic}
-                            placeholder="deploy/prod"
+                            placeholder={TOPIC_PLACEHOLDER}
                             placeholderTextColor={palette.fgDim}
                             style={styles.input}
                             value={topic}
@@ -156,45 +165,57 @@ export default function PublishScreen() {
                         />
 
                         <Pressable
-                            disabled={busy}
+                            disabled={busy || !canPublish}
                             onPress={handlePublish}
-                            style={[styles.publishBtn, busy && { opacity: 0.6 }]}
+                            style={[
+                                styles.publishBtn,
+                                !canPublish && styles.publishBtnDisabled,
+                                busy && { opacity: 0.6 },
+                            ]}
                         >
-                            <Text style={styles.publishText}>
-                                {busy ? 'publishing…' : `publish → ${topic}`}
+                            <Text
+                                style={[
+                                    styles.publishText,
+                                    !canPublish && styles.publishTextDisabled,
+                                ]}
+                            >
+                                {busy ? 'publishing…' : 'publish'}
                             </Text>
-                            <IconSymbol color={palette.bg} name="arrow.right" size={14} />
                         </Pressable>
+
+                        {!canPublish && (
+                            <Text style={styles.publishHint}>
+                                add a {hasTopic ? 'title' : 'topic'} to publish
+                            </Text>
+                        )}
                     </View>
 
                     {topics.length > 0 && (
                         <>
                             <SectionLabel>OWNED TOPICS</SectionLabel>
 
-                            {topics.map((topic) => {
-                                const seed = topic.id.charCodeAt(topic.id.length - 1);
-                                const chart = Array.from(
-                                    { length: 12 },
-                                    (_, index) => Math.abs(Math.sin((seed + index) * 0.5)) * 5,
-                                );
-                                return (
-                                    <View key={topic.id} style={styles.topicRow}>
-                                        <WTopicAvatar name={topic.name} rounded={6} size={32} />
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={styles.topicName}>{topic.name}</Text>
-                                            <Text style={styles.topicMeta}>{topic.accessMode}</Text>
-                                        </View>
-                                        <View style={{ width: 70 }}>
-                                            <ActivitySparkline
-                                                color={palette.violet}
-                                                data={chart}
-                                                height={20}
-                                                showTotal={false}
-                                            />
-                                        </View>
+                            {topics.map((topic) => (
+                                <Pressable
+                                    key={topic.id}
+                                    onPress={() =>
+                                        router.push(`/topics/${encodeURIComponent(topic.name)}`)
+                                    }
+                                    style={styles.topicRow}
+                                >
+                                    <WTopicAvatar name={topic.name} rounded={6} size={32} />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.topicName}>{topic.name}</Text>
+                                        <Text style={styles.topicMeta}>
+                                            {topic.description?.trim() || topic.accessMode}
+                                        </Text>
                                     </View>
-                                );
-                            })}
+                                    <IconSymbol
+                                        color={palette.fgDim}
+                                        name="chevron.right"
+                                        size={14}
+                                    />
+                                </Pressable>
+                            ))}
                         </>
                     )}
                 </ScrollView>
@@ -269,11 +290,26 @@ const createStyles = (palette: Palette) =>
             marginTop: 24,
             paddingVertical: 14,
         },
+        publishBtnDisabled: {
+            backgroundColor: palette.bgChip,
+            borderColor: palette.bgLine,
+            borderWidth: StyleSheet.hairlineWidth,
+        },
+        publishHint: {
+            color: palette.fgDim,
+            fontFamily: Fonts.mono,
+            fontSize: 11,
+            marginTop: 8,
+            textAlign: 'center',
+        },
         publishText: {
             color: palette.bg,
             fontFamily: Fonts.mono,
             fontSize: 14,
             fontWeight: '600',
+        },
+        publishTextDisabled: {
+            color: palette.fgDim,
         },
         root: { backgroundColor: palette.bg, flex: 1 },
         sectionLabelLine: {
