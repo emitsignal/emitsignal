@@ -55,11 +55,10 @@ describe('buildWidgetSnapshot', () => {
         });
 
         expect(snapshot.hasData).toBe(false);
-        expect(snapshot.live).toBe(false);
         expect(snapshot.unreadCount).toBe(0);
         expect(snapshot.primaryTopic).toBeNull();
         expect(snapshot.volume.trendPct).toBeNull();
-        expect(snapshot.schemaVersion).toBe(1);
+        expect(snapshot.schemaVersion).toBe(2);
         expect(snapshot.updatedAt).toBe(NOW);
     });
 

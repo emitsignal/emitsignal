@@ -160,7 +160,6 @@ export default function FeedScreen() {
             <View style={styles.header}>
                 <View style={styles.headerTop}>
                     <WLogo pulse size={12} />
-                    <Text style={styles.live}>● live</Text>
                 </View>
                 <Text style={styles.title}>Inbox</Text>
                 <Text style={styles.subtitle}>
@@ -246,12 +245,6 @@ const createStyles = (palette: Palette) =>
             alignItems: 'center',
             flexDirection: 'row',
             marginBottom: 16,
-        },
-        live: {
-            color: palette.fgDim,
-            fontFamily: Fonts.mono,
-            fontSize: 10.5,
-            marginLeft: 'auto',
         },
         root: {
             backgroundColor: palette.bg,

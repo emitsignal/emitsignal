@@ -9,6 +9,5 @@ struct EmitSignalWidgets: WidgetBundle {
         ActivityWidget()
         StatsWidget()
         ChannelsWidget()
-        LiveStatusWidget()
     }
 }
