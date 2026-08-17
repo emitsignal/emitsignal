@@ -1,0 +1,40 @@
+name: ci
+
+on:
+    pull_request:
+    push:
+        branches: [main]
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.3.13'
+
+            # release-please's PR bumps package.json versions without touching bun.lock,
+            # which records them too — so a frozen install only makes sense elsewhere.
+            - name: Install dependencies
+              run: |
+                  if [[ "$GITHUB_HEAD_REF" == release-please--* ]]; then
+                      bun install
+                  else
+                      bun install --frozen-lockfile
+                  fi
+
+            - name: Check formatting
+              run: bun run format:check
+
+            - name: Lint
+              run: bun run lint
+
+            # `bun test` would invoke Bun's builtin runner and shadow the workspace
+            # scripts, so filter per package. @emitsignal/e2e-testing is excluded — its
+            # Playwright suite needs PostgreSQL and a running server.
+            - name: Test
+              run: |
+                  bun --filter '@emitsignal/server' test
+                  bun --filter '@emitsignal/website' test
