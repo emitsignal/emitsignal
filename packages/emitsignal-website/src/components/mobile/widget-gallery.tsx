@@ -43,7 +43,7 @@ function ActivityLarge() {
         <Frame height={354} width={338}>
             <div className="flex h-full flex-col">
                 <div className="flex items-center gap-2">
-                    <Logo label="signals" size={14} />
+                    <Logo label="messages" size={14} />
                     <span className="ml-auto rounded-full bg-accent-dim px-2.5 py-0.5 text-[12px] font-bold text-fg">
                         12 new
                     </span>
@@ -178,7 +178,7 @@ function Head({ right }: { right?: React.ReactNode }) {
     );
 }
 
-/** Latest Signal · full card. */
+/** Latest Message · full card. */
 function LatestMedium() {
     return (
         <Frame height={158} width={338}>
@@ -208,7 +208,7 @@ function LatestMedium() {
     );
 }
 
-/** Latest Signal · rectangular. */
+/** Latest Message · rectangular. */
 function LatestRectangular() {
     return (
         <div className="flex h-[76px] w-[168px] flex-col justify-center gap-1 text-white">
@@ -220,12 +220,12 @@ function LatestRectangular() {
             <p className="m-0 text-[15px] font-semibold tracking-[-0.2px]">
                 latency p99 over 800ms
             </p>
-            <p className="m-0 font-mono text-[11px] opacity-70">+ 11 more signals</p>
+            <p className="m-0 font-mono text-[11px] opacity-70">+ 11 more messages</p>
         </div>
     );
 }
 
-/** Latest Signal · compact. */
+/** Latest Message · compact. */
 function LatestSmall() {
     return (
         <Frame height={158} width={158}>
@@ -272,7 +272,7 @@ function StatsLarge() {
                         78
                     </p>
                     <div className="mt-1.5 flex items-baseline gap-2">
-                        <span className="text-[13px] text-muted">signals today</span>
+                        <span className="text-[13px] text-muted">messages today</span>
                         <span className="font-mono text-[11px] text-success">↑ 14%</span>
                     </div>
                 </div>
@@ -310,7 +310,7 @@ function StatsSmall() {
             <div className="flex h-full flex-col">
                 <Head />
 
-                <p className="m-0 mt-2.5 text-[13px] text-muted">signals · 24h</p>
+                <p className="m-0 mt-2.5 text-[13px] text-muted">messages · 24h</p>
 
                 <div className="mt-2.5 flex h-11 items-end gap-1">
                     {bars.map((bar, index) => (
@@ -423,7 +423,7 @@ function UnreadInline() {
     return (
         <div className="flex h-[76px] items-center gap-[7px] text-white">
             <span className="h-2 w-2 rounded-full bg-white" />
-            <span className="text-[15px] font-semibold">12 new signals</span>
+            <span className="text-[15px] font-semibold">12 new messages</span>
         </div>
     );
 }
@@ -439,7 +439,7 @@ function UnreadSmall() {
                     <p className="m-0 text-[58px] font-bold leading-[0.9] tracking-[-2px] text-fg">
                         12
                     </p>
-                    <p className="m-0 mt-1 text-[13px] text-muted">unread signals</p>
+                    <p className="m-0 mt-1 text-[13px] text-muted">unread messages</p>
                 </div>
 
                 <div className="mt-3 flex items-center gap-1.5">
@@ -455,9 +455,9 @@ function UnreadSmall() {
 
 const VARIANTS: WidgetVariant[] = [
     { family: 'small', meta: 'hero number', name: 'Unread', render: () => <UnreadSmall /> },
-    { family: 'small', meta: 'top of feed', name: 'Latest Signal', render: () => <LatestSmall /> },
+    { family: 'small', meta: 'top of feed', name: 'Latest Message', render: () => <LatestSmall /> },
     { family: 'small', meta: '24h sparkline', name: 'Stats', render: () => <StatsSmall /> },
-    { family: 'medium', meta: 'full card', name: 'Latest Signal', render: () => <LatestMedium /> },
+    { family: 'medium', meta: 'full card', name: 'Latest Message', render: () => <LatestMedium /> },
     { family: 'medium', meta: 'grid + counts', name: 'Channels', render: () => <ChannelsMedium /> },
     { family: 'medium', meta: 'recent 3', name: 'Activity', render: () => <ActivityMedium /> },
     { family: 'large', meta: 'recent 5', name: 'Activity', render: () => <ActivityLarge /> },
@@ -466,7 +466,7 @@ const VARIANTS: WidgetVariant[] = [
     {
         family: 'accessory',
         meta: 'rectangular',
-        name: 'Latest Signal',
+        name: 'Latest Message',
         render: () => <LatestRectangular />,
     },
     { family: 'accessory', meta: 'inline', name: 'Unread', render: () => <UnreadInline /> },
