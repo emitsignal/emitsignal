@@ -99,8 +99,7 @@ const config: ExpoConfig = {
         [
             'expo-splash-screen',
             {
-                // Top level is the light-mode splash; `dark` overrides it.
-                backgroundColor: '#fafafa',
+                backgroundColor: '#000000',
                 dark: {
                     backgroundColor: '#000000',
                 },
