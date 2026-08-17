@@ -1,0 +1,65 @@
+{
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "changelog-sections": [
+        { "section": "Added", "type": "feat" },
+        { "section": "Fixed", "type": "fix" },
+        { "section": "Improved", "type": "perf" },
+        { "hidden": true, "type": "refactor" },
+        { "hidden": true, "type": "docs" },
+        { "hidden": true, "type": "chore" },
+        { "hidden": true, "type": "style" },
+        { "hidden": true, "type": "test" },
+        { "hidden": true, "type": "ci" },
+        { "hidden": true, "type": "build" }
+    ],
+    "packages": {
+        ".": {
+            "changelog-path": "CHANGELOG.md",
+            "extra-files": [
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-cli/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-server/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-shared/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-mobile/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-website/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-emails/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-docs/package.json",
+                    "type": "json"
+                },
+                {
+                    "jsonpath": "$.version",
+                    "path": "packages/emitsignal-docker/package.json",
+                    "type": "json"
+                }
+            ],
+            "include-component-in-tag": false,
+            "package-name": "emitsignal",
+            "release-type": "node"
+        }
+    }
+}
