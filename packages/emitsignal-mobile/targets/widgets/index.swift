@@ -5,7 +5,7 @@ import WidgetKit
 struct EmitSignalWidgets: WidgetBundle {
     var body: some Widget {
         UnreadWidget()
-        LatestSignalWidget()
+        LatestMessageWidget()
         ActivityWidget()
         StatsWidget()
         ChannelsWidget()
