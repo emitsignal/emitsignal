@@ -5,12 +5,13 @@ EmitSignal follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATC
 ## One product version
 
 There is a **single product version** for EmitSignal. It spans the server, website,
-mobile app, and shared package together — the [changelog](packages/emitsignal-website/src/routes/changelog.tsx)
-tracks that one version, not per-package versions.
+mobile app, CLI, and shared package together — [CHANGELOG.md](./CHANGELOG.md) tracks that
+one version, not per-package versions.
 
-> The `package.json` files currently read a placeholder `1.0.0`, and the mobile app
-> carries its own store build number via `app.config.ts`. Reconciling those with the
-> product version is an optional follow-up.
+Every `package.json` in the workspace carries that same version, and release-please
+rewrites all of them together on each release (see `release-please-config.json`). The
+mobile app derives its store version from `packages/emitsignal-mobile/package.json` via
+`app.config.ts`; build numbers stay on EAS (`cli.appVersionSource: "remote"`).
 
 ## History
 
@@ -36,14 +37,29 @@ They map to bumps as follows:
 - `feat!` or any commit with a `BREAKING CHANGE:` footer → **major**
 - `chore` / `docs` / `refactor` / `style` / `test` / `ci` / `build` → no release on their own
 
-## What's next
-
-Shipping the `emitsignal` CLI and the Terminal UI (TUI) is **additive**, so it lands as
-**`1.0.0`**, not a major bump. Their docs already live at `/cli`.
-
 ## Release flow
 
-1. Tag the release `vX.Y.Z`.
-2. Add a matching entry at the top of `packages/emitsignal-website/src/routes/changelog.tsx`
-   (`added` / `improved` / `fixed`, newest first).
-3. Flag any breaking change with the entry's `note` field.
+Releases are automated by [release-please](https://github.com/googleapis/release-please)
+(`.github/workflows/release.yml`). Nothing is versioned or changelogged by hand.
+
+1. Land Conventional Commits on `main`. Every push updates a bot-maintained release PR
+   titled `chore(main): release X.Y.Z`, which carries the version bump for every
+   `package.json` and the new `CHANGELOG.md` section.
+2. Review that PR — it is the release proposal. Edit the changelog wording there if the
+   generated text needs polish; the commit subjects are what readers will see.
+3. Merge it. That tags `vX.Y.Z`, creates the GitHub release, and publishes the CLI to npm,
+   GitHub Releases, and the Homebrew tap.
+
+Breaking changes must use a `!` suffix or a `BREAKING CHANGE:` footer — that is what drives
+the major bump and the callout in the release notes.
+
+### Changelog sources
+
+`CHANGELOG.md` at the repository root is the single source of truth. The public changelog
+page renders it: `packages/emitsignal-website/scripts/sync-changelog.ts` parses the markdown
+into `src/data/changelog.generated.ts` on every `dev`, `build`, and `test`. Do not edit that
+generated file, and do not add release entries to `changelog.tsx`.
+
+Section headings map onto the page's three buckets — `### Added` (from `feat`),
+`### Improved` (from `perf`), and `### Fixed` (from `fix`). A paragraph placed directly under
+a version heading renders as that release's highlighted note.
