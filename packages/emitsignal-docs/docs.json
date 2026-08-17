@@ -25,7 +25,7 @@
     },
     "footer": {
         "socials": {
-            "github": "https://github.com/kevenleone/emitsignal"
+            "github": "https://github.com/emitsignal/emitsignal"
         }
     },
     "logo": {
@@ -37,7 +37,7 @@
     "navbar": {
         "links": [
             {
-                "href": "https://github.com/kevenleone/emitsignal",
+                "href": "https://github.com/emitsignal/emitsignal",
                 "label": "GitHub"
             }
         ],

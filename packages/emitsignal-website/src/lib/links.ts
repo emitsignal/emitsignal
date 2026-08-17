@@ -1,4 +1,4 @@
-export const REPO_URL = 'https://github.com/kevenleone/emitsignal';
+export const REPO_URL = 'https://github.com/emitsignal/emitsignal';
 
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/emitsignal/id6782717233';
 export const AUTHOR_URL = 'https://github.com/kevenleone';

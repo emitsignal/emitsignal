@@ -36,7 +36,7 @@ const SAMPLE_MESSAGES = [
         priority: 2,
         tags: ['approved'],
         title: 'PR #482 reviewed',
-        topic: 'kevenleone/emitsignal',
+        topic: 'emitsignal/emitsignal',
     },
     {
         body: 'dumped 14.2 GB → s3://backups/2026-04-21',
