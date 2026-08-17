@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,6 +7,7 @@ import { Fonts, type Palette } from '@/constants/theme';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api, type ListenSince } from '@/lib/api';
+import { goBackOrHome } from '@/lib/navigation';
 
 export function TopicActionsMenu({ topicName }: { topicName: string }) {
     const { styles } = useThemedStyles(createStyles);
@@ -40,7 +40,7 @@ export function TopicActionsMenu({ topicName }: { topicName: string }) {
             { style: 'cancel', text: 'Cancel' },
             {
                 onPress: () => {
-                    void unsubscribe(topicName).then(() => router.back());
+                    void unsubscribe(topicName).then(goBackOrHome);
                 },
                 style: 'destructive',
                 text: 'Unsubscribe',

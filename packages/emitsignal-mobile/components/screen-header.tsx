@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +5,7 @@ import { WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
+import { goBackOrHome } from '@/lib/navigation';
 
 interface ScreenHeaderProps {
     altName?: string;
@@ -26,7 +26,7 @@ export function ScreenHeader({
 
     return (
         <View style={styles.topBar}>
-            <Pressable onPress={onBack ?? (() => router.back())} style={styles.backBtn}>
+            <Pressable onPress={onBack ?? goBackOrHome} style={styles.backBtn}>
                 <IconSymbol color={palette.fg} name="arrow.left" size={16} />
             </Pressable>
 
