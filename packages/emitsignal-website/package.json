@@ -62,7 +62,11 @@
     "private": true,
     "scripts": {
         "build": "vite build",
+        "changelog:sync": "bun run scripts/sync-changelog.ts",
         "dev": "vite dev --port 5002",
+        "prebuild": "bun run changelog:sync",
+        "predev": "bun run changelog:sync",
+        "pretest": "bun run changelog:sync",
         "preview": "vite preview",
         "test": "vitest run"
     },
