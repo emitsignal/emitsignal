@@ -2,12 +2,12 @@
 /**
  * Renders the Homebrew formula (`emitsignal.rb`) for the tap repo from the
  * checksums produced by `build-binaries.ts`. CI pushes the output to
- * `kevenleone/homebrew-emitsignal`.
+ * `emitsignal/homebrew-tap`.
  *
  * Usage:
- *   bun run scripts/render-formula.ts [--tag cli-v1.0.0] [--out path/emitsignal.rb]
+ *   bun run scripts/render-formula.ts [--tag v1.0.0] [--out path/emitsignal.rb]
  *
- * Defaults: tag = `cli-v<version from package.json>`, out = stdout.
+ * Defaults: tag = `v<version from package.json>`, out = stdout.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -38,7 +38,7 @@ function checksumFor(checksums: Record<string, string>, platform: PlatformKey): 
 
 async function main(): Promise<void> {
     const version = packageJson.version;
-    const tag = argValue('--tag') ?? `cli-v${version}`;
+    const tag = argValue('--tag') ?? `v${version}`;
     const outputPath = argValue('--out');
 
     const checksums = await parseChecksums();
