@@ -25,6 +25,11 @@ jobs:
                       bun install --frozen-lockfile
                   fi
 
+            # src/generated/prisma is gitignored, so the client has to be built before
+            # anything imports `#/generated/prisma/client`.
+            - name: Generate the Prisma client
+              run: bun --filter '@emitsignal/server' db:generate
+
             - name: Check formatting
               run: bun run format:check
 
