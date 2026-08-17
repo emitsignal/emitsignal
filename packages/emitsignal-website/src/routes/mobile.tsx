@@ -29,72 +29,6 @@ export const Route = createFileRoute('/mobile')({
 const SHOT_HEIGHT = 1348;
 const SHOT_WIDTH = 620;
 
-function MobilePage() {
-    return (
-        <div className="min-h-full w-full bg-bg font-sans text-fg">
-            <SiteNav variant="pinned">
-                <SiteNavWordmark />
-            </SiteNav>
-
-            <Hero />
-
-            <div className="px-5 sm:px-8 md:px-16">
-                <div className="mx-auto max-w-[1100px]">
-                    <Section id="features">
-                        <H2>Built for the way developers work.</H2>
-
-                        <div className="mt-10">
-                            <FeatureTabs />
-                        </div>
-                    </Section>
-
-                    <Widgets />
-
-                    <Spec />
-
-                    <div className="border-t border-line py-14 text-center">
-                        <p className="m-0 mb-5 text-[15px] text-muted">
-                            Free to download and usable straight away. An account only matters once
-                            you want the same channels on more than one device.
-                        </p>
-
-                        <div className="flex flex-wrap justify-center gap-3">
-                            <a
-                                className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-bg no-underline transition-colors hover:bg-accent-hover"
-                                href={APP_STORE_URL}
-                                rel="noopener noreferrer"
-                                target="_blank"
-                            >
-                                <Apple size={15} />
-                                Download for iOS
-                            </a>
-
-                            <a
-                                className="inline-flex items-center gap-2 rounded-lg border border-line bg-elev px-5 py-2.5 font-mono text-[13px] font-semibold text-fg no-underline transition-colors hover:bg-elev-2"
-                                href={REPO_URL}
-                                rel="noopener noreferrer"
-                                target="_blank"
-                            >
-                                <Github size={15} />
-                                Build for Android
-                            </a>
-                        </div>
-
-                        <p className="m-0 mt-5 font-mono text-[12px] text-dim">
-                            Works without an account.{' '}
-                            <Link className="text-accent no-underline" to="/sign-in">
-                                Sign in to sync your channels →
-                            </Link>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <SiteFooter />
-        </div>
-    );
-}
-
 function H2({ children }: { children: React.ReactNode }) {
     return (
         <h2 className="m-0 text-[26px] font-semibold tracking-[-0.6px] text-fg md:text-[32px]">
@@ -160,6 +94,72 @@ function Kicker({ children }: { children: React.ReactNode }) {
         <p className="m-0 mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
             {children}
         </p>
+    );
+}
+
+function MobilePage() {
+    return (
+        <div className="min-h-full w-full bg-bg font-sans text-fg">
+            <SiteNav variant="pinned">
+                <SiteNavWordmark />
+            </SiteNav>
+
+            <Hero />
+
+            <div className="px-5 sm:px-8 md:px-16">
+                <div className="mx-auto max-w-[1100px]">
+                    <Section id="features">
+                        <H2>Built for the way developers work.</H2>
+
+                        <div className="mt-10">
+                            <FeatureTabs />
+                        </div>
+                    </Section>
+
+                    <Widgets />
+
+                    <Spec />
+
+                    <div className="border-t border-line py-14 text-center">
+                        <p className="m-0 mb-5 text-[15px] text-muted">
+                            Free to download and usable straight away. An account only matters once
+                            you want the same channels on more than one device.
+                        </p>
+
+                        <div className="flex flex-wrap justify-center gap-3">
+                            <a
+                                className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-mono text-[13px] font-semibold text-bg no-underline transition-colors hover:bg-accent-hover"
+                                href={APP_STORE_URL}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                <Apple size={15} />
+                                Download for iOS
+                            </a>
+
+                            <a
+                                className="inline-flex items-center gap-2 rounded-lg border border-line bg-elev px-5 py-2.5 font-mono text-[13px] font-semibold text-fg no-underline transition-colors hover:bg-elev-2"
+                                href={REPO_URL}
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                <Github size={15} />
+                                Build for Android
+                            </a>
+                        </div>
+
+                        <p className="m-0 mt-5 font-mono text-[12px] text-dim">
+                            Works without an account.{' '}
+                            <Link className="text-accent no-underline" to="/sign-in">
+                                Sign in to sync your channels →
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <SiteFooter />
+        </div>
     );
 }
 
