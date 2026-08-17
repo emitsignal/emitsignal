@@ -70,5 +70,6 @@
         "preview": "vite preview",
         "test": "vitest run"
     },
-    "type": "module"
+    "type": "module",
+    "version": "1.1.0"
 }

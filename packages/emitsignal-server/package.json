@@ -45,6 +45,7 @@
     "license": "AGPL-3.0-only",
     "module": "src/index.js",
     "name": "@emitsignal/server",
+    "private": true,
     "scripts": {
         "db:generate": "prisma generate",
         "db:migrate": "prisma migrate dev",
@@ -59,5 +60,5 @@
         "dev:worker:schedule": "bun run --watch src/workers/schedule.ts",
         "test": "bun test"
     },
-    "version": "1.0.0"
+    "version": "1.1.0"
 }
