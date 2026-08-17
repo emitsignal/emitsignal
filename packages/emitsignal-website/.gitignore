@@ -13,3 +13,4 @@ dist-ssr
 __unconfig*
 todos.json
 public/static/showcase
+src/data/changelog.generated.ts
