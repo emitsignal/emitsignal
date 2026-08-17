@@ -57,7 +57,10 @@
     "license": "AGPL-3.0-only",
     "name": "@emitsignal/website",
     "pnpm": {
-        "onlyBuiltDependencies": ["esbuild", "lightningcss"]
+        "onlyBuiltDependencies": [
+            "esbuild",
+            "lightningcss"
+        ]
     },
     "private": true,
     "scripts": {
@@ -71,5 +74,5 @@
         "test": "vitest run"
     },
     "type": "module",
-    "version": "1.1.0"
+    "version": "1.1.1"
 }
