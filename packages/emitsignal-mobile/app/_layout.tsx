@@ -29,6 +29,11 @@ import { setupQuerySync } from '@/lib/query-online';
 
 setupQuerySync();
 
+// A widget or notification deep link cold-starts the app straight at the target
+// route. Anchoring the root stack to the tabs puts them underneath it, so the
+// back arrow and the interactive swipe both have somewhere to go.
+export const unstable_settings = { anchor: '(tabs)' };
+
 // Keep the native splash up until the JS bundle is ready, then hand off to the
 // in-app animated intro. Both share the same scheme background so the swap is seamless.
 SplashScreen.preventAutoHideAsync();
