@@ -18,10 +18,9 @@ export interface WidgetSnapshot {
     channelCount: number;
     channels: WidgetSnapshotChannel[];
     hasData: boolean;
-    live: boolean;
     primaryTopic: null | string;
     recent: WidgetSnapshotMessage[];
-    schemaVersion: 1;
+    schemaVersion: 2;
     scheme: string;
     todayMoreCount: number;
     unreadCount: number;
@@ -133,10 +132,9 @@ export function buildWidgetSnapshot(input: BuildWidgetSnapshotInput): WidgetSnap
         channelCount: subscriptions.length,
         channels,
         hasData: messages.length > 0 || subscriptions.length > 0,
-        live: subscriptions.length > 0,
         primaryTopic: recent[0]?.topicName ?? null,
         recent,
-        schemaVersion: 1,
+        schemaVersion: 2,
         scheme,
         todayMoreCount: Math.max(messagesToday.length - 1, 0),
         unreadCount: unreadMessages.length,

@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-// Design M3 "Activity" (recent 3, medium) + L1 "Feed" (recent 5 + live footer, large).
+// Design M3 "Activity" (recent 3, medium) + L1 "Feed" (recent 5, large).
 struct ActivityWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "ActivityWidget", provider: SnapshotTimelineProvider()) { entry in
@@ -35,19 +35,7 @@ struct ActivityView: View {
 
     private var medium: some View {
         VStack(alignment: .leading, spacing: 0) {
-            WgHeader(right: {
-                HStack(spacing: 5) {
-                    if snapshot.live {
-                        Circle()
-                            .fill(Theme.green)
-                            .frame(width: 6, height: 6)
-                            .shadow(color: Theme.green.opacity(0.6), radius: 3)
-                        Text("live")
-                            .font(Theme.mono(10))
-                            .foregroundStyle(Theme.green)
-                    }
-                }
-            })
+            WgHeader(meta: "\(snapshot.channelCount) ch")
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(snapshot.recent.prefix(3).enumerated()), id: \.element.id) { index, message in
                     if index > 0 {
@@ -119,18 +107,12 @@ struct ActivityView: View {
             }
             .padding(.top, 8)
             Spacer(minLength: 0)
-            if snapshot.live, let primaryTopic = snapshot.primaryTopic {
+            if let primaryTopic = snapshot.primaryTopic {
                 Link(destination: snapshot.deepLink("/topics/\(primaryTopic)")) {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(Theme.green)
-                            .frame(width: 6, height: 6)
-                            .shadow(color: Theme.green.opacity(0.6), radius: 3)
-                        Text("live · \(primaryTopic)")
-                            .font(Theme.mono(11))
-                            .foregroundStyle(Theme.green)
-                    }
-                    .padding(.top, 4)
+                    Text("→ \(primaryTopic)")
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.fgDim)
+                        .padding(.top, 4)
                 }
             }
         }

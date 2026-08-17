@@ -33,7 +33,6 @@ struct WidgetSnapshot: Codable {
     let channelCount: Int
     let channels: [Channel]
     let hasData: Bool
-    let live: Bool
     let primaryTopic: String?
     let recent: [Message]
     let schemaVersion: Int
@@ -70,7 +69,7 @@ enum SharedStore {
             let raw = UserDefaults(suiteName: appGroup)?.string(forKey: "widget_snapshot"),
             let data = raw.data(using: .utf8),
             let snapshot = try? JSONDecoder().decode(WidgetSnapshot.self, from: data),
-            snapshot.schemaVersion == 1
+            snapshot.schemaVersion == 2
         else {
             return nil
         }
@@ -92,7 +91,6 @@ extension WidgetSnapshot {
                 Channel(count24h: 2, id: "4", name: "billing", topPriority: 4, unread: 2),
             ],
             hasData: true,
-            live: true,
             primaryTopic: "alerts/prod",
             recent: [
                 Message(createdAt: now - 2 * minute, id: "m1", priority: 5, title: "latency p99 over 800ms", topicName: "alerts", unread: true),
@@ -101,7 +99,7 @@ extension WidgetSnapshot {
                 Message(createdAt: now - 35 * minute, id: "m4", priority: 2, title: "invoice #2231 paid", topicName: "billing", unread: true),
                 Message(createdAt: now - 53 * minute, id: "m5", priority: 1, title: "flaky test retried ok", topicName: "ci", unread: false),
             ],
-            schemaVersion: 1,
+            schemaVersion: 2,
             scheme: "emitsignal",
             todayMoreCount: 11,
             unreadCount: 12,
@@ -115,10 +113,9 @@ extension WidgetSnapshot {
             channelCount: 0,
             channels: [],
             hasData: false,
-            live: false,
             primaryTopic: nil,
             recent: [],
-            schemaVersion: 1,
+            schemaVersion: 2,
             scheme: "emitsignal",
             todayMoreCount: 0,
             unreadCount: 0,
