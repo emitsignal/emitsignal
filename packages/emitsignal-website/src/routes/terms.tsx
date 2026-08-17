@@ -49,6 +49,42 @@ const TABLE_OF_CONTENTS: TableOfContentsEntry[] = [
     { id: 'contact', label: '18. Contact' },
 ];
 
+function H2({ children }: { children: React.ReactNode }) {
+    return (
+        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
+            {children}
+        </h2>
+    );
+}
+
+function Kicker({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
+            {children}
+        </p>
+    );
+}
+
+function Li({ children }: { children: React.ReactNode }) {
+    return (
+        <li className="relative pl-5 text-[14px] leading-[1.65] text-muted before:absolute before:left-0 before:text-accent before:content-['-']">
+            {children}
+        </li>
+    );
+}
+
+function P({ children }: { children: React.ReactNode }) {
+    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
+}
+
+function Section({ children, id }: { children: React.ReactNode; id?: string }) {
+    return (
+        <section className="border-t border-line py-14" id={id}>
+            {children}
+        </section>
+    );
+}
+
 function TermsPage() {
     return (
         <div className="min-h-full w-full bg-bg font-sans text-fg">
@@ -372,42 +408,6 @@ function TermsPage() {
 
             <SiteFooter />
         </div>
-    );
-}
-
-function H2({ children }: { children: React.ReactNode }) {
-    return (
-        <h2 className="mb-3 mt-0 text-[26px] font-semibold tracking-[-0.6px] text-fg">
-            {children}
-        </h2>
-    );
-}
-
-function Kicker({ children }: { children: React.ReactNode }) {
-    return (
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[1.6px] text-accent">
-            {children}
-        </p>
-    );
-}
-
-function Li({ children }: { children: React.ReactNode }) {
-    return (
-        <li className="relative pl-5 text-[14px] leading-[1.65] text-muted before:absolute before:left-0 before:text-accent before:content-['-']">
-            {children}
-        </li>
-    );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-    return <p className="mb-4 text-[14px] leading-[1.65] text-muted">{children}</p>;
-}
-
-function Section({ children, id }: { children: React.ReactNode; id?: string }) {
-    return (
-        <section className="border-t border-line py-14" id={id}>
-            {children}
-        </section>
     );
 }
 
