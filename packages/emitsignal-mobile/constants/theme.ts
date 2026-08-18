@@ -39,6 +39,7 @@ export const darkPalette = {
     red: '#f87171',
     // Dialog scrim
     scrim: 'rgba(3,3,4,0.72)',
+    skeleton: '#191a1d',
     // Accents
     violet: '#a78bfa',
     violetBg: 'rgba(124,58,237,0.12)',
@@ -80,6 +81,7 @@ export const lightPalette: Palette = {
     pink: '#c026d3',
     red: '#dc2626',
     scrim: 'rgba(24,24,27,0.45)',
+    skeleton: '#e4e4e7',
     // Accents
     violet: '#7c3aed',
     violetBg: 'rgba(124,58,237,0.10)',
