@@ -3,6 +3,7 @@ import type { TransportTargetOptions } from 'pino';
 export type LogIngestionProvider = 'betterstack' | 'stdout';
 
 interface LogIngestionConfig {
+    enabled?: boolean;
     host?: string;
     provider: LogIngestionProvider;
     token?: string;
@@ -19,11 +20,12 @@ export function isUnobservedPath(path: string) {
 }
 
 export function resolveLogIngestionTarget({
+    enabled,
     host,
     provider,
     token,
 }: LogIngestionConfig): TransportTargetOptions | undefined {
-    if (provider === 'stdout' || !token) {
+    if (provider === 'stdout' || !enabled || !token) {
         return undefined;
     }
 

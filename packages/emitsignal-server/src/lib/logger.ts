@@ -13,6 +13,7 @@ const service = resolveServiceName(Bun.argv, {
 });
 
 const ingestionTarget = resolveLogIngestionTarget({
+    enabled: environment.LOG_INGESTION_ENABLED,
     host: environment.LOG_INGESTION_HOST,
     provider: environment.LOG_INGESTION_PROVIDER,
     token: environment.LOG_INGESTION_TOKEN,
