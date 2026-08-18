@@ -1,6 +1,5 @@
 import { fromTypes, openapi } from '@elysia/openapi';
 import { opentelemetry } from '@elysia/opentelemetry';
-import { cors } from '@elysiajs/cors';
 import * as Sentry from '@sentry/bun';
 import { Elysia } from 'elysia';
 
@@ -10,6 +9,7 @@ import { acknowledge } from '#/http/messages/acknowledge';
 import { attachments } from '#/http/messages/attachments';
 import { getMessage } from '#/http/messages/get';
 import { purgeSignals } from '#/http/messages/purge';
+import { corsPlugin } from '#/http/plugins/cors-plugin';
 import { errorResponsePlugin } from '#/http/plugins/error-response-plugin';
 import { loggerPlugin } from '#/http/plugins/logger-plugin';
 import { rateLimitPlugin } from '#/http/plugins/rate-limit-plugin';
@@ -78,14 +78,7 @@ const app = new Elysia({
     .use(errorResponsePlugin)
     .use(rateLimitPlugin)
     .use(openapi({ enabled: !isProduction, references: fromTypes() }))
-    .use(
-        cors({
-            allowedHeaders: ['Content-Type', 'Authorization'],
-            credentials: true,
-            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-            origin: [environment.APP_URL],
-        }),
-    )
+    .use(corsPlugin)
     .all('/api/auth/*', (ctx) => auth.handler(ctx.request))
     .get('/', () => ({
         name: 'Welcome to EmitSignal',
