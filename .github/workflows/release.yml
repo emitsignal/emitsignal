@@ -34,6 +34,47 @@ jobs:
                   config-file: release-please-config.json
                   manifest-file: .release-please-manifest.json
 
+            # release-please serializes package.json with its own JSON writer, which
+            # expands short arrays that Prettier collapses. Left alone, merging the
+            # release PR lands unformatted files on main, and `format:check` then fails
+            # on main and on every branch cut from it until someone formats by hand.
+            #
+            # Guarded on the `prs` output rather than `prs_created` so this also runs
+            # when release-please updates an existing release PR, not just on creation.
+            - name: Check out the release PR
+              if: steps.release.outputs.prs != '' && steps.release.outputs.prs != '[]'
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ fromJSON(steps.release.outputs.prs)[0].headBranchName }}
+
+            - name: Set up Bun
+              if: steps.release.outputs.prs != '' && steps.release.outputs.prs != '[]'
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.3.13'
+
+            - name: Format the release PR
+              if: steps.release.outputs.prs != '' && steps.release.outputs.prs != '[]'
+              run: |
+                  bun install
+                  bun format
+
+                  # bun install rewrites bun.lock off the bumped versions; that belongs to
+                  # release-please, not to a formatting commit.
+                  git checkout -- bun.lock
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add -A
+
+                  if git diff --cached --quiet; then
+                      echo "release PR is already formatted"
+                      exit 0
+                  fi
+
+                  git commit -m "chore: Source Format"
+                  git push
+
     publish-cli:
         needs: release-please
         if: needs.release-please.outputs.release_created == 'true'
