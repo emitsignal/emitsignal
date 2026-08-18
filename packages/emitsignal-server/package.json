@@ -1,9 +1,9 @@
 {
     "dependencies": {
-        "@better-auth/api-key": "^1.6.14",
-        "@better-auth/expo": "^1.6.14",
-        "@better-auth/passkey": "^1.6.14",
-        "@better-auth/stripe": "^1.6.18",
+        "@better-auth/api-key": "~1.6.14",
+        "@better-auth/expo": "~1.6.14",
+        "@better-auth/passkey": "~1.6.14",
+        "@better-auth/stripe": "~1.6.18",
         "@elysia/openapi": "^1.4.15",
         "@elysia/opentelemetry": "^1.4.12",
         "@emitsignal/emails": "workspace:*",
@@ -18,7 +18,7 @@
         "@prisma/client": "^7.8.0",
         "@sentry/bun": "^10.55.0",
         "@sinclair/typebox": "^0.34.49",
-        "better-auth": "^1.6.14",
+        "better-auth": "~1.6.14",
         "bullmq": "^5.28.0",
         "dotenv": "^17.4.2",
         "elysia": "^1.4.29",

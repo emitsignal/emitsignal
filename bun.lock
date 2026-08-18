@@ -22,7 +22,7 @@
     },
     "packages/emitsignal-cli": {
       "name": "@emitsignal/cli",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "bin": {
         "emitsignal": "./dist/index.js",
         "es": "./dist/index.js",
@@ -38,11 +38,11 @@
     },
     "packages/emitsignal-docker": {
       "name": "@emitsignal/docker",
-      "version": "1.1.0",
+      "version": "1.2.0",
     },
     "packages/emitsignal-docs": {
       "name": "@emitsignal/docs",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "devDependencies": {
         "mintlify": "^4.2.587",
       },
@@ -59,7 +59,7 @@
     },
     "packages/emitsignal-emails": {
       "name": "@emitsignal/emails",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dependencies": {
         "@emitsignal/shared": "workspace:*",
         "@react-email/render": "^2.0.8",
@@ -76,17 +76,17 @@
     },
     "packages/emitsignal-mobile": {
       "name": "@emitsignal/mobile",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dependencies": {
         "@bacons/apple-targets": "^4.0.7",
-        "@better-auth/expo": "^1.6.14",
+        "@better-auth/expo": "~1.6.14",
         "@emitsignal/shared": "workspace:*",
         "@expo/ui": "~56.0.25",
         "@expo/vector-icons": "^15.0.3",
         "@react-native-async-storage/async-storage": "^2.2.0",
         "@sentry/react-native": "~7.11.0",
         "@tanstack/react-query": "5.101.0",
-        "better-auth": "^1.6.14",
+        "better-auth": "~1.6.14",
         "expo": "~56.0.19",
         "expo-apple-authentication": "~56.0.4",
         "expo-constants": "~56.0.23",
@@ -130,12 +130,12 @@
     },
     "packages/emitsignal-server": {
       "name": "@emitsignal/server",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dependencies": {
-        "@better-auth/api-key": "^1.6.14",
-        "@better-auth/expo": "^1.6.14",
-        "@better-auth/passkey": "^1.6.14",
-        "@better-auth/stripe": "^1.6.18",
+        "@better-auth/api-key": "~1.6.14",
+        "@better-auth/expo": "~1.6.14",
+        "@better-auth/passkey": "~1.6.14",
+        "@better-auth/stripe": "~1.6.18",
         "@elysia/openapi": "^1.4.15",
         "@elysia/opentelemetry": "^1.4.12",
         "@emitsignal/emails": "workspace:*",
@@ -150,7 +150,7 @@
         "@prisma/client": "^7.8.0",
         "@sentry/bun": "^10.55.0",
         "@sinclair/typebox": "^0.34.49",
-        "better-auth": "^1.6.14",
+        "better-auth": "~1.6.14",
         "bullmq": "^5.28.0",
         "dotenv": "^17.4.2",
         "elysia": "^1.4.29",
@@ -176,15 +176,15 @@
     },
     "packages/emitsignal-shared": {
       "name": "@emitsignal/shared",
-      "version": "1.1.0",
+      "version": "1.2.0",
     },
     "packages/emitsignal-website": {
       "name": "@emitsignal/website",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "dependencies": {
-        "@better-auth/api-key": "^1.6.14",
-        "@better-auth/passkey": "^1.6.14",
-        "@better-auth/stripe": "^1.6.18",
+        "@better-auth/api-key": "~1.6.14",
+        "@better-auth/passkey": "~1.6.14",
+        "@better-auth/stripe": "~1.6.18",
         "@emitsignal/shared": "workspace:*",
         "@mdx-js/react": "^3.1.1",
         "@mdx-js/rollup": "^3.1.1",
@@ -200,7 +200,7 @@
         "@tanstack/react-router-ssr-query": "^1.167.1",
         "@tanstack/react-start": "^1.168.46",
         "@tanstack/router-plugin": "^1.132.0",
-        "better-auth": "^1.6.14",
+        "better-auth": "~1.6.14",
         "lucide-react": "^0.545.0",
         "nitro": "^3.0.260522-beta",
         "react": "19.2.3",
