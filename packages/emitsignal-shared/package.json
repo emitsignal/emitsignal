@@ -17,5 +17,5 @@
     "private": true,
     "type": "module",
     "types": "src/index.ts",
-    "version": "1.2.0"
+    "version": "1.2.1"
 }
