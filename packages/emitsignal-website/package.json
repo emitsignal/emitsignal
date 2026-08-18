@@ -1,8 +1,8 @@
 {
     "dependencies": {
-        "@better-auth/api-key": "^1.6.14",
-        "@better-auth/passkey": "^1.6.14",
-        "@better-auth/stripe": "^1.6.18",
+        "@better-auth/api-key": "~1.6.14",
+        "@better-auth/passkey": "~1.6.14",
+        "@better-auth/stripe": "~1.6.18",
         "@emitsignal/shared": "workspace:*",
         "@mdx-js/react": "^3.1.1",
         "@mdx-js/rollup": "^3.1.1",
@@ -18,7 +18,7 @@
         "@tanstack/react-router-ssr-query": "^1.167.1",
         "@tanstack/react-start": "^1.168.46",
         "@tanstack/router-plugin": "^1.132.0",
-        "better-auth": "^1.6.14",
+        "better-auth": "~1.6.14",
         "lucide-react": "^0.545.0",
         "nitro": "^3.0.260522-beta",
         "react": "19.2.3",
