@@ -8,6 +8,7 @@ import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot } from '@/components/base-theme';
 import { MessageMedia } from '@/components/message-media';
 import { ScreenHeader } from '@/components/screen-header';
+import { SkeletonMessageDetail } from '@/components/skeleton';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
@@ -26,7 +27,7 @@ export default function MessageDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { sections } = useDebugSections();
 
-    const { data: message } = useQuery({
+    const { data: message, isLoading } = useQuery({
         enabled: Boolean(id),
         queryFn: () => api.getMessage(id),
         queryKey: queryKeys.message(id),
@@ -56,8 +57,14 @@ export default function MessageDetailScreen() {
 
     if (!message) {
         return (
-            <SafeAreaView style={styles.root}>
-                <Text style={styles.loading}>loading…</Text>
+            <SafeAreaView edges={['top']} style={styles.root}>
+                <ScreenHeader altName="" title="message" />
+
+                {isLoading ? (
+                    <SkeletonMessageDetail />
+                ) : (
+                    <Text style={styles.loading}>message unavailable</Text>
+                )}
             </SafeAreaView>
         );
     }

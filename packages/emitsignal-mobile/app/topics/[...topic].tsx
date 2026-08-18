@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WChip } from '@/components/base-theme';
 import { ScreenHeader } from '@/components/screen-header';
+import { SkeletonMessageList } from '@/components/skeleton';
 import { TopicActionsMenu } from '@/components/topic-actions-menu';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useTopicMessages } from '@/hooks/use-emit-signal';
@@ -31,11 +32,15 @@ export default function TopicScreen() {
             />
 
             <FlatList
-                contentContainerStyle={messages.length === 0 ? { flex: 1 } : { paddingBottom: 40 }}
+                contentContainerStyle={
+                    messages.length === 0 && !loading ? { flex: 1 } : { paddingBottom: 40 }
+                }
                 data={messages}
                 keyExtractor={(message) => message.id}
                 ListEmptyComponent={
-                    loading ? null : (
+                    loading ? (
+                        <SkeletonMessageList />
+                    ) : (
                         <View style={styles.empty}>
                             <Text style={styles.emptyTitle}>No messages yet</Text>
                             <Text style={styles.emptyBody}>
