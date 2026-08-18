@@ -32,6 +32,9 @@ RUN bun install --frozen-lockfile
 COPY packages/emitsignal-shared/  ./packages/emitsignal-shared/
 COPY packages/emitsignal-website/ ./packages/emitsignal-website/
 
+# The website's prebuild hook generates the changelog page from this file.
+COPY CHANGELOG.md ./
+
 WORKDIR /app/packages/emitsignal-website
 
 # VITE_API_URL is read via import.meta.env.VITE_API_URL and baked into the
