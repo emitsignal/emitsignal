@@ -41,10 +41,14 @@ jobs:
             #
             # Guarded on the `prs` output rather than `prs_created` so this also runs
             # when release-please updates an existing release PR, not just on creation.
+            #
+            # Full history: the formatting is folded into release-please's own commit
+            # with `--amend`, which needs the real parent rather than a shallow graft.
             - name: Check out the release PR
               if: steps.release.outputs.prs != '' && steps.release.outputs.prs != '[]'
               uses: actions/checkout@v4
               with:
+                  fetch-depth: 0
                   ref: ${{ fromJSON(steps.release.outputs.prs)[0].headBranchName }}
 
             - name: Set up Bun
@@ -72,8 +76,12 @@ jobs:
                       exit 0
                   fi
 
-                  git commit -m "chore: Source Format"
-                  git push
+                  # Folded into release-please's own commit rather than added on top: the
+                  # repo rebase-merges, so a second commit would land on main as a separate
+                  # entry. Force-pushing this branch is safe — release-please rewrites it
+                  # from main on every run anyway.
+                  git commit --amend --no-edit
+                  git push --force-with-lease
 
     publish-cli:
         needs: release-please
