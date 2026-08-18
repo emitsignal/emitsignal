@@ -6,7 +6,6 @@
         "@better-auth/stripe": "^1.6.18",
         "@elysia/openapi": "^1.4.15",
         "@elysia/opentelemetry": "^1.4.12",
-        "@elysiajs/cors": "^1.4.1",
         "@emitsignal/emails": "workspace:*",
         "@emitsignal/shared": "workspace:*",
         "@logtail/pino": "^0.5.8",
