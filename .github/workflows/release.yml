@@ -34,20 +34,13 @@ jobs:
                   config-file: release-please-config.json
                   manifest-file: .release-please-manifest.json
 
-            # release-please serializes package.json with its own JSON writer, which
-            # expands short arrays that Prettier collapses. Left alone, merging the
-            # release PR lands unformatted files on main, and `format:check` then fails
-            # on main and on every branch cut from it until someone formats by hand.
-            #
-            # Guarded on the `prs` output rather than `prs_created` so this also runs
-            # when release-please updates an existing release PR, not just on creation.
-            #
-            # Full history: the formatting is folded into release-please's own commit
-            # with `--amend`, which needs the real parent rather than a shallow graft.
+            # release-please writes package.json with expanded arrays that Prettier
+            # collapses, so an unformatted release PR turns main red on merge.
             - name: Check out the release PR
               if: steps.release.outputs.prs != '' && steps.release.outputs.prs != '[]'
               uses: actions/checkout@v4
               with:
+                  # `--amend` below needs the real parent, not a shallow graft.
                   fetch-depth: 0
                   ref: ${{ fromJSON(steps.release.outputs.prs)[0].headBranchName }}
 
@@ -63,8 +56,7 @@ jobs:
                   bun install
                   bun format
 
-                  # bun install rewrites bun.lock off the bumped versions; that belongs to
-                  # release-please, not to a formatting commit.
+                  # Lockfile churn from the install is release-please's business.
                   git checkout -- bun.lock
 
                   git config user.name "github-actions[bot]"
@@ -76,10 +68,8 @@ jobs:
                       exit 0
                   fi
 
-                  # Folded into release-please's own commit rather than added on top: the
-                  # repo rebase-merges, so a second commit would land on main as a separate
-                  # entry. Force-pushing this branch is safe — release-please rewrites it
-                  # from main on every run anyway.
+                  # Amended, not added: the repo rebase-merges, so a second commit would
+                  # land on main separately. release-please rewrites this branch anyway.
                   git commit --amend --no-edit
                   git push --force-with-lease
 
