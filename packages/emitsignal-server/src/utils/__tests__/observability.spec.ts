@@ -34,15 +34,30 @@ describe('resolveServiceName', () => {
 
 describe('resolveLogIngestionTarget', () => {
     it('keeps logs on stdout when no provider is configured', () => {
-        expect(resolveLogIngestionTarget({ provider: 'stdout', token: 'token' })).toBeUndefined();
+        expect(
+            resolveLogIngestionTarget({ enabled: true, provider: 'stdout', token: 'token' }),
+        ).toBeUndefined();
     });
 
     it('keeps logs on stdout when the provider has no token', () => {
-        expect(resolveLogIngestionTarget({ provider: 'betterstack' })).toBeUndefined();
+        expect(
+            resolveLogIngestionTarget({ enabled: true, provider: 'betterstack' }),
+        ).toBeUndefined();
+    });
+
+    it('keeps logs on stdout when ingestion is not enabled', () => {
+        expect(
+            resolveLogIngestionTarget({ provider: 'betterstack', token: 'token' }),
+        ).toBeUndefined();
+        expect(
+            resolveLogIngestionTarget({ enabled: false, provider: 'betterstack', token: 'token' }),
+        ).toBeUndefined();
     });
 
     it('builds the Better Stack transport with its default host', () => {
-        expect(resolveLogIngestionTarget({ provider: 'betterstack', token: 'token' })).toEqual({
+        expect(
+            resolveLogIngestionTarget({ enabled: true, provider: 'betterstack', token: 'token' }),
+        ).toEqual({
             options: {
                 options: { endpoint: 'https://in.logs.betterstack.com' },
                 sourceToken: 'token',
@@ -54,6 +69,7 @@ describe('resolveLogIngestionTarget', () => {
     it('prefers an explicitly configured ingesting host', () => {
         expect(
             resolveLogIngestionTarget({
+                enabled: true,
                 host: 'https://s123.eu-nbg-2.betterstackdata.com',
                 provider: 'betterstack',
                 token: 'token',
