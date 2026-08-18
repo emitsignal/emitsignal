@@ -34,14 +34,8 @@
         "lint:fix": "eslint . --fix",
         "test": "bun --filter '*' test"
     },
-    "trustedDependencies": [
-        "@sentry/cli",
-        "protobufjs",
-        "unrs-resolver"
-    ],
+    "trustedDependencies": ["@sentry/cli", "protobufjs", "unrs-resolver"],
     "type": "module",
     "version": "1.1.1",
-    "workspaces": [
-        "packages/*"
-    ]
+    "workspaces": ["packages/*"]
 }
