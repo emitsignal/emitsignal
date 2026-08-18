@@ -44,9 +44,7 @@ export const environmentSchema = Type.Object({
     GITHUB_CLIENT_ID: Type.Optional(Type.String()),
     GITHUB_CLIENT_SECRET: Type.Optional(Type.String()),
 
-    // Remote log ingestion. `stdout` keeps logs local; any other provider also
-    // needs LOG_INGESTION_TOKEN, and LOG_INGESTION_HOST when the account's
-    // ingesting host differs from the provider default.
+    LOG_INGESTION_ENABLED: Type.Boolean({ default: false }),
     LOG_INGESTION_HOST: Type.Optional(Type.String()),
     LOG_INGESTION_PROVIDER: Type.Union([Type.Literal('stdout'), Type.Literal('betterstack')], {
         default: 'stdout',
