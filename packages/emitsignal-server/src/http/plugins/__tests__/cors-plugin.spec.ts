@@ -58,6 +58,15 @@ describe('corsPlugin', () => {
             expect(res.headers.get('access-control-allow-origin')).toBe('*');
         });
 
+        it('allows the header-based publish fields for the app origin too', async () => {
+            const res = await app.handle(request('OPTIONS', '/publish/alerts', APP_ORIGIN));
+
+            const allowedHeaders = res.headers.get('access-control-allow-headers') ?? '';
+
+            expect(allowedHeaders).toContain('X-Title');
+            expect(allowedHeaders).toContain('X-Priority');
+        });
+
         it('keeps the credentialed policy for the app origin', async () => {
             const res = await app.handle(request('POST', '/publish/alerts', APP_ORIGIN));
 
