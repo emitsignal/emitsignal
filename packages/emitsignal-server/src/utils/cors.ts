@@ -2,7 +2,7 @@ export const ALLOWED_METHODS = 'DELETE, GET, POST, PUT, OPTIONS, PATCH';
 
 export const APP_ALLOWED_HEADERS = 'Content-Type, Authorization';
 
-export const PUBLIC_PUBLISH_ALLOWED_HEADERS = [
+export const PUBLISH_ALLOWED_HEADERS = [
     'Actions',
     'At',
     'Authorization',
