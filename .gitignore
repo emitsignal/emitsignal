@@ -1,4 +1,8 @@
+.agents/skills/expedito
+.agents/skills/tanstack-start
+.agents/skills/vercel-*
 .cache
+.docs
 .DS_Store
 .env
 .env.development.local
@@ -6,24 +10,12 @@
 .env.production.local
 .env.test.local
 .eslintcache
+.expedito
+.vercel
+artifacts/
 *.tgz
 *.tsbuildinfo
 dist
 dist-bin
 node_modules
 out
-
-.expedito
-.agents/skills/expedito
-
-# Disabling for now
-
-.agents/skills/tanstack-start
-.agents/skills/vercel-*
-
-.docs
-
-
-
-scripts/*
-.vercel
