@@ -38,6 +38,8 @@ services:
         image: postgres:16-alpine
         logging: *default-logging
         mem_limit: 1g
+        ports:
+            - '127.0.0.1:5432:5432'
         restart: unless-stopped
         volumes:
             - postgres_data:/var/lib/postgresql/data
@@ -64,6 +66,8 @@ services:
         image: redis:7-alpine
         logging: *default-logging
         mem_limit: 640m
+        ports:
+            - '127.0.0.1:6379:6379'
         restart: unless-stopped
         volumes:
             - redis_data:/data
