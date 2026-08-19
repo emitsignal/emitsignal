@@ -25,8 +25,6 @@
     },
     "private": true,
     "scripts": {
-        "db:backup": "bun infra/db-backup.ts",
-        "db:restore": "bun infra/db-restore.ts",
         "dev": "bun --filter '*' dev",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
