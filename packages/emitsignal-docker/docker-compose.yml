@@ -166,12 +166,20 @@ services:
             - 'traefik.http.routers.emitsignal-server.rule=Host(`${API_DOMAIN}`)'
             - 'traefik.http.routers.emitsignal-server.entrypoints=websecure'
             - 'traefik.http.routers.emitsignal-server.tls.certresolver=letsencrypt'
+            # Proxied: POST https://${APP_DOMAIN}/publish/<topic>
+            - 'traefik.http.routers.emitsignal-publish.rule=Host(`${APP_DOMAIN}`) && PathPrefix(`/publish`)'
+            - 'traefik.http.routers.emitsignal-publish.entrypoints=websecure'
+            - 'traefik.http.routers.emitsignal-publish.tls.certresolver=letsencrypt'
+            - 'traefik.http.routers.emitsignal-publish.priority=1000'
+            - 'traefik.http.routers.emitsignal-publish.service=emitsignal-server'
             - 'traefik.http.services.emitsignal-server.loadbalancer.server.port=5100'
         logging: *default-logging
         mem_limit: 1g
         networks:
             - dokploy-network
             - default
+        ports:
+            - '127.0.0.1:5100:5100'
         restart: unless-stopped
         volumes:
             - server_uploads:/app/packages/emitsignal-server/uploads
