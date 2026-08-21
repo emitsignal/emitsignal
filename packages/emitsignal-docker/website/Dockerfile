@@ -42,6 +42,10 @@ WORKDIR /app/packages/emitsignal-website
 ARG VITE_API_URL=http://localhost:3333
 ENV VITE_API_URL=${VITE_API_URL}
 
+# Host shown in the curl snippets only; empty falls back to VITE_API_URL at runtime.
+ARG VITE_PUBLISH_BASE_URL=
+ENV VITE_PUBLISH_BASE_URL=${VITE_PUBLISH_BASE_URL}
+
 # VITE_SENTRY_DSN/VITE_SENTRY_ENABLED are read via import.meta.env and baked
 # into the client bundle at build time, so they must be build args (unlike the
 # server-side SENTRY_DSN/SENTRY_ENABLED, which are read from process.env at
