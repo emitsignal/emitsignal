@@ -1,6 +1,8 @@
+import { publishUrl } from '@emitsignal/shared/topic';
 import { AlertTriangle, Check, Key, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { PUBLISH_BASE_URL } from '#/lib/api';
 import { authClient } from '#/lib/auth-client';
 
 const EXPIRY_OPTIONS = [
@@ -90,7 +92,7 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
     };
 
     const curlExample = reveal
-        ? `curl emitsignal.sh/publish \\\n  -H "Authorization: Bearer ${reveal.secret}" \\\n  -d topic=my-topic -d "msg=hello"`
+        ? `curl -X POST ${publishUrl(PUBLISH_BASE_URL, 'my-topic')} \\\n  -H "Authorization: Bearer ${reveal.secret}" \\\n  -H "title: Hello" \\\n  -d "hello from my new key"`
         : '';
 
     if (!open) {
