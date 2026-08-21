@@ -1,179 +1,180 @@
 # Agent Instructions
 
-This is a React Native monorepo with a mobile app built with Expo.
+This file is the single source of truth for agent instructions in this repository.
 
-## Project Structure
+## What This Is
 
-```
-/                          # Root
-├── index.ts               # Root Bun entry point
-├── package.json           # Root package (Bun-based)
-├── tsconfig.json          # Root TypeScript config
-└── apps/mobile/           # Mobile app (Expo/React Native)
-    ├── app/               # Expo Router file-based routing
-    │   ├── _layout.tsx    # Root layout
-    │   ├── (tabs)/        # Tab group
-    │   │   ├── _layout.tsx
-    │   │   ├── index.tsx  # Home screen
-    │   │   └── explore.tsx
-    │   └── modal.tsx
-    ├── components/        # Reusable components
-    │   ├── themed-*.tsx   # Theme-aware components
-    │   └── ui/            # UI primitive components
-    ├── hooks/             # Custom React hooks
-    ├── constants/         # Constants (theme, colors)
-    └── package.json       # Mobile app dependencies
-```
+EmitSignal is a real-time notification platform. Publishers POST messages to named topics; subscribers receive them live via SSE. Emails and push notifications are dispatched asynchronously via BullMQ workers.
 
-## Build/Lint/Test Commands
+## Commands
 
-**Root package (Bun):**
-
-- `bun index.ts` - Run root script
-- `bun test` - Run tests with Bun test runner
-- `bun test <file>` - Run single test file
-- `bun build <file>` - Build with Bun bundler
-
-**Mobile app (Expo):**
+**Always use `bun`, never `npm`, `yarn`, `pnpm`, or `node`.** Use `bunx` instead of `npx`. Bun auto-loads `.env` — do not add `dotenv`. Prefer Bun APIs (`Bun.serve()`, `bun:sqlite`, `Bun.file`, `Bun.$`) over third-party equivalents.
 
 ```bash
-cd apps/mobile
+# Root (workspace-wide)
+bun install            # install all dependencies
+bun format             # format with Prettier (run before every commit)
+bun format:check       # check formatting without writing
+bun lint               # ESLint across all packages
+bun lint:fix           # ESLint with auto-fix
+bun test               # run all package tests
 
-# Development
-bunx expo start          # Start Expo dev server
-bunx expo start --ios    # Start iOS simulator
-bunx expo start --android # Start Android emulator
-bunx expo start --web    # Start web
+# Start everything via Docker (recommended for dev)
+docker compose -f packages/emitsignal-docker/docker-compose.dev.yml up
 
-# Linting
-bunx expo lint           # Run ESLint
+# Server (packages/emitsignal-server)
+bun run dev            # API server with --watch
+bun run dev:worker     # all BullMQ workers with --watch
+bun run db:migrate     # Prisma migrate dev
+bun run db:seed        # seed the database
+bun run db:studio      # open Prisma Studio
+bun run db:generate    # regenerate Prisma client
+bun test               # run server tests (Bun test runner)
+bun test src/path/to/file.test.ts  # run a single test file
 
-# Reset
-bun run reset-project    # Reset project to starter state
+# Website (packages/emitsignal-website)
+bun run dev            # Vite dev server on :5000
+bun test               # Vitest
+
+# Mobile (packages/emitsignal-mobile)
+bun run start          # Expo dev server
+bun run ios            # iOS simulator
+bun run android        # Android emulator
+bunx expo lint         # lint mobile package
 ```
 
-**Important:** Always use `bun` instead of `npm`, `yarn`, `pnpm`, or `node`.
+## Architecture
 
-## Code Style Guidelines
+```
+Website (TanStack Start) ─┐
+Mobile (Expo/RN)          ├── SSE/HTTP ──► Server (Elysia) ──► PostgreSQL
+CLI                       ┘                    │                  Redis
+                                               │ BullMQ queues
+                                       Email / Push / Schedule workers
+```
 
-### Imports & Module System
+### Server (`packages/emitsignal-server`)
 
-- Use ES modules (`import`/`export`)
-- Use path alias `@/` for internal imports (e.g., `@/components/themed-text`)
-- Group imports: external libraries first, then internal aliases, then relative
-- Use `type` keyword for type-only imports: `import type { Foo } from 'bar'`
+- **Framework:** Elysia on Bun; routes are Elysia plugins in `src/http/`
+- **Source layering:** `src/lib/` is infrastructure only — singletons, side effects, and external connectors (Prisma, logger, auth, event bus, cache, queues, storage, rate limiting). `src/utils/` holds pure, stateless helpers with no Prisma/Redis/singleton dependency. `src/services/` holds application rules that may touch the database (topic, message, topic access, billing, push, transactional emails). Put new code in the narrowest of the three that fits; if a helper needs Prisma, it is a service, not a util.
+- **Path alias:** `#/*` → `./src/*`. Use it for every cross-folder import; keep `./sibling` relative only within the same directory.
+- **Tests:** `<module>.spec.ts` inside a `__tests__/` folder in the **same directory as the module under test** — e.g. `services/billing/get-user-plan.ts` → `services/billing/__tests__/get-user-plan.spec.ts`. Never collect specs into a catch-all `__tests__/` at the root of a subtree; that is how specs drift away from the modules they cover.
+- **Database:** PostgreSQL via Prisma; schema at `prisma/schema.prisma`; generated client at `src/generated/prisma/`
+- **Queues:** BullMQ backed by Redis (`src/lib/queue/`); three queues — `email`, `push`, `schedule`; workers run in `src/workers/`
+- **SSE fanout:** `src/lib/event-bus.ts` — an in-process `EventEmitter` that powers the listen endpoints. Single-node only; replace with Redis pub/sub for multi-node. Transport plumbing (headers, frame encoding, heartbeat/cleanup) lives in `src/lib/sse.ts`; `GET /topics/:name/listen` and `GET /listen` are thin wrappers over one shared handler in `src/http/topic/sse-listen.ts`.
+- **Auth:** Better Auth (`src/lib/auth.ts`) — magic link, passkey, API keys, optional GitHub OAuth. Auth is resolved per-request in `src/http/auth/plugin.ts`; supports cookie-based sessions (web) and `Bearer <session-token>` (mobile/CLI).
+- **Rate limiting:** `rate-limiter-flexible` via Redis (`src/lib/rate-limit/`); applied globally via `src/http/plugins/rate-limit-plugin.ts`. Fails open if Redis is unavailable.
+- **File storage:** provider-switched via `FILE_STORAGE_PROVIDER` env — `local` (default) or `s3` (`src/lib/storage/`)
+- **Email provider:** switched via `EMAIL_PROVIDER` env — `log` (default/dev), `smtp`, or `resend`
+- **Log ingestion:** switched via `LOG_INGESTION_PROVIDER` env — `stdout` (default) or `betterstack`; when a provider is set, `src/lib/logger.ts` adds a second Pino transport target alongside stdout/pretty. Falls back to stdout-only when `LOG_INGESTION_TOKEN` is missing.
+- **Environment:** validated at startup by TypeBox schema in `src/schema/environment.ts`; all config accessed via the `environment` export
 
-### TypeScript
+### Publish API
 
-- Strict mode enabled
-- Target: ESNext
-- JSX: `react-jsx` (no need to import React)
-- Use explicit return types on exported functions
-- Prefer `interface` over `type` for object shapes
-- Use `keyof typeof` for accessing object keys safely
+`POST /publish/<topic>` accepts either JSON body or a header-based format (parsed in `src/http/topic/header-publish.ts`). Non-JSON requests use headers like `title`, `x-priority` (`1`–`5` or `low`/`high`/`urgent`), `x-tags`, `x-delay` (unix timestamp or relative like `5m`, `2h`). Publish immediately fires the in-process bus and enqueues a push job; scheduled messages skip the bus and go straight to the schedule queue.
 
-### Key Development Principles
+### Website (`packages/emitsignal-website`)
 
-- Functional components only (no class components)
-- Types over interfaces (except when extending third-party interfaces)
-- No 'any' type allowed — strict TypeScript enforced
+- **Framework:** TanStack Start (file-based routing in `src/routes/`)
+- **Styling:** Tailwind CSS v4
+- **Auth client:** `src/lib/auth-client.ts` — Better Auth React client pointed at `VITE_API_URL`
+- **Path alias:** `#/*` → `./src/*`
+- **Tests:** Vitest + Testing Library
+
+### Mobile (`packages/emitsignal-mobile`)
+
+- **Framework:** Expo SDK 56 / React Native 0.85.3 / Expo Router 56
+- **Path alias:** `@/` → project root
+- **Auth:** `@better-auth/expo` with Bearer session tokens
+- **Context providers** (in `app/_layout.tsx`): `ThemeProvider` → `DebugSectionsProvider` → `SessionProvider` → `DeviceProvider`
+- **Styling:** `StyleSheet.create()` for component styles; theme-aware colors via `useThemeColor()`, light/dark via `useColorScheme()`, palette in `constants/theme.ts`
+- **Expo Router conventions:** files in `app/` become routes automatically; `(group)` for route groups without a URL segment; `[param]` for dynamic routes; `_layout.tsx` defines the layout for a directory; `+not-found.tsx` for 404s
+- Use React Native components from `react-native`, never web elements
+
+### Shared (`packages/emitsignal-shared`)
+
+Common TypeScript types (`Message`, `Topic`, `Subscription`, `Webhook`, etc.) and API helpers used by website and mobile.
+
+## Code Style
+
+- Functional components only; no class components
+- No `any` — TypeScript strict mode enforced everywhere
+- No abbreviations in identifiers (`subscription`, not `s`; `priority`, not `prio`)
+- No inline `if` expressions
+- `interface` for object shapes, `type` for unions/aliases
+- Generics: descriptive names (`TResponse`, not `T`)
+- File names: kebab-case; component names: PascalCase
 - Composition over inheritance
-- No abbreviations in variable names (subscription not s, priority not prio)
-- No inline IFs
+- Explicit return types on exported functions
+- Early returns over nested conditionals; optional chaining (`?.`) and nullish coalescing (`??`)
 
-### Naming Conventions
+### Imports
 
-- Components: PascalCase (e.g., `ThemedText`, `HomeScreen`)
-- Hooks: camelCase starting with `use` (e.g., `useThemeColor`)
-- Files: kebab-case (e.g., `use-theme-color.ts`, `themed-text.tsx`)
-- Types/Interfaces: PascalCase with descriptive names
-- Constants: UPPER_SNAKE_CASE for true constants
-- TypeScript generics: descriptive names (TSomething not T)
+- ES modules only (`import`/`export`)
+- Use the package's path alias for cross-folder imports; keep relative paths within a directory
+- Group imports: external libraries, then aliased internal modules, then relative
+- Type-only imports use the `type` keyword: `import type { Message } from '...'`
 
-### React Components
+### Naming
 
-- Use function components with default exports for screens
-- Destructure props in component parameters
-- Spread rest props appropriately: `{...rest}`
-- Use React Native components from `react-native` (not web elements)
-
-### Styling
-
-- Use `StyleSheet.create()` for component styles
-- Use theme-aware colors via `useThemeColor()` hook
-- Support light/dark mode via `useColorScheme()`
-- Define colors in `constants/theme.ts`
-
-### Error Handling
-
-- Use TypeScript strict mode to catch errors at compile time
-- Prefer early returns over nested conditionals
-- Use optional chaining (`?.`) and nullish coalescing (`??`)
+- Components: PascalCase (`ThemedText`, `HomeScreen`)
+- Hooks: camelCase starting with `use` (`useThemeColor`)
+- Files: kebab-case (`use-theme-color.ts`, `themed-text.tsx`)
+- Types/interfaces: PascalCase, descriptive
+- True constants: UPPER_SNAKE_CASE
 
 ### File Organization
 
 - Co-locate related files (component + styles + types)
 - Use platform-specific extensions when needed (`.ios.tsx`, `.web.ts`)
-- Keep components in `components/`, hooks in `hooks/`, screens in `app/`
 
-### Testing
+### Comments
 
-- Use Bun's built-in test runner
-- Import from `bun:test`: `import { test, expect } from "bun:test"`
-- Run single test: `bun test path/to/file.test.ts`
+Comment sparingly. A comment earns its place only when the code alone would let
+someone break something important — otherwise leave it out and let the code speak.
 
-## Cursor Rules
+Write one when, and only when:
 
-See `.cursor/rules/use-bun-instead-of-node-vite-npm-pnpm.mdc`:
+- Removing it would let a reader silently break correctness or security (e.g. why
+  webhook signatures verify against the raw body, not the re-serialized JSON).
+- Ordering or placement is load-bearing and not obvious from reading top to bottom.
+- The code looks wrong or redundant but is deliberate (a loop that intentionally
+  does not short-circuit, an early return that is safe despite appearances).
+- An external contract is being matched (a provider's wire format, a spec).
 
-- Always use Bun over Node.js/npm/pnpm
-- Use `bun test` instead of Jest/Vitest
-- Use `bun build` instead of webpack/esbuild
-- Use `bunx` instead of `npx`
-- Bun auto-loads `.env` - don't use dotenv
-- Prefer Bun APIs: `Bun.serve()`, `bun:sqlite`, `Bun.file`, `Bun.$`
+Do **not** write one to:
 
-## Technology Stack
+- Restate what the next line does (`// Only whether a secret exists` above
+  `hasSecret: !!secretCiphertext`).
+- Label a section, a constant, or an obviously-named function.
+- Explain where code was placed or which folder it belongs to.
+- Narrate a change, decision history, or what the code used to do.
 
-- **Runtime:** Bun
-- **Mobile Framework:** Expo (SDK ~54.0.33)
-- **Routing:** Expo Router v6 (file-based)
-- **UI:** React Native 0.81.5, React 19.1.0
-- **Styling:** React Native StyleSheet
-- **Linting:** ESLint with expo-config
-- **TypeScript:** 5.9.2 (strict mode)
-- **Testing:** Bun test runner
-
-## Expo Router Conventions
-
-- Files in `app/` become routes automatically
-- Use `(group)` for route groups without URL segment
-- Use `[param]` for dynamic routes
-- `_layout.tsx` defines layout for directory
-- `+not-found.tsx` for 404 pages
+Prefer one tight line over three. If a comment needs a paragraph, the code
+probably needs a better name or a smaller function instead.
 
 ## Commit Rules
 
-Use [Conventional Commits](https://www.conventionalcommits.org/) format: `<prefix>: <description>`.
+Use [Conventional Commits](https://www.conventionalcommits.org/): `<prefix>: <description>`.
 
-Avoid using `body` and `footer` in commits; prefer self-descriptive titles.
+- Run `bun format` before committing; if Prettier modifies files, stage them and add a final `chore: Source Format` commit as the last commit in the sequence.
+- Do **not** add `Co-authored-by:` trailers.
+- Do **not** add AI attribution footers anywhere — no "🤖 Generated with Claude Code" (or similar) in commit messages, PR descriptions, or issue comments.
+- Avoid commit bodies/footers unless the change has a breaking or high-impact side effect.
+- Split commits by logical area; keep each commit focused on one concern.
 
-Only add a `body` to a commit if the change made could have an impact, especially in refactorings that cause breaking changes.
-
-### Prefixes
-
-| Prefix     | Use when                                                  |
-| ---------- | --------------------------------------------------------- |
-| `feat`     | New feature or user-facing functionality                  |
-| `fix`      | Bug fix                                                   |
-| `refactor` | Code change that neither fixes a bug nor adds a feature   |
-| `style`    | Formatting, whitespace, semicolons (no code logic change) |
-| `docs`     | Documentation only                                        |
-| `test`     | Adding or updating tests                                  |
-| `chore`    | Maintenance, dependencies, tooling, source formatting     |
-| `perf`     | Performance improvement                                   |
-| `ci`       | CI/CD pipeline changes                                    |
-| `build`    | Build system or external dependency changes               |
+| Prefix     | Use when                           |
+| ---------- | ---------------------------------- |
+| `feat`     | New feature                        |
+| `fix`      | Bug fix                            |
+| `refactor` | No bug fix, no new feature         |
+| `style`    | Formatting/whitespace only         |
+| `docs`     | Documentation only                 |
+| `test`     | Adding/updating tests              |
+| `chore`    | Maintenance, deps, tooling         |
+| `perf`     | Performance improvement            |
+| `ci`       | CI/CD changes                      |
+| `build`    | Build system or dependency changes |
 
 ### Commit Splitting
 

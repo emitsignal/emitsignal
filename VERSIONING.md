@@ -29,7 +29,7 @@ release** — the point from which the rules below apply.
 
 ### Conventional Commits → version bump
 
-The repo uses [Conventional Commits](https://www.conventionalcommits.org/) (see `CLAUDE.md`).
+The repo uses [Conventional Commits](https://www.conventionalcommits.org/) (see `AGENTS.md`).
 They map to bumps as follows:
 
 - `feat` → **minor**
