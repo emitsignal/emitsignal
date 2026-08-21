@@ -13,6 +13,12 @@ authenticated publish applies your plan's daily message quota and attributes the
 sender.
 
 <Note>
+    Publishing answers on two hosts: `https://emitsignal.com/publish/<topic>` (shorter, used in the
+    examples here) and `https://api.emitsignal.com/publish/<topic>`. They hit the same endpoint with the
+    same limits. Only publishing is aliased — every other endpoint requires the API host.
+</Note>
+
+<Note>
     `POST /topic/<topic>` is the former path for this endpoint. It still works and behaves
     identically, but it is deprecated: responses carry a `Deprecation` header and a `Link` header
     pointing at `/publish/`. Move publishers to `/publish/` when convenient.
@@ -61,7 +67,7 @@ Send `Content-Type: application/json` with any of these fields. At least one of
 </ParamField>
 
 ```bash
-curl https://api.emitsignal.com/publish/deploy/prod \
+curl https://emitsignal.com/publish/deploy/prod \
   -H "Authorization: Bearer es_xxx" \
   -H "Content-Type: application/json" \
   -d '{
@@ -78,7 +84,7 @@ If the request `Content-Type` is **not** `application/json`, the raw body become
 message and metadata is read from headers. This is what `curl -d` uses by default.
 
 ```bash
-curl https://api.emitsignal.com/publish/alerts/prod \
+curl https://emitsignal.com/publish/alerts/prod \
   -H "Authorization: Bearer es_xxx" \
   -H "title: High memory on api-02" \
   -H "x-priority: urgent" \

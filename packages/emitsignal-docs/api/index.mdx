@@ -27,6 +27,10 @@ and every language works.
 https://api.emitsignal.com
 ```
 
+Publishing also accepts the shorter `https://emitsignal.com/publish/<topic>`, which is what the
+examples below use. That alias covers `POST /publish/*` only — listening, webhooks, auth and every
+other endpoint require the API host above.
+
 Self-hosting? Point the CLI at your own instance with `emitsignal config set-url`, or
 set `ES_BASE_URL`. Auth routes live under `/api/auth/*`; everything else is at the
 root.
@@ -37,11 +41,11 @@ root.
 
 ```bash No auth — public publish
 # Publish to any topic. The topic is created on first publish.
-curl -d "hello from curl" https://api.emitsignal.com/publish/welcome
+curl -d "hello from curl" https://emitsignal.com/publish/welcome
 ```
 
 ```bash Authenticated publish
-curl https://api.emitsignal.com/publish/deploy/prod \
+curl https://emitsignal.com/publish/deploy/prod \
   -H "Authorization: Bearer es_xxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{"title": "v2.14.3 shipped", "body": "api-gateway deployed", "priority": 4}'

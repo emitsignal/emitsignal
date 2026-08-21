@@ -29,7 +29,7 @@ No SDK required to send — if it can make an HTTP request, it can emit a signal
 **Publish a message** — header-based, no body parsing required:
 
 ```bash
-curl -X POST https://api.emitsignal.com/publish/alerts \
+curl -X POST https://emitsignal.com/publish/alerts \
   -H "X-Title: Deploy finished" \
   -H "X-Priority: high" \
   -H "X-Tags: ci,prod" \
@@ -39,7 +39,7 @@ curl -X POST https://api.emitsignal.com/publish/alerts \
 **Or send JSON, authenticated with an API key:**
 
 ```bash
-curl -X POST https://api.emitsignal.com/publish/alerts \
+curl -X POST https://emitsignal.com/publish/alerts \
   -H "Authorization: Bearer es_your_api_key" \
   -H "Content-Type: application/json" \
   -d '{ "title": "Latency alert", "body": "p99 over 800ms", "priority": 5, "tags": ["prod"] }'
@@ -58,7 +58,7 @@ curl -N "https://api.emitsignal.com/listen?topics=alerts,ci,deploys&since=$(($(d
 **Schedule for later** — relative durations (`30m`, `2h`, `1d`) or a unix timestamp:
 
 ```bash
-curl -X POST https://api.emitsignal.com/publish/reminders \
+curl -X POST https://emitsignal.com/publish/reminders \
   -H "X-Title: Stand-up in 30 minutes" \
   -H "X-Delay: 30m" \
   -d "Don't forget the daily"
