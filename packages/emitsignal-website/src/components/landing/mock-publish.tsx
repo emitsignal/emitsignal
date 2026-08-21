@@ -3,9 +3,9 @@ import { Bell } from 'lucide-react';
 
 import { CopyButton } from '#/components/ui/copy-button';
 import { Dot } from '#/components/ui/dot';
-import { PUBLISH_BASE_URL_CLEAN } from '#/lib/api';
+import { PUBLISH_BASE_URL } from '#/lib/api';
 
-const ENDPOINT = publishUrl(PUBLISH_BASE_URL_CLEAN, 'alerts/prod');
+const ENDPOINT = publishUrl(PUBLISH_BASE_URL, 'alerts/prod');
 const COMMAND = `curl -d "Production API latency spike" -H "x-priority: 5" ${ENDPOINT}`;
 
 export function MockPublish() {
