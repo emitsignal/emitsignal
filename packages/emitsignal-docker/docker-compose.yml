@@ -245,6 +245,7 @@ services:
             dockerfile: packages/emitsignal-docker/website/Dockerfile
             args:
                 VITE_API_URL: '${API_URL:-http://localhost:5100}'
+                VITE_PUBLISH_BASE_URL: '${PUBLISH_BASE_URL:-}'
                 VITE_SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
                 VITE_SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
         environment:
