@@ -1,4 +1,4 @@
-import { publishUrl } from '@emitsignal/shared/topic';
+import { buildCurlExample } from '@emitsignal/shared/publish-example';
 
 import { Code } from '#/components/ui/code';
 import { Dot } from '#/components/ui/dot';
@@ -16,11 +16,12 @@ interface Props {
 
 export function PreviewColumn({ body, priority, tags, title, topicName }: Props) {
     const curlCmd = topicName
-        ? `curl -X POST ${publishUrl(PUBLISH_BASE_URL, topicName)} \\
-  -H "Authorization: Bearer es_••••" \\
-  -H "Priority: ${priority}" \\
-  -H "Content-Type: application/json" \\
-  -d '${JSON.stringify({ body: body || '...', priority, tags, title: title || '...' })}'`
+        ? buildCurlExample({
+              apiKey: 'es_••••',
+              baseUrl: PUBLISH_BASE_URL,
+              message: { body: body || '...', priority, tags, title: title || '...' },
+              topicName,
+          })
         : 'fill in topic to see curl example';
 
     return (

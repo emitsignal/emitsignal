@@ -1,4 +1,4 @@
-import { publishUrl } from '@emitsignal/shared/topic';
+import { buildCurlExample } from '@emitsignal/shared/publish-example';
 import { AlertTriangle, Check, Key, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -92,7 +92,13 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
     };
 
     const curlExample = reveal
-        ? `curl -X POST ${publishUrl(PUBLISH_BASE_URL, 'my-topic')} \\\n  -H "Authorization: Bearer ${reveal.secret}" \\\n  -H "title: Hello" \\\n  -d "hello from my new key"`
+        ? buildCurlExample({
+              apiKey: reveal.secret,
+              baseUrl: PUBLISH_BASE_URL,
+              message: { body: 'hello from my new key', title: 'Hello' },
+              style: 'headers',
+              topicName: 'my-topic',
+          })
         : '';
 
     if (!open) {

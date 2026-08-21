@@ -1,4 +1,4 @@
-import { publishUrl } from '@emitsignal/shared/topic';
+import { buildCurlExample } from '@emitsignal/shared/publish-example';
 import { safeExternalUrl } from '@emitsignal/shared/url';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
@@ -66,15 +66,17 @@ export function InboxPreview({ message }: { message: Message | null }) {
         2,
     );
 
-    const curlCommand = `curl -X POST ${publishUrl(PUBLISH_BASE_URL, channel)} \\
-  -H "Content-Type: application/json" \\
-  -d '${JSON.stringify({
-      actions: message.actions.length ? message.actions : undefined,
-      body: message.body,
-      priority: message.priority,
-      tags: message.tags,
-      title: message.title,
-  })}'`;
+    const curlCommand = buildCurlExample({
+        baseUrl: PUBLISH_BASE_URL,
+        message: {
+            actions: message.actions,
+            body: message.body,
+            priority: message.priority,
+            tags: message.tags,
+            title: message.title,
+        },
+        topicName: channel,
+    });
 
     return (
         <div className="min-w-0 flex-1 overflow-auto p-7">
