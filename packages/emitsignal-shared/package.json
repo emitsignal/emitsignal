@@ -6,6 +6,7 @@
         "./format": "./src/format.ts",
         "./message-filters": "./src/message-filters.ts",
         "./priority": "./src/priority.ts",
+        "./publish-example": "./src/publish-example.ts",
         "./topic": "./src/topic.ts",
         "./url": "./src/url.ts",
         "./webhook-template": "./src/webhook-template.ts",
