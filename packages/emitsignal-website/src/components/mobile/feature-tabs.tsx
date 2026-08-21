@@ -2,7 +2,7 @@ import { publishUrl } from '@emitsignal/shared/topic';
 import { Bell, Inbox, Radio, Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { PUBLISH_BASE_URL_CLEAN } from '#/lib/api';
+import { PUBLISH_BASE_URL } from '#/lib/api';
 import { cn } from '#/lib/cn';
 
 /** How long a tab holds before the strip advances on its own. */
@@ -200,7 +200,7 @@ function QuickstartCard() {
                     <span className="text-dim"> \</span>
                     {'\n  '}
                     <span className="text-accent">
-                        {publishUrl(PUBLISH_BASE_URL_CLEAN, 'deploy/prod')}
+                        {publishUrl(PUBLISH_BASE_URL, 'deploy/prod')}
                     </span>
                 </code>
             </div>
