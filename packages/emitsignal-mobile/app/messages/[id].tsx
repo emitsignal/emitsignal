@@ -1,4 +1,4 @@
-import { publishUrl } from '@emitsignal/shared/topic';
+import { buildCurlExample } from '@emitsignal/shared/publish-example';
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -74,6 +74,18 @@ export default function MessageDetailScreen() {
 
     const priorityLabel =
         priority >= 5 ? 'max' : priority === 4 ? 'high' : priority === 3 ? 'default' : 'low';
+
+    const curlCommand = buildCurlExample({
+        baseUrl: PUBLISH_BASE_URL,
+        message: {
+            actions: message.actions,
+            body: message.body,
+            priority: message.priority,
+            tags: message.tags,
+            title: message.title,
+        },
+        topicName: message.topicName ?? message.topicId,
+    });
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
@@ -211,17 +223,7 @@ export default function MessageDetailScreen() {
                     <>
                         <SectionHead>reproduce · curl</SectionHead>
                         <View style={styles.codeWrap}>
-                            <WCode language="BASH">
-                                {`curl -X POST ${publishUrl(PUBLISH_BASE_URL, message.topicName ?? message.topicId)} \\
-  -H "Content-Type: application/json" \\
-  -d '${JSON.stringify({
-      actions: message.actions.length ? message.actions : undefined,
-      body: message.body,
-      priority: message.priority,
-      tags: message.tags,
-      title: message.title,
-  })}'`}
-                            </WCode>
+                            <WCode language="BASH">{curlCommand}</WCode>
                         </View>
                     </>
                 ) : null}

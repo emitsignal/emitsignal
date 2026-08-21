@@ -1,4 +1,5 @@
-import { publishUrl, TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
+import { buildCliExample, buildCurlExample } from '@emitsignal/shared/publish-example';
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -56,6 +57,17 @@ export default function SubscribeModal() {
             setBusy(false);
         }
     };
+
+    const publishSnippet = `# from your shell
+${buildCurlExample({
+    baseUrl: PUBLISH_BASE_URL,
+    message: { body: 'hello' },
+    style: 'headers',
+    topicName: topic,
+})}
+
+# from EmitSignal cli
+${buildCliExample({ message: { body: 'deploy ok' }, topicName: topic })}`;
 
     return (
         <>
@@ -150,13 +162,7 @@ export default function SubscribeModal() {
                         {topic && (
                             <View style={styles.section}>
                                 <Text style={styles.sectionLabel}>PUBLISH FROM</Text>
-                                <WCode language="BASH">
-                                    {`# from your shell
-curl -d "hello" ${publishUrl(PUBLISH_BASE_URL, topic)}
-
-# from EmitSignal cli
-emitsignal publish ${topic} "deploy ok"`}
-                                </WCode>
+                                <WCode language="BASH">{publishSnippet}</WCode>
                             </View>
                         )}
                     </ScrollView>

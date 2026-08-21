@@ -1,4 +1,5 @@
-import { publishUrl, TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
+import { buildCurlExample } from '@emitsignal/shared/publish-example';
+import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -70,9 +71,19 @@ export default function PublishScreen() {
 
     const curlTopic = topic.trim() || TOPIC_PLACEHOLDER;
 
-    const curl = `curl -d "${body}" \\
-  -H "Content-Type: application/json" \\
-  ${publishUrl(PUBLISH_BASE_URL, curlTopic)}`;
+    const curl = buildCurlExample({
+        baseUrl: PUBLISH_BASE_URL,
+        message: {
+            body,
+            priority,
+            tags: tags
+                .split(',')
+                .map((tag) => tag.trim())
+                .filter(Boolean),
+            title,
+        },
+        topicName: curlTopic,
+    });
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>
