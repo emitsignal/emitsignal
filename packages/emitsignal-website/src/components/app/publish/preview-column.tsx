@@ -1,7 +1,9 @@
+import { publishUrl } from '@emitsignal/shared/topic';
+
 import { Code } from '#/components/ui/code';
 import { Dot } from '#/components/ui/dot';
 import { SubHeading } from '#/components/ui/sub-head';
-import { api } from '#/lib/api';
+import { PUBLISH_BASE_URL } from '#/lib/api';
 import { DELIVERY_FLAG_ENABLED } from '#/lib/feature-flags';
 
 interface Props {
@@ -14,7 +16,7 @@ interface Props {
 
 export function PreviewColumn({ body, priority, tags, title, topicName }: Props) {
     const curlCmd = topicName
-        ? `curl -X POST ${api.baseUrl}/publish/${topicName} \\
+        ? `curl -X POST ${publishUrl(PUBLISH_BASE_URL, topicName)} \\
   -H "Authorization: Bearer es_••••" \\
   -H "Priority: ${priority}" \\
   -H "Content-Type: application/json" \\

@@ -1,8 +1,9 @@
+import { publishUrl } from '@emitsignal/shared/topic';
 import { Plus } from 'lucide-react';
 
 import { Code } from '#/components/ui/code';
 import { SubHeading } from '#/components/ui/sub-head';
-import { API_URL, type Subscription } from '#/lib/api';
+import { PUBLISH_BASE_URL, type Subscription } from '#/lib/api';
 
 interface RoutingRule {
     color: string;
@@ -59,7 +60,9 @@ export function RoutingRail({ subscription }: Props) {
             <SubHeading>PUBLISH A MESSAGE</SubHeading>
 
             <Code language="POST">
-                {topicName ? `${API_URL}/publish/${topicName}` : 'subscribe to a channel first'}
+                {topicName
+                    ? publishUrl(PUBLISH_BASE_URL, topicName)
+                    : 'subscribe to a channel first'}
             </Code>
         </aside>
     );

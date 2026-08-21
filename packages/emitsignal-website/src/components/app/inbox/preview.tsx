@@ -1,3 +1,4 @@
+import { publishUrl } from '@emitsignal/shared/topic';
 import { safeExternalUrl } from '@emitsignal/shared/url';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
@@ -11,7 +12,7 @@ import { LinkWarningDialog } from '#/components/ui/link-warning-dialog';
 import { Pill } from '#/components/ui/pill';
 import { SubHeading } from '#/components/ui/sub-head';
 import { useDebugSections } from '#/ctx/debug-sections';
-import { API_URL } from '#/lib/api';
+import { PUBLISH_BASE_URL } from '#/lib/api';
 import { relativeTime } from '#/lib/format';
 import { priorityHex } from '#/lib/priority';
 
@@ -65,7 +66,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
         2,
     );
 
-    const curlCommand = `curl -X POST ${API_URL}/publish/${encodeURIComponent(channel)} \\
+    const curlCommand = `curl -X POST ${publishUrl(PUBLISH_BASE_URL, channel)} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
       actions: message.actions.length ? message.actions : undefined,

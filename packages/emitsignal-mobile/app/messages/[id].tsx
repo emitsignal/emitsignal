@@ -1,3 +1,4 @@
+import { publishUrl } from '@emitsignal/shared/topic';
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -14,7 +15,7 @@ import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
 import { useDebugSections } from '@/ctx/debug-sections';
 import { useDevice } from '@/ctx/device';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { api } from '@/lib/api';
+import { api, PUBLISH_BASE_URL } from '@/lib/api';
 import { relativeTime } from '@/lib/format';
 import { openExternalUrl } from '@/lib/open-external';
 import { queryKeys } from '@/lib/query-client';
@@ -211,7 +212,7 @@ export default function MessageDetailScreen() {
                         <SectionHead>reproduce · curl</SectionHead>
                         <View style={styles.codeWrap}>
                             <WCode language="BASH">
-                                {`curl -X POST ${api.baseUrl}/publish/${message.topicName} \\
+                                {`curl -X POST ${publishUrl(PUBLISH_BASE_URL, message.topicName ?? message.topicId)} \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify({
       actions: message.actions.length ? message.actions : undefined,

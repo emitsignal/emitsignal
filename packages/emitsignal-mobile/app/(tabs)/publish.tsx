@@ -1,4 +1,4 @@
-import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
+import { publishUrl, TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
-import { api } from '@/lib/api';
+import { api, PUBLISH_BASE_URL } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 
 const TOPIC_PLACEHOLDER = 'deploy/prod';
@@ -72,7 +72,7 @@ export default function PublishScreen() {
 
     const curl = `curl -d "${body}" \\
   -H "Content-Type: application/json" \\
-  ${api.baseUrl}/publish/${curlTopic}`;
+  ${publishUrl(PUBLISH_BASE_URL, curlTopic)}`;
 
     return (
         <SafeAreaView edges={['top']} style={styles.root}>

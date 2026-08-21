@@ -1,10 +1,12 @@
+import { publishUrl } from '@emitsignal/shared/topic';
 import { Bell } from 'lucide-react';
 
 import { CopyButton } from '#/components/ui/copy-button';
 import { Dot } from '#/components/ui/dot';
-import { API_URL_CLEAN } from '#/lib/api';
+import { PUBLISH_BASE_URL_CLEAN } from '#/lib/api';
 
-const COMMAND = `curl -d "Production API latency spike" -H "x-priority: 5" ${API_URL_CLEAN}/alerts/prod`;
+const ENDPOINT = publishUrl(PUBLISH_BASE_URL_CLEAN, 'alerts/prod');
+const COMMAND = `curl -d "Production API latency spike" -H "x-priority: 5" ${ENDPOINT}`;
 
 export function MockPublish() {
     return (
@@ -16,7 +18,7 @@ export function MockPublish() {
                     <span className="text-warn">"Production API latency spike"</span>{' '}
                     <span className="text-dim">-H</span>{' '}
                     <span className="text-warn">"x-priority: 5"</span>{' '}
-                    <span className="text-accent">{API_URL_CLEAN}/alerts/prod</span>
+                    <span className="text-accent">{ENDPOINT}</span>
                 </code>
 
                 <CopyButton className="shrink-0" value={COMMAND} />

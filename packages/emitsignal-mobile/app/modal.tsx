@@ -1,4 +1,4 @@
-import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
+import { publishUrl, TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -21,7 +21,7 @@ import { useDevice } from '@/ctx/device';
 import { useSubscriptions } from '@/hooks/use-subscriptions';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { useTopicSuggestions } from '@/hooks/use-topic-suggestions';
-import { api, type ListenSince } from '@/lib/api';
+import { api, type ListenSince, PUBLISH_BASE_URL } from '@/lib/api';
 import { apiErrorMessage } from '@/lib/api-error';
 
 export default function SubscribeModal() {
@@ -152,7 +152,7 @@ export default function SubscribeModal() {
                                 <Text style={styles.sectionLabel}>PUBLISH FROM</Text>
                                 <WCode language="BASH">
                                     {`# from your shell
-curl -d "hello" ${api.baseUrl}/publish/${topic}
+curl -d "hello" ${publishUrl(PUBLISH_BASE_URL, topic)}
 
 # from EmitSignal cli
 emitsignal publish ${topic} "deploy ok"`}
