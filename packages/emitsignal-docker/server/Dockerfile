@@ -4,7 +4,7 @@
 # ── Stage 1: Install the server's production dependencies only ─────────────────
 # Pinned + slim: a rolling `oven/bun:1` tag changes digest on every upstream 1.x
 # release, busting the whole build cache; pin to a known-good version.
-FROM oven/bun:1.3.14-slim AS deps
+FROM oven/bun:1.4.0-slim AS deps
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ RUN bun pm pkg delete devDependencies patchedDependencies \
 RUN rm -f bun.lock && bun install --production
 
 # ── Stage 2: Production image ─────────────────────────────────────────────────
-FROM oven/bun:1.3.14-slim
+FROM oven/bun:1.4.0-slim
 
 WORKDIR /app
 

@@ -3,7 +3,7 @@
 
 # ── Stage 1: Build the TanStack Start / Nitro SSR bundle ──────────────────────
 # Pinned + slim: avoids cache-busting digest changes on rolling `oven/bun:1`.
-FROM oven/bun:1.3.14-slim AS build
+FROM oven/bun:1.4.0-slim AS build
 
 WORKDIR /app
 
@@ -59,7 +59,7 @@ ENV VITE_SENTRY_ENABLED=${VITE_SENTRY_ENABLED}
 RUN bun run build
 
 # ── Stage 2: Run the Nitro SSR server ────────────────────────────────────────
-FROM oven/bun:1.3.14-slim
+FROM oven/bun:1.4.0-slim
 
 WORKDIR /app
 
