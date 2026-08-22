@@ -3,7 +3,7 @@ import type { PlanLimits, PlanName } from '@emitsignal/shared';
 import { isPlanName, PLANS } from '@emitsignal/shared';
 
 import { prisma } from '#/lib/prisma';
-import { rateLimitRedis } from '#/lib/rate-limit';
+import { redis } from '#/lib/redis';
 import { duration } from '#/utils/duration';
 
 const PLAN_CACHE_TTL_SECONDS = 60;
@@ -36,7 +36,7 @@ export async function getUserPlan(userId: string): Promise<PlanName> {
     }
 
     try {
-        const cached = await rateLimitRedis.get(cacheKey(userId));
+        const cached = await redis.get(cacheKey(userId));
 
         if (cached && isPlanName(cached)) {
             return cached;
@@ -48,7 +48,7 @@ export async function getUserPlan(userId: string): Promise<PlanName> {
     const plan = await resolvePlanFromDatabase(userId);
 
     try {
-        await rateLimitRedis.setex(cacheKey(userId), PLAN_CACHE_TTL_SECONDS, plan);
+        await redis.setex(cacheKey(userId), PLAN_CACHE_TTL_SECONDS, plan);
     } catch {
         // Redis unavailable — skip caching
     }
@@ -64,7 +64,7 @@ export async function invalidateUserPlanCache(userId: string): Promise<void> {
     }
 
     try {
-        await rateLimitRedis.del(cacheKey(userId));
+        await redis.del(cacheKey(userId));
     } catch {
         // non-fatal — the key expires via TTL
     }

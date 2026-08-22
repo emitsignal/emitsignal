@@ -1,6 +1,5 @@
+import { redis } from '#/lib/redis';
 import { duration } from '#/utils/duration';
-
-import { rateLimitRedis } from './limiters';
 
 const SLOT_TTL_SECONDS = duration.minutes(2).as('seconds');
 
@@ -25,11 +24,11 @@ export async function acquireSseSlot(key: string, max: number): Promise<null | S
     }
 
     try {
-        const current = await rateLimitRedis.incr(key);
-        await rateLimitRedis.expire(key, SLOT_TTL_SECONDS);
+        const current = await redis.incr(key);
+        await redis.expire(key, SLOT_TTL_SECONDS);
 
         if (current > max) {
-            await rateLimitRedis.decr(key);
+            await redis.decr(key);
 
             return null;
         }
@@ -39,7 +38,7 @@ export async function acquireSseSlot(key: string, max: number): Promise<null | S
         return {
             refresh: async () => {
                 try {
-                    await rateLimitRedis.expire(key, SLOT_TTL_SECONDS);
+                    await redis.expire(key, SLOT_TTL_SECONDS);
                 } catch {
                     // non-fatal — a missed refresh only shortens the TTL window
                 }
@@ -52,7 +51,7 @@ export async function acquireSseSlot(key: string, max: number): Promise<null | S
                 released = true;
 
                 try {
-                    await rateLimitRedis.decr(key);
+                    await redis.decr(key);
                 } catch {
                     // non-fatal — key will expire via TTL
                 }
