@@ -40,12 +40,19 @@ export function registerPublishCommand(program: Command): void {
 
                 const t0 = Date.now();
 
-                await createClient().api.publish(topic, { body, priority, tags, title });
+                const { messageId } = await createClient().api.publish(topic, {
+                    body,
+                    priority,
+                    tags,
+                    title,
+                });
 
                 const ms = Date.now() - t0;
 
                 if (!opts.quiet) {
-                    ok(`published → ${color.violet(topic)} · ${ms}ms`);
+                    ok(
+                        `published → ${color.violet(topic)} · ${color.fgFaint(messageId)} · ${ms}ms`,
+                    );
                 }
             } catch (error) {
                 err(error instanceof Error ? error.message : String(error));
