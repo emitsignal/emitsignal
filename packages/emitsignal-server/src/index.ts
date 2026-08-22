@@ -17,6 +17,7 @@ import { deletePushToken } from '#/http/push-tokens/delete';
 import { listPushTokens } from '#/http/push-tokens/list';
 import { registerPushToken } from '#/http/push-tokens/register';
 import { updatePushToken } from '#/http/push-tokens/update';
+import { stats } from '#/http/stats/get';
 import { claimSubscriptions } from '#/http/subscriptions/claim';
 import { listSubscriptions } from '#/http/subscriptions/list';
 import { listSubscriptionMessages } from '#/http/subscriptions/messages';
@@ -109,6 +110,7 @@ const app = new Elysia({
     .use(receiveWebhook)
     .use(registerPushToken)
     .use(serveUpload)
+    .use(stats)
     .use(streamWebhookDeliveries)
     .use(subscribe)
     .use(subscriptionMetrics)

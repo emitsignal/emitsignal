@@ -206,6 +206,13 @@ model Acknowledgment {
     @@index([userId])
 }
 
+model Counter {
+    key       String   @id
+
+    total     BigInt   @default(0)
+    updatedAt DateTime @updatedAt
+}
+
 model Message {
     id        String   @id @default(cuid())
 

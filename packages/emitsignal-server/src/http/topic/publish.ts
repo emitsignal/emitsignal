@@ -12,6 +12,7 @@ import { getUserLimits, getUserPlan } from '#/services/billing/get-user-plan';
 import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
 import { consumeDailyQuota, quotaExceededHeaders } from '#/services/billing/usage';
 import { serializeMessage } from '#/services/message';
+import { incrementMessageCounter } from '#/services/stats/message-counter';
 import { getOrCreateTopic, TopicNameError } from '#/services/topic';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 import { validateActions } from '#/utils/actions';
@@ -184,6 +185,8 @@ function publishRoute(path: string, deprecated: boolean) {
                     topicId: topic.id,
                 },
             });
+
+            void incrementMessageCounter();
 
             if (isScheduled) {
                 scheduleQueue.add(

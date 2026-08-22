@@ -1,6 +1,7 @@
 import { mock } from 'bun:test';
 
 export const prismaMock = {
+    $executeRaw: mock<() => Promise<number>>(() => Promise.resolve(1)),
     $queryRaw: mock<() => Promise<unknown[]>>(() => Promise.resolve([])),
     acknowledgment: {
         count: mock<() => Promise<number>>(() => Promise.resolve(0)),
@@ -17,6 +18,9 @@ export const prismaMock = {
         findMany: mock<(args?: Record<string, unknown>) => Promise<object[]>>(() =>
             Promise.resolve([]),
         ),
+    },
+    counter: {
+        findUnique: mock<() => Promise<{ total: bigint } | null>>(() => Promise.resolve(null)),
     },
     message: {
         create: mock<() => Promise<object>>(() =>
