@@ -50,7 +50,7 @@ import { EmailService } from '#/lib/email-service';
 import { shutdownTelemetry } from '#/lib/instrumentation';
 import { flushLogs, logger } from '#/lib/logger';
 import { emailQueue, purgeQueue, pushQueue, redisConnection, scheduleQueue } from '#/lib/queue';
-import { rateLimitRedis } from '#/lib/rate-limit';
+import { redis } from '#/lib/redis';
 import { FileStorageService } from '#/lib/storage';
 import { environment, isProduction } from '#/schema/environment';
 import { isUnobservedPath } from '#/utils/observability';
@@ -158,7 +158,7 @@ async function shutdown() {
     await pushQueue.close();
     await scheduleQueue.close();
 
-    await rateLimitRedis.quit();
+    await redis.quit();
     await redisConnection.quit();
 
     server.stop();

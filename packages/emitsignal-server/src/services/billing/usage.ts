@@ -1,5 +1,5 @@
 import { logger } from '#/lib/logger';
-import { rateLimitRedis } from '#/lib/rate-limit';
+import { redis } from '#/lib/redis';
 import { duration } from '#/utils/duration';
 
 export interface QuotaResult {
@@ -36,10 +36,10 @@ export async function consumeDailyQuota(
 
     try {
         const key = usageKey(userId, metric);
-        const used = await rateLimitRedis.incr(key);
+        const used = await redis.incr(key);
 
         if (used === 1) {
-            await rateLimitRedis.expire(key, KEY_TTL_SECONDS);
+            await redis.expire(key, KEY_TTL_SECONDS);
         }
 
         return { allowed: used <= limit, limit, remaining: Math.max(0, limit - used), resetAt };
@@ -56,7 +56,7 @@ export async function getDailyUsage(userId: string, metric: UsageMetric): Promis
     }
 
     try {
-        const raw = await rateLimitRedis.get(usageKey(userId, metric));
+        const raw = await redis.get(usageKey(userId, metric));
 
         return raw ? Math.max(0, Number.parseInt(raw, 10)) : 0;
     } catch {

@@ -1,18 +1,7 @@
-import Redis from 'ioredis';
 import { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible';
 
-import { logger } from '#/lib/logger';
-import { environment } from '#/schema/environment';
+import { redis } from '#/lib/redis';
 import { duration } from '#/utils/duration';
-
-export const rateLimitRedis = new Redis(environment.REDIS_URL, {
-    enableReadyCheck: false,
-    maxRetriesPerRequest: 0,
-});
-
-rateLimitRedis.on('error', (error: Error) => {
-    logger.error({ error }, 'rate limit redis connection error');
-});
 
 function makeLimiter(keyPrefix: string, points: number, windowSeconds: number) {
     if (Bun.env.NODE_ENV === 'test') {
@@ -23,7 +12,7 @@ function makeLimiter(keyPrefix: string, points: number, windowSeconds: number) {
         duration: windowSeconds,
         keyPrefix,
         points,
-        storeClient: rateLimitRedis,
+        storeClient: redis,
     });
 }
 
