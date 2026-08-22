@@ -27,5 +27,5 @@
         "static": "serve emails -l 5002"
     },
     "types": "src/index.tsx",
-    "version": "1.3.0"
+    "version": "1.4.0"
 }
