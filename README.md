@@ -81,8 +81,7 @@ curl -X POST https://emitsignal.com/publish/reminders \
 **Install** — a single static binary, no runtime required:
 
 ```bash
-brew install emitsignal/tap/emitsignal   # Homebrew
-npm i -g @emitsignal/cli                 # npm
+npm i -g @emitsignal/cli
 
 # or the install script
 curl -fsSL https://github.com/emitsignal/emitsignal/releases/latest/download/install.sh | sh
