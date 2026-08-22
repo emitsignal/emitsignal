@@ -26,6 +26,13 @@ No SDK required to send — if it can make an HTTP request, it can emit a signal
 
 # Quick look
 
+Two ways to send a signal: `curl` needs nothing installed, the CLI is nicer to live in.
+
+<details open>
+<summary><strong>With curl</strong> — works from anything that can make an HTTP request</summary>
+
+<br />
+
 **Publish a message** — header-based, no body parsing required:
 
 ```bash
@@ -63,6 +70,63 @@ curl -X POST https://emitsignal.com/publish/reminders \
   -H "X-Delay: 30m" \
   -d "Don't forget the daily"
 ```
+
+</details>
+
+<details>
+<summary><strong>With the CLI</strong> — <code>emitsignal</code>, aliased to <code>es</code></summary>
+
+<br />
+
+**Install** — a single static binary, no runtime required:
+
+```bash
+brew install emitsignal/tap/emitsignal   # Homebrew
+npm i -g @emitsignal/cli                 # npm
+
+# or the install script
+curl -fsSL https://github.com/emitsignal/emitsignal/releases/latest/download/install.sh | sh
+```
+
+**Authenticate once** — writes a token to `~/.emitsignalrc`:
+
+```bash
+es login
+```
+
+**Publish a message** — the title defaults to the first line of the body:
+
+```bash
+es publish alerts "v2.4.0 shipped to production" \
+  --title "Deploy finished" \
+  --priority 4 \
+  --tag ci,prod
+# ✓ published → alerts · cmt4hcs5m000001t64ujxh3m5 · 73ms
+```
+
+**Subscribe and stream signals live:**
+
+```bash
+# one topic
+es listen alerts
+
+# every subscription, replaying the last 10 minutes first
+es listen --since 10m
+
+# glob a channel, and only surface high-priority signals
+es listen --channel "alerts/*" --priority ">=4"
+```
+
+**Point it at a self-hosted instance:**
+
+```bash
+es config set-url https://signals.internal.example.com
+```
+
+Scheduling is header-only for now — `es publish` has no `--delay` flag yet, so use the
+`curl` form above for delayed signals.
+
+</details>
 
 <br />
 
