@@ -16,6 +16,7 @@ mock.module('#/lib/queue', () => ({
 mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
 
 import { publish } from '#/http/topic/publish';
+import { readMessageTotal, resetMessageCounterForTests } from '#/services/stats/message-counter';
 
 describe('POST /publish/:name', () => {
     const app = new Elysia().use(publish);
@@ -55,6 +56,15 @@ describe('POST /publish/:name', () => {
 
         expect(lastCall[0]).toBe('push-message');
         expect(lastCall[1]).toHaveProperty('messageId', 'msg-1');
+    });
+
+    it('counts the message against the lifetime total', async () => {
+        resetMessageCounterForTests();
+
+        await app.handle(request('test-topic', validBody));
+        await app.handle(request('test-topic', validBody));
+
+        expect(await readMessageTotal()).toBe(2);
     });
 
     it('publishes to event bus', async () => {

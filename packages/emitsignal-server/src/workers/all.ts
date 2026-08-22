@@ -5,6 +5,7 @@ import {
     createPurgeWorker,
     createPushWorker,
     createScheduleWorker,
+    scheduleCounterFlush,
     scheduleRetentionSweep,
 } from '#/lib/queue';
 import { runWorkers } from '#/lib/run-workers';
@@ -17,5 +18,6 @@ FileStorageService.init(environment);
 runWorkers([createEmailWorker(), createPushWorker(), createScheduleWorker(), createPurgeWorker()]);
 
 await scheduleRetentionSweep();
+await scheduleCounterFlush();
 
 logger.info('📧 email, 🔔 push, ⏱️ schedule, 🗑️ purge workers started');

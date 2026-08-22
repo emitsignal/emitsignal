@@ -20,6 +20,7 @@ import {
     webhookRetentionDays,
 } from '#/services/billing/retention';
 import { serializeMessage } from '#/services/message';
+import { incrementMessageCounter } from '#/services/stats/message-counter';
 import { getOrCreateTopic } from '#/services/topic';
 import { canPublishToTopicName } from '#/services/topic-access';
 import { validateActions } from '#/utils/actions';
@@ -144,6 +145,8 @@ export const receiveWebhook = new Elysia().post(
                 topicId: topic.id,
             },
         });
+
+        void incrementMessageCounter();
 
         const event = await serializeMessage({ ...message, topicId: topic.id }, 0, false);
 
