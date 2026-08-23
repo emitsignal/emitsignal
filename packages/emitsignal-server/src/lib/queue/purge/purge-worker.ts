@@ -35,7 +35,10 @@ export function createPurgeWorker(): Worker<Traced<PurgeJob>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info({ jobId: job.id, kind: job.data.kind }, 'processing purge job');
+                        logger.debug(
+                            { jobId: job.id, kind: job.data.kind },
+                            'processing purge job',
+                        );
 
                         if (job.data.kind === 'expired') {
                             await purgeExpired();

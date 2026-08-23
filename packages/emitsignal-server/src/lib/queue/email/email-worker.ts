@@ -28,7 +28,7 @@ export function createEmailWorker(): Worker<Traced<EmailOptions>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info({ jobId: job.id, to: job.data.to }, 'processing email job');
+                        logger.debug({ jobId: job.id, to: job.data.to }, 'processing email job');
 
                         await Email.provider.send(job.data);
 
