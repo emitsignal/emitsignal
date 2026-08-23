@@ -3,8 +3,10 @@ import type { Action } from './api.ts';
 import { publishUrl } from './topic.ts';
 
 export interface CliExampleOptions {
+    bin?: string;
     message?: PublishExampleMessage;
     topicName: string;
+    wrap?: boolean;
 }
 
 export interface CurlExampleOptions {
@@ -25,12 +27,17 @@ export interface PublishExampleMessage {
 
 export type PublishExampleStyle = 'headers' | 'json';
 
+const CONTINUATION = ' \\\n  ';
+const DEFAULT_CLI_BIN = 'emitsignal';
 const DEFAULT_PRIORITY = 3;
 
-const CONTINUATION = ' \\\n  ';
-
-export function buildCliExample({ message = {}, topicName }: CliExampleOptions): string {
-    const parts = [`emitsignal publish ${topicName}`];
+export function buildCliExample({
+    bin = DEFAULT_CLI_BIN,
+    message = {},
+    topicName,
+    wrap = false,
+}: CliExampleOptions): string {
+    const parts = [`${bin} publish ${topicName}`];
 
     if (message.body) {
         parts.push(doubleQuote(message.body));
@@ -48,7 +55,7 @@ export function buildCliExample({ message = {}, topicName }: CliExampleOptions):
         parts.push(`-t ${doubleQuote(message.tags.join(','))}`);
     }
 
-    return parts.join(' ');
+    return parts.join(wrap ? CONTINUATION : ' ');
 }
 
 export function buildCurlExample({
