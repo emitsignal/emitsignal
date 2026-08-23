@@ -8,6 +8,20 @@
 
 const SAFE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
+export function externalUrlLabel(value: null | string | undefined): null | string {
+    if (!isSafeExternalUrl(value)) {
+        return null;
+    }
+
+    const url = new URL(value as string);
+
+    if (url.protocol === 'mailto:') {
+        return url.pathname || null;
+    }
+
+    return url.host.replace(/^www\./, '') || null;
+}
+
 export function isSafeExternalUrl(value: null | string | undefined): boolean {
     if (typeof value !== 'string' || value.trim() === '') {
         return false;
