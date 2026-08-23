@@ -1,7 +1,19 @@
 import type { Command } from 'commander';
 
-import { configPath, getBaseUrl, getConsoleUrl, readConfig, writeConfig } from '../config.ts';
-import { color, err, ok } from '../output.ts';
+import { once } from 'node:events';
+import { createInterface } from 'node:readline/promises';
+
+import {
+    configPath,
+    deleteConfig,
+    getBaseUrl,
+    getConsoleUrl,
+    IDENTITY_SECTIONS,
+    readConfig,
+    resetConfig,
+    writeConfig,
+} from '../config.ts';
+import { arrow, color, err, ok } from '../output.ts';
 
 export function registerConfigCommand(program: Command): void {
     const cfg = program
@@ -46,6 +58,44 @@ export function registerConfigCommand(program: Command): void {
                 }
                 console.log();
             }
+        });
+
+    cfg.command('reset')
+        .description('Restore the built-in defaults, keeping your login and device id')
+        .option('--all', 'also clear the saved login and device id')
+        .option('-y, --yes', 'skip the confirmation prompt')
+        .action(async (options: { all?: boolean; yes?: boolean }) => {
+            const cleared = Object.keys(readConfig()).filter(
+                (section) => options.all === true || !IDENTITY_SECTIONS.includes(section),
+            );
+
+            if (cleared.length === 0) {
+                arrow('already at defaults; nothing to reset');
+
+                return;
+            }
+
+            const summary = cleared.map((section) => `[${section}]`).join(' ');
+
+            if (options.yes !== true) {
+                const confirmed = await confirm(
+                    `Clear ${color.violet(summary)} from ${configPath}?`,
+                );
+
+                if (!confirmed) {
+                    arrow('aborted; nothing changed');
+
+                    return;
+                }
+            }
+
+            if (options.all === true) {
+                deleteConfig();
+            } else {
+                resetConfig();
+            }
+
+            ok(`reset ${color.violet(summary)}`);
         });
 
     cfg.command('path')
@@ -97,6 +147,28 @@ function coerce(value: string): unknown {
     const number = Number(value);
 
     return isNaN(number) ? value : number;
+}
+
+async function confirm(question: string): Promise<boolean> {
+    if (!process.stdin.isTTY) {
+        err('refusing to reset without a confirmation prompt; re-run with --yes');
+        process.exit(2);
+    }
+
+    const readline = createInterface({ input: process.stdin, output: process.stdout });
+
+    try {
+        // Ctrl+D both rejects `question` and emits `close`, in no guaranteed
+        // order; either way an unanswered prompt must read as "no".
+        const answer = await Promise.race([
+            readline.question(`${question} ${color.fgDim('[y/N]')} `).catch(() => ''),
+            once(readline, 'close').then(() => ''),
+        ]);
+
+        return /^y(es)?$/i.test(answer.trim());
+    } finally {
+        readline.close();
+    }
 }
 
 function getNestedValue(obj: unknown, keyPath: string): unknown {

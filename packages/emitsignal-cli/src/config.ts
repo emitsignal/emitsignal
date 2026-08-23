@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { parse, stringify } from 'smol-toml';
@@ -14,6 +14,13 @@ export interface CliConfig {
 }
 
 export const configPath = join(homedir(), '.emitsignalrc');
+
+/** Sections that identify the user rather than configure the CLI. */
+export const IDENTITY_SECTIONS: readonly string[] = ['auth', 'device'];
+
+export function deleteConfig(): void {
+    rmSync(configPath, { force: true });
+}
 
 export function getBaseUrl(): string {
     return process.env['ES_BASE_URL'] ?? readConfig().server?.url ?? 'https://api.emitsignal.com';
@@ -53,6 +60,27 @@ export function readConfig(): CliConfig {
     } catch {
         return {};
     }
+}
+
+/**
+ * Drop every stored setting so the built-in defaults apply again, keeping the
+ * sections that identify the user rather than configure the CLI: `auth` would
+ * log them out, and a regenerated `device.id` would orphan their push
+ * subscriptions. Use `deleteConfig` to clear those too.
+ */
+export function resetConfig(): void {
+    const { auth, device } = readConfig();
+    const preserved: CliConfig = {};
+
+    if (auth) {
+        preserved.auth = auth;
+    }
+
+    if (device) {
+        preserved.device = device;
+    }
+
+    writeConfig(preserved);
 }
 
 export function writeConfig(config: CliConfig): void {
