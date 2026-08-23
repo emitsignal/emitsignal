@@ -147,6 +147,11 @@ function ChannelView() {
 
             <div className="flex min-h-0 flex-1">
                 <EventList
+                    emptyLabel={
+                        selectedTopic
+                            ? 'no messages in this channel'
+                            : 'subscribe to a channel to see its events'
+                    }
                     fetchNextPage={fetchNextPage}
                     hasNextPage={hasNextPage}
                     isFetchingNextPage={isFetchingNextPage}

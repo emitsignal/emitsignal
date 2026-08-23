@@ -128,7 +128,7 @@ export function useTopicMessages(
         fetchNextPage: query.fetchNextPage,
         hasNextPage: query.hasNextPage,
         isFetchingNextPage: query.isFetchingNextPage,
-        loading: query.isPending,
+        loading: topicName ? query.isPending : false,
         messages: query.data?.pages.flatMap((page) => page.data) ?? [],
     };
 }

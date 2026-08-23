@@ -11,6 +11,7 @@ import { priorityHex, priorityLabel } from '#/lib/priority';
 const PRIORITY_THRESHOLDS = [3, 4, 5];
 
 interface Props {
+    emptyLabel: string;
     fetchNextPage: () => void;
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function EventList({
+    emptyLabel,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -76,9 +78,7 @@ export function EventList({
             {loading ? (
                 <SkeletonMessageList />
             ) : messages.length === 0 ? (
-                <div className="p-5.5 font-mono text-[12px] text-dim">
-                    no messages in this channel
-                </div>
+                <div className="p-5.5 font-mono text-[12px] text-dim">{emptyLabel}</div>
             ) : (
                 messages.map((message) => (
                     <EventRow event={message} key={message.id} onTagClick={onTagClick} />
