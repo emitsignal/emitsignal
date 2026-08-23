@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { Webhook } from '#/lib/api';
 
-import { api, sseMultiUrl } from '#/lib/api';
+import { api } from '#/lib/api';
 import { queryKeys } from '#/lib/query-client';
 
 import { useLiveQuery } from './use-live-query';
@@ -11,12 +11,8 @@ export function useWebhooks() {
     const queryClient = useQueryClient();
 
     const query = useLiveQuery<Webhook[]>({
-        onMessage: (client, data) => {
-            const { topicName } = data as { topicName?: string };
-
-            if (!topicName) {
-                return;
-            }
+        onMessage: (client, message) => {
+            const { topicName } = message;
 
             client.setQueryData<Webhook[]>(queryKeys.webhooks, (previous = []) =>
                 previous.map((webhook) =>
@@ -32,12 +28,8 @@ export function useWebhooks() {
         },
         queryFn: () => api.listWebhooks(),
         queryKey: queryKeys.webhooks,
-        sseUrl: (data) => {
-            const topicNames = [...new Set((data ?? []).map((webhook) => webhook.topicName))];
-
-            return topicNames.length > 0 ? sseMultiUrl(topicNames) : null;
-        },
         staleTime: 5 * 60_000,
+        topicNames: (data) => [...new Set((data ?? []).map((webhook) => webhook.topicName))],
     });
 
     const invalidate = () => queryClient.invalidateQueries({ queryKey: queryKeys.webhooks });

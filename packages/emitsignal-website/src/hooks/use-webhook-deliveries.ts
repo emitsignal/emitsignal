@@ -1,6 +1,6 @@
 import type { WebhookDelivery } from '#/lib/api';
 
-import { api, sseUrl } from '#/lib/api';
+import { api } from '#/lib/api';
 import { queryKeys } from '#/lib/query-client';
 
 import { useLiveQuery } from './use-live-query';
@@ -17,7 +17,7 @@ export function useWebhookDeliveries(webhookId: string, topicName?: string) {
         },
         queryFn: () => api.listWebhookDeliveries(webhookId),
         queryKey: queryKeys.webhookDeliveries(webhookId),
-        sseUrl: () => (topicName ? sseUrl(topicName) : null),
+        topicNames: () => (topicName ? [topicName] : []),
     });
 
     return {

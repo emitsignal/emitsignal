@@ -2,14 +2,13 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useEffect, useRef } from 'react';
 
 interface SSEOptions {
-    headers?: Record<string, string>;
     onError?: (error: unknown) => void;
     onEvent: (event: string, data: unknown) => void;
     onOpen?: () => void;
     url: null | string;
 }
 
-export function useSSE({ headers, onError, onEvent, onOpen, url }: SSEOptions) {
+export function useSSE({ onError, onEvent, onOpen, url }: SSEOptions) {
     const onErrorRef = useRef(onError);
     const onEventRef = useRef(onEvent);
     const onOpenRef = useRef(onOpen);
@@ -27,7 +26,6 @@ export function useSSE({ headers, onError, onEvent, onOpen, url }: SSEOptions) {
 
         fetchEventSource(url, {
             credentials: 'include',
-            headers,
             onerror(error) {
                 onErrorRef.current?.(error);
                 throw error;
@@ -54,5 +52,5 @@ export function useSSE({ headers, onError, onEvent, onOpen, url }: SSEOptions) {
         });
 
         return () => controller.abort();
-    }, [url, headers]);
+    }, [url]);
 }
