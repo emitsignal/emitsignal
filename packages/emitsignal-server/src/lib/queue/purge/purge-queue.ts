@@ -9,7 +9,7 @@ import type { PurgeJob } from './types';
 export const purgeQueue = new Queue<
     Traced<PurgeJob>,
     void,
-    'flush-counters' | 'purge-expired' | 'purge-signals' | 'purge-storage'
+    'purge-expired' | 'purge-signals' | 'purge-storage'
 >('purge', {
     connection: redisConnection as ConnectionOptions,
     defaultJobOptions: {
@@ -19,14 +19,6 @@ export const purgeQueue = new Queue<
         removeOnFail: { age: duration.hours(24).as('seconds'), count: 1000 },
     },
 });
-
-export async function scheduleCounterFlush(): Promise<void> {
-    await purgeQueue.upsertJobScheduler(
-        'flush-counters',
-        { every: duration.minutes(5).as('ms') },
-        { data: { kind: 'counters' }, name: 'flush-counters' },
-    );
-}
 
 // Registers the hourly retention sweep. Idempotent — safe to call from every
 // worker replica at boot; BullMQ dedupes by the scheduler id.

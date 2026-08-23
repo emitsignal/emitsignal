@@ -6,7 +6,6 @@ import { prisma } from '#/lib/prisma';
 import { redisConnection } from '#/lib/queue/connection';
 import { FileStorageService } from '#/lib/storage';
 import { traceContextFrom, Traced } from '#/lib/trace-context';
-import { flushMessageCounter } from '#/services/stats/message-counter';
 
 import type { PurgeJob } from './types';
 
@@ -38,9 +37,7 @@ export function createPurgeWorker(): Worker<Traced<PurgeJob>> {
                     try {
                         logger.info({ jobId: job.id, kind: job.data.kind }, 'processing purge job');
 
-                        if (job.data.kind === 'counters') {
-                            await flushMessageCounter();
-                        } else if (job.data.kind === 'expired') {
+                        if (job.data.kind === 'expired') {
                             await purgeExpired();
                         } else if (job.data.kind === 'signals') {
                             await purgeSignals(job.data.userId);
