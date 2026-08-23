@@ -4,6 +4,7 @@ import { createIsomorphicFn } from '@tanstack/react-start';
 import { Sidebar } from '#/components/app/sidebar';
 import { DebugSectionsProvider } from '#/ctx/debug-sections';
 import { FeedStyleProvider } from '#/ctx/feed-style';
+import { RealtimeProvider } from '#/ctx/realtime';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { ThemeProvider, useTheme } from '#/ctx/theme';
 import { ToastProvider } from '#/ctx/toast';
@@ -110,7 +111,9 @@ function WebShell() {
                 <DebugSectionsProvider initialSections={debugSections}>
                     <SubscriptionsProvider>
                         <ToastProvider>
-                            <DashboardShell />
+                            <RealtimeProvider>
+                                <DashboardShell />
+                            </RealtimeProvider>
                         </ToastProvider>
                     </SubscriptionsProvider>
                 </DebugSectionsProvider>

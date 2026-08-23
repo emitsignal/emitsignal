@@ -5,7 +5,7 @@ import type { Message, MessageFilterParams, PaginatedResponse, TopicMetrics } fr
 
 import { useSession } from '#/ctx/session';
 import { useSubscriptions } from '#/ctx/subscriptions';
-import { api, matchesMessageFilter, sseMultiUrl, sseUrl } from '#/lib/api';
+import { api, matchesMessageFilter } from '#/lib/api';
 import { queryKeys } from '#/lib/query-client';
 import { getDeviceId } from '#/lib/storage';
 
@@ -18,13 +18,11 @@ export function useFeed() {
 
     const userId = user?.id;
     const scope = userId ?? deviceId;
-    const topicNames = subscriptions.map((subscription) => subscription.topic.name);
+    const subscriptionTopicNames = subscriptions.map((subscription) => subscription.topic.name);
 
     const query = useLiveInfiniteQuery<Message>({
         enabled: !authLoading,
-        onMessage: (queryClient, data, queryKey) => {
-            const incoming = data as { topicName?: string } & Message;
-
+        onMessage: (queryClient, message, queryKey) => {
             queryClient.setQueryData<InfiniteData<PaginatedResponse<Message>>>(
                 queryKey,
                 (previous) => {
@@ -34,14 +32,14 @@ export function useFeed() {
 
                     const firstPage = previous.pages[0];
 
-                    if (!firstPage || firstPage.data.some((m) => m.id === incoming.id)) {
+                    if (!firstPage || firstPage.data.some((m) => m.id === message.id)) {
                         return previous;
                     }
 
                     return {
                         ...previous,
                         pages: [
-                            { ...firstPage, data: [incoming, ...firstPage.data] },
+                            { ...firstPage, data: [message, ...firstPage.data] },
                             ...previous.pages.slice(1),
                         ],
                     };
@@ -50,7 +48,7 @@ export function useFeed() {
         },
         queryFn: (cursor) => api.listSubscriptionMessages(deviceId, { cursor, limit: 50 }),
         queryKey: queryKeys.feed(scope),
-        sseUrl: () => (topicNames.length ? sseMultiUrl(topicNames) : null),
+        topicNames: () => subscriptionTopicNames,
     });
 
     return {
@@ -80,16 +78,14 @@ export function useTopicMessages(
 
     const query = useLiveInfiniteQuery<Message>({
         enabled: Boolean(topicName),
-        onMessage: (queryClient, data, queryKey) => {
+        onMessage: (queryClient, message, queryKey) => {
             if (!topicName) {
                 return;
             }
 
-            const incoming = data as Message;
+            onNewMessageRef.current?.(message);
 
-            onNewMessageRef.current?.(incoming);
-
-            if (!matchesMessageFilter(incoming, filtersRef.current)) {
+            if (!matchesMessageFilter(message, filtersRef.current)) {
                 return;
             }
 
@@ -102,14 +98,14 @@ export function useTopicMessages(
 
                     const firstPage = previous.pages[0];
 
-                    if (!firstPage || firstPage.data.some((m) => m.id === incoming.id)) {
+                    if (!firstPage || firstPage.data.some((m) => m.id === message.id)) {
                         return previous;
                     }
 
                     return {
                         ...previous,
                         pages: [
-                            { ...firstPage, data: [incoming, ...firstPage.data] },
+                            { ...firstPage, data: [message, ...firstPage.data] },
                             ...previous.pages.slice(1),
                         ],
                     };
@@ -125,7 +121,7 @@ export function useTopicMessages(
                 topicName: topicName as string,
             }),
         queryKey: queryKeys.topicMessages(topicName ?? '', filters),
-        sseUrl: () => (topicName ? sseUrl(topicName) : null),
+        topicNames: () => (topicName ? [topicName] : []),
     });
 
     return {
