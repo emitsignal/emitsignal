@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { SiteFooter } from '#/components/site/site-footer';
 import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 import { CHANGELOG_RELEASES } from '#/data/changelog.generated';
-import { DOCS_URL } from '#/lib/links';
 
 export const Route = createFileRoute('/changelog')({ component: ChangelogPage });
 
@@ -26,56 +25,9 @@ function ChangelogPage() {
                     <h1 className="m-0 mb-5 text-[52px] font-semibold leading-[1.0] tracking-[-1.8px] text-fg sm:text-[64px]">
                         Changelog
                     </h1>
-                    <p className="mb-2 text-[18px] leading-[1.6] text-muted">
+                    <p className="text-[18px] leading-[1.6] text-muted">
                         Every release, every change. From private beta to general availability.
                     </p>
-                    <p className="font-mono text-[12px] text-dim">
-                        Subscribe to updates:{' '}
-                        <a className="text-accent no-underline" href="#">
-                            RSS →
-                        </a>{' '}
-                        ·{' '}
-                        <a className="text-accent no-underline" href="#">
-                            email digest →
-                        </a>
-                    </p>
-                </div>
-            </div>
-
-            {/* Coming next */}
-            <div className="px-5 pb-4 sm:px-8 md:px-16">
-                <div className="mx-auto max-w-[760px]">
-                    <div className="rounded-2xl border border-dashed border-accent/40 bg-accent/[0.04] px-5 py-4">
-                        <div className="mb-3 flex flex-wrap items-baseline gap-3">
-                            <span className="rounded px-1.5 py-0.5 font-mono text-[9.5px] font-semibold uppercase tracking-[1.2px] text-accent">
-                                Coming next
-                            </span>
-                            <span className="font-mono text-[12px] text-dim">targeting v1.0.0</span>
-                        </div>
-                        <ul className="m-0 list-none space-y-2 p-0">
-                            <li className="flex items-start gap-2.5 text-[13.5px] leading-[1.55] text-muted">
-                                <span className="mt-0.5 font-mono text-[12px] text-accent">→</span>
-                                <span>
-                                    <span className="text-fg">emitsignal CLI</span> — publish,
-                                    listen, and subscribe from the terminal{' '}
-                                    <a
-                                        className="text-accent no-underline"
-                                        href={`${DOCS_URL}/cli`}
-                                        target="_blank"
-                                    >
-                                        (docs)
-                                    </a>
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-2.5 text-[13.5px] leading-[1.55] text-muted">
-                                <span className="mt-0.5 font-mono text-[12px] text-accent">→</span>
-                                <span>
-                                    <span className="text-fg">Terminal UI (TUI)</span> — full-screen
-                                    inbox
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
 
