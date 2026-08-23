@@ -73,8 +73,6 @@ export function SkeletonMessageRow() {
     );
 }
 
-// `columns` holds the percentage width of each cell, so a caller can echo the
-// shape of the table it stands in for.
 export function SkeletonTableRows({ columns = [30, 45, 15], rows = 4 }: SkeletonTableRowsProps) {
     return (
         <div>

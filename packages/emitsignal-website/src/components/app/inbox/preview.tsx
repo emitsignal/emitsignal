@@ -36,8 +36,6 @@ export function InboxPreview({ loading = false, message, selectedId }: InboxPrev
     const [galleryIndex, setGalleryIndex] = useState<null | number>(null);
     const [pendingLink, setPendingLink] = useState<MediaRef | null>(null);
 
-    // A deep link to /app/inbox/$messageId arrives before the feed resolves, so
-    // the message is legitimately missing while the list is still loading.
     if (!message && loading && selectedId) {
         return <SkeletonMessageDetail />;
     }

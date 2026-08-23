@@ -21,8 +21,6 @@ vi.mock('#/ctx/debug-sections', () => ({ useDebugSections: () => ({ sections: {}
 
 describe('InboxLayout first load', () => {
     beforeEach(() => {
-        // Auto-cleanup is not registered in this setup, so a previous render
-        // would otherwise leak its skeletons into the next assertion.
         cleanup();
 
         feed.loading = true;
