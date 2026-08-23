@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import type { WebhookDelivery, WebhookTemplate } from '#/lib/api';
 
+import { SkeletonTableRows } from '#/components/ui/skeleton';
 import { useWebhook } from '#/hooks/use-webhook';
 import { useWebhookDeliveries } from '#/hooks/use-webhook-deliveries';
 import { API_URL } from '#/lib/api';
@@ -97,8 +98,8 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
 
     if (loading) {
         return (
-            <div className="flex flex-1 items-center justify-center font-mono text-[12px] text-dim">
-                loading…
+            <div className="flex-1">
+                <SkeletonTableRows columns={[14, 30, 20, 12]} rows={6} />
             </div>
         );
     }

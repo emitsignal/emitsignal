@@ -1,11 +1,21 @@
 import type { Subscription, TopicMetrics } from '#/lib/api';
 
+import { Skeleton } from '#/components/ui/skeleton';
+
 interface Props {
+    loading?: boolean;
     metrics: null | TopicMetrics;
     subscription: null | Subscription;
 }
 
-export function StatsStrip({ metrics, subscription }: Props) {
+interface StatItemProps {
+    label: string;
+    loading: boolean;
+    subtitle: string;
+    value: string;
+}
+
+export function StatsStrip({ loading = false, metrics, subscription }: Props) {
     const volume = metrics?.volume ?? Array<number>(24).fill(0);
     const max = Math.max(...volume, 1);
 
@@ -13,24 +23,28 @@ export function StatsStrip({ metrics, subscription }: Props) {
         <div className="grid shrink-0 grid-cols-[repeat(4,1fr)_1.4fr] items-center gap-5.5 border-b border-line px-5.5 py-4.5">
             <StatItem
                 label="last 24h"
+                loading={loading}
                 subtitle="total messages"
                 value={metrics ? String(metrics.messageCount24h) : '—'}
             />
 
             <StatItem
                 label="p5 events"
+                loading={loading}
                 subtitle="max priority"
                 value={metrics ? String(metrics.p5Count24h) : '—'}
             />
 
             <StatItem
                 label="subscribers"
+                loading={loading}
                 subtitle="devices"
                 value={metrics ? String(metrics.subscriberCount) : '—'}
             />
 
             <StatItem
                 label="topic"
+                loading={loading}
                 subtitle={subscription?.topic.accessMode ?? 'public'}
                 value={subscription?.topic.displayName ?? '—'}
             />
@@ -93,14 +107,19 @@ export function StatsStrip({ metrics, subscription }: Props) {
     );
 }
 
-function StatItem({ label, subtitle, value }: { label: string; subtitle: string; value: string }) {
+function StatItem({ label, loading, subtitle, value }: StatItemProps) {
     return (
         <div>
             <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
                 {label}
             </p>
 
-            <p className="m-0 truncate text-[24px] font-semibold tracking-[-0.6px]">{value}</p>
+            {loading ? (
+                <Skeleton className="my-1" height={22} width="60%" />
+            ) : (
+                <p className="m-0 truncate text-[24px] font-semibold tracking-[-0.6px]">{value}</p>
+            )}
+
             <p className="m-0 mt-0.5 font-mono text-[10.5px] text-faint">{subtitle}</p>
         </div>
     );

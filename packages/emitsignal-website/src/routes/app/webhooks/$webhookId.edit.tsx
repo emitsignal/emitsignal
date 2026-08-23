@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 
 import { Toolbar } from '#/components/app/toolbar';
 import { WebhookCreate } from '#/components/app/webhooks/webhook-create';
+import { SkeletonTableRows } from '#/components/ui/skeleton';
 import { useWebhook } from '#/hooks/use-webhook';
 import { useWebhookDeliveries } from '#/hooks/use-webhook-deliveries';
 
@@ -34,8 +35,8 @@ function EditWebhookPage() {
                 }
             />
             {loading ? (
-                <div className="flex flex-1 items-center justify-center font-mono text-[12px] text-dim">
-                    loading…
+                <div className="flex-1 px-5.5 py-5">
+                    <SkeletonTableRows columns={[22, 40]} rows={5} />
                 </div>
             ) : webhook ? (
                 <WebhookCreate

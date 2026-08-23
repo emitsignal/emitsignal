@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 
 import type { PaidPlanName } from '#/hooks/use-billing';
 
+import { SkeletonTableRows } from '#/components/ui/skeleton';
 import { useBilling } from '#/hooks/use-billing';
 import { queryKeys } from '#/lib/query-client';
 
@@ -145,9 +146,7 @@ export function BillingPage() {
             <>
                 <PageHeader />
                 <SettingsCard>
-                    <div className="py-6 text-center font-mono text-[12px] text-dim">
-                        Loading billing…
-                    </div>
+                    <SkeletonTableRows columns={[30, 40]} rows={3} />
                 </SettingsCard>
             </>
         );

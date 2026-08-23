@@ -1,3 +1,4 @@
+import { SkeletonTableRows } from '#/components/ui/skeleton';
 import { usePushTokens } from '#/hooks/use-push-tokens';
 
 import { DeviceRow } from './device-row';
@@ -28,7 +29,7 @@ export function DevicesPage() {
                     ) : null}
 
                     {loading ? (
-                        <p className="font-mono text-[12px] text-dim">Loading…</p>
+                        <SkeletonTableRows columns={[28, 34, 14]} rows={2} />
                     ) : tokens.length === 0 ? (
                         <p className="font-mono text-[12px] text-dim">
                             No devices registered yet. Sign in on the mobile app and allow

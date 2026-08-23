@@ -5,6 +5,7 @@ import type { ApiKey } from '#/hooks/use-api-keys';
 
 import { Dot } from '#/components/ui/dot';
 import { Pill } from '#/components/ui/pill';
+import { SkeletonTableRows } from '#/components/ui/skeleton';
 import { Sparkline } from '#/components/ui/sparkline';
 import { formatExpiry } from '#/lib/format';
 
@@ -69,7 +70,7 @@ export function KeysTable({
     if (loading) {
         return (
             <div className="mb-7 overflow-hidden rounded-[10px] border border-line bg-elev">
-                <div className="py-10 text-center font-mono text-[12px] text-dim">Loading...</div>
+                <SkeletonTableRows columns={[24, 38, 16]} rows={3} />
             </div>
         );
     }

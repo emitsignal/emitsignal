@@ -11,6 +11,7 @@ import { InboxPreview } from '#/components/app/inbox/preview';
 import { PriorityHeader, PriorityRow } from '#/components/app/inbox/priority-row';
 import { TimelineDateLabel, TimelineRow } from '#/components/app/inbox/timeline-row';
 import { Toolbar } from '#/components/app/toolbar';
+import { SkeletonMessageList } from '#/components/ui/skeleton';
 import { useFeedStyle } from '#/ctx/feed-style';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useToast } from '#/ctx/toast';
@@ -21,6 +22,7 @@ interface ListProps extends SubListProps {
     fetchNextPage: () => void;
     hasNextPage: boolean;
     isFetchingNextPage: boolean;
+    loading: boolean;
 }
 
 interface SubListProps {
@@ -56,11 +58,12 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
                     fetchNextPage={fetchNextPage}
                     hasNextPage={hasNextPage}
                     isFetchingNextPage={isFetchingNextPage}
+                    loading={loading}
                     messages={messages}
                     onSelect={handleSelect}
                     selectedId={selectedId}
                 />
-                <InboxPreview message={selected} />
+                <InboxPreview loading={loading} message={selected} selectedId={selectedId} />
             </div>
         </>
     );
@@ -128,6 +131,7 @@ function NotificationList({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    loading,
     messages,
     onSelect,
     selectedId,
@@ -153,6 +157,14 @@ function NotificationList({
 
         return () => observer.disconnect();
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+    if (loading) {
+        return (
+            <div className="w-[380px] shrink-0 overflow-hidden border-r border-line">
+                <SkeletonMessageList />
+            </div>
+        );
+    }
 
     if (messages.length === 0) {
         return (

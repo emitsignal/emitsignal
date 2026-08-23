@@ -118,7 +118,7 @@ function KeysPage() {
 
             <div className="flex-1 overflow-auto px-5.5 py-5">
                 <div className="mb-[10px] flex items-baseline justify-between">
-                    <SubHeading>KEYS · {apiKeys.length}</SubHeading>
+                    <SubHeading>KEYS{loading ? '' : ` · ${apiKeys.length}`}</SubHeading>
                     <span className="font-mono text-[10.5px] text-dim">
                         secrets are shown once at creation
                     </span>

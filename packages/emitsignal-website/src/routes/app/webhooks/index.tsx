@@ -38,7 +38,7 @@ function WebhooksPage() {
                         <Plus size={12} /> New webhook
                     </Link>
                 }
-                subtitle={`${webhooks.length} endpoints`}
+                subtitle={loading ? '…' : `${webhooks.length} endpoints`}
                 title="Webhooks"
             />
 

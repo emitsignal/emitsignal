@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import type { Message } from '#/lib/api';
 
 import { Dot } from '#/components/ui/dot';
+import { SkeletonMessageList } from '#/components/ui/skeleton';
 import { cn } from '#/lib/cn';
 import { relativeTime } from '#/lib/format';
 import { priorityHex, priorityLabel } from '#/lib/priority';
@@ -73,7 +74,7 @@ export function EventList({
             />
 
             {loading ? (
-                <div className="p-5.5 font-mono text-[12px] text-dim">loading…</div>
+                <SkeletonMessageList />
             ) : messages.length === 0 ? (
                 <div className="p-5.5 font-mono text-[12px] text-dim">
                     no messages in this channel
