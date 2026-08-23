@@ -18,6 +18,7 @@ const MAPPING = {
     'arrow.left': 'arrow-back',
     'arrow.right': 'arrow-forward',
     'arrow.triangle.2.circlepath': 'sync',
+    'arrow.up.right.square': 'open-in-new',
     // Notifications
     bell: 'notifications',
     'bell.badge': 'notifications-active',
