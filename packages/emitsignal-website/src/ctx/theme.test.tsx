@@ -17,8 +17,6 @@ function renderOnServer(initialTheme: 'dark' | 'light' | 'system') {
     );
 }
 
-// The server snapshot is what React paints for SSR and for the first client
-// render, so a wrong value here shows up as a theme flash on every refresh.
 describe('ThemeProvider server rendering', () => {
     test('renders an explicitly chosen light theme', () => {
         expect(renderOnServer('light')).toContain('data-theme="light"');

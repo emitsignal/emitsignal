@@ -36,11 +36,8 @@ export function ThemeProvider({
 }) {
     const [theme, setThemeState] = useState<ThemePreference>(initialTheme);
 
-    // React uses the server snapshot for SSR *and* for the first client render, so
-    // anything it cannot derive there paints once and then swaps. Only 'system'
-    // needs the OS; an explicit preference is known from the cookie and must be
-    // honoured here, or a light dashboard flashes dark on every refresh.
-    // Subscribing also picks up a mid-session OS switch.
+    // The server cannot read the OS, so it renders dark for 'system' and the client
+    // corrects on hydration. Subscribing here also picks up a mid-session OS switch.
     const resolvedTheme = useSyncExternalStore(
         subscribeToScheme,
         () => resolveTheme(theme),
