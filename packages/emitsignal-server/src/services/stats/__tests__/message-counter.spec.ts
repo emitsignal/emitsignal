@@ -91,6 +91,30 @@ describe('flushMessageCounter', () => {
         expect(readMessageTotal()).toBe(1);
     });
 
+    it('re-writes a message that arrived while the previous flush was in flight', async () => {
+        let release!: () => void;
+        const inFlightWrite = new Promise<void>((resolve) => {
+            release = resolve;
+        });
+
+        prismaMock.$executeRaw = mock(() => inFlightWrite.then(() => 1));
+
+        incrementMessageCounter();
+
+        const flushing = flushMessageCounter();
+
+        incrementMessageCounter();
+
+        release();
+        await flushing;
+
+        prismaMock.$executeRaw = mock(() => Promise.resolve(1));
+
+        await flushMessageCounter();
+
+        expect(prismaMock.$executeRaw).toHaveBeenCalledTimes(1);
+    });
+
     it('keeps the total pending when the write fails', async () => {
         incrementMessageCounter();
         prismaMock.$executeRaw = mock(() => Promise.reject(new Error('database down')));
