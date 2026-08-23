@@ -29,7 +29,7 @@ export function createPushWorker(): Worker<Traced<PushJob>> {
                 traceContextFrom(job.data.traceContext),
                 async (span) => {
                     try {
-                        logger.info(
+                        logger.debug(
                             { jobId: job.id, topicName: job.data.topicName },
                             'processing push job',
                         );
