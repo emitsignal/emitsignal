@@ -60,7 +60,7 @@ function KeysPage() {
         await disable(id);
 
         setRevokeTarget(null);
-        flash('Key revoked — it can no longer authenticate', 'danger');
+        flash('Key revoked. It can no longer authenticate', 'danger');
     };
 
     const handleDelete = async (id: string) => {

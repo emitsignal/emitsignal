@@ -137,7 +137,7 @@ export function ProfilePage() {
             <div className="mb-[26px] border-b border-line pb-[18px]">
                 <h1 className="text-[22px] font-semibold tracking-[-0.4px]">Profile</h1>
                 <p className="mt-1 max-w-[620px] text-[13px] leading-[1.55] text-muted">
-                    This is the public you — shown next to every signal you emit.
+                    This is the public you, shown next to every signal you emit.
                 </p>
             </div>
 

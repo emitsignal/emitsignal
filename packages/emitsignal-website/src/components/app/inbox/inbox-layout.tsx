@@ -157,7 +157,7 @@ function NotificationList({
     if (messages.length === 0) {
         return (
             <div className="flex w-[380px] shrink-0 items-center justify-center border-r border-line p-4 font-mono text-[12px] text-dim">
-                no messages yet — subscribe to a channel
+                no messages yet · subscribe to a channel
             </div>
         );
     }
