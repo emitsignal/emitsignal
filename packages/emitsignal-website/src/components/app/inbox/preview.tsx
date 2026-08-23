@@ -1,5 +1,5 @@
 import { buildCurlExample } from '@emitsignal/shared/publish-example';
-import { safeExternalUrl } from '@emitsignal/shared/url';
+import { externalUrlLabel, safeExternalUrl } from '@emitsignal/shared/url';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
@@ -132,7 +132,10 @@ export function InboxPreview({ message }: { message: Message | null }) {
             {(hasAcknowledge || otherActions.length > 0) && (
                 <div className="mb-6.5 flex gap-2">
                     {hasAcknowledge && (
-                        <button className="rounded-md bg-accent px-3.5 py-2 text-[12.5px] font-semibold text-bg hover:bg-accent-dim">
+                        <button
+                            className="rounded-md bg-accent px-3.5 py-2 text-[12.5px] font-semibold text-bg hover:bg-accent-dim"
+                            type="button"
+                        >
                             Acknowledge
                         </button>
                     )}
@@ -144,7 +147,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
 
                         return safeHref ? (
                             <a
-                                className="rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-fg no-underline hover:bg-elev-2"
+                                className="inline-flex items-center gap-1.5 rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] font-semibold text-fg no-underline hover:border-faint hover:bg-elev-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                                 href={safeHref}
                                 key={index}
                                 rel="noopener noreferrer"
@@ -155,6 +158,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
                         ) : (
                             <span
                                 className="cursor-not-allowed rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
+                        const host = externalUrlLabel(safeHref);
                                 key={index}
                                 title="This action link was blocked (unsupported URL scheme)."
                             >
@@ -163,8 +167,17 @@ export function InboxPreview({ message }: { message: Message | null }) {
                         );
                     })}
                 </div>
+                                title={`Opens ${safeHref} in a new tab. This link is not verified by EmitSignal.`}
             )}
 
+
+                                {host && (
+                                    <span className="font-mono text-[11px] font-normal text-dim">
+                                        {host}
+                                    </span>
+                                )}
+
+                                <ExternalLink className="text-dim" size={12} />
             {message.inlineAttachments.length > 0 && (
                 <div className="mb-4.5">
                     <SubHeading>ATTACHMENTS</SubHeading>
