@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { Webhook } from '#/lib/api';
 
+import { SkeletonTableRows } from '#/components/ui/skeleton';
 import { API_URL } from '#/lib/api';
 import { withAlpha } from '#/lib/color';
 import { relativeTime } from '#/lib/format';
@@ -23,7 +24,11 @@ const COL = 'grid-cols-[2.2fr_1.4fr_1fr_0.8fr_0.7fr_100px]';
 
 export function WebhooksTable({ loading, remove, update, webhooks }: TableProps) {
     if (loading) {
-        return <div className="py-8 text-center font-mono text-[12px] text-dim">loading…</div>;
+        return (
+            <div className="rounded-xl border border-line bg-elev">
+                <SkeletonTableRows columns={[26, 34, 14, 10]} rows={4} />
+            </div>
+        );
     }
 
     if (webhooks.length === 0) {

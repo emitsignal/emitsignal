@@ -10,6 +10,7 @@ import { Dot } from '#/components/ui/dot';
 import { ImageGallery } from '#/components/ui/image-gallery';
 import { LinkWarningDialog } from '#/components/ui/link-warning-dialog';
 import { Pill } from '#/components/ui/pill';
+import { SkeletonMessageDetail } from '#/components/ui/skeleton';
 import { SubHeading } from '#/components/ui/sub-head';
 import { useDebugSections } from '#/ctx/debug-sections';
 import { PUBLISH_BASE_URL } from '#/lib/api';
@@ -24,10 +25,22 @@ const PRIORITY_LABELS: Record<number, string> = {
     5: 'PRIORITY 5 · MAX',
 };
 
-export function InboxPreview({ message }: { message: Message | null }) {
+interface InboxPreviewProps {
+    loading?: boolean;
+    message: Message | null;
+    selectedId?: null | string;
+}
+
+export function InboxPreview({ loading = false, message, selectedId }: InboxPreviewProps) {
     const { sections } = useDebugSections();
     const [galleryIndex, setGalleryIndex] = useState<null | number>(null);
     const [pendingLink, setPendingLink] = useState<MediaRef | null>(null);
+
+    // A deep link to /app/inbox/$messageId arrives before the feed resolves, so
+    // the message is legitimately missing while the list is still loading.
+    if (!message && loading && selectedId) {
+        return <SkeletonMessageDetail />;
+    }
 
     if (!message) {
         return (
@@ -96,6 +109,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
             <h2 className="m-0 mb-2.5 text-[26px] font-semibold tracking-[-0.6px]">
                 {message.title}
             </h2>
+
             <p className="m-0 mb-4.5 whitespace-pre-wrap text-[14px] leading-[1.5] text-muted">
                 {message.body}
             </p>
@@ -144,6 +158,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
                         // Only render a clickable link for safe http(s) URLs;
                         // never emit an anchor for a javascript:/data: scheme.
                         const safeHref = safeExternalUrl(action.url);
+                        const host = externalUrlLabel(safeHref);
 
                         return safeHref ? (
                             <a
@@ -152,24 +167,9 @@ export function InboxPreview({ message }: { message: Message | null }) {
                                 key={index}
                                 rel="noopener noreferrer"
                                 target="_blank"
-                            >
-                                {action.label ?? action.type}
-                            </a>
-                        ) : (
-                            <span
-                                className="cursor-not-allowed rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
-                        const host = externalUrlLabel(safeHref);
-                                key={index}
-                                title="This action link was blocked (unsupported URL scheme)."
-                            >
-                                {action.label ?? action.type}
-                            </span>
-                        );
-                    })}
-                </div>
                                 title={`Opens ${safeHref} in a new tab. This link is not verified by EmitSignal.`}
-            )}
-
+                            >
+                                {action.label ?? action.type}
 
                                 {host && (
                                     <span className="font-mono text-[11px] font-normal text-dim">
@@ -178,6 +178,20 @@ export function InboxPreview({ message }: { message: Message | null }) {
                                 )}
 
                                 <ExternalLink className="text-dim" size={12} />
+                            </a>
+                        ) : (
+                            <span
+                                className="cursor-not-allowed rounded-md border border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
+                                key={index}
+                                title="This action link was blocked (unsupported URL scheme)."
+                            >
+                                {action.label ?? action.type}
+                            </span>
+                        );
+                    })}
+                </div>
+            )}
+
             {message.inlineAttachments.length > 0 && (
                 <div className="mb-4.5">
                     <SubHeading>ATTACHMENTS</SubHeading>
@@ -223,11 +237,10 @@ export function InboxPreview({ message }: { message: Message | null }) {
                 </div>
             )}
 
-            {sections.showPayload ? <CodeBlock code={payloadJson} label="PAYLOAD" /> : null}
+            {sections.showCurl && <CodeBlock code={curlCommand} label="REPRODUCE · CURL" />}
+            {sections.showPayload && <CodeBlock code={payloadJson} label="PAYLOAD" />}
 
-            {sections.showCurl ? <CodeBlock code={curlCommand} label="REPRODUCE · CURL" /> : null}
-
-            {sections.showDelivery ? (
+            {sections.showDelivery && (
                 <div className="mb-4.5">
                     <SubHeading>DELIVERY</SubHeading>
                     <div className="flex flex-col gap-1.5">
@@ -250,7 +263,7 @@ export function InboxPreview({ message }: { message: Message | null }) {
                         ))}
                     </div>
                 </div>
-            ) : null}
+            )}
 
             {galleryIndex !== null && (
                 <ImageGallery

@@ -7,6 +7,7 @@ import { RoutingRail } from '#/components/app/channels/routing-rail';
 import { StatsStrip } from '#/components/app/channels/stats-strip';
 import { Toolbar } from '#/components/app/toolbar';
 import { Dot } from '#/components/ui/dot';
+import { Skeleton } from '#/components/ui/skeleton';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useTopicMessages, useTopicMetrics } from '#/hooks/use-emit-signal';
 
@@ -41,13 +42,13 @@ export const Route = createFileRoute('/app/channels')({
 
 function ChannelView() {
     const { priority, tags, topic } = Route.useSearch();
-    const { subscriptions } = useSubscriptions();
+    const { loading: subscriptionsLoading, subscriptions } = useSubscriptions();
     const navigate = useNavigate();
 
     const selectedTopic = topic || subscriptions[0]?.topic.name || '';
     const filters = { minPriority: priority, tags };
 
-    const { addMessage, metrics } = useTopicMetrics(selectedTopic || null);
+    const { addMessage, loading: metricsLoading, metrics } = useTopicMetrics(selectedTopic || null);
     const { fetchNextPage, hasNextPage, isFetchingNextPage, loading, messages } = useTopicMessages(
         selectedTopic || null,
         addMessage,
@@ -107,6 +108,17 @@ function ChannelView() {
             />
 
             <div className="flex flex-wrap gap-4 border-b border-line px-5 py-3">
+                {subscriptionsLoading &&
+                    [72, 96, 64].map((width) => (
+                        <Skeleton height={24} key={width} radius={12} width={width} />
+                    ))}
+
+                {!subscriptionsLoading && subscriptions.length === 0 && (
+                    <span className="px-1 font-mono text-[11.5px] text-dim">
+                        no channels yet · subscribe to one from the inbox
+                    </span>
+                )}
+
                 {subscriptions.map((subscription) => (
                     <button
                         className={`rounded-full px-3 py-1 font-mono text-[11.5px] ${
@@ -127,7 +139,11 @@ function ChannelView() {
                 ))}
             </div>
 
-            <StatsStrip metrics={metrics ?? null} subscription={subscription ?? null} />
+            <StatsStrip
+                loading={subscriptionsLoading || metricsLoading}
+                metrics={metrics ?? null}
+                subscription={subscription ?? null}
+            />
 
             <div className="flex min-h-0 flex-1">
                 <EventList
