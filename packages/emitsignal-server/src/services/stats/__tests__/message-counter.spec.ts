@@ -7,6 +7,7 @@ mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 import {
     flushMessageCounter,
     incrementMessageCounter,
+    loadMessageCounter,
     readMessageTotal,
     resetMessageCounterForTests,
 } from '#/services/stats/message-counter';
@@ -23,73 +24,83 @@ beforeEach(() => {
     prismaMock.$executeRaw = mock(() => Promise.resolve(1));
 });
 
-describe('incrementMessageCounter', () => {
-    it('counts each published message', async () => {
-        await incrementMessageCounter();
-        await incrementMessageCounter();
-        await incrementMessageCounter();
-
-        expect(await readMessageTotal()).toBe(3);
-    });
-
-    it('resumes from the stored total when the live counter is missing', async () => {
+describe('loadMessageCounter', () => {
+    it('seeds the total from the stored row', async () => {
         storedTotal(500);
 
-        await incrementMessageCounter();
+        await loadMessageCounter();
 
-        expect(await readMessageTotal()).toBe(501);
+        expect(readMessageTotal()).toBe(500);
     });
 
-    it('only folds the stored total in once', async () => {
-        storedTotal(500);
+    it('starts at zero when no row exists yet', async () => {
+        await loadMessageCounter();
 
-        await incrementMessageCounter();
-        await incrementMessageCounter();
-
-        expect(await readMessageTotal()).toBe(502);
+        expect(readMessageTotal()).toBe(0);
     });
 
-    it('does not throw when the counter backend fails', async () => {
-        storedTotal(10);
-        prismaMock.counter.findUnique = mock(() => Promise.reject(new Error('redis down')));
+    it('does not throw when the stored total cannot be read', async () => {
+        prismaMock.counter.findUnique = mock(() => Promise.reject(new Error('database down')));
 
-        await expect(incrementMessageCounter()).resolves.toBeUndefined();
-        expect(await readMessageTotal()).toBe(1);
+        await expect(loadMessageCounter()).resolves.toBeUndefined();
+        expect(readMessageTotal()).toBe(0);
     });
 });
 
-describe('readMessageTotal', () => {
-    it('falls back to the stored total before anything is published', async () => {
-        storedTotal(42);
+describe('incrementMessageCounter', () => {
+    it('counts each published message', () => {
+        incrementMessageCounter();
+        incrementMessageCounter();
+        incrementMessageCounter();
 
-        expect(await readMessageTotal()).toBe(42);
+        expect(readMessageTotal()).toBe(3);
     });
 
-    it('reports zero when neither the live nor the stored counter exists', async () => {
-        expect(await readMessageTotal()).toBe(0);
+    it('continues from the seeded total', async () => {
+        storedTotal(500);
+
+        await loadMessageCounter();
+        incrementMessageCounter();
+
+        expect(readMessageTotal()).toBe(501);
     });
 });
 
 describe('flushMessageCounter', () => {
-    it('writes nothing when the live counter is absent', async () => {
+    it('writes nothing when nothing was counted', async () => {
         await flushMessageCounter();
 
         expect(prismaMock.$executeRaw).not.toHaveBeenCalled();
     });
 
-    it('persists the live total', async () => {
-        await incrementMessageCounter();
+    it('persists the total after an increment', async () => {
+        incrementMessageCounter();
+
         await flushMessageCounter();
 
         expect(prismaMock.$executeRaw).toHaveBeenCalledTimes(1);
     });
 
-    it('is idempotent', async () => {
-        await incrementMessageCounter();
+    it('skips the write when no message arrived since the last flush', async () => {
+        incrementMessageCounter();
 
         await flushMessageCounter();
         await flushMessageCounter();
 
-        expect(await readMessageTotal()).toBe(1);
+        expect(prismaMock.$executeRaw).toHaveBeenCalledTimes(1);
+        expect(readMessageTotal()).toBe(1);
+    });
+
+    it('keeps the total pending when the write fails', async () => {
+        incrementMessageCounter();
+        prismaMock.$executeRaw = mock(() => Promise.reject(new Error('database down')));
+
+        await expect(flushMessageCounter()).resolves.toBeUndefined();
+
+        prismaMock.$executeRaw = mock(() => Promise.resolve(1));
+
+        await flushMessageCounter();
+
+        expect(prismaMock.$executeRaw).toHaveBeenCalledTimes(1);
     });
 });

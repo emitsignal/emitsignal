@@ -146,7 +146,7 @@ export const receiveWebhook = new Elysia().post(
             },
         });
 
-        void incrementMessageCounter();
+        incrementMessageCounter();
 
         const event = await serializeMessage({ ...message, topicId: topic.id }, 0, false);
 
