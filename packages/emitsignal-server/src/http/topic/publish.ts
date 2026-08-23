@@ -186,7 +186,7 @@ function publishRoute(path: string, deprecated: boolean) {
                 },
             });
 
-            void incrementMessageCounter();
+            incrementMessageCounter();
 
             if (isScheduled) {
                 scheduleQueue.add(

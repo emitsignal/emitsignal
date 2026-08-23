@@ -64,7 +64,7 @@ describe('POST /publish/:name', () => {
         await app.handle(request('test-topic', validBody));
         await app.handle(request('test-topic', validBody));
 
-        expect(await readMessageTotal()).toBe(2);
+        expect(readMessageTotal()).toBe(2);
     });
 
     it('publishes to event bus', async () => {

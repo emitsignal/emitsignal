@@ -54,6 +54,8 @@ import { emailQueue, purgeQueue, pushQueue, redisConnection, scheduleQueue } fro
 import { redis } from '#/lib/redis';
 import { FileStorageService } from '#/lib/storage';
 import { environment, isProduction } from '#/schema/environment';
+import { flushMessageCounter, loadMessageCounter } from '#/services/stats/message-counter';
+import { duration } from '#/utils/duration';
 import { isUnobservedPath } from '#/utils/observability';
 
 Email.init(environment);
@@ -123,7 +125,11 @@ const app = new Elysia({
     .use(updateWebhook)
     .use(userAvatar);
 
+await loadMessageCounter();
+
 export const server = app.listen(environment.EMIT_SIGNAL_HTTP_PORT);
+
+const counterFlush = setInterval(flushMessageCounter, duration.minutes(5).as('ms'));
 
 logger.info(
     `🟣 Server started at ${environment.EMIT_SIGNAL_HTTP_PORT} ` +
@@ -154,6 +160,10 @@ async function shutdown() {
     isShuttingDown = true;
 
     logger.info('shutting down server');
+
+    clearInterval(counterFlush);
+
+    await flushMessageCounter();
 
     await emailQueue.close();
     await purgeQueue.close();
