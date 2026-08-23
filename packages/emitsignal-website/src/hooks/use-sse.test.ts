@@ -84,4 +84,45 @@ describe('useSSE', () => {
 
         expect(mockFetchEventSource).not.toHaveBeenCalled();
     });
+
+    it('aborts the connection on unmount', () => {
+        captureOnMessage();
+
+        const { unmount } = renderHook(() => useSSE({ onEvent: vi.fn(), url: 'http://a/sse' }));
+
+        const { signal } = mockFetchEventSource.mock.calls[0][1] as { signal: AbortSignal };
+
+        expect(signal.aborted).toBe(false);
+
+        unmount();
+
+        expect(signal.aborted).toBe(true);
+    });
+
+    it('reconnects when the url changes', () => {
+        captureOnMessage();
+
+        const { rerender } = renderHook(
+            ({ url }: { url: string }) => useSSE({ onEvent: vi.fn(), url }),
+            {
+                initialProps: { url: 'http://a/sse' },
+            },
+        );
+
+        expect(mockFetchEventSource).toHaveBeenCalledOnce();
+
+        rerender({ url: 'http://a/sse?since=1' });
+
+        expect(mockFetchEventSource).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not reconnect when only the event handler identity changes', () => {
+        captureOnMessage();
+
+        const { rerender } = renderHook(() => useSSE({ onEvent: vi.fn(), url: 'http://a/sse' }));
+
+        rerender();
+
+        expect(mockFetchEventSource).toHaveBeenCalledOnce();
+    });
 });
