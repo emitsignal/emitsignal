@@ -141,4 +141,20 @@ describe('buildCliExample', () => {
             buildCliExample({ message: { body: 'hello', title: 'hello' }, topicName: 'a' }),
         ).toBe('emitsignal publish a "hello"');
     });
+
+    test('breaks each argument onto its own line when wrapping', () => {
+        expect(
+            buildCliExample({
+                message: { body: 'shipped v2', priority: 4 },
+                topicName: 'alerts',
+                wrap: true,
+            }),
+        ).toBe('emitsignal publish alerts \\\n  "shipped v2" \\\n  -p4');
+    });
+
+    test('uses the requested bin name', () => {
+        expect(
+            buildCliExample({ bin: 'es', message: { body: 'deploy ok' }, topicName: 'alerts' }),
+        ).toBe('es publish alerts "deploy ok"');
+    });
 });
