@@ -44,9 +44,9 @@ function WebhooksPage() {
 
             <div className="flex-1 overflow-auto px-5.5 py-5">
                 <p className="mb-5 max-w-xl text-[13.5px] leading-relaxed text-muted">
-                    Inbound endpoints. Point any service at a webhook URL — with a{' '}
+                    Inbound endpoints. Point any service at a webhook URL. With a{' '}
                     <span className="text-accent">template</span> it&apos;s pretty-printed into a
-                    notification, without one the raw payload is forwarded as-is.
+                    notification; without one the raw payload is forwarded as-is.
                 </p>
 
                 <WebhooksTable

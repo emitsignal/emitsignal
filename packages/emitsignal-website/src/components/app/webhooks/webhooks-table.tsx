@@ -206,7 +206,7 @@ function WebhookRow({
                                     borderColor:
                                         'color-mix(in srgb, var(--color-warn) 30%, transparent)',
                                 }}
-                                title="No signing secret — anyone with the endpoint URL can post to this webhook"
+                                title="No signing secret: anyone with the endpoint URL can post to this webhook"
                             >
                                 unverified
                             </span>

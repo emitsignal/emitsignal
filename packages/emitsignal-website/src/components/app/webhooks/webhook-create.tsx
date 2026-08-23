@@ -676,7 +676,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         {!useTemplate && (
                             <div className="mb-3 flex items-center gap-2 rounded-lg border border-line bg-elev px-3 py-2">
                                 <span className="text-[12px] text-muted">
-                                    No template — the raw payload is forwarded and pretty-printed as
+                                    No template. The raw payload is forwarded and pretty-printed as
                                     the body.
                                 </span>
                             </div>

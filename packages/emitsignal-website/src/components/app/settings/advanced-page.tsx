@@ -230,7 +230,7 @@ export function AdvancedPage() {
                                         </div>
                                         <div className="mt-0.5 text-[12px] text-muted">
                                             {purgeMutation.isSuccess
-                                                ? 'Purge queued — your signals are being deleted.'
+                                                ? 'Purge queued. Your signals are being deleted.'
                                                 : 'Permanently delete every signal across all channels. Channels stay.'}
                                         </div>
                                     </div>

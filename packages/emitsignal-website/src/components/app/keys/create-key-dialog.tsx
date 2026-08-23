@@ -238,7 +238,7 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
                                         {reveal.name}
                                     </div>
                                     <div className="text-[12px] text-dim">
-                                        Copy it now — you won&apos;t be able to see it again
+                                        Copy it now. You won&apos;t be able to see it again
                                     </div>
                                 </div>
                             </div>
@@ -312,7 +312,7 @@ export function CreateKeyDialog({ onClose, onCreated, open, revealData }: Create
                                     onClick={onClose}
                                 >
                                     <Check size={13} />
-                                    Done — I&apos;ve copied it
+                                    Done, I&apos;ve copied it
                                 </button>
                             </div>
                         </>

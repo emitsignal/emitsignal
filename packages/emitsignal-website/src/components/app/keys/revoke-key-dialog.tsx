@@ -62,7 +62,7 @@ export function RevokeKeyDialog({ apiKey, onClose, onConfirm }: RevokeKeyDialogP
                     <p className="text-[13px] leading-[1.55] text-muted">
                         Any service using this key will{' '}
                         <strong className="text-fg">immediately stop</strong> being able to publish
-                        or read. This can&apos;t be undone — you&apos;d need to create a new key.
+                        or read. This can&apos;t be undone. You&apos;d need to create a new key.
                     </p>
 
                     <div className="mt-3.5 flex items-center gap-2.5 rounded-lg border border-line bg-bg px-3.5 py-2.5">

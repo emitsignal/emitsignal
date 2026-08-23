@@ -83,7 +83,7 @@ export function VerificationFields({
                             onChange={(event) => onSecretChange(event.target.value)}
                             placeholder={
                                 hasStoredSecret
-                                    ? 'A secret is stored — type to replace it'
+                                    ? 'A secret is stored. Type to replace it'
                                     : 'Paste the signing secret'
                             }
                             spellCheck={false}

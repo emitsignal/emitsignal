@@ -95,7 +95,7 @@ export function ChannelActionsMenu({
         try {
             await claimTopic.mutateAsync({ name: topicName });
 
-            toast(`Reserved ${topicName} — you now own this topic`);
+            toast(`Reserved ${topicName}. You now own this topic`);
         } catch (error) {
             toast(apiErrorMessage(error, 'Failed to claim topic'), 'danger');
         }

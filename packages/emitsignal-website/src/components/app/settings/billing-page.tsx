@@ -185,7 +185,7 @@ export function BillingPage() {
             {welcome ? (
                 <div className="mb-[18px] flex items-center gap-2.5 rounded-[10px] border border-success/40 bg-success/5 px-4 py-3 text-[12.5px] text-success">
                     <Check size={14} />
-                    Subscription updated — welcome to {currentPlan.label}!
+                    Subscription updated. Welcome to {currentPlan.label}!
                 </div>
             ) : null}
 

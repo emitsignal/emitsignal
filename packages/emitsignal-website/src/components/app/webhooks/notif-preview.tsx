@@ -92,7 +92,7 @@ export function NotifPreview({
                         <div className="mt-2.5">
                             <span
                                 className="inline-block rounded-md border border-dashed border-line bg-elev px-3.5 py-2 text-[12.5px] text-dim"
-                                title="Not an http(s) URL — this link is dropped and no button is delivered."
+                                title="Not an http(s) URL. This link is dropped and no button is delivered."
                             >
                                 {buttonLabel} · dropped
                             </span>
