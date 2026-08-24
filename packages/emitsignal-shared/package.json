@@ -10,6 +10,7 @@
         "./topic": "./src/topic.ts",
         "./url": "./src/url.ts",
         "./webhook-template": "./src/webhook-template.ts",
+        "./webhook-transforms": "./src/webhook-transforms.ts",
         "./webhook-verification": "./src/webhook-verification.ts"
     },
     "license": "AGPL-3.0-only",

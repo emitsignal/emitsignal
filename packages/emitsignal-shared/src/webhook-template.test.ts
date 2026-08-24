@@ -52,7 +52,7 @@ describe('applyTemplate wildcard iteration', () => {
     });
 
     test('honors a custom empty value', () => {
-        expect(applyTemplate('{{monitor.nope}}', payload, '—')).toBe('—');
+        expect(applyTemplate('{{monitor.nope}}', payload, { defaultValue: '—' })).toBe('—');
     });
 
     test('returns the empty value for wildcard on a non-array', () => {

@@ -151,6 +151,7 @@ export interface WebhookTemplate {
     link?: string;
     linkLabel?: string;
     priority?: string;
+    replacements?: Record<string, string>;
     tags?: string;
     title?: string;
 }
