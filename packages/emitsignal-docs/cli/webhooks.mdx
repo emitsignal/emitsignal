@@ -228,6 +228,45 @@ placeholders resolved against the incoming payload.
 Dot paths walk nested objects (`repository.owner.login`); a `*` segment maps over
 an array (`commits.*.message`). Missing paths render as an empty string.
 
+### Filters
+
+A placeholder can pipe its value through one or more filters, applied left to
+right. Arguments follow a colon and are single-quoted when they contain spaces or
+punctuation. A placeholder with no `|` behaves exactly as before.
+
+```json template.json
+{
+    "body": "{{ data.object.items.data.*.price.unit_amount | divide:100 | currency:'usd' }} on {{ created | date:'YYYY-MM-DD HH:mm' }}",
+    "replacements": {
+        "active": "Ativa",
+        "customer.subscription.created": "Assinatura criada"
+    },
+    "title": "{{ type | map }}"
+}
+```
+
+| Filter                         | Does                                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| `date`                         | Formats unix seconds, unix milliseconds, or an ISO string. Default `YYYY-MM-DD HH:mm`, UTC.   |
+| `date:'<pattern>'`             | Tokens `YYYY MMM MM DD HH mm ss`. Also accepts `'iso'` and `'relative'`.                      |
+| `divide:N`                     | Divides for the Stripe minor-units case (`500 \| divide:100` → `5`).                          |
+| `multiply:N`                   | Multiplies.                                                                                   |
+| `number` / `number:N`          | Thousands separators, optionally with `N` fixed decimals.                                     |
+| `currency:'usd'`               | Currency formatting. Optional second argument sets the locale (default `en-US`).              |
+| `upper` `lower` `title` `trim` | Case and whitespace.                                                                          |
+| `truncate:N`                   | Caps a string at `N` characters and appends `…`.                                              |
+| `default:'text'`               | Fallback when the path resolves to nothing.                                                   |
+| `map`                          | Looks the value up in the template's `replacements` map, for translating or normalizing text. |
+
+The `replacements` field is a flat string-to-string map used by `map`. A value with
+no entry passes through unchanged; `map:'fallback'` sets an explicit miss value.
+
+Filters apply to each element of a wildcard match individually, so
+`items.*.amount | divide:100 | currency:'usd'` renders `$5.00, $25.00` rather than
+formatting the joined string. A value a filter cannot handle passes through
+untouched, and an unrecognized filter name is ignored, so a template typo never fails
+a live delivery.
+
 <ParamField body="--file, -f" type="path">
     Path to the template file to attach or replace.
 </ParamField>

@@ -25,7 +25,8 @@ POST /webhooks
 </ParamField>
 <ParamField body="name" type="string" />
 <ParamField body="template" type="string | null">
-    Optional template used to render incoming payloads into a message.
+    Optional template used to render incoming payloads into a message. JSON-encoded; see
+    [Templates](/cli/webhooks#templates) for the fields, placeholder paths, and filters.
 </ParamField>
 <ParamField body="verification" type="string" default='"none"'>
     One of `none`, `github`, `stripe`, `svix`, `hmac`, `token`. Anything other than `none` requires
