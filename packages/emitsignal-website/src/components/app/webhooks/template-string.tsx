@@ -6,8 +6,12 @@ interface TemplateStringProps {
 }
 
 // Preview wrapper: renders missing values as an em dash so the UI shows a placeholder.
-export function applyTemplate(str: string, data: Record<string, unknown>): string {
-    return applyTemplateShared(str, data, '—');
+export function applyTemplate(
+    str: string,
+    data: Record<string, unknown>,
+    replacements?: Record<string, string>,
+): string {
+    return applyTemplateShared(str, data, { defaultValue: '—', replacements });
 }
 
 export function TemplateString({ size = 12.5, str }: TemplateStringProps) {

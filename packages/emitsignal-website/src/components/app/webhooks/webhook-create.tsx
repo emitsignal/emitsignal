@@ -5,7 +5,12 @@ import {
     defaultVerificationForSource,
     schemeNeedsConfig,
 } from '@emitsignal/shared';
-import { applyTemplate as applyTemplateExact } from '@emitsignal/shared/webhook-template';
+import {
+    applyTemplate as applyTemplateExact,
+    parsePlaceholder,
+    sanitizeReplacements,
+} from '@emitsignal/shared/webhook-template';
+import { isKnownTransform, TRANSFORM_NAMES } from '@emitsignal/shared/webhook-transforms';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { ChevronDown, Copy } from 'lucide-react';
@@ -118,11 +123,19 @@ const EMPTY_TEMPLATE: WebhookTemplate = {
     link: '',
     linkLabel: '',
     priority: '3',
+    replacements: {},
     tags: '',
     title: '',
 };
 
-// ── Props ─────────────────────────────────────────────────────────────────────
+const TEMPLATE_FIELDS = ['title', 'body', 'tags', 'link'] as const;
+
+interface ReplacementRow {
+    from: string;
+    to: string;
+}
+
+type TemplateTextField = Exclude<keyof WebhookTemplate, 'replacements'>;
 
 interface WebhookCreateProps {
     initialData?: {
@@ -139,6 +152,27 @@ interface WebhookCreateProps {
         | 'verification'
         | 'verificationConfig'
     >;
+}
+
+function toReplacementMap(rows: ReplacementRow[]): Record<string, string> {
+    return Object.fromEntries(
+        rows.filter((row) => row.from.trim()).map((row) => [row.from, row.to]),
+    );
+}
+
+function toReplacementRows(replacements: Record<string, string> | undefined): ReplacementRow[] {
+    return Object.entries(replacements ?? {}).map(([from, to]) => ({ from, to }));
+}
+
+// ── Props ─────────────────────────────────────────────────────────────────────
+
+// Filters are ignored at delivery time when misspelled, so the editor is where a typo surfaces.
+function unknownFiltersIn(input: string): string[] {
+    const names = [...input.matchAll(/\{\{\s*([^}]+)\s*\}\}/g)].flatMap(([, raw]) =>
+        parsePlaceholder(raw!).filters.map((filter) => filter.name),
+    );
+
+    return [...new Set(names.filter((name) => !isKnownTransform(name)))];
 }
 
 const EMPTY_CONFIG: VerificationConfig = {
@@ -200,6 +234,9 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     );
     const [topicName, setTopicName] = useState(initialData?.topicName ?? '');
     const [useTemplate, setUseTemplate] = useState(initialTemplate !== null);
+    const [replacementRows, setReplacementRows] = useState<ReplacementRow[]>(
+        toReplacementRows((initialTemplate ?? EMPTY_TEMPLATE).replacements),
+    );
     const templateDirtyRef = useRef(false);
 
     const [verificationConfig, setVerificationConfig] = useState<VerificationConfig>(
@@ -223,14 +260,18 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
     const showRaw = !useTemplate || previewMode === 'raw';
 
+    const replacements = sanitizeReplacements(templateFields.replacements);
+
     const rendered = {
-        body: applyTemplate(templateFields.body ?? '', activePayload),
+        body: applyTemplate(templateFields.body ?? '', activePayload, replacements),
         channel: topicName || `${source}/channel`,
-        link: applyTemplate(templateFields.link ?? '', activePayload).trim(),
-        linkLabel: applyTemplateExact(templateFields.linkLabel ?? '', activePayload),
+        link: applyTemplate(templateFields.link ?? '', activePayload, replacements).trim(),
+        linkLabel: applyTemplateExact(templateFields.linkLabel ?? '', activePayload, {
+            replacements,
+        }),
         priority: Number(templateFields.priority ?? '3'),
-        tags: applyTemplate(templateFields.tags ?? '', activePayload),
-        title: applyTemplate(templateFields.title ?? '', activePayload),
+        tags: applyTemplate(templateFields.tags ?? '', activePayload, replacements),
+        title: applyTemplate(templateFields.title ?? '', activePayload, replacements),
     };
 
     function handleSourceChange(source: Source) {
@@ -267,10 +308,17 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
     }
 
-    function handleTemplateFieldChange(field: keyof WebhookTemplate, value: string) {
+    function handleTemplateFieldChange(field: TemplateTextField, value: string) {
         templateDirtyRef.current = true;
 
         setTemplateFields((prev) => ({ ...prev, [field]: value }));
+    }
+
+    function handleReplacementRowsChange(rows: ReplacementRow[]) {
+        templateDirtyRef.current = true;
+
+        setReplacementRows(rows);
+        setTemplateFields((prev) => ({ ...prev, replacements: toReplacementMap(rows) }));
     }
 
     function handleCustomPayloadChange(text: string) {
@@ -583,21 +631,31 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                             pointerEvents: useTemplate ? 'auto' : 'none',
                         }}
                     >
-                        {(['title', 'body', 'tags', 'link'] as const).map((field) => (
-                            <div className="mb-2.5" key={field}>
-                                <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                    {field}
+                        {TEMPLATE_FIELDS.map((field) => {
+                            const unknownFilters = unknownFiltersIn(templateFields[field] ?? '');
+
+                            return (
+                                <div className="mb-2.5" key={field}>
+                                    <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                                        {field}
+                                    </div>
+                                    <input
+                                        className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
+                                        onChange={(e) =>
+                                            handleTemplateFieldChange(field, e.target.value)
+                                        }
+                                        placeholder={`{{${field === 'title' ? 'event.type' : field === 'body' ? 'event.description' : field === 'tags' ? 'source, tag' : 'event.url'}}}`}
+                                        value={templateFields[field] ?? ''}
+                                    />
+                                    {unknownFilters.length > 0 && (
+                                        <div className="mt-1 font-mono text-[10.5px] text-warn">
+                                            Unknown filter{unknownFilters.length > 1 ? 's' : ''}:{' '}
+                                            {unknownFilters.join(', ')} — ignored on delivery.
+                                        </div>
+                                    )}
                                 </div>
-                                <input
-                                    className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                    onChange={(e) =>
-                                        handleTemplateFieldChange(field, e.target.value)
-                                    }
-                                    placeholder={`{{${field === 'title' ? 'event.type' : field === 'body' ? 'event.description' : field === 'tags' ? 'source, tag' : 'event.url'}}}`}
-                                    value={templateFields[field] ?? ''}
-                                />
-                            </div>
-                        ))}
+                            );
+                        })}
 
                         {(templateFields.link ?? '') !== '' && (
                             <div className="mb-2.5">
@@ -638,6 +696,92 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                 ))}
                             </div>
                         </div>
+
+                        <div className="mb-2.5">
+                            <div className="mb-1 flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                                Replacements
+                                <span className="normal-case tracking-normal text-faint">
+                                    optional · used by the {'{{ value | map }}'} filter
+                                </span>
+                            </div>
+
+                            {replacementRows.map((row, index) => (
+                                <div className="mb-1 flex gap-1" key={index}>
+                                    <input
+                                        className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
+                                        onChange={(e) =>
+                                            handleReplacementRowsChange(
+                                                replacementRows.map((current, position) =>
+                                                    position === index
+                                                        ? { ...current, from: e.target.value }
+                                                        : current,
+                                                ),
+                                            )
+                                        }
+                                        placeholder="customer.subscription.created"
+                                        value={row.from}
+                                    />
+                                    <input
+                                        className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
+                                        onChange={(e) =>
+                                            handleReplacementRowsChange(
+                                                replacementRows.map((current, position) =>
+                                                    position === index
+                                                        ? { ...current, to: e.target.value }
+                                                        : current,
+                                                ),
+                                            )
+                                        }
+                                        placeholder="Assinatura criada"
+                                        value={row.to}
+                                    />
+                                    <button
+                                        className="rounded-lg border border-line px-2.5 font-mono text-[12px] text-dim hover:text-fg"
+                                        onClick={() =>
+                                            handleReplacementRowsChange(
+                                                replacementRows.filter(
+                                                    (_, position) => position !== index,
+                                                ),
+                                            )
+                                        }
+                                        type="button"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button
+                                className="rounded-lg border border-line px-2.5 py-1.5 font-mono text-[11px] text-dim hover:text-fg"
+                                onClick={() =>
+                                    handleReplacementRowsChange([
+                                        ...replacementRows,
+                                        { from: '', to: '' },
+                                    ])
+                                }
+                                type="button"
+                            >
+                                + Add replacement
+                            </button>
+                        </div>
+
+                        <details className="mb-3">
+                            <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                                Available filters
+                            </summary>
+                            <div className="mt-1.5 font-mono text-[11px] leading-relaxed text-faint">
+                                {TRANSFORM_NAMES.join(' · ')}
+                                <div className="mt-1.5 text-dim">
+                                    {"{{ created | date:'YYYY-MM-DD HH:mm' }}"}
+                                </div>
+                                <div className="text-dim">
+                                    {
+                                        "{{ data.object.items.data.*.price.unit_amount | divide:100 | currency:'usd' }}"
+                                    }
+                                </div>
+                                <div className="text-dim">{'{{ type | map }}'}</div>
+                            </div>
+                        </details>
                     </div>
 
                     {/* preview */}

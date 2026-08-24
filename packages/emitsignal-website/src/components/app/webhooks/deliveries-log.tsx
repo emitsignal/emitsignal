@@ -1,4 +1,7 @@
-import { applyTemplate as applyTemplateExact } from '@emitsignal/shared/webhook-template';
+import {
+    applyTemplate as applyTemplateExact,
+    sanitizeReplacements,
+} from '@emitsignal/shared/webhook-template';
 import { useNavigate } from '@tanstack/react-router';
 import { Copy, Edit, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
@@ -81,15 +84,18 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
 
         try {
             const template = JSON.parse(webhook.template) as WebhookTemplate;
+            const replacements = sanitizeReplacements(template.replacements);
 
             return {
-                body: applyTemplate(template.body ?? '', delivery.payload),
+                body: applyTemplate(template.body ?? '', delivery.payload, replacements),
                 channel: delivery.channel,
-                link: applyTemplate(template.link ?? '', delivery.payload).trim(),
-                linkLabel: applyTemplateExact(template.linkLabel ?? '', delivery.payload),
+                link: applyTemplate(template.link ?? '', delivery.payload, replacements).trim(),
+                linkLabel: applyTemplateExact(template.linkLabel ?? '', delivery.payload, {
+                    replacements,
+                }),
                 priority: Number(template.priority ?? '3'),
-                tags: applyTemplate(template.tags ?? '', delivery.payload),
-                title: applyTemplate(template.title ?? '', delivery.payload),
+                tags: applyTemplate(template.tags ?? '', delivery.payload, replacements),
+                title: applyTemplate(template.title ?? '', delivery.payload, replacements),
             };
         } catch {
             return null;
