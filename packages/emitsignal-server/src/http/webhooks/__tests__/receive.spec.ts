@@ -460,3 +460,81 @@ describe('POST /h/:slug signature verification', () => {
         expect(prismaMock.message.create).not.toHaveBeenCalled();
     });
 });
+
+describe('POST /h/:slug template filters', () => {
+    const app = new Elysia().use(receiveWebhook);
+
+    // Trimmed to the fields the template touches.
+    const stripePayload = {
+        created: 1787142663,
+        data: {
+            object: {
+                items: { data: [{ price: { unit_amount: 500 } }] },
+                status: 'active',
+            },
+        },
+        type: 'customer.subscription.created',
+    };
+
+    function withTemplate(template: Record<string, unknown>) {
+        prismaMock.webhook.findUnique.mockResolvedValue({
+            id: 'wh-1',
+            secretCiphertext: null,
+            source: 'stripe',
+            status: 'active',
+            template: JSON.stringify(template),
+            topicName: 'billing',
+            userId: null,
+            verification: 'none',
+            verificationConfig: null,
+        });
+    }
+
+    function request(payload: unknown) {
+        return new Request('http://localhost/h/st_abc1234', {
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+        });
+    }
+
+    function storedMessage() {
+        const calls = prismaMock.message.create.mock.calls;
+        const lastCall = calls[calls.length - 1] as unknown as [{ data: Record<string, unknown> }];
+
+        return lastCall[0].data;
+    }
+
+    beforeEach(() => {
+        prismaMock.message.create.mockClear();
+        mockPushQueue.add.mockClear();
+        prismaMock.topic.findUnique.mockResolvedValue({
+            displayName: 'billing',
+            id: 'topic-1',
+            name: 'billing',
+        });
+    });
+
+    it('renders a filter chain and the replacements dictionary end to end', async () => {
+        withTemplate({
+            body: "{{data.object.items.data.*.price.unit_amount | divide:100 | currency:'usd'}} on {{created | date:'YYYY-MM-DD'}}",
+            replacements: { 'customer.subscription.created': 'Assinatura criada' },
+            title: '{{type | map}}',
+        });
+
+        const res = await app.handle(request(stripePayload));
+        const message = storedMessage();
+
+        expect(res.status).toBe(200);
+        expect(message.title).toBe('Assinatura criada');
+        expect(message.body).toBe('$5.00 on 2026-08-19');
+    });
+
+    it('renders a filterless template exactly as before', async () => {
+        withTemplate({ title: '{{type}}' });
+
+        await app.handle(request(stripePayload));
+
+        expect(storedMessage().title).toBe('customer.subscription.created');
+    });
+});
