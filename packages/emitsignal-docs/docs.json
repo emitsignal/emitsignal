@@ -30,7 +30,7 @@
     },
     "logo": {
         "dark": "/logo/dark.svg",
-        "href": "/cli/index",
+        "href": "/api/index",
         "light": "/logo/light.svg"
     },
     "name": "EmitSignal",
@@ -49,6 +49,34 @@
     },
     "navigation": {
         "tabs": [
+            {
+                "groups": [
+                    {
+                        "group": "Overview",
+                        "pages": ["api/index", "api/authentication"]
+                    },
+                    {
+                        "group": "Publish & stream",
+                        "pages": ["api/publish", "api/listen"]
+                    },
+                    {
+                        "group": "Resources",
+                        "pages": [
+                            "api/topics",
+                            "api/subscriptions",
+                            "api/messages",
+                            "api/push-tokens",
+                            "api/webhooks",
+                            "api/billing"
+                        ]
+                    },
+                    {
+                        "group": "Reference",
+                        "pages": ["api/errors", "api/rate-limits"]
+                    }
+                ],
+                "tab": "API Reference"
+            },
             {
                 "groups": [
                     {
@@ -81,34 +109,6 @@
                     }
                 ],
                 "tab": "CLI Reference"
-            },
-            {
-                "groups": [
-                    {
-                        "group": "Overview",
-                        "pages": ["api/index", "api/authentication"]
-                    },
-                    {
-                        "group": "Publish & stream",
-                        "pages": ["api/publish", "api/listen"]
-                    },
-                    {
-                        "group": "Resources",
-                        "pages": [
-                            "api/topics",
-                            "api/subscriptions",
-                            "api/messages",
-                            "api/push-tokens",
-                            "api/webhooks",
-                            "api/billing"
-                        ]
-                    },
-                    {
-                        "group": "Reference",
-                        "pages": ["api/errors", "api/rate-limits"]
-                    }
-                ],
-                "tab": "API Reference"
             }
         ]
     },
