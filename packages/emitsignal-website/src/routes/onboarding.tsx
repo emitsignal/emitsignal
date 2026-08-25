@@ -11,6 +11,7 @@ import { api, API_URL } from '#/lib/api';
 import { authClient } from '#/lib/auth-client';
 import { isAuthenticated } from '#/lib/auth-guard';
 import { queryKeys } from '#/lib/query-client';
+import { buildSeoMeta } from '#/lib/seo';
 import { getDeviceId } from '#/lib/storage';
 
 export const Route = createFileRoute('/onboarding')({
@@ -24,6 +25,8 @@ export const Route = createFileRoute('/onboarding')({
         }
     },
     component: OnboardingPage,
+    head: () =>
+        buildSeoMeta({ noindex: true, path: '/onboarding', title: 'Get started - EmitSignal' }),
 });
 
 const FALLBACK_TOPICS: TopicSuggestion[] = [

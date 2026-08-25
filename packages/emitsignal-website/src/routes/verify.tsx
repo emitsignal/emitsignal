@@ -5,9 +5,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Logo } from '#/components/ui/logo';
 import { authClient } from '#/lib/auth-client';
 import { queryKeys } from '#/lib/query-client';
+import { buildSeoMeta } from '#/lib/seo';
 
 export const Route = createFileRoute('/verify')({
     component: VerifyPage,
+    head: () => buildSeoMeta({ noindex: true, path: '/verify', title: 'Verify - EmitSignal' }),
     validateSearch: (search: Record<string, unknown>) => ({
         email: typeof search.email === 'string' ? search.email : undefined,
         otp:

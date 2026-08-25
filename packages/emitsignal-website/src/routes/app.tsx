@@ -15,6 +15,7 @@ import { getDebugSections } from '#/lib/debug-sections.server';
 import { readFeedStyleFromDocument } from '#/lib/feed-style';
 import { getFeedStyle } from '#/lib/feed-style.server';
 import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
+import { buildSeoMeta } from '#/lib/seo';
 import { readThemePreferenceFromDocument } from '#/lib/theme';
 import { getThemePreference } from '#/lib/theme.server';
 
@@ -57,6 +58,7 @@ export const Route = createFileRoute('/app')({
         }
     },
     component: WebShell,
+    head: () => buildSeoMeta({ noindex: true, path: '/app', title: 'EmitSignal' }),
     loader: async ({ context }) => {
         // Seed the always-mounted sidebar footer (user + plan) server-side so it
         // renders complete on first paint instead of flashing in after mount.

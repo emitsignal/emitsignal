@@ -7,6 +7,7 @@ import { authClient } from '#/lib/auth-client';
 import { isAuthenticated } from '#/lib/auth-guard';
 import { isAppleDevice } from '#/lib/is-apple-device';
 import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
+import { buildSeoMeta } from '#/lib/seo';
 
 export const Route = createFileRoute('/sign-in')({
     beforeLoad: async ({ context, preload }) => {
@@ -29,6 +30,7 @@ export const Route = createFileRoute('/sign-in')({
         }
     },
     component: SignInPage,
+    head: () => buildSeoMeta({ noindex: true, path: '/sign-in', title: 'Sign in - EmitSignal' }),
 });
 
 function SignInPage() {
