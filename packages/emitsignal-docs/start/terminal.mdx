@@ -26,9 +26,9 @@ npm i -g @emitsignal/cli
 
 </CodeGroup>
 
-The short alias `es` is symlinked automatically — both names always work.
+The short alias `es` is symlinked automatically, so both names always work.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal --version</Cmd>
     <Ok>emitsignal 1.0.0 (darwin/arm64)</Ok>
 </Term>
@@ -37,7 +37,7 @@ The short alias `es` is symlinked automatically — both names always work.
 
 Sign-in is an email one-time code. The token is written to `~/.emitsignalrc`.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal login</Cmd>
     <Arrow>check you@acme.io for your sign-in code</Arrow>
     <Ok>authorized as you@acme.io · token written to ~/.emitsignalrc</Ok>
@@ -47,13 +47,13 @@ Sign-in is an email one-time code. The token is written to `~/.emitsignalrc`.
 </Term>
 
 <Note>
-    You can skip this. Publishing and listening work anonymously — logging in raises your rate
-    limits and syncs subscriptions across devices.
+    You can skip this. Publishing and listening work anonymously. Logging in raises your rate limits
+    and syncs subscriptions across devices.
 </Note>
 
 ## Subscribe, publish, listen
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal subscribe deploy/prod</Cmd>
     <Ok>subscribed → deploy/prod · p≥1 · push</Ok>
     <Sp />
@@ -70,7 +70,7 @@ Sign-in is an email one-time code. The token is written to `~/.emitsignalrc`.
 Then tail your subscriptions. With no topic argument, `listen` streams everything you
 are subscribed to:
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal listen --priority &gt;=2</Cmd>
     <Arrow>connected · 1 subscription · filter priority&gt;=2 · ctrl-c to quit</Arrow>
     <Out color="#f7f7f8">
@@ -82,11 +82,11 @@ Useful `listen` flags:
 
 | Flag                    | Does                                                      |
 | ----------------------- | --------------------------------------------------------- |
-| `-p, --priority <expr>` | Filter by priority — `>=2`, `<5`, `=4`.                   |
+| `-p, --priority <expr>` | Filter by priority: `>=2`, `<5`, `=4`.                    |
 | `-t, --tag <tags>`      | Only events carrying these tags (comma-separated).        |
 | `-c, --channel <glob>`  | Restrict to topics matching a glob, e.g. `alerts/*`.      |
 | `-f, --format <mode>`   | `pretty` (default), `json`, `compact`, or `tsv`.          |
-| `--since <dur>`         | Replay history first, then go live — `30m`, `1h`.         |
+| `--since <dur>`         | Replay history first, then go live: `30m`, `1h`.          |
 | `-x, --exec <cmd>`      | Run a shell command per event, with `$ES_*` env vars set. |
 | `-s, --sound`           | Play a sound on each message.                             |
 
@@ -98,12 +98,12 @@ emitsignal listen --format json | jq 'select(.priority >= 4) | .title'
 
 ## The full-screen inbox
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal tui</Cmd>
     <Arrow>launching full-screen inbox…</Arrow>
 </Term>
 
-Keyboard-driven, built with React Ink — see the [TUI reference](/cli/tui).
+Keyboard-driven, built with React Ink. See the [TUI reference](/cli/tui).
 
 ## Point it somewhere else
 

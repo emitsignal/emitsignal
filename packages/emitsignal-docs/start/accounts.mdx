@@ -3,20 +3,20 @@ title: 'Accounts and API keys'
 description: 'What signing in unlocks, how to mint a scoped key for CI, and how to reserve a topic name.'
 ---
 
-Nearly everything works anonymously — publishing, subscribing, and listening are all
+Nearly everything works anonymously: publishing, subscribing, and listening are all
 device-scoped and usable without an account. Signing in raises limits, syncs across
 devices, and unlocks ownership.
 
 ## Anonymous vs signed in
 
-|                      | Anonymous    | Signed in             |
-| -------------------- | ------------ | --------------------- |
-| Publish              | 10 / min     | 60 / min              |
-| Reads                | 30 / min     | 120 / min             |
-| Live SSE connections | 3 concurrent | 10 concurrent         |
-| Subscriptions        | Per device   | Synced across devices |
-| Attachment uploads   | 5 / hour     | 20 / hour             |
-| Topic ownership      | —            | On a paid plan        |
+|                      | Anonymous     | Signed in             |
+| -------------------- | ------------- | --------------------- |
+| Publish              | 10 / min      | 60 / min              |
+| Reads                | 30 / min      | 120 / min             |
+| Live SSE connections | 3 concurrent  | 10 concurrent         |
+| Subscriptions        | Per device    | Synced across devices |
+| Attachment uploads   | 5 / hour      | 20 / hour             |
+| Topic ownership      | Not available | On a paid plan        |
 
 Rate limits are keyed by user when authenticated, by IP otherwise. When Redis is
 unavailable, limiting **fails open**. Full detail in
@@ -26,10 +26,10 @@ unavailable, limiting **fails open**. Full detail in
 
 Three equivalent routes to the same account:
 
-- **CLI** — `emitsignal login`, an email one-time code; the token lands in
+- **CLI**: `emitsignal login`, an email one-time code; the token lands in
   `~/.emitsignalrc`.
-- **Apps and web** — magic link, passkey (WebAuthn), or GitHub / Apple sign-in.
-- **Directly against the API** — the Better Auth routes under `/api/auth/*`, documented
+- **Apps and web**: magic link, passkey (WebAuthn), or GitHub / Apple sign-in.
+- **Directly against the API**: the Better Auth routes under `/api/auth/*`, documented
   in [Authentication](/api/authentication).
 
 Already been using the app anonymously? Sign in and
@@ -38,7 +38,7 @@ they carry over.
 
 ## API keys
 
-Use an API key for anything unattended — CI, cron, a server. Keys are prefixed `es_`
+Use an API key for anything unattended: CI, cron, a server. Keys are prefixed `es_`
 and go in the `Authorization` header:
 
 ```bash
@@ -56,8 +56,8 @@ emitsignal keys revoke <id>
 ```
 
 <Warning>
-    A new key's secret is shown **once**, at creation. Store it in your secret manager immediately —
-    it cannot be retrieved again.
+    A new key's secret is shown **once**, at creation. Store it in your secret manager immediately,
+    because it cannot be retrieved again.
 </Warning>
 
 `x-api-key: <key>` works as a dedicated header if `Authorization` is already taken by
@@ -72,9 +72,9 @@ writable by anyone who knows its name. Reserving one binds it to your account:
 POST /topics/:name/claim   { "accessMode": "public" | "readonly" | "private" }
 ```
 
-- `public` — anyone can read and publish.
-- `readonly` — anyone can read; only you and the users you grant access can publish.
-- `private` — only you and the users you grant access can read or publish.
+- `public`: anyone can read and publish.
+- `readonly`: anyone can read; only you and the users you grant access can publish.
+- `private`: only you and the users you grant access can read or publish.
 
 Reserving requires a **paid plan** (Pulse or Beam) and returns `403 plan_required`
 otherwise. An already-owned name returns `409 already_claimed`. `DELETE` on the same
@@ -95,6 +95,6 @@ webhook caps are enforced at create time with `403 plan_limit_reached`. Current 
 is on [`GET /billing`](/api/billing).
 
 <Note>
-    Running out of quota is also a reason to [self-host](/start/self-hosting) — the limits are yours
-    to set.
+    Running out of quota is also a reason to [self-host](/start/self-hosting), where the limits are
+    yours to set.
 </Note>
