@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, mock } from 'bun:test';
 import { Elysia } from 'elysia';
 
 import { prismaMock } from '#/__tests__/mocks';
+import { topicNameCache } from '#/lib/cache';
 
 const mockBus = { publish: mock(), subscribe: mock() };
 const mockPushQueue = { add: mock(() => Promise.resolve()) };
@@ -55,6 +56,13 @@ describe('POST /publish/<topic> — email notifications', () => {
         resetUsageForTests();
         resetUserPlansForTests();
         mockSend.mockClear();
+        // prismaMock and the topic cache are module singletons shared by every spec in
+        // the process, so an earlier file can leave a queued `once` row or a cached
+        // topic behind. Reset both so the asserted topic name is ours.
+        topicNameCache.clear();
+        prismaMock.topic.findUnique = mock(() =>
+            Promise.resolve(null),
+        ) as typeof prismaMock.topic.findUnique;
         // The shared mock returns `tags` as a JSON string; the real column is String[],
         // and the alert template maps over it.
         prismaMock.message.create = mock(() =>
