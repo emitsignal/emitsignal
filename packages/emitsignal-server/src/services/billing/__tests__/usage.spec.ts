@@ -4,6 +4,7 @@ import {
     consumeDailyQuota,
     getDailyUsage,
     quotaExceededHeaders,
+    refundDailyQuota,
     resetUsageForTests,
 } from '#/services/billing/usage';
 
@@ -28,6 +29,14 @@ describe('consumeDailyQuota', () => {
 
         expect(third.allowed).toBe(false);
         expect(third.remaining).toBe(0);
+    });
+
+    it('does not let reported usage run past the limit', async () => {
+        for (let index = 0; index < 5; index++) {
+            await consumeDailyQuota('user-1', 'emails', 2);
+        }
+
+        expect(await getDailyUsage('user-1', 'emails')).toBe(2);
     });
 
     it('allows exactly the limit', async () => {
@@ -86,5 +95,21 @@ describe('quotaExceededHeaders', () => {
         expect(headers['x-quota-limit']).toBe('1');
         expect(headers['x-quota-remaining']).toBe('0');
         expect(headers['x-quota-reset']).toBe(String(quota.resetAt));
+    });
+});
+
+describe('refundDailyQuota', () => {
+    it('gives back a consumed point', async () => {
+        await consumeDailyQuota('user-1', 'messages', 3);
+        await consumeDailyQuota('user-1', 'messages', 3);
+        await refundDailyQuota('user-1', 'messages');
+
+        expect(await getDailyUsage('user-1', 'messages')).toBe(1);
+    });
+
+    it('never drives a counter below zero', async () => {
+        await refundDailyQuota('user-1', 'messages');
+
+        expect(await getDailyUsage('user-1', 'messages')).toBe(0);
     });
 });

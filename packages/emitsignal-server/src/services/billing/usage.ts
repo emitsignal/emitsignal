@@ -29,9 +29,13 @@ export async function consumeDailyQuota(
         const key = usageKey(userId, metric);
         const used = (testCounters.get(key) ?? 0) + 1;
 
+        if (used > limit) {
+            return { allowed: false, limit, remaining: 0, resetAt };
+        }
+
         testCounters.set(key, used);
 
-        return { allowed: used <= limit, limit, remaining: Math.max(0, limit - used), resetAt };
+        return { allowed: true, limit, remaining: limit - used, resetAt };
     }
 
     try {
@@ -42,7 +46,13 @@ export async function consumeDailyQuota(
             await redis.expire(key, KEY_TTL_SECONDS);
         }
 
-        return { allowed: used <= limit, limit, remaining: Math.max(0, limit - used), resetAt };
+        if (used > limit) {
+            await redis.decr(key);
+
+            return { allowed: false, limit, remaining: 0, resetAt };
+        }
+
+        return { allowed: true, limit, remaining: limit - used, resetAt };
     } catch (error) {
         logger.error({ error, metric }, 'daily quota check failed, allowing request');
 
@@ -73,6 +83,26 @@ export function quotaExceededHeaders(quota: QuotaResult): Record<string, string>
         'x-quota-remaining': String(quota.remaining),
         'x-quota-reset': String(quota.resetAt),
     };
+}
+
+export async function refundDailyQuota(userId: string, metric: UsageMetric): Promise<void> {
+    const key = usageKey(userId, metric);
+
+    if (Bun.env.NODE_ENV === 'test') {
+        testCounters.set(key, Math.max(0, (testCounters.get(key) ?? 0) - 1));
+
+        return;
+    }
+
+    try {
+        const used = await redis.decr(key);
+
+        if (used < 0) {
+            await redis.set(key, '0');
+        }
+    } catch (error) {
+        logger.error({ error, metric }, 'daily quota refund failed');
+    }
 }
 
 export function resetUsageForTests(): void {
