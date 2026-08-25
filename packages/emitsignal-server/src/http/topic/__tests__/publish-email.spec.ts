@@ -30,6 +30,16 @@ import { getDailyUsage, resetUsageForTests } from '#/services/billing/usage';
 
 const SENDER_EMAIL = 'owner@example.com';
 
+const TOPIC = {
+    accessMode: 'public',
+    createdAt: new Date(1700000000000),
+    description: '',
+    displayName: 'alerts',
+    id: 'topic-alerts',
+    name: 'alerts',
+    ownerId: null,
+};
+
 describe('POST /publish/<topic> — email notifications', () => {
     const app = new Elysia().use(publish);
 
@@ -56,13 +66,12 @@ describe('POST /publish/<topic> — email notifications', () => {
         resetUsageForTests();
         resetUserPlansForTests();
         mockSend.mockClear();
-        // prismaMock and the topic cache are module singletons shared by every spec in
-        // the process, so an earlier file can leave a queued `once` row or a cached
-        // topic behind. Reset both so the asserted topic name is ours.
+        // prismaMock is a module singleton shared by every spec in the process, so an
+        // earlier file can leave a topic row behind and getOrCreateTopic would resolve
+        // a name this file never chose. Seeding the cache keeps the topic ours no
+        // matter what the shared mock currently returns.
         topicNameCache.clear();
-        prismaMock.topic.findUnique = mock(() =>
-            Promise.resolve(null),
-        ) as typeof prismaMock.topic.findUnique;
+        topicNameCache.set(TOPIC.name, TOPIC as never);
         // The shared mock returns `tags` as a JSON string; the real column is String[],
         // and the alert template maps over it.
         prismaMock.message.create = mock(() =>
@@ -135,7 +144,7 @@ describe('POST /publish/<topic> — email notifications', () => {
         expect(res.status).toBe(200);
         expect(mockSend).toHaveBeenCalledTimes(1);
         expect(mockSend.mock.calls[0][0]).toMatchObject({
-            subject: '[test] Disk almost full',
+            subject: `[${TOPIC.name}] Disk almost full`,
             to: SENDER_EMAIL,
         });
     });
