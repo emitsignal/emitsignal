@@ -34,19 +34,19 @@ export function buildSeoMeta({
     const url = absoluteUrl(path);
 
     const meta: MetaTag[] = [
-        { title },
-        { content: description, name: 'description' },
-        { content: SITE_NAME, property: 'og:site_name' },
         { content: 'en_US', property: 'og:locale' },
-        { content: title, property: 'og:title' },
-        { content: description, property: 'og:description' },
-        { content: url, property: 'og:url' },
-        { content: type, property: 'og:type' },
-        { content: image, property: 'og:image' },
         { content: 'summary_large_image', name: 'twitter:card' },
-        { content: title, name: 'twitter:title' },
+        { content: description, name: 'description' },
         { content: description, name: 'twitter:description' },
+        { content: description, property: 'og:description' },
         { content: image, name: 'twitter:image' },
+        { content: image, property: 'og:image' },
+        { content: SITE_NAME, property: 'og:site_name' },
+        { content: title, name: 'twitter:title' },
+        { content: title, property: 'og:title' },
+        { content: type, property: 'og:type' },
+        { content: url, property: 'og:url' },
+        { title },
     ];
 
     if (noindex) {
