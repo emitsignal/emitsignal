@@ -1,3 +1,4 @@
+import { PAID_PLAN_NAMES } from '@emitsignal/shared';
 import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
@@ -10,13 +11,21 @@ import { publishAnonLimiter, publishAuthLimiter } from '#/lib/rate-limit';
 import { captureTraceContext } from '#/lib/trace-context';
 import { getUserLimits, getUserPlan } from '#/services/billing/get-user-plan';
 import { messageExpiresAt, messageRetentionDays } from '#/services/billing/retention';
-import { consumeDailyQuota, quotaExceededHeaders } from '#/services/billing/usage';
+import {
+    consumeDailyQuota,
+    quotaExceededHeaders,
+    type QuotaResult,
+    refundDailyQuota,
+    type UsageMetric,
+} from '#/services/billing/usage';
+import { sendMessageAlertEmail } from '#/services/emails/message-alert';
 import { serializeMessage } from '#/services/message';
 import { incrementMessageCounter } from '#/services/stats/message-counter';
 import { getOrCreateTopic, TopicNameError } from '#/services/topic';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 import { validateActions } from '#/utils/actions';
 import { duration } from '#/utils/duration';
+import { parseEmailTarget } from '#/utils/email-target';
 import { ANON_INLINE_MAX, validateMessageMedia } from '#/utils/media-refs';
 
 import { parsePublishHeaders } from './header-publish';
@@ -36,6 +45,12 @@ const mediaInputSchema = t.Union([mediaItemSchema, t.Array(mediaItemSchema)]);
  */
 const DEPRECATED_AT = '@1786320000';
 const SUCCESSOR_LINK = '</publish/*>; rel="successor-version"';
+
+interface SetLike {
+    headers: Record<string, number | string | undefined>;
+}
+
+type StatusFn = (code: number, body: Record<string, unknown>) => unknown;
 
 function publishRoute(path: string, deprecated: boolean) {
     return new Elysia({ name: `publish${path}` }).post(
@@ -93,28 +108,15 @@ function publishRoute(path: string, deprecated: boolean) {
             const userId = await resolveUserId({ headers });
 
             let inlineMax = ANON_INLINE_MAX;
+            let emailsPerDay = 0;
+            let messagesPerDay = 0;
 
             if (userId) {
                 const limits = await getUserLimits(userId);
-                const quota = await consumeDailyQuota(userId, 'messages', limits.messagesPerDay);
-
-                if (!quota.allowed) {
-                    logger.warn(
-                        { limit: quota.limit, metric: 'messages', userId },
-                        'daily quota exceeded',
-                    );
-
-                    Object.assign(set.headers, quotaExceededHeaders(quota));
-
-                    return status(429, {
-                        error: 'daily_quota_exceeded',
-                        limit: quota.limit,
-                        metric: 'messages',
-                        resetAt: quota.resetAt,
-                    });
-                }
 
                 inlineMax = limits.inlineMaxPerArray;
+                emailsPerDay = limits.emailsPerDay;
+                messagesPerDay = limits.messagesPerDay;
             }
 
             const media = validateMessageMedia(
@@ -161,6 +163,91 @@ function publishRoute(path: string, deprecated: boolean) {
             }
 
             const actions = validation.actions;
+
+            let emailAddress: null | string = null;
+
+            if (body.email) {
+                if (!userId) {
+                    return status(403, {
+                        error: 'anonymous_email_forbidden',
+                        message: 'email notifications require an authenticated account',
+                    });
+                }
+
+                if (isScheduled) {
+                    return status(400, {
+                        error: 'email_not_schedulable',
+                        message: 'email notifications cannot be combined with a delay',
+                    });
+                }
+
+                const target = parseEmailTarget(body.email);
+
+                if ('error' in target) {
+                    return status(400, { error: 'invalid_email', message: target.error });
+                }
+
+                const sender = await prisma.user.findUnique({
+                    select: { email: true, emailVerified: true },
+                    where: { id: userId },
+                });
+
+                if (!sender) {
+                    return status(403, {
+                        error: 'anonymous_email_forbidden',
+                        message: 'email notifications require an authenticated account',
+                    });
+                }
+
+                if (target.kind === 'self') {
+                    if (!sender.emailVerified) {
+                        return status(403, {
+                            error: 'email_not_verified',
+                            message: 'verify your account email before sending email notifications',
+                        });
+                    }
+
+                    emailAddress = sender.email;
+                } else {
+                    emailAddress = target.address;
+                }
+
+                // Mailing a third party is the abusable path, so it is paid-plan only;
+                // mailing the account's own verified address stays free.
+                if (emailAddress.toLowerCase() !== sender.email.toLowerCase()) {
+                    const plan = await getUserPlan(userId);
+
+                    if (!PAID_PLAN_NAMES.includes(plan)) {
+                        return status(403, {
+                            error: 'plan_required',
+                            message:
+                                'Emailing an address other than your own requires a paid plan (Pulse or Beam).',
+                            requiredPlans: PAID_PLAN_NAMES,
+                        });
+                    }
+                }
+            }
+
+            // Quotas are consumed last: every rejection above must leave the day's
+            // counters untouched, since none of them produce a message or an email.
+            if (userId) {
+                const quota = await consumeDailyQuota(userId, 'messages', messagesPerDay);
+
+                if (!quota.allowed) {
+                    return quotaExceeded(quota, 'messages', userId, set, status);
+                }
+
+                if (emailAddress) {
+                    const emailQuota = await consumeDailyQuota(userId, 'emails', emailsPerDay);
+
+                    if (!emailQuota.allowed) {
+                        await refundDailyQuota(userId, 'messages');
+
+                        return quotaExceeded(emailQuota, 'emails', userId, set, status);
+                    }
+                }
+            }
+
             const deliveredAt = isScheduled ? null : new Date();
 
             const message = await prisma.message.create({
@@ -219,6 +306,19 @@ function publishRoute(path: string, deprecated: boolean) {
                 traceContext: captureTraceContext(),
             });
 
+            if (emailAddress) {
+                await sendMessageAlertEmail({
+                    body: messageBody,
+                    createdAt: message.createdAt,
+                    emailAddress,
+                    messageId: message.id,
+                    priority: message.priority,
+                    tags: message.tags,
+                    title,
+                    topicName: topic.name,
+                });
+            }
+
             return { message: 'posted', messageId: message.id };
         },
         {
@@ -238,6 +338,7 @@ function publishRoute(path: string, deprecated: boolean) {
                 ),
                 bannerImage: t.Optional(mediaItemSchema),
                 body: t.Optional(t.String({ maxLength: 32_768 })),
+                email: t.Optional(t.String({ maxLength: 128 })),
                 inlineAttachments: t.Optional(mediaInputSchema),
                 inlineImages: t.Optional(mediaInputSchema),
                 priority: t.Integer({ default: 3, maximum: 5, minimum: 1 }),
@@ -256,6 +357,25 @@ function publishRoute(path: string, deprecated: boolean) {
             ],
         },
     );
+}
+
+function quotaExceeded(
+    quota: QuotaResult,
+    metric: UsageMetric,
+    userId: string,
+    set: SetLike,
+    status: StatusFn,
+) {
+    logger.warn({ limit: quota.limit, metric, userId }, 'daily quota exceeded');
+
+    Object.assign(set.headers, quotaExceededHeaders(quota));
+
+    return status(429, {
+        error: 'daily_quota_exceeded',
+        limit: quota.limit,
+        metric,
+        resetAt: quota.resetAt,
+    });
 }
 
 export const publish = new Elysia()
