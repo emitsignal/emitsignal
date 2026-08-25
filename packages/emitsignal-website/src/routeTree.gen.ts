@@ -18,6 +18,7 @@ import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as ApiOgRouteImport } from './routes/api/og'
@@ -84,6 +85,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const SignInRoute = SignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/api/og': typeof ApiOgRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/api/og': typeof ApiOgRoute
@@ -272,6 +280,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/sign-in': typeof SignInRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify': typeof VerifyRoute
   '/api/og': typeof ApiOgRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/sign-in'
+    | '/sitemap.xml'
     | '/terms'
     | '/verify'
     | '/api/og'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/sign-in'
+    | '/sitemap.xml'
     | '/terms'
     | '/verify'
     | '/api/og'
@@ -370,6 +381,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/sign-in'
+    | '/sitemap.xml'
     | '/terms'
     | '/verify'
     | '/api/og'
@@ -404,6 +416,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   SignInRoute: typeof SignInRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   VerifyRoute: typeof VerifyRoute
   ApiOgRoute: typeof ApiOgRoute
@@ -472,6 +485,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -714,6 +734,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   SignInRoute: SignInRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   VerifyRoute: VerifyRoute,
   ApiOgRoute: ApiOgRoute,

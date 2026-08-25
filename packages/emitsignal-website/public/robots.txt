@@ -1,3 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
+
+# The private surfaces (/app, /sign-in, /verify, /onboarding) are kept crawlable on
+# purpose: they carry a `noindex` meta tag, and Googlebot has to fetch the page to see
+# it. A Disallow here would hide the directive and leave those URLs in the index.
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://emitsignal.com/sitemap.xml
