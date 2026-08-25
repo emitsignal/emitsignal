@@ -28,6 +28,7 @@ export function parsePublishHeaders(
     actions?: unknown;
     bannerImage?: unknown;
     body: string;
+    email?: string;
     inlineAttachments?: unknown;
     inlineImages?: unknown;
     priority: number;
@@ -40,6 +41,7 @@ export function parsePublishHeaders(
     const rawBanner = firstHeader(headers, 'x-banner', 'banner');
     const rawInlineAttachments = firstHeader(headers, 'x-inline-attachments', 'inline-attachments');
     const rawInlineImages = firstHeader(headers, 'x-inline-images', 'inline-images');
+    const rawEmail = firstHeader(headers, 'x-email', 'x-e-mail', 'email', 'e-mail', 'mail', 'e');
     const rawDelay = firstHeader(headers, 'x-delay', 'delay', 'x-at', 'at', 'x-in', 'in');
     const rawPriority = firstHeader(headers, 'x-priority', 'priority', 'prio', 'p');
     const rawTags = firstHeader(headers, 'x-tags', 'tags', 'ta');
@@ -59,6 +61,7 @@ export function parsePublishHeaders(
         actions,
         bannerImage: rawBanner ? parseMediaHeader(rawBanner) : undefined,
         body: messageOverride || rawBody,
+        email: rawEmail || undefined,
         inlineAttachments: rawInlineAttachments
             ? parseMediaHeader(rawInlineAttachments)
             : undefined,
