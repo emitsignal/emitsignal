@@ -3,8 +3,16 @@ import { createFileRoute } from '@tanstack/react-router';
 import { SiteFooter } from '#/components/site/site-footer';
 import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 import { CHANGELOG_RELEASES } from '#/data/changelog.generated';
+import { buildSeoMeta } from '#/lib/seo';
 
-export const Route = createFileRoute('/changelog')({ component: ChangelogPage });
+const DESCRIPTION =
+    'Every EmitSignal release, dated and itemized: new features, fixes, and breaking changes across the API, apps, and CLI.';
+const TITLE = 'Changelog - EmitSignal';
+
+export const Route = createFileRoute('/changelog')({
+    component: ChangelogPage,
+    head: () => buildSeoMeta({ description: DESCRIPTION, path: '/changelog', title: TITLE }),
+});
 
 function ChangelogPage() {
     const latest = CHANGELOG_RELEASES[0];

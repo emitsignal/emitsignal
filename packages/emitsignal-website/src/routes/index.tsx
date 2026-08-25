@@ -11,8 +11,33 @@ import { Pricing } from '#/components/landing/pricing';
 import { ProductFrame } from '#/components/landing/product-frame';
 import { SiteFooter } from '#/components/site/site-footer';
 import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
+import { APP_STORE_URL, REPO_URL } from '#/lib/links';
+import { buildSeoMeta, jsonLdScript, SITE_NAME, SITE_URL } from '#/lib/seo';
 
-export const Route = createFileRoute('/')({ component: LandingPage });
+const APPLICATION_SCHEMA = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    applicationCategory: 'DeveloperApplication',
+    description:
+        'Publish a message to a named topic with a single HTTP request and receive it on your phone, in your terminal, or in your inbox.',
+    name: SITE_NAME,
+    offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+    },
+    operatingSystem: 'iOS, Android, Web, Linux, macOS',
+    sameAs: [REPO_URL, APP_STORE_URL],
+    url: SITE_URL,
+};
+
+export const Route = createFileRoute('/')({
+    component: LandingPage,
+    head: () => ({
+        ...buildSeoMeta({ path: '/' }),
+        scripts: [jsonLdScript(APPLICATION_SCHEMA)],
+    }),
+});
 
 /** The landing page. */
 function LandingPage() {
