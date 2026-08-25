@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { SiteFooter } from '#/components/site/site-footer';
 import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
+import { buildSeoMeta } from '#/lib/seo';
 
 const DESCRIPTION =
     'The terms and conditions that govern your use of EmitSignal — accounts, acceptable use, plans, billing, liability, and termination.';
@@ -9,16 +10,7 @@ const TITLE = 'Terms of Service - EmitSignal';
 
 export const Route = createFileRoute('/terms')({
     component: TermsPage,
-    head: () => ({
-        meta: [
-            { content: DESCRIPTION, name: 'description' },
-            { content: DESCRIPTION, name: 'twitter:description' },
-            { content: DESCRIPTION, property: 'og:description' },
-            { content: TITLE, name: 'twitter:title' },
-            { content: TITLE, property: 'og:title' },
-            { title: TITLE },
-        ],
-    }),
+    head: () => buildSeoMeta({ description: DESCRIPTION, path: '/terms', title: TITLE }),
 });
 
 const LAST_UPDATED = 'June 23, 2026';

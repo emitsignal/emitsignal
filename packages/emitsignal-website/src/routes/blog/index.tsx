@@ -4,6 +4,7 @@ import type { PostCategory } from '#/lib/blog';
 
 import { BlogIndexView } from '#/components/blog/blog-index-view';
 import { fetchAllPosts } from '#/lib/blog-fns';
+import { breadcrumbSchema, buildSeoMeta, jsonLdScript } from '#/lib/seo';
 
 type BlogSearch = {
     category: 'all' | PostCategory;
@@ -13,19 +14,21 @@ type BlogSearch = {
 const BLOG_DESCRIPTION =
     'Engineering deep-dives, product updates, tutorials, and changelog from the people building EmitSignal.';
 
+const BLOG_TITLE = 'Blog - EmitSignal';
+
 export const Route = createFileRoute('/blog/')({
     component: BlogPage,
     head: () => ({
-        meta: [
-            { title: 'Blog - EmitSignal' },
-            { content: BLOG_DESCRIPTION, name: 'description' },
-            { content: 'Blog - EmitSignal', property: 'og:title' },
-            { content: BLOG_DESCRIPTION, property: 'og:description' },
-            { content: 'https://emitsignal.com/blog', property: 'og:url' },
-            { content: 'website', property: 'og:type' },
-            { content: 'summary', name: 'twitter:card' },
-            { content: 'Blog - EmitSignal', name: 'twitter:title' },
-            { content: BLOG_DESCRIPTION, name: 'twitter:description' },
+        // The canonical deliberately drops `?category` and `?layout`: every combination
+        // renders the same post list, so they must not compete as separate URLs.
+        ...buildSeoMeta({ description: BLOG_DESCRIPTION, path: '/blog', title: BLOG_TITLE }),
+        scripts: [
+            jsonLdScript(
+                breadcrumbSchema([
+                    { name: 'EmitSignal', path: '/' },
+                    { name: 'Blog', path: '/blog' },
+                ]),
+            ),
         ],
     }),
     loader: async () => {

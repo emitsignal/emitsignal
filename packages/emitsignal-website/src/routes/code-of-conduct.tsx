@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { SiteFooter } from '#/components/site/site-footer';
 import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
+import { buildSeoMeta } from '#/lib/seo';
 
 const DESCRIPTION =
     'The standards of behaviour we expect from everyone who participates in the EmitSignal community — our platform, repositories, and communication channels.';
@@ -9,16 +10,7 @@ const TITLE = 'Code of Conduct - EmitSignal';
 
 export const Route = createFileRoute('/code-of-conduct')({
     component: CodeOfConductPage,
-    head: () => ({
-        meta: [
-            { title: TITLE },
-            { content: DESCRIPTION, name: 'description' },
-            { content: TITLE, property: 'og:title' },
-            { content: DESCRIPTION, property: 'og:description' },
-            { content: TITLE, name: 'twitter:title' },
-            { content: DESCRIPTION, name: 'twitter:description' },
-        ],
-    }),
+    head: () => buildSeoMeta({ description: DESCRIPTION, path: '/code-of-conduct', title: TITLE }),
 });
 
 const LAST_UPDATED = 'July 4, 2026';

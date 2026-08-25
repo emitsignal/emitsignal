@@ -5,14 +5,13 @@ import { createFileRoute, notFound } from '@tanstack/react-router';
 import { BlogArticleView } from '#/components/blog/blog-article-view';
 import { AUTHORS } from '#/lib/blog';
 import { fetchPostMeta, type PostDetail } from '#/lib/blog-fns';
+import { breadcrumbSchema, buildSeoMeta, jsonLdScript, SITE_NAME, SITE_URL } from '#/lib/seo';
 
 // Eagerly bundled for both SSR and client navigation
 const MDX_MODULES = import.meta.glob('/src/content/blog/*.mdx', { eager: true }) as Record<
     string,
     { default: ComponentType }
 >;
-
-const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://emitsignal.com';
 
 export const Route = createFileRoute('/blog/$slug')({
     component: BlogArticlePage,
@@ -23,8 +22,8 @@ export const Route = createFileRoute('/blog/$slug')({
 
         const author = AUTHORS[frontmatter.author];
         const description = frontmatter.excerpt;
+        const path = `/blog/${params.slug}`;
         const title = `${frontmatter.title} - EmitSignal Blog`;
-        const url = `${SITE_URL}/blog/${params.slug}`;
 
         const ogImage =
             `${SITE_URL}/api/og` +
@@ -37,19 +36,30 @@ export const Route = createFileRoute('/blog/$slug')({
             `&title=${encodeURIComponent(frontmatter.title)}` +
             `&views=${frontmatter.views}`;
 
+        const articleSchema = {
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            author: { '@type': 'Person', name: author.name },
+            datePublished: frontmatter.date,
+            description,
+            headline: frontmatter.title,
+            image: ogImage,
+            keywords: frontmatter.tags.join(', '),
+            mainEntityOfPage: `${SITE_URL}${path}`,
+            publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+        };
+
         return {
-            meta: [
-                { title },
-                { content: description, name: 'description' },
-                { content: title, property: 'og:title' },
-                { content: description, property: 'og:description' },
-                { content: url, property: 'og:url' },
-                { content: ogImage, property: 'og:image' },
-                { content: 'article', property: 'og:type' },
-                { content: 'summary_large_image', name: 'twitter:card' },
-                { content: title, name: 'twitter:title' },
-                { content: description, name: 'twitter:description' },
-                { content: ogImage, name: 'twitter:image' },
+            ...buildSeoMeta({ description, image: ogImage, path, title, type: 'article' }),
+            scripts: [
+                jsonLdScript(articleSchema),
+                jsonLdScript(
+                    breadcrumbSchema([
+                        { name: 'EmitSignal', path: '/' },
+                        { name: 'Blog', path: '/blog' },
+                        { name: frontmatter.title, path },
+                    ]),
+                ),
             ],
         };
     },

@@ -6,6 +6,7 @@ import { WidgetGallery } from '#/components/mobile/widget-gallery';
 import { SiteFooter } from '#/components/site/site-footer';
 import { SiteNav, SiteNavWordmark } from '#/components/site/site-nav';
 import { APP_STORE_URL, REPO_URL } from '#/lib/links';
+import { buildSeoMeta } from '#/lib/seo';
 
 const DESCRIPTION =
     'The EmitSignal app for iOS and Android: live push, an inbox in your terminal, five home-screen and Lock Screen widgets, and publishing from your pocket.';
@@ -13,16 +14,7 @@ const TITLE = 'Mobile - EmitSignal';
 
 export const Route = createFileRoute('/mobile')({
     component: MobilePage,
-    head: () => ({
-        meta: [
-            { content: DESCRIPTION, name: 'description' },
-            { content: DESCRIPTION, name: 'twitter:description' },
-            { content: DESCRIPTION, property: 'og:description' },
-            { content: TITLE, name: 'twitter:title' },
-            { content: TITLE, property: 'og:title' },
-            { title: TITLE },
-        ],
-    }),
+    head: () => buildSeoMeta({ description: DESCRIPTION, path: '/mobile', title: TITLE }),
 });
 
 /** Intrinsic size of the device captures — set on each img to avoid layout shift. */
