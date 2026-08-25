@@ -1,0 +1,124 @@
+---
+title: 'Wire it into your stack'
+description: 'Real recipes — CI, cron, monitoring, and inbound webhooks from GitHub, Grafana, Stripe, and Vercel.'
+---
+
+Anything that can make an HTTP request can emit a signal. Here is what that looks like
+in the places you'd actually use it.
+
+## CI: notify on failure
+
+A single step at the end of a job. This one uses the header format so nothing needs
+JSON-encoding:
+
+```yaml
+- name: Notify EmitSignal
+  if: always()
+  run: |
+      curl -X POST https://api.emitsignal.com/publish/ci/web \
+        -H "Authorization: Bearer ${{ secrets.EMITSIGNAL_API_KEY }}" \
+        -H "X-Title: ${{ job.status == 'success' && 'Build passed' || 'Build failed' }}" \
+        -H "X-Priority: ${{ job.status == 'success' && 'low' || 'high' }}" \
+        -H "X-Tags: ci,${{ github.ref_name }}" \
+        -d "${{ github.repository }} · ${{ github.sha }}"
+```
+
+Mint a key scoped to CI rather than reusing your personal token — see
+[Accounts and API keys](/start/accounts).
+
+## Cron: report a nightly job
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ./nightly-backup.sh > /tmp/backup.log 2>&1; then
+  emitsignal publish cron/backup -p2 -T "Backup ok" -m "$(tail -1 /tmp/backup.log)"
+else
+  emitsignal publish cron/backup -p5 -T "Backup FAILED" < /tmp/backup.log
+fi
+```
+
+`publish` reads stdin when no body is given, so piping a log file in is enough.
+
+## Long-running commands
+
+Fire a signal the moment something finishes, however long it takes:
+
+```bash
+make deploy && emitsignal publish deploy/prod -p4 -m "deploy done"
+```
+
+## Inbound webhooks from other services
+
+Instead of writing glue code, give the sending service an EmitSignal URL. Each webhook
+has a public receiver at `/h/:slug` that turns an inbound POST into a signal on a
+topic. Built-in sources: `github`, `grafana`, `stripe`, `vercel`, and `custom`.
+
+```bash
+emitsignal webhooks create \
+  --channel github/acme \
+  --source github \
+  --name "acme repo" \
+  --verification github \
+  --secret "$GITHUB_WEBHOOK_SECRET"
+```
+
+Paste the returned URL into the provider's webhook settings. Always configure a
+verification scheme and secret — the receiver is public, and verification is what stops
+anyone else from posting to it.
+
+Watch deliveries while you wire it up:
+
+```bash
+emitsignal webhooks tail github
+```
+
+Full options — templates, `hmac`/`token` verification, and the delivery stream — are in
+the [webhooks reference](/api/webhooks).
+
+## React to signals with a script
+
+`listen -x` runs a command per event, with the message exposed as `$ES_*` environment
+variables:
+
+```bash
+emitsignal listen alerts/prod --priority '>=5' -x 'say "$ES_TITLE"'
+```
+
+## Schedule a reminder
+
+```bash
+emitsignal publish reminders -T "Stand-up" -m "Daily in 30" --priority 3
+curl -H "X-Delay: 30m" -H "X-Title: Stand-up" \
+  -d "Daily in 30" https://api.emitsignal.com/publish/reminders
+```
+
+`X-Delay` takes `30s`, `5m`, `2h`, `1d`, `1w`, or a unix timestamp, up to a year out.
+
+## Consume signals in your own app
+
+Subscribe over SSE from any language. In the browser:
+
+```js
+const source = new EventSource('https://api.emitsignal.com/listen?topics=alerts/prod,deploy/prod');
+
+source.addEventListener('message', (event) => {
+    const signal = JSON.parse(event.data);
+    console.log(signal.priority, signal.title);
+});
+```
+
+Reuse one multi-topic stream rather than opening one per topic — the connection cap is
+3 anonymous, 10 authenticated.
+
+## Next
+
+<CardGroup cols={2}>
+    <Card title="Accounts and API keys" icon="key" href="/start/accounts">
+        Scoped keys, higher limits, and plan quotas.
+    </Card>
+    <Card title="Webhooks reference" icon="webhook" href="/api/webhooks">
+        Templates, signature verification, delivery history.
+    </Card>
+</CardGroup>

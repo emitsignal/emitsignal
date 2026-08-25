@@ -30,7 +30,7 @@
     },
     "logo": {
         "dark": "/logo/dark.svg",
-        "href": "/api/index",
+        "href": "/start/index",
         "light": "/logo/light.svg"
     },
     "name": "EmitSignal",
@@ -49,6 +49,23 @@
     },
     "navigation": {
         "tabs": [
+            {
+                "groups": [
+                    {
+                        "group": "Start here",
+                        "pages": ["start/index"]
+                    },
+                    {
+                        "group": "Your first journey",
+                        "pages": ["start/first-signal", "start/mobile", "start/terminal"]
+                    },
+                    {
+                        "group": "Going further",
+                        "pages": ["start/automate", "start/accounts", "start/self-hosting"]
+                    }
+                ],
+                "tab": "Getting Started"
+            },
             {
                 "groups": [
                     {

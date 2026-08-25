@@ -1,0 +1,73 @@
+---
+title: 'Getting started'
+description: 'From your first curl to a push notification on your phone. No SDK, no account required.'
+---
+
+EmitSignal is a real-time notification platform for developers. You `POST` a message to
+a named **topic**; anyone subscribed to that topic gets it **live** — as a push
+notification on their phone, as a line in their terminal, and in the web inbox.
+
+There is nothing to install to send. If it can make an HTTP request, it can emit a
+signal.
+
+## The 30-second version
+
+Pick a topic name — anything, it's created on first publish — and send to it:
+
+```bash
+curl -d "Deploy finished" https://api.emitsignal.com/publish/mytopic-8f2a
+```
+
+<Note>
+    Topics are public by default and created on first use, so choose a name nobody would guess
+    (`mytopic-8f2a`, not `test`). Anyone who knows the name can read and write it until it is
+    [reserved by an owner](/start/accounts#reserving-a-topic-name).
+</Note>
+
+To see that message arrive, open a second terminal **before** publishing:
+
+```bash
+curl -N https://api.emitsignal.com/topics/mytopic-8f2a/listen
+```
+
+That's the whole model: publish to a topic, listen on a topic. Everything below is
+that same loop with better ergonomics.
+
+## Follow the journey
+
+<CardGroup cols={2}>
+    <Card title="1 · Send your first signal" icon="paper-plane" href="/start/first-signal">
+        Titles, priorities, tags, and scheduling — all from `curl`.
+    </Card>
+    <Card title="2 · Get it on your phone" icon="mobile" href="/start/mobile">
+        Install the app, subscribe to your topic, receive real push.
+    </Card>
+    <Card title="3 · Live in your terminal" icon="terminal" href="/start/terminal">
+        Install the CLI, log in, and tail your topics like logs.
+    </Card>
+    <Card title="4 · Wire it into your stack" icon="gear" href="/start/automate">
+        CI, cron, inbound webhooks from GitHub, Grafana, Stripe, and Vercel.
+    </Card>
+    <Card title="5 · Accounts and API keys" icon="key" href="/start/accounts">
+        What an account unlocks, and how to mint a scoped key for CI.
+    </Card>
+    <Card title="6 · Self-host it" icon="server" href="/start/self-hosting">
+        The whole stack on your own machine with one Docker Compose file.
+    </Card>
+</CardGroup>
+
+## How the pieces fit
+
+| You want to…                    | Use                                                               |
+| ------------------------------- | ----------------------------------------------------------------- |
+| Send from a script, CI, or cron | `curl` → [`POST /publish/<topic>`](/api/publish)                  |
+| Send from your terminal         | [`emitsignal publish`](/cli/publish)                              |
+| Read on your phone              | The [iOS and Android apps](/start/mobile)                         |
+| Read in your terminal           | [`emitsignal listen`](/cli/listen) or [`tui`](/cli/tui)           |
+| Read in a browser               | The web inbox at [emitsignal.com/app](https://emitsignal.com/app) |
+| Read from your own code         | [`GET /listen`](/api/listen) over Server-Sent Events              |
+
+<Note>
+    Prefer to run it yourself? Every part of EmitSignal is AGPL-3.0 and self-hostable — see
+    [Self-hosting](/start/self-hosting).
+</Note>
