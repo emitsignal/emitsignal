@@ -4,13 +4,11 @@ description: 'From zero to a notification on your phone in four commands.'
 ---
 
 import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
-import { Terminal } from '../snippets/hi.jsx';
 
 <Steps>
     <Step title="Install and log in">
-    <Terminal>Oi</Terminal>
         <Term title="emitsignal — zsh">
-            <Cmd>brew install emitsignal</Cmd>
+            <Cmd>brew install emitsignal/tap/emitsignal</Cmd>
             <Ok>emitsignal 1.0.0 installed</Ok>
             <Sp />
             <Cmd>emitsignal login</Cmd>

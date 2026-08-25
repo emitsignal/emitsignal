@@ -1,0 +1,100 @@
+---
+title: 'Accounts and API keys'
+description: 'What signing in unlocks, how to mint a scoped key for CI, and how to reserve a topic name.'
+---
+
+Nearly everything works anonymously — publishing, subscribing, and listening are all
+device-scoped and usable without an account. Signing in raises limits, syncs across
+devices, and unlocks ownership.
+
+## Anonymous vs signed in
+
+|                      | Anonymous    | Signed in             |
+| -------------------- | ------------ | --------------------- |
+| Publish              | 10 / min     | 60 / min              |
+| Reads                | 30 / min     | 120 / min             |
+| Live SSE connections | 3 concurrent | 10 concurrent         |
+| Subscriptions        | Per device   | Synced across devices |
+| Attachment uploads   | 5 / hour     | 20 / hour             |
+| Topic ownership      | —            | On a paid plan        |
+
+Rate limits are keyed by user when authenticated, by IP otherwise. When Redis is
+unavailable, limiting **fails open**. Full detail in
+[Rate limits](/api/rate-limits).
+
+## Sign in
+
+Three equivalent routes to the same account:
+
+- **CLI** — `emitsignal login`, an email one-time code; the token lands in
+  `~/.emitsignalrc`.
+- **Apps and web** — magic link, passkey (WebAuthn), or GitHub / Apple sign-in.
+- **Directly against the API** — the Better Auth routes under `/api/auth/*`, documented
+  in [Authentication](/api/authentication).
+
+Already been using the app anonymously? Sign in and
+[claim your device's subscriptions](/api/subscriptions#claim-device-subscriptions) so
+they carry over.
+
+## API keys
+
+Use an API key for anything unattended — CI, cron, a server. Keys are prefixed `es_`
+and go in the `Authorization` header:
+
+```bash
+curl https://api.emitsignal.com/publish/ci/web \
+  -H "Authorization: Bearer es_xxxxxxxxxxxx" \
+  -d "build finished"
+```
+
+Create, list, and revoke them from the CLI:
+
+```bash
+emitsignal keys create --name ci-prod --expires 90d
+emitsignal keys list
+emitsignal keys revoke <id>
+```
+
+<Warning>
+    A new key's secret is shown **once**, at creation. Store it in your secret manager immediately —
+    it cannot be retrieved again.
+</Warning>
+
+`x-api-key: <key>` works as a dedicated header if `Authorization` is already taken by
+something else in your stack.
+
+## Reserving a topic name
+
+By default a topic is created on first publish, is owned by nobody, and is readable and
+writable by anyone who knows its name. Reserving one binds it to your account:
+
+```
+POST /topics/:name/claim   { "accessMode": "public" | "readonly" | "private" }
+```
+
+- `public` — anyone can read and publish.
+- `readonly` — anyone can read; only you and the users you grant access can publish.
+- `private` — only you and the users you grant access can read or publish.
+
+Reserving requires a **paid plan** (Pulse or Beam) and returns `403 plan_required`
+otherwise. An already-owned name returns `409 already_claimed`. `DELETE` on the same
+path releases the topic back to public and ownerless.
+
+## Plan quotas
+
+Authenticated publishing counts against a per-day quota:
+
+| Plan  | Messages / day | Owned topics | Webhooks | Max attachment | Emails / day |
+| ----- | -------------- | ------------ | -------- | -------------- | ------------ |
+| Free  | 100            | 0            | 2        | 5 MB           | 5            |
+| Pulse | 2,500          | 15           | 10       | 25 MB          | 50           |
+| Beam  | 20,000         | 50           | 30       | 100 MB         | 250          |
+
+Over the daily quota returns `429 daily_quota_exceeded` with a `resetAt`. Topic and
+webhook caps are enforced at create time with `403 plan_limit_reached`. Current usage
+is on [`GET /billing`](/api/billing).
+
+<Note>
+    Running out of quota is also a reason to [self-host](/start/self-hosting) — the limits are yours
+    to set.
+</Note>

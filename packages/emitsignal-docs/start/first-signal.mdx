@@ -1,0 +1,115 @@
+---
+title: 'Send your first signal'
+description: 'Everything a message can carry — title, priority, tags, links, scheduling — using nothing but curl.'
+---
+
+Publishing is one `POST` to `/publish/<topic>`. No account, no SDK, no
+pre-registration: the topic is created the first time you write to it.
+
+```bash
+curl -d "Deploy finished" https://api.emitsignal.com/publish/mytopic-8f2a
+```
+
+Topic names are up to 38 characters of `a-z`, `0-9`, `-`, `_`, and `/`, and must start
+and end with a letter or digit. The slashes are just part of the name, so `alerts/prod`
+and `ci/web` group naturally.
+
+The response tells you the message landed:
+
+```json
+{ "message": "posted", "messageId": "cly..." }
+```
+
+## Add a title, priority, and tags
+
+When the request `Content-Type` is **not** `application/json`, the raw body becomes the
+message and the metadata comes from headers. That's exactly what `curl -d` does by
+default, so this is the shortest path:
+
+```bash
+curl -X POST https://api.emitsignal.com/publish/alerts \
+  -H "X-Title: Deploy finished" \
+  -H "X-Priority: high" \
+  -H "X-Tags: ci,prod" \
+  -d "v2.4.0 shipped to production"
+```
+
+Priority accepts a name or a number:
+
+| Priority | Names             | Typical use                       |
+| -------- | ----------------- | --------------------------------- |
+| `5`      | `urgent`, `max`   | Page someone. Wake them up.       |
+| `4`      | `high`            | Deploys, failed builds.           |
+| `3`      | `default`, `none` | Ordinary events.                  |
+| `2`      | `low`             | Chatty background activity.       |
+| `1`      | `min`             | Log-level noise you want to skim. |
+
+<Tip>
+    Short header aliases work too — `t` for title, `p` for priority, `ta` for tags. Handy when
+    you're hand-writing a curl inside a CI YAML file.
+</Tip>
+
+## Or send JSON
+
+If you'd rather build a payload in code, set `Content-Type: application/json`:
+
+```bash
+curl -X POST https://api.emitsignal.com/publish/alerts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Latency alert",
+    "body": "p99 over 800ms",
+    "priority": 5,
+    "tags": ["prod", "oncall"]
+  }'
+```
+
+At least one of `title` or `body` must be non-empty. `body` renders as Markdown.
+The full field list is in the [Publish reference](/api/publish).
+
+## Deliver it later
+
+`X-Delay` takes a relative duration (`30s`, `5m`, `2h`, `1d`, `1w`) or a unix
+timestamp, up to a year out:
+
+```bash
+curl -X POST https://api.emitsignal.com/publish/reminders \
+  -H "X-Title: Stand-up in 30 minutes" \
+  -H "X-Delay: 30m" \
+  -d "Don't forget the daily"
+```
+
+Scheduled messages skip the live stream and go to the schedule queue, then deliver at
+their time like any other signal.
+
+## Watch it arrive
+
+Open a second terminal and stream the topic over
+[Server-Sent Events](/api/listen) before you publish:
+
+```bash
+# one topic
+curl -N https://api.emitsignal.com/topics/alerts/listen
+
+# several at once, replaying the last 10 minutes first
+curl -N "https://api.emitsignal.com/listen?topics=alerts,ci,deploys&since=$(($(date +%s000) - 600000))"
+```
+
+The stream emits named `message` events plus a `: ping` heartbeat every 25 seconds, so
+proxies don't hang up on an idle connection.
+
+<Warning>
+    Anonymous callers get **10 publishes per minute** and **3 concurrent SSE connections**. Signing
+    in raises both — see [Accounts and API keys](/start/accounts).
+</Warning>
+
+## Next
+
+<CardGroup cols={2}>
+    <Card title="Get it on your phone" icon="mobile" href="/start/mobile">
+        Turn that signal into a real push notification.
+    </Card>
+    <Card title="Publish reference" icon="paper-plane" href="/api/publish">
+        Every field, header, and response shape.
+    </Card>
+</CardGroup>

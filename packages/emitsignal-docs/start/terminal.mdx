@@ -1,0 +1,128 @@
+---
+title: 'Live in your terminal'
+description: 'Install the CLI, log in, and tail your topics the way you tail logs.'
+---
+
+import { Arrow, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
+
+The CLI is a single static binary with no runtime dependencies. It wraps the same HTTP
+API you used with `curl`, and adds filtering, formatting, and a full-screen inbox.
+
+## Install
+
+<CodeGroup>
+
+```bash Homebrew
+brew install emitsignal/tap/emitsignal
+```
+
+```bash Shell
+curl -fsSL https://github.com/emitsignal/emitsignal/releases/latest/download/install.sh | sh
+```
+
+```bash npm
+npm i -g @emitsignal/cli
+```
+
+</CodeGroup>
+
+The short alias `es` is symlinked automatically — both names always work.
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal --version</Cmd>
+    <Ok>emitsignal 1.0.0 (darwin/arm64)</Ok>
+</Term>
+
+## Log in
+
+Sign-in is an email one-time code. The token is written to `~/.emitsignalrc`.
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal login</Cmd>
+    <Arrow>check you@acme.io for your sign-in code</Arrow>
+    <Ok>authorized as you@acme.io · token written to ~/.emitsignalrc</Ok>
+    <Sp />
+    <Cmd>emitsignal whoami</Cmd>
+    <Out>Alex Rivera &lt;you@acme.io&gt;</Out>
+</Term>
+
+<Note>
+    You can skip this. Publishing and listening work anonymously — logging in raises your rate
+    limits and syncs subscriptions across devices.
+</Note>
+
+## Subscribe, publish, listen
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal subscribe deploy/prod</Cmd>
+    <Ok>subscribed → deploy/prod · p≥1 · push</Ok>
+    <Sp />
+    <Cmd>emitsignal publish deploy/prod -p4 -m "shipped v2.14.3"</Cmd>
+    <Ok>published → deploy/prod · 1 subscriber · 96ms</Ok>
+</Term>
+
+`publish` reads stdin when you don't pass a body, so it pipes like any other unix tool:
+
+```bash
+./deploy.sh 2>&1 | emitsignal publish deploy/prod -T "Deploy log" -p4
+```
+
+Then tail your subscriptions. With no topic argument, `listen` streams everything you
+are subscribed to:
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal listen --priority &gt;=2</Cmd>
+    <Arrow>connected · 1 subscription · filter priority&gt;=2 · ctrl-c to quit</Arrow>
+    <Out color="#f7f7f8">
+        21:52 <span style={{ color: '#a78bfa' }}>●</span> deploy/prod p4&nbsp; shipped v2.14.3
+    </Out>
+</Term>
+
+Useful `listen` flags:
+
+| Flag                    | Does                                                      |
+| ----------------------- | --------------------------------------------------------- |
+| `-p, --priority <expr>` | Filter by priority — `>=2`, `<5`, `=4`.                   |
+| `-t, --tag <tags>`      | Only events carrying these tags (comma-separated).        |
+| `-c, --channel <glob>`  | Restrict to topics matching a glob, e.g. `alerts/*`.      |
+| `-f, --format <mode>`   | `pretty` (default), `json`, `compact`, or `tsv`.          |
+| `--since <dur>`         | Replay history first, then go live — `30m`, `1h`.         |
+| `-x, --exec <cmd>`      | Run a shell command per event, with `$ES_*` env vars set. |
+| `-s, --sound`           | Play a sound on each message.                             |
+
+`--format json` makes the stream pipeable:
+
+```bash
+emitsignal listen --format json | jq 'select(.priority >= 4) | .title'
+```
+
+## The full-screen inbox
+
+<Term title="emitsignal — zsh">
+    <Cmd>emitsignal tui</Cmd>
+    <Arrow>launching full-screen inbox…</Arrow>
+</Term>
+
+Keyboard-driven, built with React Ink — see the [TUI reference](/cli/tui).
+
+## Point it somewhere else
+
+Self-hosting, or testing against a local server:
+
+```bash
+emitsignal config set-url http://localhost:5100
+emitsignal config get-url
+```
+
+`ES_BASE_URL` overrides it per-command.
+
+## Next
+
+<CardGroup cols={2}>
+    <Card title="Wire it into your stack" icon="gear" href="/start/automate">
+        CI, cron, and inbound webhooks from the services you already run.
+    </Card>
+    <Card title="Filter expressions" icon="filter" href="/cli/filters">
+        `priority>=4 AND tag:prod AND NOT tag:resolved`
+    </Card>
+</CardGroup>

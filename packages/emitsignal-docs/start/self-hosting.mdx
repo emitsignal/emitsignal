@@ -1,0 +1,107 @@
+---
+title: 'Self-host EmitSignal'
+description: 'Run the whole stack on your own machine with one Docker Compose file.'
+---
+
+EmitSignal is AGPL-3.0 and self-hostable end to end — API, workers, database, queue,
+and web dashboard. The fastest path is the bundled Compose stack.
+
+## Requirements
+
+- [Bun](https://bun.com) `>= 1.3`
+- [Docker](https://docs.docker.com/get-docker/)
+
+## Bring up the stack
+
+```bash
+git clone https://github.com/emitsignal/emitsignal.git
+cd emitsignal
+bun install
+docker compose -f packages/emitsignal-docker/docker-compose.dev.yml up
+```
+
+That runs everything with hot reload:
+
+| Service                           | Where                                   |
+| --------------------------------- | --------------------------------------- |
+| API server                        | [localhost:5100](http://localhost:5100) |
+| Web dashboard                     | [localhost:5173](http://localhost:5173) |
+| SMTP inbox                        | [localhost:3134](http://localhost:3134) |
+| PostgreSQL, Redis, BullMQ workers | in the same stack                       |
+
+Point the CLI at it:
+
+```bash
+emitsignal config set-url http://localhost:5100
+```
+
+## Running the pieces by hand
+
+<CodeGroup>
+
+```bash API + workers
+cd packages/emitsignal-server
+cp .env.example .env          # edit DATABASE_URL, REDIS_URL, etc.
+bun run db:migrate && bun run db:seed
+bun run dev:worker            # all workers (separate terminal)
+bun run dev                   # API server
+```
+
+```bash Web dashboard
+cd packages/emitsignal-website
+bun run dev
+```
+
+```bash Mobile app
+cd packages/emitsignal-mobile
+bun run start
+```
+
+</CodeGroup>
+
+Workspace-wide scripts run from the repo root: `bun format`, `bun lint`, `bun test`,
+and `bun dev` (runs `dev` in every package).
+
+## How it fits together
+
+```
+┌─────────────┐              ┌─────────────┐              ┌─────────────┐
+│   Website   │  SSE/HTTP    │   Server    │   BullMQ     │   Workers   │
+│  (TanStack) │ ◄──────────► │  (Elysia)   │ ───────────► │ email/push/ │
+└─────────────┘              └──────┬──────┘              │  schedule   │
+                                    │                     └──────┬──────┘
+┌─────────────┐              ┌──────┴──────┐                     │
+│   Mobile    │  SSE/HTTP    │ PostgreSQL  │              ┌──────┴──────┐
+│  (Expo/RN)  │ ◄──────────► │   + Redis   │              │   Email     │
+└─────────────┘              └─────────────┘              │  Provider   │
+                                                          │ smtp/resend │
+                                                          └─────────────┘
+```
+
+A publish immediately fires an in-process event bus — that's what powers live SSE — and
+enqueues a push job. Scheduled messages skip the bus and go straight to the schedule
+queue. Dedicated workers drain the `email`, `push`, and `schedule` queues, so the
+publish path never blocks on delivery.
+
+## What to configure
+
+- **Email** — a pluggable provider: `log` (default in dev), `smtp`, or
+  [Resend](https://resend.com).
+- **Attachments** — stored locally or on S3.
+- **Redis** — backs rate limiting and BullMQ. Rate limiting fails open if Redis is down.
+- **Auth** — magic link, passkey, and API keys work out of the box; GitHub and Apple
+  sign-in are optional.
+
+Start from `packages/emitsignal-server/.env.example`; every variable is documented
+there.
+
+## Next
+
+<CardGroup cols={2}>
+    <Card title="API reference" icon="code" href="/api/index">
+        The endpoints your instance exposes.
+    </Card>
+    <Card title="Source on GitHub" icon="github" href="https://github.com/emitsignal/emitsignal">
+        Issues, releases, and the Compose files.
+    </Card>
+</CardGroup>

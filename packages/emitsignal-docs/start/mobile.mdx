@@ -1,0 +1,76 @@
+---
+title: 'Get it on your phone'
+description: 'Install the app, subscribe to a topic, and receive native push on iOS and Android.'
+---
+
+The apps are the other half of EmitSignal: the inbox you actually carry. Push is
+native on both platforms — no polling, no companion service.
+
+## Install
+
+<CardGroup cols={2}>
+    <Card
+        title="iOS — App Store"
+        icon="apple"
+        href="https://apps.apple.com/us/app/emitsignal/id6782717233"
+    >
+        Download EmitSignal for iPhone and iPad.
+    </Card>
+    <Card title="Android" icon="android" href="https://emitsignal.com/mobile">
+        Not on Google Play yet — build it from source. Instructions on the mobile page.
+    </Card>
+</CardGroup>
+
+The app is free and usable straight away. An account only matters once you want the
+same topics on more than one device.
+
+## Subscribe to a topic
+
+1. Open the app and allow notifications when prompted — without permission there is no
+   push, only the in-app inbox.
+2. Add the topic name you published to in [step 1](/start/first-signal), for example
+   `mytopic-8f2a`.
+3. Leave push enabled for that subscription. You can mute individual topics later
+   without unsubscribing.
+
+A subscription links a **device** to a topic. It works anonymously; signing in lets you
+[claim your device's subscriptions](/api/subscriptions#claim-device-subscriptions) so
+they follow you to your other devices.
+
+## Send yourself a real push
+
+Back in your terminal:
+
+```bash
+curl -X POST https://api.emitsignal.com/publish/mytopic-8f2a \
+  -H "X-Title: It works" \
+  -H "X-Priority: high" \
+  -d "Sent from my shell"
+```
+
+The notification lands within about a second. Try priority `4` (high) and `5` (urgent)
+to see how the alert is presented differently.
+
+## What the app can do
+
+- **Read and publish.** Sending isn't terminal-only — you can publish from the app.
+- **Per-topic control.** Subscribe per topic and mute the noisy ones individually.
+- **Widgets.** Home Screen and Lock Screen widgets for your latest signals.
+- **Actions.** Messages published with `X-Actions` render tappable buttons
+  (`acknowledge` or `view`); `-l, --link` from the CLI attaches a tap-through URL.
+
+## Prefer a browser?
+
+The same inbox runs at [emitsignal.com/app](https://emitsignal.com/app) — searchable
+history, attachments, and live updates over SSE.
+
+## Next
+
+<CardGroup cols={2}>
+    <Card title="Live in your terminal" icon="terminal" href="/start/terminal">
+        The CLI, the filters, and the full-screen TUI inbox.
+    </Card>
+    <Card title="Push tokens API" icon="bell" href="/api/push-tokens">
+        How devices register for push, if you're building your own client.
+    </Card>
+</CardGroup>
