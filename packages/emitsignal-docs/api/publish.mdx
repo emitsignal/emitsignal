@@ -94,21 +94,57 @@ curl https://emitsignal.com/publish/alerts/prod \
 
 | Field       | Headers (first non-empty wins)                          |
 | ----------- | ------------------------------------------------------- |
-| Title       | `x-title`, `title`, `t`                                 |
-| Body        | `x-message`, `message`, `m` (else the raw request body) |
-| Priority    | `x-priority`, `priority`, `prio`, `p`                   |
-| Tags        | `x-tags`, `tags`, `ta` (comma-separated)                |
-| Schedule    | `x-delay`, `delay`, `x-at`, `at`, `x-in`, `in`          |
 | Actions     | `x-actions`, `actions` (JSON)                           |
-| Banner      | `x-banner`, `banner`                                    |
-| Inline imgs | `x-inline-images`, `inline-images`                      |
 | Attachments | `x-inline-attachments`, `inline-attachments`            |
+| Banner      | `x-banner`, `banner`                                    |
+| Body        | `x-message`, `message`, `m` (else the raw request body) |
+| Email       | `x-email`, `x-e-mail`, `email`, `e-mail`, `mail`, `e`   |
+| Inline imgs | `x-inline-images`, `inline-images`                      |
+| Priority    | `x-priority`, `priority`, `prio`, `p`                   |
+| Schedule    | `x-delay`, `delay`, `x-at`, `at`, `x-in`, `in`          |
+| Tags        | `x-tags`, `tags`, `ta` (comma-separated)                |
+| Title       | `x-title`, `title`, `t`                                 |
 
 **Priority values** accept names or numbers: `min`/`1`, `low`/`2`,
 `none`/`default`/`3`, `high`/`4`, `urgent`/`max`/`5`.
 
 **Delay/schedule values** accept a duration string — `30s`, `5m`, `2h`, `1d`, `1w`
 — or an integer (a unix timestamp if it's `>= now`, otherwise seconds from now).
+
+## Email notifications
+
+Pass an email header (or `"email"` in a JSON body) to also forward the message to an
+inbox — useful when a signal should outlive its retention window, or to blast-notify
+yourself on every channel at once. Only one address is supported.
+
+```bash
+curl https://emitsignal.com/publish/alerts \
+  -H "Authorization: Bearer es_xxx" \
+  -H "Email: you@example.com" \
+  -H "Tags: warning,ssh-login" \
+  -H "Priority: high" \
+  -d "Unknown login from 5.31.23.83 to backups.example.com"
+```
+
+Pass `yes`, `true`, or `1` instead of an address to send to your own account address:
+
+```bash
+curl -H "Authorization: Bearer es_xxx" -H "Email: yes" \
+  -d "You've got mail" https://emitsignal.com/publish/alerts
+```
+
+Rules:
+
+- **Authentication is required.** Anonymous publishes are rejected with `403
+anonymous_email_forbidden` — this keeps the platform from being used as an open relay.
+- **`yes`/`true`/`1` requires a verified account email**, otherwise `403 email_not_verified`.
+- **Emailing an address other than your own requires a paid plan** (Pulse or Beam);
+  free accounts get `403 plan_required`. Mailing your own address is free.
+- **A daily quota applies per account** — 5/day on Free, 50/day on Pulse, 250/day on Beam.
+  Exceeding it returns `429 daily_quota_exceeded` with `metric: "emails"` and the usual
+  `x-quota-*` headers. Current usage is reported by `GET /billing` as `usage.emailsToday`.
+- **Email cannot be combined with a delay.** A scheduled publish plus an email header
+  returns `400 email_not_schedulable`.
 
 ## Priority
 
