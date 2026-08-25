@@ -1,6 +1,6 @@
 ---
 title: 'Wire it into your stack'
-description: 'Real recipes — CI, cron, monitoring, and inbound webhooks from GitHub, Grafana, Stripe, and Vercel.'
+description: 'Real recipes for CI, cron, monitoring, and inbound webhooks from GitHub, Grafana, Stripe, and Vercel.'
 ---
 
 Anything that can make an HTTP request can emit a signal. Here is what that looks like
@@ -23,7 +23,7 @@ JSON-encoding:
         -d "${{ github.repository }} · ${{ github.sha }}"
 ```
 
-Mint a key scoped to CI rather than reusing your personal token — see
+Mint a key scoped to CI rather than reusing your personal token. See
 [Accounts and API keys](/start/accounts).
 
 ## Cron: report a nightly job
@@ -65,7 +65,7 @@ emitsignal webhooks create \
 ```
 
 Paste the returned URL into the provider's webhook settings. Always configure a
-verification scheme and secret — the receiver is public, and verification is what stops
+verification scheme and secret: the receiver is public, and verification is what stops
 anyone else from posting to it.
 
 Watch deliveries while you wire it up:
@@ -74,7 +74,7 @@ Watch deliveries while you wire it up:
 emitsignal webhooks tail github
 ```
 
-Full options — templates, `hmac`/`token` verification, and the delivery stream — are in
+Full options, including templates, `hmac`/`token` verification, and the delivery stream, are in
 the [webhooks reference](/api/webhooks).
 
 ## React to signals with a script
@@ -109,7 +109,7 @@ source.addEventListener('message', (event) => {
 });
 ```
 
-Reuse one multi-topic stream rather than opening one per topic — the connection cap is
+Reuse one multi-topic stream rather than opening one per topic. The connection cap is
 3 anonymous, 10 authenticated.
 
 ## Next

@@ -3,7 +3,7 @@ title: 'Self-host EmitSignal'
 description: 'Run the whole stack on your own machine with one Docker Compose file.'
 ---
 
-EmitSignal is AGPL-3.0 and self-hostable end to end — API, workers, database, queue,
+EmitSignal is AGPL-3.0 and self-hostable end to end: API, workers, database, queue,
 and web dashboard. The fastest path is the bundled Compose stack.
 
 ## Requirements
@@ -78,18 +78,18 @@ and `bun dev` (runs `dev` in every package).
                                                           └─────────────┘
 ```
 
-A publish immediately fires an in-process event bus — that's what powers live SSE — and
+A publish immediately fires an in-process event bus, which is what powers live SSE, and
 enqueues a push job. Scheduled messages skip the bus and go straight to the schedule
 queue. Dedicated workers drain the `email`, `push`, and `schedule` queues, so the
 publish path never blocks on delivery.
 
 ## What to configure
 
-- **Email** — a pluggable provider: `log` (default in dev), `smtp`, or
+- **Email**: a pluggable provider, either `log` (default in dev), `smtp`, or
   [Resend](https://resend.com).
-- **Attachments** — stored locally or on S3.
-- **Redis** — backs rate limiting and BullMQ. Rate limiting fails open if Redis is down.
-- **Auth** — magic link, passkey, and API keys work out of the box; GitHub and Apple
+- **Attachments**: stored locally or on S3.
+- **Redis**: backs rate limiting and BullMQ. Rate limiting fails open if Redis is down.
+- **Auth**: magic link, passkey, and API keys work out of the box; GitHub and Apple
   sign-in are optional.
 
 Start from `packages/emitsignal-server/.env.example`; every variable is documented

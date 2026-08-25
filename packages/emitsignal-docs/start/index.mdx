@@ -4,7 +4,7 @@ description: 'From your first curl to a push notification on your phone. No SDK,
 ---
 
 EmitSignal is a real-time notification platform for developers. You `POST` a message to
-a named **topic**; anyone subscribed to that topic gets it **live** — as a push
+a named **topic**, and anyone subscribed to that topic gets it **live**: as a push
 notification on their phone, as a line in their terminal, and in the web inbox.
 
 There is nothing to install to send. If it can make an HTTP request, it can emit a
@@ -12,7 +12,7 @@ signal.
 
 ## The 30-second version
 
-Pick a topic name — anything, it's created on first publish — and send to it:
+Pick a topic name. Anything works, since the topic is created on first publish:
 
 ```bash
 curl -d "Deploy finished" https://api.emitsignal.com/publish/mytopic-8f2a
@@ -37,7 +37,7 @@ that same loop with better ergonomics.
 
 <CardGroup cols={2}>
     <Card title="1 · Send your first signal" icon="paper-plane" href="/start/first-signal">
-        Titles, priorities, tags, and scheduling — all from `curl`.
+        Titles, priorities, tags, and scheduling, all from `curl`.
     </Card>
     <Card title="2 · Get it on your phone" icon="mobile" href="/start/mobile">
         Install the app, subscribe to your topic, receive real push.
@@ -68,6 +68,6 @@ that same loop with better ergonomics.
 | Read from your own code         | [`GET /listen`](/api/listen) over Server-Sent Events              |
 
 <Note>
-    Prefer to run it yourself? Every part of EmitSignal is AGPL-3.0 and self-hostable — see
+    Prefer to run it yourself? Every part of EmitSignal is AGPL-3.0 and self-hostable. See
     [Self-hosting](/start/self-hosting).
 </Note>
