@@ -1,6 +1,6 @@
 ---
 title: 'API Reference'
-description: 'A simple HTTP API. No SDK required — if it can make an HTTP request, it can publish a signal.'
+description: 'A simple HTTP API. No SDK required. If it can make an HTTP request, it can publish a signal.'
 ---
 
 The EmitSignal HTTP API is JSON over HTTPS. There is no SDK to install: curl works,
@@ -11,7 +11,7 @@ and every language works.
         Session tokens and API keys via the `Authorization` header.
     </Card>
     <Card title="Publish" icon="paper-plane" href="/api/publish">
-        Send a signal to a topic — JSON body or header-based format.
+        Send a signal to a topic, with a JSON body or the header-based format.
     </Card>
     <Card title="Listen" icon="radio" href="/api/listen">
         Stream signals in real time with Server-Sent Events.
@@ -28,7 +28,7 @@ https://api.emitsignal.com
 ```
 
 Publishing also accepts the shorter `https://emitsignal.com/publish/<topic>`, which is what the
-examples below use. That alias covers `POST /publish/*` only — listening, webhooks, auth and every
+examples below use. That alias covers `POST /publish/*` only. Listening, webhooks, auth and every
 other endpoint require the API host above.
 
 Self-hosting? Point the CLI at your own instance with `emitsignal config set-url`, or
@@ -39,7 +39,7 @@ root.
 
 <CodeGroup>
 
-```bash No auth — public publish
+```bash No auth · public publish
 # Publish to any topic. The topic is created on first publish.
 curl -d "hello from curl" https://emitsignal.com/publish/welcome
 ```

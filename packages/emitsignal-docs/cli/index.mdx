@@ -29,9 +29,9 @@ import { Arrow, Caret, Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.
 
 Every service you run can publish signals. Every machine you own can listen to them.
 `emitsignal` is the glue between your shell scripts, CI pipelines, cron jobs, and your
-phone — no SDK required.
+phone, with no SDK required.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmt># deploy finished? tell your phone.</Cmt>
     <Cmd>emitsignal publish deploy/prod -p4 -m "api-gateway → v2.14.3"</Cmd>
     <Ok>published → deploy/prod · 3 subscribers · 142ms</Ok>
@@ -46,9 +46,9 @@ phone — no SDK required.
 
 ## The short alias
 
-Every invocation can use the `es` alias — symlinked automatically at install time.
+Every invocation can use the `es` alias, symlinked automatically at install time.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>es publish alerts/prod -p5 -m "High memory on api-02"</Cmd>
     <Ok>published → alerts/prod · push+sms+slack · 4 subscribers · 96ms</Ok>
     <Sp />

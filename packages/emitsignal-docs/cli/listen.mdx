@@ -44,7 +44,7 @@ emitsignal listen [topic|expression] [flags]
 
 **Stream events at priority 2 or above:**
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal listen --priority &gt;=2 --format pretty</Cmd>
     <Arrow>connected · 8 subscriptions · filter priority&gt;=2 · ctrl-c to quit</Arrow>
     <div style={{ borderBottom: '1px dashed #232427', height: 8, margin: '8px 0' }} />
@@ -60,7 +60,7 @@ emitsignal listen [topic|expression] [flags]
         <Dot level={5} />
         <span style={{ color: '#71717a', width: 110 }}>alerts/prod</span>
         <span style={{ color: '#3f3f46' }}>p5</span>
-        <span style={{ color: '#f7f7f8' }}>High memory on api-02 — mem.used &gt; 92%</span>
+        <span style={{ color: '#f7f7f8' }}>High memory on api-02 · mem.used &gt; 92%</span>
     </div>
     <div style={{ display: 'flex', gap: 10, padding: '1px 0' }}>
         <span style={{ color: '#3f3f46' }}>21:52:22</span>
@@ -74,7 +74,7 @@ emitsignal listen [topic|expression] [flags]
         <Dot level={2} />
         <span style={{ color: '#71717a', width: 110 }}>github/core</span>
         <span style={{ color: '#3f3f46' }}>p2</span>
-        <span style={{ color: '#f7f7f8' }}>PR #482 reviewed by maya — approved</span>
+        <span style={{ color: '#f7f7f8' }}>PR #482 reviewed by maya · approved</span>
     </div>
     <div style={{ marginTop: 4 }}>
         <span style={{ color: '#4ade80' }}>$</span>
@@ -84,7 +84,7 @@ emitsignal listen [topic|expression] [flags]
 
 **Filter with a full expression:**
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal listen 'priority&gt;=4 AND tag:prod AND NOT tag:resolved'</Cmd>
     <Arrow>
         connected · filter priority&gt;=4 AND tag:prod AND NOT tag:resolved
@@ -94,7 +94,7 @@ emitsignal listen [topic|expression] [flags]
 
 **Pipe to jq:**
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal listen -f json | jq -r '.title'</Cmd>
     <Out color="#f7f7f8">High memory on api-02</Out>
     <Out color="#f7f7f8">TypeError spike</Out>
@@ -107,7 +107,7 @@ emitsignal listen [topic|expression] [flags]
 
 **Run a command on every matching event:**
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd wrap>{`emitsignal listen --priority >=5 --exec 'notify-send "$ES_TITLE" "$ES_BODY"'`}</Cmd>
     <Arrow>
         connected · exec mode · priority&gt;=5

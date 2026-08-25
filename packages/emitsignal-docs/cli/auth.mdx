@@ -1,16 +1,16 @@
 ---
 title: 'Authentication'
-description: 'Browser device-flow login. No key to paste — the token lands in ~/.emitsignalrc.'
+description: 'Browser device-flow login. No key to paste, and the token lands in ~/.emitsignalrc.'
 ---
 
 import { Arrow, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
 
 ## Login
 
-Run `emitsignal login` and follow the URL. The CLI handles the OAuth device flow —
+Run `emitsignal login` and follow the URL. The CLI handles the OAuth device flow,
 you confirm a short code in the browser, and the token is written to `~/.emitsignalrc`.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal login</Cmd>
     <Arrow>
         open this URL:{' '}
@@ -35,7 +35,7 @@ For non-interactive environments, set the `ES_TOKEN` environment variable instea
 of using `login`. Create a scoped key with `emitsignal keys create` (see [Keys](/cli/keys)),
 then pass it via env:
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>ES_TOKEN=es_live_c8f4_... emitsignal publish deploy/prod -p4</Cmd>
     <Ok>published → deploy/prod · 3 subscribers · 142ms</Ok>
 </Term>
