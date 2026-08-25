@@ -114,8 +114,8 @@ or an integer (a unix timestamp if it's `>= now`, otherwise seconds from now).
 ## Email notifications
 
 Pass an email header (or `"email"` in a JSON body) to also forward the message to an
-inbox — useful when a signal should outlive its retention window, or to blast-notify
-yourself on every channel at once. Only one address is supported.
+inbox. This is useful when a signal should outlive its retention window, or to
+blast-notify yourself on every channel at once. Only one address is supported.
 
 ```bash
 curl https://emitsignal.com/publish/alerts \
@@ -136,11 +136,11 @@ curl -H "Authorization: Bearer es_xxx" -H "Email: yes" \
 Rules:
 
 - **Authentication is required.** Anonymous publishes are rejected with `403
-anonymous_email_forbidden` — this keeps the platform from being used as an open relay.
+anonymous_email_forbidden`, which keeps the platform from being used as an open relay.
 - **`yes`/`true`/`1` requires a verified account email**, otherwise `403 email_not_verified`.
 - **Emailing an address other than your own requires a paid plan** (Pulse or Beam);
   free accounts get `403 plan_required`. Mailing your own address is free.
-- **A daily quota applies per account** — 5/day on Free, 50/day on Pulse, 250/day on Beam.
+- **A daily quota applies per account**: 5/day on Free, 50/day on Pulse, 250/day on Beam.
   Exceeding it returns `429 daily_quota_exceeded` with `metric: "emails"` and the usual
   `x-quota-*` headers. Current usage is reported by `GET /billing` as `usage.emailsToday`.
 - **Email cannot be combined with a delay.** A scheduled publish plus an email header
