@@ -15,7 +15,7 @@ All routes are under `/subscriptions`.
 POST /subscriptions
 ```
 
-Upserts a subscription. Auth optional — an authenticated call records your `userId` on
+Upserts a subscription. Auth optional; an authenticated call records your `userId` on
 the row.
 
 <ParamField body="topicName" type="string" required>
@@ -68,7 +68,7 @@ otherwise only this device's anonymous row is removed. Always returns `{ "ok": t
 GET /subscriptions
 ```
 
-Returns the authenticated user's subscriptions, or — when anonymous — the device's
+Returns the authenticated user's subscriptions, or, when anonymous, the device's
 subscriptions, or `[]`.
 
 <ParamField query="deviceId" type="string" />
@@ -97,7 +97,7 @@ subscriptions, or `[]`.
 PATCH /subscriptions/:id
 ```
 
-Ownership-gated: must belong to the authenticated user, or — when anonymous — the
+Ownership-gated: must belong to the authenticated user, or, when anonymous, the
 body's `deviceId` must match the row. Otherwise `403 forbidden`.
 
 <ParamField body="pushEnabled" type="boolean" />
@@ -114,7 +114,7 @@ body's `deviceId` must match the row. Otherwise `403 forbidden`.
 POST /subscriptions/claim
 ```
 
-Reassigns a device's anonymous subscriptions to the signed-in user — call this right
+Reassigns a device's anonymous subscriptions to the signed-in user. Call this right
 after sign-in. Returns `{ "claimed": 0 }` (no error) if unauthenticated.
 
 <ParamField body="deviceId" type="string" required />

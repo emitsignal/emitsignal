@@ -3,8 +3,8 @@ title: 'Webhooks'
 description: 'Turn inbound HTTP from third parties into signals, and stream deliveries live.'
 ---
 
-A webhook gives you a public URL (`/h/:slug`) that turns an inbound HTTP POST — from
-Slack, GitHub, Grafana, Stripe, Vercel, or anything custom — into a signal on a topic.
+A webhook gives you a public URL (`/h/:slug`) that turns an inbound HTTP POST, from
+Slack, GitHub, Grafana, Stripe, Vercel, or anything custom, into a signal on a topic.
 Management endpoints require authentication; the receiver is public, and should be
 given a signing secret so only your provider can post to it.
 
@@ -32,8 +32,8 @@ POST /webhooks
     a `secret`. See [Verifying the sender](#verifying-the-sender).
 </ParamField>
 <ParamField body="secret" type="string | null">
-    The signing secret issued by the sending provider. Write-only — it is encrypted at rest and
-    never returned by any endpoint.
+    The signing secret issued by the sending provider. Write-only: it is encrypted at rest and never
+    returned by any endpoint.
 </ParamField>
 <ParamField body="verificationConfig" type="string | null">
     JSON string describing the header to check. Required for `hmac` and `token`, ignored otherwise.
@@ -99,7 +99,7 @@ All **auth required** and ownership-gated (`404 not_found`, `403 forbidden`). `P
 accepts any of `name`, `status`, `template`, `topicName`, `verification`, `secret`,
 `verificationConfig`. `DELETE` returns `204`.
 
-The secret is never readable — `GET` and `PATCH` return `hasSecret` and `verification`
+The secret is never readable. `GET` and `PATCH` return `hasSecret` and `verification`
 instead. On `PATCH`, omitting `secret` keeps the stored one, sending a new string
 rotates it, and sending `null` clears it (which also requires `verification: "none"`,
 otherwise the request fails with `400 missing_secret`).
@@ -164,11 +164,11 @@ title/body/priority/tags, otherwise a default message is built (title
 `"<source> delivery"`, body = pretty JSON, priority 3, tag `[source]`). The message
 fires the live bus and enqueues push.
 
-- `400 invalid_json` — body is not a JSON object
-- `401 invalid_signature` — `{ error, reason }`; see below
-- `404 not_found` — unknown slug
-- `413 payload_too_large` — body over 64 KB
-- `503 webhook_paused` — the webhook's `status` is `paused`
+- `400 invalid_json`: body is not a JSON object
+- `401 invalid_signature`: `{ error, reason }`; see below
+- `404 not_found`: unknown slug
+- `413 payload_too_large`: body over 64 KB
+- `503 webhook_paused`: the webhook's `status` is `paused`
 
 ```json
 { "messageId": "...", "ok": true }
@@ -179,7 +179,7 @@ fires the live bus and enqueues push.
 Because the receiver is public, the slug is the only thing standing between your topic
 and anyone who has seen the URL in a log or a screenshot. Setting a `secret` makes
 EmitSignal check each delivery's signature against the **raw request bytes** before
-anything is published — no message, no push, no live fanout on a failed check.
+anything is published: no message, no push, no live fanout on a failed check.
 
 | `verification` | Header(s) checked                             | Secret to paste                   |
 | -------------- | --------------------------------------------- | --------------------------------- |
@@ -205,7 +205,7 @@ For `hmac` and `token`, `verificationConfig` is a JSON **string**:
 
 `algorithm` is one of `sha1`, `sha256` (default), `sha512`; `encoding` is `hex`
 (default) or `base64`; `prefix` is stripped from the header value before comparison
-(e.g. `"sha256="` or `"Bearer "`). `token` uses only `header` and `prefix` — the header
+(e.g. `"sha256="` or `"Bearer "`). `token` uses only `header` and `prefix`, so the header
 carries the secret itself rather than a signature.
 
 A rejected delivery returns `401` with a `reason` of `missing_signature`,

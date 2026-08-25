@@ -33,16 +33,16 @@ Individual endpoints return their own machine-readable `error` codes (usually
 | `400`  | `invalid_verification_config` | `hmac`/`token` webhook without a usable header config. |
 | `401`  | `missing_token`               | Endpoint requires auth and none was resolved.          |
 | `401`  | `unauthorized`                | Avatar endpoints without auth.                         |
-| `401`  | `invalid_signature`           | `{ error, reason }` — webhook signature check failed.  |
+| `401`  | `invalid_signature`           | `{ error, reason }`; webhook signature check failed.   |
 | `403`  | `forbidden`                   | Authenticated but not the owner of the resource.       |
-| `403`  | `plan_limit_reached`          | `{ error, limit, metric, plan }` — topics or webhooks. |
+| `403`  | `plan_limit_reached`          | `{ error, limit, metric, plan }`; topics or webhooks.  |
 | `404`  | `topic_not_found`             | Topic doesn't exist.                                   |
 | `404`  | `message_not_found`           | Message doesn't exist.                                 |
 | `404`  | `not_found`                   | Subscription / push token / webhook doesn't exist.     |
 | `409`  | `attachment_already_exists`   | Message already has an attachment.                     |
 | `413`  | `payload_too_large`           | Webhook receiver body over 64 KB.                      |
 | `429`  | `daily_quota_exceeded`        | `{ error, limit, metric: "messages", resetAt }`.       |
-| `429`  | `too_many_sse_connections`    | `{ error, max, retryAfter: 60 }` — SSE connection cap. |
+| `429`  | `too_many_sse_connections`    | `{ error, max, retryAfter: 60 }`; SSE connection cap.  |
 | `503`  | `webhook_paused`              | Posting to a paused webhook receiver.                  |
 
 See [Rate limits](/api/rate-limits) for the `429` cases.

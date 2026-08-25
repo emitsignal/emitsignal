@@ -9,7 +9,7 @@ import { Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
 emitsignal keys <list | create | revoke> [flags]
 ```
 
-Keys are scoped — a CI key that can only write to `ci/*` can never read your inbox,
+Keys are scoped: a CI key that can only write to `ci/*` can never read your inbox,
 subscribe to topics, or touch anything outside its scope.
 
 ## Subcommands
@@ -46,8 +46,8 @@ can no longer authenticate, and a second call on the now-deactivated key
 
 ## Examples
 
-<Term title="emitsignal — zsh">
-    <Cmt># mint a key for CI — the full secret is shown exactly once</Cmt>
+<Term>
+    <Cmt># mint a key for CI; the full secret is shown exactly once</Cmt>
     <Cmd wrap>emitsignal keys create -n ci-runner -e 90d</Cmd>
     <Out color="#f7f7f8">
         &nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hK3n8QpZ2mVx9rLd0a99
@@ -58,9 +58,9 @@ can no longer authenticate, and a second call on the now-deactivated key
         &nbsp;&nbsp;secret&nbsp;&nbsp;{' '}
         <span style={{ color: '#fbbf24' }}>es_live_c8f4_9Qk2Lr7vN3pXa1Ze6Bd0Yw</span>
     </Out>
-    <Ok>store this now — it will not be shown again</Ok>
+    <Ok>store this now · it will not be shown again</Ok>
     <Sp />
-    <Cmt># list shows the id (first column) — that is what revoke takes</Cmt>
+    <Cmt># list shows the id (first column), which is what revoke takes</Cmt>
     <Cmd>emitsignal keys list</Cmd>
     <Out color="#f7f7f8">
         {'p9k2Lm4vX8nQr1Td0Zs  prod-write    es_live_p9k2_••••   4m ago     active'}
@@ -75,7 +75,7 @@ can no longer authenticate, and a second call on the now-deactivated key
     <Cmt># first revoke deactivates; a second revoke permanently deletes</Cmt>
     <Cmd>emitsignal keys revoke hK3n8QpZ2mVx9rLd0a99</Cmd>
     <Ok wrap>
-        deactivated key hK3n8QpZ2mVx9rLd0a99 — run revoke again (or pass --force) to delete it
+        deactivated key hK3n8QpZ2mVx9rLd0a99 · run revoke again (or pass --force) to delete it
     </Ok>
     <Cmd>emitsignal keys revoke hK3n8QpZ2mVx9rLd0a99</Cmd>
     <Ok>permanently deleted key hK3n8QpZ2mVx9rLd0a99</Ok>
@@ -87,7 +87,7 @@ can no longer authenticate, and a second call on the now-deactivated key
 
 **Pipe to a secrets manager:**
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd wrap>
         emitsignal keys create -n ci-runner --json | jq -r '.key' | gh secret set ES_TOKEN
     </Cmd>
@@ -96,7 +96,7 @@ can no longer authenticate, and a second call on the now-deactivated key
 
 <Warning>
     The secret is shown **once**, immediately after creation. Store it in a secrets manager before
-    closing your terminal. If you lose it, revoke the key and create a new one — there is no way to
+    closing your terminal. If you lose it, revoke the key and create a new one. There is no way to
     retrieve a secret after the first display.
 </Warning>
 

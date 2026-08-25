@@ -9,7 +9,7 @@ import { Arrow, Cmd, Cmt, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
 emitsignal webhooks <create | list | listen | tail | set-template | delete> [flags]
 ```
 
-Every webhook endpoint gets a public URL — `https://api.emitsignal.com/h/<slug>`.
+Every webhook endpoint gets a public URL: `https://api.emitsignal.com/h/<slug>`.
 Point any service that speaks webhooks at it, and each inbound `POST` is published
 to a topic (channel) and fans out to your subscribers in real time. Attach an
 optional template to turn a provider's raw payload into a clean title and body,
@@ -35,7 +35,8 @@ provider can post to the endpoint.
 ## Create an endpoint
 
 <ParamField body="--channel, -c" type="topic" required>
-    Topic that inbound deliveries are published to. Required — deliveries must have somewhere to go.
+    Topic that inbound deliveries are published to. Required, since deliveries must have somewhere
+    to go.
 </ParamField>
 
 <ParamField body="--source, -s" type="github | grafana | stripe | vercel | custom" default="custom">
@@ -52,7 +53,7 @@ provider can post to the endpoint.
 </ParamField>
 
 <ParamField body="--secret" type="string">
-    Signing secret issued by the sending provider. Setting it turns on signature verification — see
+    Signing secret issued by the sending provider. Setting it turns on signature verification. See
     [Verifying the sender](#verifying-the-sender).
 </ParamField>
 
@@ -61,7 +62,7 @@ provider can post to the endpoint.
     type="none | github | stripe | svix | hmac | token"
     default="matches --source"
 >
-    Signature scheme to enforce. Defaults to whatever the chosen `--source` normally signs with —
+    Signature scheme to enforce. Defaults to whatever the chosen `--source` normally signs with:
     `github`, `stripe`, and `svix` need nothing more than `--secret`. `grafana` and `vercel` infer
     `token` and `hmac`, which also need `--verification-config`.
 </ParamField>
@@ -72,10 +73,10 @@ provider can post to the endpoint.
 </ParamField>
 
 <ParamField body="--json" type="flag">
-    Machine-readable output — includes the endpoint `id` and full URL.
+    Machine-readable output, including the endpoint `id` and full URL.
 </ParamField>
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmt># create a verified endpoint for GitHub, publishing to ci/deploys</Cmt>
     <Cmd wrap>
         emitsignal webhooks create -n deploy-hook -s github -c ci/deploys --secret $GH_HOOK_SECRET
@@ -95,7 +96,7 @@ provider can post to the endpoint.
         &nbsp;&nbsp;verify&nbsp;&nbsp;&nbsp;&nbsp;
         <span style={{ color: '#4ade80' }}>github</span>
     </Out>
-    <Ok>webhook created — point your service at the endpoint above</Ok>
+    <Ok>webhook created · point your service at the endpoint above</Ok>
 </Term>
 
 ## Verifying the sender
@@ -106,7 +107,7 @@ against the raw request body before anything is published; failures are rejected
 `401` and show up in `webhooks listen` with a red status and the reason in place of the
 payload.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmt># scheme inferred from --source</Cmt>
     <Cmd wrap>
         emitsignal webhooks create -s stripe -c billing/stripe --secret $STRIPE_WEBHOOK_SECRET
@@ -120,20 +121,20 @@ payload.
 </Term>
 
 <Note>
-    The secret is write-only. It is encrypted at rest and never returned by the API — `--json`
+    The secret is write-only. It is encrypted at rest and never returned by the API, so `--json`
     output carries only `verification` and a `hasSecret` boolean. Keep your own copy at the
     provider.
 </Note>
 
 ## List endpoints
 
-The first column is the endpoint `id` — pass it to `set-template` and `delete`.
+The first column is the endpoint `id`. Pass it to `set-template` and `delete`.
 
 <ParamField body="--json" type="flag">
     Machine-readable output.
 </ParamField>
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal webhooks list</Cmd>
     <Out color="#f7f7f8">
         {
@@ -175,7 +176,7 @@ inline snippet of the payload.
     (`listen` only) Emit each delivery as a JSON object instead of a formatted line.
 </ParamField>
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal webhooks listen</Cmd>
     <Arrow>tailing webhooks · ● templated · ○ raw · filter:all sources · ctrl-c to quit</Arrow>
     <Sp />
@@ -213,7 +214,7 @@ placeholders resolved against the incoming payload.
     "body": "{{ head_commit.message }}",
     "priority": "4",
     "tags": "github, {{ ref }}",
-    "title": "{{ repository.full_name }} — {{ pusher.name }} pushed"
+    "title": "{{ repository.full_name }} · {{ pusher.name }} pushed"
 }
 ```
 
@@ -235,14 +236,14 @@ an array (`commits.*.message`). Missing paths render as an empty string.
     Remove the template and revert the endpoint to raw passthrough.
 </ParamField>
 
-<Term title="emitsignal — zsh">
-    <Cmt># attach a template — applied to new deliveries going forward</Cmt>
+<Term>
+    <Cmt># attach a template, applied to new deliveries going forward</Cmt>
     <Cmd wrap>emitsignal webhooks set-template clx8f2a0b00deploy01 --file template.json</Cmd>
-    <Ok>template saved — new deliveries to clx8f2a0b00deploy01 will render with it</Ok>
+    <Ok>template saved · new deliveries to clx8f2a0b00deploy01 will render with it</Ok>
     <Sp />
     <Cmt># revert to forwarding the raw payload</Cmt>
     <Cmd>emitsignal webhooks set-template clx8f2a0b00deploy01 --clear</Cmd>
-    <Ok>template cleared — clx8f2a0b00deploy01 now forwards raw payloads</Ok>
+    <Ok>template cleared · clx8f2a0b00deploy01 now forwards raw payloads</Ok>
 </Term>
 
 ## Delete an endpoint
@@ -250,7 +251,7 @@ an array (`commits.*.message`). Missing paths render as an empty string.
 Removes the endpoint and its delivery history. The `/h/<slug>` URL immediately
 starts returning `404`.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal webhooks delete clx8f2a0b00deploy01</Cmd>
     <Ok>deleted webhook clx8f2a0b00deploy01</Ok>
 </Term>

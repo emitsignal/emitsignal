@@ -7,7 +7,7 @@ import { Arrow, Caret, Cmd, Term } from '../snippets/terminal.jsx';
 
 All three forms compile to the same internal filter. Use whichever fits the context:
 
-<Term title="emitsignal — zsh" dense>
+<Term dense>
     <div style={{ marginBottom: 16 }}>
         <div
             style={{
@@ -35,7 +35,7 @@ All three forms compile to the same internal filter. Use whichever fits the cont
                 textTransform: 'uppercase',
             }}
         >
-            long flags — AND-ed automatically
+            long flags · AND-ed automatically
         </div>
         <Cmd>emitsignal listen --priority "&gt;=2"</Cmd>
         <Cmd>emitsignal listen --tag prod</Cmd>
@@ -70,13 +70,13 @@ All three forms compile to the same internal filter. Use whichever fits the cont
 | `tag`      | `tag:sev2`         | Membership test against the event tag set       |
 | `channel`  | `channel:alerts/*` | Glob match on the topic path                    |
 | `title`    | `title~"memory"`   | Substring (`~`) or regex (`=~`) on the headline |
-| `age`      | `age<5m`           | Relative time window — `30s`, `5m`, `1h`, `2d`  |
+| `age`      | `age<5m`           | Relative time window: `30s`, `5m`, `1h`, `2d`   |
 
 ## Boolean operators
 
 Combine any fields with `AND`, `OR`, `NOT`, and parentheses:
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd wrap>
         emitsignal listen 'priority&gt;=4 AND (tag:prod OR tag:staging) AND NOT tag:resolved'
     </Cmd>
@@ -97,7 +97,7 @@ Combine any fields with `AND`, `OR`, `NOT`, and parentheses:
 
 ## Using expressions in `subscribe`
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd wrap>emitsignal subscribe alerts/* --filter 'priority&gt;=4 AND NOT tag:maintenance'</Cmd>
     <Arrow>subscribed → alerts/* · filter active · push</Arrow>
 </Term>

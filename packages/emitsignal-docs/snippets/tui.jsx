@@ -58,7 +58,7 @@ export const CliTuiDemo = () => (
                         marginLeft: -54,
                     }}
                 >
-                    emitsignal tui — zsh
+                    emitsignal tui · zsh
                 </span>
             </div>
 
@@ -404,7 +404,7 @@ export const CliTuiDemo = () => (
                                         whiteSpace: 'nowrap',
                                     }}
                                 >
-                                    High memory on api-02 — mem.used &gt; 92%
+                                    High memory on api-02 · mem.used &gt; 92%
                                 </span>
                             </div>
                             <div
@@ -518,7 +518,7 @@ export const CliTuiDemo = () => (
                                         whiteSpace: 'nowrap',
                                     }}
                                 >
-                                    PR #482 reviewed by maya — approved
+                                    PR #482 reviewed by maya · approved
                                 </span>
                             </div>
                             <div
