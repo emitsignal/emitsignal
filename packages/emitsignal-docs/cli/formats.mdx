@@ -12,7 +12,7 @@ Color is automatically disabled when stdout isn't a TTY.
 
 Human-readable, color-coded by priority. One event per block.
 
-<Term title="emitsignal — zsh">
+<Term>
     <div style={{ display: 'flex', gap: 9 }}>
         <span style={{ color: '#3f3f46' }}>21:52:14</span>
         <span style={{ color: '#f87171' }}>●</span>
@@ -27,7 +27,7 @@ Human-readable, color-coded by priority. One event per block.
 
 One line per event. Good for tailing in a tmux pane.
 
-<Term title="emitsignal — zsh">
+<Term>
     <Out color="#f7f7f8">21:52:14 p5 alerts/prod</Out>
     <Out color="#a1a1a6">&nbsp;&nbsp;High memory on api-02 #sev2</Out>
     <div style={{ height: 6 }} />
@@ -60,7 +60,7 @@ Tab-separated: `ts\ttopic\tpriority\ttitle`. Pipe to `awk`, `cut`, or `sort`.
 
 ## Pipe patterns
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal listen -f json | jq -r '.title'</Cmd>
     <Out color="#f7f7f8">High memory on api-02</Out>
     <Out color="#f7f7f8">TypeError spike</Out>
@@ -71,17 +71,17 @@ Tab-separated: `ts\ttopic\tpriority\ttitle`. Pipe to `awk`, `cut`, or `sort`.
     </div>
 </Term>
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>{"emitsignal listen -f tsv | awk -F'\\t' '{ print $3, $2 }'"}</Cmd>
     <Out color="#f7f7f8">5 alerts/prod</Out>
     <Out color="#f7f7f8">3 ci/web</Out>
 </Term>
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal listen -f json --no-color &gt;&gt; /var/log/signals.ndjson</Cmd>
 </Term>
 
 <Tip>
-    When piping, you never need `--no-color` — it's implied automatically. The flag exists only for
-    cases where you're writing to a TTY but want plain text anyway.
+    When piping, you never need `--no-color`, since it's implied automatically. The flag exists only
+    for cases where you're writing to a TTY but want plain text anyway.
 </Tip>

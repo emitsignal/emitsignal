@@ -8,14 +8,14 @@ POST /publish/<topic>
 ```
 
 Publishes a message to a topic. The topic is created automatically on first publish.
-**Auth is optional** — anonymous publishes are allowed (per-IP rate limited); an
+**Auth is optional**: anonymous publishes are allowed (per-IP rate limited); an
 authenticated publish applies your plan's daily message quota and attributes the
 sender.
 
 <Note>
     Publishing answers on two hosts: `https://emitsignal.com/publish/<topic>` (shorter, used in the
     examples here) and `https://api.emitsignal.com/publish/<topic>`. They hit the same endpoint with the
-    same limits. Only publishing is aliased — every other endpoint requires the API host.
+    same limits. Only publishing is aliased; every other endpoint requires the API host.
 </Note>
 
 <Note>
@@ -55,7 +55,7 @@ Send `Content-Type: application/json` with any of these fields. At least one of
 </ParamField>
 
 <ParamField body="bannerImage" type="string | { href, title? }">
-    A single banner image — a URL string or an object.
+    A single banner image, either a URL string or an object.
 </ParamField>
 
 <ParamField body="inlineImages" type="media | media[]">
@@ -107,8 +107,8 @@ curl https://emitsignal.com/publish/alerts/prod \
 **Priority values** accept names or numbers: `min`/`1`, `low`/`2`,
 `none`/`default`/`3`, `high`/`4`, `urgent`/`max`/`5`.
 
-**Delay/schedule values** accept a duration string — `30s`, `5m`, `2h`, `1d`, `1w`
-— or an integer (a unix timestamp if it's `>= now`, otherwise seconds from now).
+**Delay/schedule values** accept a duration string (`30s`, `5m`, `2h`, `1d`, `1w`)
+or an integer (a unix timestamp if it's `>= now`, otherwise seconds from now).
 
 ## Priority
 
@@ -123,16 +123,16 @@ curl https://emitsignal.com/publish/alerts/prod \
 ## Responses
 
 ```json
-// Immediate publish — 200
+// Immediate publish · 200
 { "message": "posted", "messageId": "..." }
 ```
 
 ```json
-// Scheduled publish — 200
+// Scheduled publish · 200
 { "message": "scheduled", "messageId": "...", "scheduledAt": 1790000000 }
 ```
 
 Common errors: `400 missing_content` (no title or body), `400 invalid_media`,
 `400 invalid_topic_name`, `403 plan_limit_reached` (topic count), and
-`429 daily_quota_exceeded` (authenticated users over the daily message limit — see
+`429 daily_quota_exceeded` (authenticated users over the daily message limit, see
 [Rate limits](/api/rate-limits)).

@@ -7,7 +7,7 @@ import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
 
 <Steps>
     <Step title="Install and log in">
-        <Term title="emitsignal — zsh">
+        <Term>
             <Cmd>brew install emitsignal/tap/emitsignal</Cmd>
             <Ok>emitsignal 1.0.0 installed</Ok>
             <Sp />
@@ -17,7 +17,7 @@ import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
     </Step>
 
     <Step title="Subscribe to a topic">
-        <Term title="emitsignal — zsh">
+        <Term>
             <Cmd>emitsignal subscribe deploy/prod</Cmd>
             <Ok>subscribed → deploy/prod · p≥1 · push</Ok>
         </Term>
@@ -27,7 +27,7 @@ import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
     </Step>
 
     <Step title="Publish from anywhere">
-        <Term title="emitsignal — zsh">
+        <Term>
             <Cmd>emitsignal publish deploy/prod -p4 -m "shipped v2.14.3"</Cmd>
             <Ok>published → deploy/prod · 1 subscriber · 96ms</Ok>
         </Term>
@@ -37,7 +37,7 @@ import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
     </Step>
 
     <Step title="Watch it live in the terminal">
-        <Term title="emitsignal — zsh">
+        <Term>
             <Cmd>emitsignal listen --priority &gt;=2</Cmd>
             <Arrow>connected · 1 subscription · filter priority&gt;=2 · ctrl-c to quit</Arrow>
             <Out color="#f7f7f8">
@@ -49,7 +49,7 @@ import { Arrow, Caret, Cmd, Ok, Out, Sp, Term } from '../snippets/terminal.jsx';
 
         Or open the full-screen inbox:
 
-        <Term title="emitsignal — zsh">
+        <Term>
             <Cmd>emitsignal tui</Cmd>
             <Arrow>launching full-screen inbox…<Caret /></Arrow>
         </Term>

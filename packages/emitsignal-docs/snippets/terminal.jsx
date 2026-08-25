@@ -7,7 +7,7 @@ export const Term = ({
     dense = false,
     pad = true,
     style,
-    title = 'emitsignal — zsh',
+    title = 'emitsignal · zsh',
 }) => {
     return (
         <div style={{ margin: '16px 0' }}>
@@ -109,7 +109,7 @@ export const Cmd = ({ children, prompt = true, wrap = false }) => {
     // Mintlify's MDX pipeline runs remark-smartypants over plain markdown text
     // (which is what <Cmd>...</Cmd> children are, unless authored as a JS expression),
     // rewriting straight quotes/dashes into typographic ones. That breaks copy-paste
-    // into a shell, so undo it here — every substitution smartypants makes is
+    // into a shell, so undo it here. Every substitution smartypants makes is
     // unambiguous to reverse in a shell-command context.
     const deSmarten = (str) =>
         str.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '--').replace(/…/g, '...');

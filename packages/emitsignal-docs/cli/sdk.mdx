@@ -3,7 +3,7 @@ title: 'SDK'
 description: 'Every CLI verb maps 1:1 to an HTTP endpoint and to the typed SDK. Same auth, same filter grammar.'
 ---
 
-The CLI is a thin wrapper over the HTTP API. Everything it can do, the SDK can do —
+The CLI is a thin wrapper over the HTTP API. Everything it can do, the SDK can do,
 and the filter grammar is identical in both.
 
 ## HTTP API
@@ -50,7 +50,7 @@ await es.publish('deploy/prod', {
     message: `api-gateway → v2.14.3`,
 });
 
-// Stream — same filter grammar as the CLI
+// Stream, using the same filter grammar as the CLI
 for await (const ev of es.listen('priority>=2')) {
     console.log(ev.title);
 }

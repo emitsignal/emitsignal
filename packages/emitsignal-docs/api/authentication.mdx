@@ -6,17 +6,17 @@ description: 'How the API resolves your identity: session tokens, API keys, and 
 Every endpoint that needs a caller identity resolves it from one of three sources, in
 order:
 
-1. **`Authorization: Bearer <token>`** — a session token (mobile/CLI) **or** an
+1. **`Authorization: Bearer <token>`**: a session token (mobile/CLI) **or** an
    `es_`-prefixed API key.
-2. **`x-api-key: <key>`** — an API key as a dedicated header.
-3. **Session cookie** — set automatically for the web dashboard.
+2. **`x-api-key: <key>`**: an API key as a dedicated header.
+3. **Session cookie**: set automatically for the web dashboard.
 
 ```http
 Authorization: Bearer es_xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 <Note>
-    Many endpoints work **without** any credential — publishing, subscribing, and listening all
+    Many endpoints work **without** any credential. Publishing, subscribing, and listening all
     support anonymous, device-scoped use. Authentication raises your rate limits and syncs
     subscriptions across devices. Endpoints that strictly require a token return [`401
     missing_token`](/api/errors).
@@ -34,7 +34,7 @@ emitsignal keys revoke <id>
 ```
 
 See the [`keys` command](/cli/keys) for the full reference. A newly created key's
-secret is shown **once** — store it immediately.
+secret is shown **once**, so store it immediately.
 
 ## Sign-in flow
 

@@ -19,7 +19,7 @@ Aliased to `sub` / `unsub` for convenience.
 </ParamField>
 
 <ParamField body="--mute, -m" type="duration">
-    Subscribe but silence delivery for a duration — e.g. `8h`, `1d`. You still receive events; they
+    Subscribe but silence delivery for a duration, e.g. `8h`, `1d`. You still receive events; they
     just don't trigger notifications.
 </ParamField>
 
@@ -33,7 +33,7 @@ Aliased to `sub` / `unsub` for convenience.
 
 ## Examples
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal subscribe alerts/prod -p4</Cmd>
     <Ok>subscribed → alerts/prod · p≥4 · push</Ok>
     <Sp />
@@ -62,7 +62,7 @@ Aliased to `sub` / `unsub` for convenience.
 By default, subscriptions route to all registered delivery targets (push, email, etc.)
 based on your account settings. Use `--targets` to override per subscription:
 
-<Term title="emitsignal — zsh">
+<Term>
     <Cmd>emitsignal subscribe ci/builds --targets slack</Cmd>
     <Ok>subscribed → ci/builds · p≥1 · slack</Ok>
 </Term>

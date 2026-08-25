@@ -43,7 +43,7 @@ Public. Returns the message object above (with `attachments` resolved) plus
 POST /messages/:id/acknowledge
 ```
 
-Public — identity comes from the body.
+Public: identity comes from the body.
 
 <ParamField body="deviceId" type="string" required />
 <ParamField body="userId" type="string" />
@@ -58,7 +58,7 @@ Public — identity comes from the body.
 POST /messages/:id/attachments
 ```
 
-Multipart upload of a **single** file. Auth optional — anonymous uploads are allowed
+Multipart upload of a **single** file. Auth optional; anonymous uploads are allowed
 with free-tier size limits and a shorter retention (3 hours vs. 15 days for
 authenticated).
 

@@ -29,7 +29,7 @@ curl -N \
 # data: {"id":"...","title":"High memory","priority":5,"createdAt":1790000000000, ...}
 ```
 
-Listening to a topic that doesn't exist yet is allowed — publishing creates the topic on first
+Listening to a topic that doesn't exist yet is allowed, since publishing creates the topic on first
 use, so you can connect ahead of the first signal. A topic that exists but that you're not
 allowed to read returns `404 topic_not_found`.
 
@@ -40,9 +40,8 @@ GET /listen
 ```
 
 <ParamField query="topics" type="string">
-    Comma-separated topic names. If omitted, subscribes to every topic you own or are subscribed to
-    — authentication is required in that case, otherwise the request fails with `400
-    topics_required`.
+    Comma-separated topic names. If omitted, subscribes to every topic you own or are subscribed to.
+    Authentication is required in that case, otherwise the request fails with `400 topics_required`.
 </ParamField>
 
 <ParamField query="since" type="integer (unix ms)">
@@ -66,4 +65,4 @@ rest of the stream. If none of the requested topics are readable, the request re
     one per topic.
 </Warning>
 
-Each event's `data` is a serialized message — see the [message object](/api/messages#message-object).
+Each event's `data` is a serialized message. See the [message object](/api/messages#message-object).
