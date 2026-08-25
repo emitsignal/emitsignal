@@ -6,7 +6,8 @@ const SELF_TOKENS = new Set(['1', 'true', 'yes']);
 // values before they reach the queue, not to re-implement RFC 5321.
 const ADDRESS_PATTERN = /^[^\s@,;]+@[^\s@,;.]+(\.[^\s@,;.]+)+$/;
 
-const MAX_ADDRESS_LENGTH = 128;
+// RFC 5321 caps a reversible path at 254 characters; the route schema matches.
+const MAX_ADDRESS_LENGTH = 254;
 
 export function parseEmailTarget(raw: string): { error: string } | EmailTarget {
     const trimmed = raw.trim();

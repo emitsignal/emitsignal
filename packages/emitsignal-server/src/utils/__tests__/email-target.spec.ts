@@ -34,11 +34,11 @@ describe('parseEmailTarget', () => {
         }
     });
 
-    it('rejects an address longer than 128 characters', () => {
-        const raw = `${'a'.repeat(124)}@example.com`;
+    it('rejects an address longer than 254 characters', () => {
+        const raw = `${'a'.repeat(250)}@example.com`;
 
         expect(parseEmailTarget(raw)).toEqual({
-            error: 'an email address cannot exceed 128 characters',
+            error: 'an email address cannot exceed 254 characters',
         });
     });
 });
