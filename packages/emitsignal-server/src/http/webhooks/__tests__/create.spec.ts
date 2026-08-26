@@ -244,3 +244,80 @@ describe('POST /webhooks signing secrets', () => {
         expect(storedData().verificationConfig).toBeNull();
     });
 });
+
+describe('POST /webhooks reserved slug', () => {
+    const app = new Elysia().use(createWebhook);
+
+    function request(body: Record<string, unknown>) {
+        return new Request('http://localhost/webhooks', {
+            body: JSON.stringify({ topicName: 'deploys', ...body }),
+            headers: { 'Content-Type': 'application/json', 'x-test-user-id': 'user-1' },
+            method: 'POST',
+        });
+    }
+
+    beforeEach(() => {
+        resetUserPlansForTests();
+        setUserPlanForTests('user-1', 'free');
+        prismaMock.webhook.count.mockReset();
+        prismaMock.webhook.count.mockResolvedValue(0);
+        prismaMock.webhook.create.mockReset();
+        prismaMock.webhook.create.mockImplementation(({ data }: { data: { slug: string } }) =>
+            Promise.resolve({
+                createdAt: new Date(),
+                id: 'wh-1',
+                name: 'stripe webhook',
+                slug: data.slug,
+                source: 'stripe',
+                status: 'active',
+                template: null,
+                topicName: 'deploys',
+                verification: 'none',
+                verificationConfig: null,
+            }),
+        );
+        prismaMock.topic.findUnique.mockResolvedValue(null);
+    });
+
+    it('uses a slug the client reserved', async () => {
+        const res = await app.handle(request({ slug: 'st_abcdefghijklmnop', source: 'stripe' }));
+
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toMatchObject({
+            endpointUrl: '/h/st_abcdefghijklmnop',
+        });
+    });
+
+    it('rejects a slug whose prefix does not match the source', async () => {
+        const res = await app.handle(request({ slug: 'gh_abcdefghijklmnop', source: 'stripe' }));
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug' });
+    });
+
+    it('rejects a malformed slug', async () => {
+        const res = await app.handle(request({ slug: 'nope', source: 'stripe' }));
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug' });
+    });
+
+    it('returns 409 when the reserved slug was taken first', async () => {
+        prismaMock.webhook.create.mockImplementation(() =>
+            Promise.reject(Object.assign(new Error('unique'), { code: 'P2002' })),
+        );
+
+        const res = await app.handle(request({ slug: 'st_abcdefghijklmnop', source: 'stripe' }));
+
+        expect(res.status).toBe(409);
+        await expect(res.json()).resolves.toEqual({ error: 'slug_taken' });
+    });
+
+    it('generates a slug for the source when none is reserved', async () => {
+        const res = await app.handle(request({ source: 'stripe' }));
+        const body = (await res.json()) as { endpointUrl: string };
+
+        expect(res.status).toBe(200);
+        expect(body.endpointUrl).toMatch(/^\/h\/st_[a-z0-9]{16}$/);
+    });
+});

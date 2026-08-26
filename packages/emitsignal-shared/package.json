@@ -9,6 +9,7 @@
         "./publish-example": "./src/publish-example.ts",
         "./topic": "./src/topic.ts",
         "./url": "./src/url.ts",
+        "./webhook-slug": "./src/webhook-slug.ts",
         "./webhook-template": "./src/webhook-template.ts",
         "./webhook-transforms": "./src/webhook-transforms.ts",
         "./webhook-verification": "./src/webhook-verification.ts"

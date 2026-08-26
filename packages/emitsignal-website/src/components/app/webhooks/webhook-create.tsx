@@ -5,6 +5,8 @@ import {
     defaultVerificationForSource,
     schemeNeedsConfig,
 } from '@emitsignal/shared';
+import { isValidTopicName } from '@emitsignal/shared/topic';
+import { generateWebhookSlug } from '@emitsignal/shared/webhook-slug';
 import {
     applyTemplate as applyTemplateExact,
     sanitizeReplacements,
@@ -16,6 +18,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { Webhook, WebhookTemplate } from '#/lib/api';
 
+import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, API_URL } from '#/lib/api';
 import { queryKeys } from '#/lib/query-client';
 
@@ -27,6 +30,7 @@ import { NotifPreview } from './notif-preview';
 import { EMPTY_TEMPLATE, toReplacementMap, toReplacementRows } from './template-fields';
 import { applyTemplate } from './template-string';
 import { VerificationFields } from './verification-fields';
+import { WebhookChannelField } from './webhook-channel-field';
 import { WebhookSettingsTab } from './webhook-settings-tab';
 import { WebhookTabBar } from './webhook-tab-bar';
 import { WebhookTemplateTab } from './webhook-template-tab';
@@ -137,6 +141,10 @@ interface WebhookCreateProps {
     >;
 }
 
+function defaultWebhookName(source: string): string {
+    return `${source} webhook`;
+}
+
 const EMPTY_CONFIG: VerificationConfig = {
     algorithm: 'sha256',
     encoding: 'hex',
@@ -144,24 +152,9 @@ const EMPTY_CONFIG: VerificationConfig = {
     prefix: '',
 };
 
-function parseConfig(raw: null | string | undefined): null | VerificationConfig {
-    if (!raw) {
-        return null;
-    }
-
-    try {
-        return JSON.parse(raw) as VerificationConfig;
-    } catch {
-        return null;
-    }
-}
-
-const EMPTY_PAYLOAD = '{\n  \n}';
-
-// ── Component ─────────────────────────────────────────────────────────────────
-
 export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     const isEdit = !!initialData;
+    const { subscribe, subscriptions } = useSubscriptions();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -177,18 +170,24 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
     })();
 
-    const [activeTab, setActiveTab] = useState<WebhookTab>(isEdit ? 'template' : 'settings');
+    const [activeTab, setActiveTab] = useState<WebhookTab>('template');
     const [copied, setCopied] = useState(false);
-    const [customPayloadText, setCustomPayloadText] = useState(
-        initialData?.samplePayload ?? EMPTY_PAYLOAD,
+    const [payloadText, setPayloadText] = useState(
+        initialData?.samplePayload ?? samplePayloadFor(initialSource),
     );
-    const [customPayloadValid, setCustomPayloadValid] = useState(true);
+    const [payloadValid, setPayloadValid] = useState(true);
     const [previewMode, setPreviewMode] = useState<'pretty' | 'raw'>('pretty');
     const [saveError, setSaveError] = useState<null | string>(null);
     const [saving, setSaving] = useState(false);
     const [secret, setSecret] = useState('');
     const [scheme, setScheme] = useState<VerificationScheme>(
         initialData?.verification ?? defaultVerificationForSource(initialSource),
+    );
+    const [reservedSlug, setReservedSlug] = useState('');
+    const [name, setName] = useState(
+        initialData?.name && initialData.name !== defaultWebhookName(initialSource)
+            ? initialData.name
+            : '',
     );
     const [source, setSource] = useState<Source>(initialSource);
     const [templateFields, setTemplateFields] = useState<WebhookTemplate>(
@@ -208,20 +207,22 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     );
     const verificationDirtyRef = useRef(false);
 
+    useEffect(() => {
+        setReservedSlug((current) => current || generateWebhookSlug(initialSource));
+    }, [initialSource]);
+
     // Active payload for preview
-    const activePayload: Record<string, unknown> =
-        source === 'custom'
-            ? (() => {
-                  try {
-                      return JSON.parse(customPayloadText) as Record<string, unknown>;
-                  } catch {
-                      return {};
-                  }
-              })()
-            : SOURCE_DATA[source]!.payload;
+    const activePayload: Record<string, unknown> = (() => {
+        try {
+            return JSON.parse(payloadText) as Record<string, unknown>;
+        } catch {
+            return {};
+        }
+    })();
 
     const showRaw = !useTemplate || previewMode === 'raw';
-    const invalidTabs: WebhookTab[] = saveError && !topicName.trim() ? ['settings'] : [];
+    const slug = isEdit ? initialData?.slug : reservedSlug;
+    const channelInvalid = !!saveError && !topicName.trim();
 
     const replacements = sanitizeReplacements(templateFields.replacements);
 
@@ -246,12 +247,15 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
 
         setSource(source);
+        setReservedSlug(generateWebhookSlug(source));
 
         const data = SOURCE_DATA[source]!;
         const template = data.template;
 
         setTemplateFields(template ?? EMPTY_TEMPLATE);
         setUseTemplate(template !== null);
+        setPayloadText(samplePayloadFor(source));
+        setPayloadValid(true);
 
         templateDirtyRef.current = false;
 
@@ -284,23 +288,23 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         setTemplateFields((prev) => ({ ...prev, replacements: toReplacementMap(rows) }));
     }
 
-    function handleCustomPayloadChange(text: string) {
-        setCustomPayloadText(text);
+    function handlePayloadChange(text: string) {
+        setPayloadText(text);
 
         try {
             JSON.parse(text);
-            setCustomPayloadValid(true);
+            setPayloadValid(true);
         } catch {
-            setCustomPayloadValid(false);
+            setPayloadValid(false);
         }
     }
 
     function handleCopyEndpoint() {
-        if (!isEdit || !initialData?.slug) {
+        if (!slug) {
             return;
         }
 
-        void navigator.clipboard.writeText(`${API_URL}/h/${initialData.slug}`).then(() => {
+        void navigator.clipboard.writeText(`${API_URL}/h/${slug}`).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
         });
@@ -308,9 +312,13 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
     async function handleSave() {
         if (!topicName.trim()) {
-            setActiveTab('settings');
-
             return setSaveError('Channel name is required');
+        }
+
+        if (!isValidTopicName(topicName.trim())) {
+            return setSaveError(
+                'Channel names use lowercase letters, numbers, dash, underscore and slash only',
+            );
         }
 
         const hasStoredSecret = !!initialData?.hasSecret;
@@ -327,6 +335,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         setSaveError(null);
 
         try {
+            const channel = topicName.trim();
             const template = useTemplate ? JSON.stringify(templateFields) : null;
 
             const verification = {
@@ -340,19 +349,35 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
             if (isEdit && initialData) {
                 await api.updateWebhook(initialData.id, {
-                    name: `${source} webhook`,
+                    name: name.trim() || defaultWebhookName(source),
                     template,
-                    topicName: topicName.trim(),
+                    topicName: channel,
                     ...verification,
                 });
             } else {
                 await api.createWebhook({
-                    name: `${source} webhook`,
+                    name: name.trim() || defaultWebhookName(source),
+                    slug: reservedSlug,
                     source,
                     template,
-                    topicName: topicName.trim(),
+                    topicName: channel,
                     ...verification,
                 });
+            }
+
+            // Without a subscription the deliveries land in a channel nobody reads.
+            // subscribe() upserts, so skip it when one already exists: its update
+            // branch would reset that channel's notification settings.
+            if (!subscriptions.some((subscription) => subscription.topic.name === channel)) {
+                try {
+                    await subscribe(channel);
+                } catch {
+                    setSaving(false);
+
+                    return setSaveError(
+                        `Webhook saved, but subscribing to ${channel} failed. Subscribe from Channels to get notified.`,
+                    );
+                }
             }
 
             await queryClient.invalidateQueries({ queryKey: queryKeys.webhooks });
@@ -392,21 +417,21 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         verificationDirtyRef.current = false;
     }, [initialData?.id]);
 
-    // Seed the custom payload editor once deliveries resolve (the sample payload
+    // Seed the payload editor once deliveries resolve (the sample payload
     // arrives after mount, so it has its own effect to avoid resetting template edits).
     useEffect(() => {
         if (!initialData?.samplePayload) {
             return;
         }
 
-        setCustomPayloadText(initialData.samplePayload);
-        setCustomPayloadValid(true);
+        setPayloadText(initialData.samplePayload);
+        setPayloadValid(true);
     }, [initialData?.samplePayload]);
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
             {/* identity: source drives the sample payload, endpoint is the thing you copy */}
-            <div className="grid grid-cols-[auto_1fr] items-end gap-5 border-b border-line px-6 py-4">
+            <div className="grid grid-cols-[auto_1.6fr_1.1fr] items-start gap-5 border-b border-line px-6 py-4">
                 <div>
                     <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
                         Source
@@ -448,13 +473,10 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     <div className="flex items-center gap-2 rounded-lg border border-line bg-deep px-3 py-2">
                         <span className="flex-1 truncate font-mono text-[11.5px] text-muted">
                             {API_URL}/h/
-                            <span className="text-accent">
-                                {isEdit ? initialData?.slug : 'assigned on save'}
-                            </span>
+                            <span className="text-accent">{slug || 'reserving…'}</span>
                         </span>
                         <button
                             className="flex shrink-0 cursor-pointer items-center text-faint hover:text-fg disabled:cursor-default"
-                            disabled={!isEdit}
                             onClick={handleCopyEndpoint}
                             title={copied ? 'Copied!' : 'Copy endpoint URL'}
                             type="button"
@@ -469,6 +491,13 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         </button>
                     </div>
                 </div>
+
+                <WebhookChannelField
+                    invalid={channelInvalid}
+                    onChange={setTopicName}
+                    source={source}
+                    value={topicName}
+                />
             </div>
 
             {/* editor split */}
@@ -479,46 +508,40 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
                             Incoming Payload
                         </span>
-                        <span className="ml-auto font-mono text-[10px] text-faint">
-                            {source === 'custom' ? 'editable' : 'POST · example payload'}
+                        <span
+                            className="ml-auto font-mono text-[10px]"
+                            style={{
+                                color: payloadValid ? 'var(--color-faint)' : 'var(--color-danger)',
+                            }}
+                        >
+                            {payloadValid ? 'editable · paste a real delivery' : 'invalid JSON'}
                         </span>
                     </div>
                     <div
                         className="mx-5 mb-5 flex-1 overflow-auto rounded-xl border border-line bg-deep p-3.5"
                         style={{
-                            borderColor:
-                                source === 'custom' && !customPayloadValid
-                                    ? 'var(--color-danger)'
-                                    : undefined,
+                            borderColor: payloadValid ? undefined : 'var(--color-danger)',
                         }}
                     >
-                        {source === 'custom' ? (
-                            <textarea
-                                className="h-full w-full resize-none bg-transparent font-mono text-[12px] leading-relaxed text-fg outline-none"
-                                onChange={(e) => handleCustomPayloadChange(e.target.value)}
-                                spellCheck={false}
-                                value={customPayloadText}
-                            />
-                        ) : (
-                            <JsonView data={SOURCE_DATA[source]!.payload} size={12} />
-                        )}
+                        <textarea
+                            className="h-full w-full resize-none bg-transparent font-mono text-[12px] leading-relaxed text-fg outline-none"
+                            onChange={(e) => handlePayloadChange(e.target.value)}
+                            spellCheck={false}
+                            value={payloadText}
+                        />
                     </div>
                 </div>
 
                 {/* config pane: one tab at a time, preview pinned below */}
                 <div className="flex min-w-0 flex-1 flex-col">
-                    <WebhookTabBar
-                        active={activeTab}
-                        invalid={invalidTabs}
-                        onChange={setActiveTab}
-                    />
+                    <WebhookTabBar active={activeTab} onChange={setActiveTab} />
 
                     <div className="min-h-0 flex-1 overflow-auto">
                         {activeTab === 'settings' && (
                             <WebhookSettingsTab
-                                error={saveError}
-                                onTopicNameChange={setTopicName}
-                                topicName={topicName}
+                                name={name}
+                                onNameChange={setName}
+                                placeholder={defaultWebhookName(source)}
                             />
                         )}
 
@@ -611,7 +634,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                 )}
                 <button
                     className="rounded-md bg-accent px-4 py-1.5 text-[12px] font-semibold text-bg hover:bg-accent-dim disabled:opacity-50"
-                    disabled={saving || (source === 'custom' && !customPayloadValid)}
+                    disabled={saving || !payloadValid}
                     onClick={() => void handleSave()}
                     type="button"
                 >
@@ -620,4 +643,22 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
             </div>
         </div>
     );
+}
+
+function parseConfig(raw: null | string | undefined): null | VerificationConfig {
+    if (!raw) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(raw) as VerificationConfig;
+    } catch {
+        return null;
+    }
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+function samplePayloadFor(source: string): string {
+    return JSON.stringify(SOURCE_DATA[source]?.payload ?? {}, null, 2);
 }

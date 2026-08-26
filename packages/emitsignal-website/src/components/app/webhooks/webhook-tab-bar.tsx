@@ -2,18 +2,16 @@ export type WebhookTab = 'settings' | 'signature' | 'template';
 
 interface WebhookTabBarProps {
     active: WebhookTab;
-    // Tabs holding a validation error, marked so a problem is findable from any tab.
-    invalid?: WebhookTab[];
     onChange: (tab: WebhookTab) => void;
 }
 
 const TABS: { id: WebhookTab; label: string }[] = [
+    { id: 'template', label: 'Template' },
     { id: 'settings', label: 'Settings' },
     { id: 'signature', label: 'Signature' },
-    { id: 'template', label: 'Template' },
 ];
 
-export function WebhookTabBar({ active, invalid = [], onChange }: WebhookTabBarProps) {
+export function WebhookTabBar({ active, onChange }: WebhookTabBarProps) {
     return (
         <div className="flex gap-4 border-b border-line px-5" role="tablist">
             {TABS.map((tab) => {
@@ -33,9 +31,6 @@ export function WebhookTabBar({ active, invalid = [], onChange }: WebhookTabBarP
                         type="button"
                     >
                         {tab.label}
-                        {invalid.includes(tab.id) && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-danger" />
-                        )}
                     </button>
                 );
             })}

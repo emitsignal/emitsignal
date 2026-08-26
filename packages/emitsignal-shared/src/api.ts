@@ -241,6 +241,7 @@ export function createApiClient(baseUrl: string) {
         createWebhook(
             input: {
                 name?: string;
+                slug?: string;
                 source?: string;
                 template?: null | string;
                 topicName: string;
