@@ -7,27 +7,29 @@ import {
 } from '@emitsignal/shared';
 import {
     applyTemplate as applyTemplateExact,
-    parsePlaceholder,
     sanitizeReplacements,
 } from '@emitsignal/shared/webhook-template';
-import { isKnownTransform, TRANSFORM_NAMES } from '@emitsignal/shared/webhook-transforms';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { ChevronDown, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { Webhook, WebhookTemplate } from '#/lib/api';
 
-import { Dot } from '#/components/ui/dot';
-import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, API_URL } from '#/lib/api';
-import { withAlpha } from '#/lib/color';
 import { queryKeys } from '#/lib/query-client';
+
+import type { ReplacementRow, TemplateTextField } from './template-fields';
+import type { WebhookTab } from './webhook-tab-bar';
 
 import { JsonView } from './json-view';
 import { NotifPreview } from './notif-preview';
+import { EMPTY_TEMPLATE, toReplacementMap, toReplacementRows } from './template-fields';
 import { applyTemplate } from './template-string';
 import { VerificationFields } from './verification-fields';
+import { WebhookSettingsTab } from './webhook-settings-tab';
+import { WebhookTabBar } from './webhook-tab-bar';
+import { WebhookTemplateTab } from './webhook-template-tab';
 
 const SOURCE_DATA: Record<
     string,
@@ -118,25 +120,6 @@ const GLYPH: Record<Source, string> = {
     vercel: 'VC',
 };
 
-const EMPTY_TEMPLATE: WebhookTemplate = {
-    body: '',
-    link: '',
-    linkLabel: '',
-    priority: '3',
-    replacements: {},
-    tags: '',
-    title: '',
-};
-
-const TEMPLATE_FIELDS = ['title', 'body', 'tags', 'link'] as const;
-
-interface ReplacementRow {
-    from: string;
-    to: string;
-}
-
-type TemplateTextField = Exclude<keyof WebhookTemplate, 'replacements'>;
-
 interface WebhookCreateProps {
     initialData?: {
         samplePayload?: null | string;
@@ -152,27 +135,6 @@ interface WebhookCreateProps {
         | 'verification'
         | 'verificationConfig'
     >;
-}
-
-function toReplacementMap(rows: ReplacementRow[]): Record<string, string> {
-    return Object.fromEntries(
-        rows.filter((row) => row.from.trim()).map((row) => [row.from, row.to]),
-    );
-}
-
-function toReplacementRows(replacements: Record<string, string> | undefined): ReplacementRow[] {
-    return Object.entries(replacements ?? {}).map(([from, to]) => ({ from, to }));
-}
-
-// ── Props ─────────────────────────────────────────────────────────────────────
-
-// Filters are ignored at delivery time when misspelled, so the editor is where a typo surfaces.
-function unknownFiltersIn(input: string): string[] {
-    const names = [...input.matchAll(/\{\{\s*([^}]+)\s*\}\}/g)].flatMap(([, raw]) =>
-        parsePlaceholder(raw!).filters.map((filter) => filter.name),
-    );
-
-    return [...new Set(names.filter((name) => !isKnownTransform(name)))];
 }
 
 const EMPTY_CONFIG: VerificationConfig = {
@@ -199,7 +161,6 @@ const EMPTY_PAYLOAD = '{\n  \n}';
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
-    const { subscriptions } = useSubscriptions();
     const isEdit = !!initialData;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -216,6 +177,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
     })();
 
+    const [activeTab, setActiveTab] = useState<WebhookTab>(isEdit ? 'template' : 'settings');
     const [copied, setCopied] = useState(false);
     const [customPayloadText, setCustomPayloadText] = useState(
         initialData?.samplePayload ?? EMPTY_PAYLOAD,
@@ -259,6 +221,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
             : SOURCE_DATA[source]!.payload;
 
     const showRaw = !useTemplate || previewMode === 'raw';
+    const invalidTabs: WebhookTab[] = saveError && !topicName.trim() ? ['settings'] : [];
 
     const replacements = sanitizeReplacements(templateFields.replacements);
 
@@ -345,6 +308,8 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
     async function handleSave() {
         if (!topicName.trim()) {
+            setActiveTab('settings');
+
             return setSaveError('Channel name is required');
         }
 
@@ -440,7 +405,8 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
-            <div className="grid grid-cols-[1.1fr_1.6fr_1.1fr] gap-5 border-b border-line px-6 py-4">
+            {/* identity: source drives the sample payload, endpoint is the thing you copy */}
+            <div className="grid grid-cols-[auto_1fr] items-end gap-5 border-b border-line px-6 py-4">
                 <div>
                     <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
                         Source
@@ -467,6 +433,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                           }
                                 }
                                 title={s}
+                                type="button"
                             >
                                 {GLYPH[s]}
                             </button>
@@ -474,7 +441,6 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     </div>
                 </div>
 
-                {/* Endpoint URL */}
                 <div>
                     <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
                         Endpoint URL
@@ -491,6 +457,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                             disabled={!isEdit}
                             onClick={handleCopyEndpoint}
                             title={copied ? 'Copied!' : 'Copy endpoint URL'}
+                            type="button"
                         >
                             {copied ? (
                                 <span className="font-mono text-[9px] text-success leading-none">
@@ -502,56 +469,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         </button>
                     </div>
                 </div>
-
-                {/* Channel */}
-                <div>
-                    <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
-                        Publish to channel
-                    </div>
-                    <div
-                        className="flex items-center gap-2 rounded-lg border bg-elev px-3 py-2"
-                        style={{
-                            borderColor:
-                                saveError && !topicName.trim()
-                                    ? 'var(--color-danger)'
-                                    : 'var(--color-line)',
-                        }}
-                    >
-                        <Dot level={2} size={6} />
-
-                        <select
-                            className="flex-1 bg-transparent font-mono text-[12px] text-fg outline-none"
-                            onChange={(e) => setTopicName(e.target.value)}
-                            value={topicName}
-                        >
-                            <option disabled value="">
-                                Select a channel…
-                            </option>
-
-                            {subscriptions.map((subscription) => (
-                                <option key={subscription.id} value={subscription.topic.name}>
-                                    {subscription.topic.displayName}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="pointer-events-none text-dim" size={13} />
-                    </div>
-
-                    {saveError && (
-                        <div className="mt-1 font-mono text-[10.5px] text-danger">{saveError}</div>
-                    )}
-                </div>
             </div>
-
-            <VerificationFields
-                config={verificationConfig}
-                hasStoredSecret={!!initialData?.hasSecret}
-                onConfigChange={setVerificationConfig}
-                onSchemeChange={handleSchemeChange}
-                onSecretChange={setSecret}
-                scheme={scheme}
-                secret={secret}
-            />
 
             {/* editor split */}
             <div className="flex min-h-0 flex-1">
@@ -587,205 +505,49 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     </div>
                 </div>
 
-                {/* template + preview pane */}
-                <div className="flex min-w-0 flex-1 flex-col overflow-auto">
-                    {/* template toggle */}
-                    <div className="flex items-center px-5 py-3.5">
-                        <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
-                            Template
-                        </span>
+                {/* config pane: one tab at a time, preview pinned below */}
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <WebhookTabBar
+                        active={activeTab}
+                        invalid={invalidTabs}
+                        onChange={setActiveTab}
+                    />
 
-                        <button
-                            className="ml-auto flex cursor-pointer items-center gap-2"
-                            onClick={() => setUseTemplate((v) => !v)}
-                        >
-                            <span
-                                className="font-mono text-[11px]"
-                                style={{
-                                    color: useTemplate ? 'var(--color-accent)' : 'var(--color-dim)',
-                                }}
-                            >
-                                {useTemplate ? 'Using template' : 'Raw passthrough'}
-                            </span>
-                            <div
-                                className="flex items-center rounded-full p-0.5 transition-colors"
-                                style={{
-                                    background: useTemplate
-                                        ? 'var(--color-accent)'
-                                        : 'var(--color-line)',
-                                    height: 21,
-                                    justifyContent: useTemplate ? 'flex-end' : 'flex-start',
-                                    width: 36,
-                                }}
-                            >
-                                <div className="h-[17px] w-[17px] rounded-full bg-fg" />
-                            </div>
-                        </button>
-                    </div>
-
-                    {/* template fields (editable) */}
-                    <div
-                        className="px-5 transition-opacity"
-                        style={{
-                            opacity: useTemplate ? 1 : 0.4,
-                            pointerEvents: useTemplate ? 'auto' : 'none',
-                        }}
-                    >
-                        {TEMPLATE_FIELDS.map((field) => {
-                            const unknownFilters = unknownFiltersIn(templateFields[field] ?? '');
-
-                            return (
-                                <div className="mb-2.5" key={field}>
-                                    <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                        {field}
-                                    </div>
-                                    <input
-                                        className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                        onChange={(e) =>
-                                            handleTemplateFieldChange(field, e.target.value)
-                                        }
-                                        placeholder={`{{${field === 'title' ? 'event.type' : field === 'body' ? 'event.description' : field === 'tags' ? 'source, tag' : 'event.url'}}}`}
-                                        value={templateFields[field] ?? ''}
-                                    />
-                                    {unknownFilters.length > 0 && (
-                                        <div className="mt-1 font-mono text-[10.5px] text-warn">
-                                            Unknown filter{unknownFilters.length > 1 ? 's' : ''}:{' '}
-                                            {unknownFilters.join(', ')} — ignored on delivery.
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-
-                        {(templateFields.link ?? '') !== '' && (
-                            <div className="mb-2.5">
-                                <div className="mb-1 flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                    Button label
-                                    <span className="normal-case tracking-normal text-faint">
-                                        optional · defaults to “View”
-                                    </span>
-                                </div>
-                                <input
-                                    className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                    onChange={(e) =>
-                                        handleTemplateFieldChange('linkLabel', e.target.value)
-                                    }
-                                    placeholder="View"
-                                    value={templateFields.linkLabel ?? ''}
-                                />
-                            </div>
+                    <div className="min-h-0 flex-1 overflow-auto">
+                        {activeTab === 'settings' && (
+                            <WebhookSettingsTab
+                                error={saveError}
+                                onTopicNameChange={setTopicName}
+                                topicName={topicName}
+                            />
                         )}
 
-                        <div className="mb-2.5">
-                            <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                Priority
-                            </div>
+                        {activeTab === 'signature' && (
+                            <VerificationFields
+                                config={verificationConfig}
+                                hasStoredSecret={!!initialData?.hasSecret}
+                                onConfigChange={setVerificationConfig}
+                                onSchemeChange={handleSchemeChange}
+                                onSecretChange={setSecret}
+                                scheme={scheme}
+                                secret={secret}
+                            />
+                        )}
 
-                            <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((priority) => (
-                                    <PriorityChip
-                                        active={
-                                            String(priority) === (templateFields.priority ?? '3')
-                                        }
-                                        key={priority}
-                                        onClick={() =>
-                                            handleTemplateFieldChange('priority', String(priority))
-                                        }
-                                        value={priority}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="mb-2.5">
-                            <div className="mb-1 flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                Replacements
-                                <span className="normal-case tracking-normal text-faint">
-                                    optional · used by the {'{{ value | map }}'} filter
-                                </span>
-                            </div>
-
-                            {replacementRows.map((row, index) => (
-                                <div className="mb-1 flex gap-1" key={index}>
-                                    <input
-                                        className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                        onChange={(e) =>
-                                            handleReplacementRowsChange(
-                                                replacementRows.map((current, position) =>
-                                                    position === index
-                                                        ? { ...current, from: e.target.value }
-                                                        : current,
-                                                ),
-                                            )
-                                        }
-                                        placeholder="customer.subscription.created"
-                                        value={row.from}
-                                    />
-                                    <input
-                                        className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                        onChange={(e) =>
-                                            handleReplacementRowsChange(
-                                                replacementRows.map((current, position) =>
-                                                    position === index
-                                                        ? { ...current, to: e.target.value }
-                                                        : current,
-                                                ),
-                                            )
-                                        }
-                                        placeholder="Assinatura criada"
-                                        value={row.to}
-                                    />
-                                    <button
-                                        className="rounded-lg border border-line px-2.5 font-mono text-[12px] text-dim hover:text-fg"
-                                        onClick={() =>
-                                            handleReplacementRowsChange(
-                                                replacementRows.filter(
-                                                    (_, position) => position !== index,
-                                                ),
-                                            )
-                                        }
-                                        type="button"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ))}
-
-                            <button
-                                className="rounded-lg border border-line px-2.5 py-1.5 font-mono text-[11px] text-dim hover:text-fg"
-                                onClick={() =>
-                                    handleReplacementRowsChange([
-                                        ...replacementRows,
-                                        { from: '', to: '' },
-                                    ])
-                                }
-                                type="button"
-                            >
-                                + Add replacement
-                            </button>
-                        </div>
-
-                        <details className="mb-3">
-                            <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                Available filters
-                            </summary>
-                            <div className="mt-1.5 font-mono text-[11px] leading-relaxed text-faint">
-                                {TRANSFORM_NAMES.join(' · ')}
-                                <div className="mt-1.5 text-dim">
-                                    {"{{ created | date:'YYYY-MM-DD HH:mm' }}"}
-                                </div>
-                                <div className="text-dim">
-                                    {
-                                        "{{ data.object.items.data.*.price.unit_amount | divide:100 | currency:'usd' }}"
-                                    }
-                                </div>
-                                <div className="text-dim">{'{{ type | map }}'}</div>
-                            </div>
-                        </details>
+                        {activeTab === 'template' && (
+                            <WebhookTemplateTab
+                                fields={templateFields}
+                                onFieldChange={handleTemplateFieldChange}
+                                onReplacementRowsChange={handleReplacementRowsChange}
+                                onUseTemplateChange={setUseTemplate}
+                                replacementRows={replacementRows}
+                                useTemplate={useTemplate}
+                            />
+                        )}
                     </div>
 
-                    {/* preview */}
-                    <div className="border-t border-line bg-deep px-5 py-4">
+                    {/* preview stays put so editing any tab shows its effect immediately */}
+                    <div className="shrink-0 border-t border-line bg-deep px-5 py-4">
                         <div className="mb-3 flex items-center">
                             <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
                                 {showRaw ? 'Preview · Raw payload' : 'Preview · Notification'}
@@ -810,6 +572,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                                   }
                                                 : { color: 'var(--color-muted)' }
                                         }
+                                        type="button"
                                     >
                                         {option.charAt(0).toUpperCase() + option.slice(1)}
                                     </button>
@@ -842,45 +605,19 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
             </div>
 
             {/* save bar */}
-            <div className="flex justify-end gap-2 border-t border-line px-6 py-3">
+            <div className="flex items-center justify-end gap-3 border-t border-line px-6 py-3">
+                {saveError && (
+                    <span className="font-mono text-[11px] text-danger">{saveError}</span>
+                )}
                 <button
                     className="rounded-md bg-accent px-4 py-1.5 text-[12px] font-semibold text-bg hover:bg-accent-dim disabled:opacity-50"
                     disabled={saving || (source === 'custom' && !customPayloadValid)}
                     onClick={() => void handleSave()}
+                    type="button"
                 >
                     {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Save webhook'}
                 </button>
             </div>
         </div>
-    );
-}
-
-function PriorityChip({
-    active,
-    onClick,
-    value,
-}: {
-    active: boolean;
-    onClick: () => void;
-    value: number;
-}) {
-    const hex = `var(--color-p${value})`;
-
-    return (
-        <button
-            className="flex flex-1 cursor-pointer items-center justify-center rounded-md border py-1.5 font-mono text-[11.5px] font-semibold"
-            onClick={onClick}
-            style={
-                active
-                    ? { background: withAlpha(hex, 13), borderColor: hex, color: hex }
-                    : {
-                          background: 'var(--color-elev)',
-                          borderColor: 'var(--color-line)',
-                          color: 'var(--color-dim)',
-                      }
-            }
-        >
-            {value}
-        </button>
     );
 }
