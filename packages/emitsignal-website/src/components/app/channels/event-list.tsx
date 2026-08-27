@@ -63,7 +63,7 @@ export function EventList({
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     return (
-        <div className="min-w-0 flex-1 overflow-auto border-r border-line">
+        <div className="min-w-0 flex-1 overflow-auto lg:border-r lg:border-line">
             <FilterRow
                 count={messages.length}
                 hasNextPage={hasNextPage}

@@ -116,7 +116,7 @@ function KeysPage() {
                 title="API Keys"
             />
 
-            <div className="flex-1 overflow-auto px-5.5 py-5">
+            <div className="flex-1 overflow-auto px-4 py-4 sm:px-5.5 sm:py-5">
                 <div className="mb-[10px] flex items-baseline justify-between">
                     <SubHeading>KEYS{loading ? '' : ` · ${apiKeys.length}`}</SubHeading>
                     <span className="font-mono text-[10.5px] text-dim">

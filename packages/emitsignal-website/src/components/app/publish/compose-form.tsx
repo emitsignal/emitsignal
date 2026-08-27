@@ -20,7 +20,7 @@ const SELECTED_PRIORITY = 4;
 
 export function ComposeForm() {
     return (
-        <div className="min-w-0 flex-1 overflow-auto border-r border-line p-7">
+        <div className="min-w-0 flex-1 overflow-auto p-4 md:p-7 lg:border-r lg:border-line">
             <SubHeading>topic</SubHeading>
             <div className="mb-5.5 flex items-center rounded-lg border border-accent/40 bg-elev px-3.5 py-2.5">
                 <span className="font-mono text-[13px] text-dim">emitsignal.com/</span>
