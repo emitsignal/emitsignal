@@ -4,25 +4,33 @@ import {
     DEFAULT_CONFIG_BY_SOURCE,
     defaultVerificationForSource,
     schemeNeedsConfig,
+    VERIFICATION_LABELS,
 } from '@emitsignal/shared';
+import { isValidTopicName } from '@emitsignal/shared/topic';
 import { applyTemplate as applyTemplateExact } from '@emitsignal/shared/webhook-template';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { ChevronDown, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { Webhook, WebhookTemplate } from '#/lib/api';
 
-import { Dot } from '#/components/ui/dot';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { api, API_URL } from '#/lib/api';
-import { withAlpha } from '#/lib/color';
 import { queryKeys } from '#/lib/query-client';
+
+import type { TemplateTextField } from './template-fields';
+import type { WebhookTab } from './webhook-tab-bar';
 
 import { JsonView } from './json-view';
 import { NotifPreview } from './notif-preview';
+import { EMPTY_TEMPLATE } from './template-fields';
 import { applyTemplate } from './template-string';
 import { VerificationFields } from './verification-fields';
+import { WebhookChannelField } from './webhook-channel-field';
+import { WebhookSettingsTab } from './webhook-settings-tab';
+import { WebhookTabBar } from './webhook-tab-bar';
+import { WebhookTemplateTab } from './webhook-template-tab';
 
 const SOURCE_DATA: Record<
     string,
@@ -113,17 +121,6 @@ const GLYPH: Record<Source, string> = {
     vercel: 'VC',
 };
 
-const EMPTY_TEMPLATE: WebhookTemplate = {
-    body: '',
-    link: '',
-    linkLabel: '',
-    priority: '3',
-    tags: '',
-    title: '',
-};
-
-// ── Props ─────────────────────────────────────────────────────────────────────
-
 interface WebhookCreateProps {
     initialData?: {
         samplePayload?: null | string;
@@ -141,6 +138,10 @@ interface WebhookCreateProps {
     >;
 }
 
+function defaultWebhookName(source: string): string {
+    return `${source} webhook`;
+}
+
 const EMPTY_CONFIG: VerificationConfig = {
     algorithm: 'sha256',
     encoding: 'hex',
@@ -148,25 +149,9 @@ const EMPTY_CONFIG: VerificationConfig = {
     prefix: '',
 };
 
-function parseConfig(raw: null | string | undefined): null | VerificationConfig {
-    if (!raw) {
-        return null;
-    }
-
-    try {
-        return JSON.parse(raw) as VerificationConfig;
-    } catch {
-        return null;
-    }
-}
-
-const EMPTY_PAYLOAD = '{\n  \n}';
-
-// ── Component ─────────────────────────────────────────────────────────────────
-
 export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
-    const { subscriptions } = useSubscriptions();
     const isEdit = !!initialData;
+    const { subscribe, subscriptions } = useSubscriptions();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
@@ -182,17 +167,28 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
     })();
 
+    const [activeTab, setActiveTab] = useState<WebhookTab>('template');
     const [copied, setCopied] = useState(false);
-    const [customPayloadText, setCustomPayloadText] = useState(
-        initialData?.samplePayload ?? EMPTY_PAYLOAD,
+    const [payloadText, setPayloadText] = useState(
+        initialData?.samplePayload ?? samplePayloadFor(initialSource),
     );
-    const [customPayloadValid, setCustomPayloadValid] = useState(true);
+    const [payloadValid, setPayloadValid] = useState(true);
+    const [editingPayload, setEditingPayload] = useState(false);
     const [previewMode, setPreviewMode] = useState<'pretty' | 'raw'>('pretty');
     const [saveError, setSaveError] = useState<null | string>(null);
     const [saving, setSaving] = useState(false);
     const [secret, setSecret] = useState('');
     const [scheme, setScheme] = useState<VerificationScheme>(
         initialData?.verification ?? defaultVerificationForSource(initialSource),
+    );
+    const [reservedSlug, setReservedSlug] = useState('');
+    const [slugReservation, setSlugReservation] = useState('');
+    const [reserving, setReserving] = useState(false);
+    const [invalidField, setInvalidField] = useState<'header' | 'secret' | null>(null);
+    const [name, setName] = useState(
+        initialData?.name && initialData.name !== defaultWebhookName(initialSource)
+            ? initialData.name
+            : '',
     );
     const [source, setSource] = useState<Source>(initialSource);
     const [templateFields, setTemplateFields] = useState<WebhookTemplate>(
@@ -210,18 +206,17 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     const verificationDirtyRef = useRef(false);
 
     // Active payload for preview
-    const activePayload: Record<string, unknown> =
-        source === 'custom'
-            ? (() => {
-                  try {
-                      return JSON.parse(customPayloadText) as Record<string, unknown>;
-                  } catch {
-                      return {};
-                  }
-              })()
-            : SOURCE_DATA[source]!.payload;
+    const activePayload: Record<string, unknown> = (() => {
+        try {
+            return JSON.parse(payloadText) as Record<string, unknown>;
+        } catch {
+            return {};
+        }
+    })();
 
     const showRaw = !useTemplate || previewMode === 'raw';
+    const slug = isEdit ? initialData?.slug : reservedSlug;
+    const channelInvalid = !!saveError && !topicName.trim();
 
     const rendered = {
         body: applyTemplate(templateFields.body ?? '', activePayload),
@@ -248,6 +243,9 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
         setTemplateFields(template ?? EMPTY_TEMPLATE);
         setUseTemplate(template !== null);
+        setPayloadText(samplePayloadFor(source));
+        setPayloadValid(true);
+        setEditingPayload(false);
 
         templateDirtyRef.current = false;
 
@@ -258,6 +256,8 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     }
 
     function handleSchemeChange(next: VerificationScheme) {
+        setInvalidField(null);
+
         verificationDirtyRef.current = true;
 
         setScheme(next);
@@ -267,29 +267,44 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         }
     }
 
-    function handleTemplateFieldChange(field: keyof WebhookTemplate, value: string) {
+    function handleTemplateFieldChange(field: TemplateTextField, value: string) {
         templateDirtyRef.current = true;
 
         setTemplateFields((prev) => ({ ...prev, [field]: value }));
     }
 
-    function handleCustomPayloadChange(text: string) {
-        setCustomPayloadText(text);
+    function handlePayloadChange(text: string) {
+        setPayloadText(text);
 
         try {
             JSON.parse(text);
-            setCustomPayloadValid(true);
+            setPayloadValid(true);
         } catch {
-            setCustomPayloadValid(false);
+            setPayloadValid(false);
+        }
+    }
+
+    async function handleGenerateEndpoint() {
+        setReserving(true);
+
+        try {
+            const reserved = await api.reserveWebhookSlug(source);
+
+            setReservedSlug(reserved.slug);
+            setSlugReservation(reserved.reservation);
+        } catch {
+            setSaveError('Could not reserve an endpoint URL. It will be assigned on save.');
+        } finally {
+            setReserving(false);
         }
     }
 
     function handleCopyEndpoint() {
-        if (!isEdit || !initialData?.slug) {
+        if (!slug) {
             return;
         }
 
-        void navigator.clipboard.writeText(`${API_URL}/h/${initialData.slug}`).then(() => {
+        void navigator.clipboard.writeText(`${API_URL}/h/${slug}`).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 1500);
         });
@@ -300,20 +315,37 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
             return setSaveError('Channel name is required');
         }
 
+        if (!isValidTopicName(topicName.trim())) {
+            return setSaveError(
+                'Channel names use lowercase letters, numbers, dash, underscore and slash only',
+            );
+        }
+
         const hasStoredSecret = !!initialData?.hasSecret;
 
         if (scheme !== 'none' && !secret.trim() && !hasStoredSecret) {
-            return setSaveError('Paste the signing secret, or set verification to None');
+            setActiveTab('signature');
+            setInvalidField('secret');
+
+            return setSaveError(
+                `${VERIFICATION_LABELS[scheme]} signs its deliveries. Paste the signing secret from the provider, or set Scheme to None.`,
+            );
         }
 
         if (scheme !== 'none' && schemeNeedsConfig(scheme) && !verificationConfig.header.trim()) {
-            return setSaveError('A header name is required for this verification scheme');
+            setActiveTab('signature');
+            setInvalidField('header');
+
+            return setSaveError(
+                'Name the header the provider sends its signature in, for example x-signature.',
+            );
         }
 
         setSaving(true);
         setSaveError(null);
 
         try {
+            const channel = topicName.trim();
             const template = useTemplate ? JSON.stringify(templateFields) : null;
 
             const verification = {
@@ -327,19 +359,59 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
 
             if (isEdit && initialData) {
                 await api.updateWebhook(initialData.id, {
-                    name: `${source} webhook`,
+                    name: name.trim() || defaultWebhookName(source),
                     template,
-                    topicName: topicName.trim(),
+                    topicName: channel,
                     ...verification,
                 });
             } else {
-                await api.createWebhook({
-                    name: `${source} webhook`,
-                    source,
-                    template,
-                    topicName: topicName.trim(),
-                    ...verification,
-                });
+                const create = (reserved: { reservation: string; slug: string } | null) =>
+                    api.createWebhook({
+                        name: name.trim() || defaultWebhookName(source),
+                        source,
+                        template,
+                        topicName: channel,
+                        ...(reserved ?? {}),
+                        ...verification,
+                    });
+
+                const reserved =
+                    reservedSlug && slugReservation
+                        ? { reservation: slugReservation, slug: reservedSlug }
+                        : null;
+
+                try {
+                    await create(reserved);
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : '';
+
+                    if (
+                        !message.includes('slug_taken') &&
+                        !message.includes('invalid_slug_reservation')
+                    ) {
+                        throw error;
+                    }
+
+                    const retry = await api.reserveWebhookSlug(source);
+
+                    setReservedSlug(retry.slug);
+                    setSlugReservation(retry.reservation);
+                    await create({ reservation: retry.reservation, slug: retry.slug });
+                }
+            }
+
+            // Deliveries reach nobody without a subscription. subscribe() upserts, so skip
+            // it when one exists: the update branch resets that channel's settings.
+            if (!subscriptions.some((subscription) => subscription.topic.name === channel)) {
+                try {
+                    await subscribe(channel);
+                } catch {
+                    setSaving(false);
+
+                    return setSaveError(
+                        `Webhook saved, but subscribing to ${channel} failed. Subscribe from Channels to get notified.`,
+                    );
+                }
             }
 
             await queryClient.invalidateQueries({ queryKey: queryKeys.webhooks });
@@ -379,20 +451,21 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
         verificationDirtyRef.current = false;
     }, [initialData?.id]);
 
-    // Seed the custom payload editor once deliveries resolve (the sample payload
+    // Seed the payload editor once deliveries resolve (the sample payload
     // arrives after mount, so it has its own effect to avoid resetting template edits).
     useEffect(() => {
         if (!initialData?.samplePayload) {
             return;
         }
 
-        setCustomPayloadText(initialData.samplePayload);
-        setCustomPayloadValid(true);
+        setPayloadText(initialData.samplePayload);
+        setPayloadValid(true);
     }, [initialData?.samplePayload]);
 
     return (
         <div className="flex min-h-0 flex-1 flex-col">
-            <div className="grid grid-cols-[1.1fr_1.6fr_1.1fr] gap-5 border-b border-line px-6 py-4">
+            {/* identity: source drives the sample payload, endpoint is the thing you copy */}
+            <div className="grid grid-cols-[auto_1.6fr_1.1fr] items-start gap-5 border-b border-line px-6 py-4">
                 <div>
                     <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
                         Source
@@ -419,6 +492,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                           }
                                 }
                                 title={s}
+                                type="button"
                             >
                                 {GLYPH[s]}
                             </button>
@@ -426,7 +500,6 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     </div>
                 </div>
 
-                {/* Endpoint URL */}
                 <div>
                     <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
                         Endpoint URL
@@ -434,76 +507,47 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                     <div className="flex items-center gap-2 rounded-lg border border-line bg-deep px-3 py-2">
                         <span className="flex-1 truncate font-mono text-[11.5px] text-muted">
                             {API_URL}/h/
-                            <span className="text-accent">
-                                {isEdit ? initialData?.slug : 'assigned on save'}
+                            <span className={slug ? 'text-accent' : 'text-faint'}>
+                                {slug || 'assigned on save'}
                             </span>
                         </span>
-                        <button
-                            className="flex shrink-0 cursor-pointer items-center text-faint hover:text-fg disabled:cursor-default"
-                            disabled={!isEdit}
-                            onClick={handleCopyEndpoint}
-                            title={copied ? 'Copied!' : 'Copy endpoint URL'}
-                        >
-                            {copied ? (
-                                <span className="font-mono text-[9px] text-success leading-none">
-                                    ✓
-                                </span>
-                            ) : (
-                                <Copy size={13} />
-                            )}
-                        </button>
+
+                        {slug ? (
+                            <button
+                                className="flex shrink-0 cursor-pointer items-center text-faint hover:text-fg"
+                                onClick={handleCopyEndpoint}
+                                title={copied ? 'Copied!' : 'Copy endpoint URL'}
+                                type="button"
+                            >
+                                {copied ? (
+                                    <span className="font-mono text-[9px] text-success leading-none">
+                                        ✓
+                                    </span>
+                                ) : (
+                                    <Copy size={13} />
+                                )}
+                            </button>
+                        ) : (
+                            <button
+                                className="shrink-0 cursor-pointer rounded-md border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-[1px] text-dim hover:text-fg disabled:cursor-default disabled:opacity-40"
+                                disabled={reserving}
+                                onClick={() => void handleGenerateEndpoint()}
+                                title="Reserve this URL now, so you can configure the provider before saving"
+                                type="button"
+                            >
+                                {reserving ? 'Reserving…' : 'Generate'}
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Channel */}
-                <div>
-                    <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
-                        Publish to channel
-                    </div>
-                    <div
-                        className="flex items-center gap-2 rounded-lg border bg-elev px-3 py-2"
-                        style={{
-                            borderColor:
-                                saveError && !topicName.trim()
-                                    ? 'var(--color-danger)'
-                                    : 'var(--color-line)',
-                        }}
-                    >
-                        <Dot level={2} size={6} />
-
-                        <select
-                            className="flex-1 bg-transparent font-mono text-[12px] text-fg outline-none"
-                            onChange={(e) => setTopicName(e.target.value)}
-                            value={topicName}
-                        >
-                            <option disabled value="">
-                                Select a channel…
-                            </option>
-
-                            {subscriptions.map((subscription) => (
-                                <option key={subscription.id} value={subscription.topic.name}>
-                                    {subscription.topic.displayName}
-                                </option>
-                            ))}
-                        </select>
-                        <ChevronDown className="pointer-events-none text-dim" size={13} />
-                    </div>
-
-                    {saveError && (
-                        <div className="mt-1 font-mono text-[10.5px] text-danger">{saveError}</div>
-                    )}
-                </div>
+                <WebhookChannelField
+                    invalid={channelInvalid}
+                    onChange={setTopicName}
+                    source={source}
+                    value={topicName}
+                />
             </div>
-
-            <VerificationFields
-                config={verificationConfig}
-                hasStoredSecret={!!initialData?.hasSecret}
-                onConfigChange={setVerificationConfig}
-                onSchemeChange={handleSchemeChange}
-                onSecretChange={setSecret}
-                scheme={scheme}
-                secret={secret}
-            />
 
             {/* editor split */}
             <div className="flex min-h-0 flex-1">
@@ -513,135 +557,96 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                         <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
                             Incoming Payload
                         </span>
-                        <span className="ml-auto font-mono text-[10px] text-faint">
-                            {source === 'custom' ? 'editable' : 'POST · example payload'}
-                        </span>
+                        <div className="ml-auto flex items-center gap-2">
+                            {editingPayload && !payloadValid && (
+                                <span className="font-mono text-[10px] text-danger">
+                                    invalid JSON
+                                </span>
+                            )}
+
+                            <button
+                                className="cursor-pointer rounded-md border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[1px] text-dim hover:text-fg disabled:cursor-default disabled:opacity-40"
+                                disabled={editingPayload && !payloadValid}
+                                onClick={() => setEditingPayload((editing) => !editing)}
+                                type="button"
+                            >
+                                {editingPayload ? 'Done' : 'Edit'}
+                            </button>
+                        </div>
                     </div>
                     <div
                         className="mx-5 mb-5 flex-1 overflow-auto rounded-xl border border-line bg-deep p-3.5"
                         style={{
                             borderColor:
-                                source === 'custom' && !customPayloadValid
+                                editingPayload && !payloadValid
                                     ? 'var(--color-danger)'
-                                    : undefined,
+                                    : editingPayload
+                                      ? 'var(--color-accent)'
+                                      : undefined,
                         }}
                     >
-                        {source === 'custom' ? (
+                        {editingPayload ? (
                             <textarea
+                                autoFocus
                                 className="h-full w-full resize-none bg-transparent font-mono text-[12px] leading-relaxed text-fg outline-none"
-                                onChange={(e) => handleCustomPayloadChange(e.target.value)}
+                                onChange={(e) => handlePayloadChange(e.target.value)}
                                 spellCheck={false}
-                                value={customPayloadText}
+                                value={payloadText}
                             />
                         ) : (
-                            <JsonView data={SOURCE_DATA[source]!.payload} size={12} />
+                            <JsonView data={activePayload} size={12} />
                         )}
                     </div>
                 </div>
 
-                {/* template + preview pane */}
-                <div className="flex min-w-0 flex-1 flex-col overflow-auto">
-                    {/* template toggle */}
-                    <div className="flex items-center px-5 py-3.5">
-                        <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
-                            Template
-                        </span>
+                {/* config pane: one tab at a time, preview pinned below */}
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <WebhookTabBar
+                        active={activeTab}
+                        onChange={setActiveTab}
+                        signatureVerified={scheme !== 'none'}
+                    />
 
-                        <button
-                            className="ml-auto flex cursor-pointer items-center gap-2"
-                            onClick={() => setUseTemplate((v) => !v)}
-                        >
-                            <span
-                                className="font-mono text-[11px]"
-                                style={{
-                                    color: useTemplate ? 'var(--color-accent)' : 'var(--color-dim)',
-                                }}
-                            >
-                                {useTemplate ? 'Using template' : 'Raw passthrough'}
-                            </span>
-                            <div
-                                className="flex items-center rounded-full p-0.5 transition-colors"
-                                style={{
-                                    background: useTemplate
-                                        ? 'var(--color-accent)'
-                                        : 'var(--color-line)',
-                                    height: 21,
-                                    justifyContent: useTemplate ? 'flex-end' : 'flex-start',
-                                    width: 36,
-                                }}
-                            >
-                                <div className="h-[17px] w-[17px] rounded-full bg-fg" />
-                            </div>
-                        </button>
-                    </div>
-
-                    {/* template fields (editable) */}
-                    <div
-                        className="px-5 transition-opacity"
-                        style={{
-                            opacity: useTemplate ? 1 : 0.4,
-                            pointerEvents: useTemplate ? 'auto' : 'none',
-                        }}
-                    >
-                        {(['title', 'body', 'tags', 'link'] as const).map((field) => (
-                            <div className="mb-2.5" key={field}>
-                                <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                    {field}
-                                </div>
-                                <input
-                                    className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                    onChange={(e) =>
-                                        handleTemplateFieldChange(field, e.target.value)
-                                    }
-                                    placeholder={`{{${field === 'title' ? 'event.type' : field === 'body' ? 'event.description' : field === 'tags' ? 'source, tag' : 'event.url'}}}`}
-                                    value={templateFields[field] ?? ''}
-                                />
-                            </div>
-                        ))}
-
-                        {(templateFields.link ?? '') !== '' && (
-                            <div className="mb-2.5">
-                                <div className="mb-1 flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                    Button label
-                                    <span className="normal-case tracking-normal text-faint">
-                                        optional · defaults to “View”
-                                    </span>
-                                </div>
-                                <input
-                                    className="w-full rounded-lg border border-line bg-elev px-3 py-2 font-mono text-[12.5px] text-fg outline-none placeholder:text-faint focus:border-accent/50"
-                                    onChange={(e) =>
-                                        handleTemplateFieldChange('linkLabel', e.target.value)
-                                    }
-                                    placeholder="View"
-                                    value={templateFields.linkLabel ?? ''}
-                                />
-                            </div>
+                    <div className="min-h-0 flex-1 overflow-auto">
+                        {activeTab === 'settings' && (
+                            <WebhookSettingsTab
+                                name={name}
+                                onNameChange={setName}
+                                placeholder={defaultWebhookName(source)}
+                            />
                         )}
 
-                        <div className="mb-2.5">
-                            <div className="mb-1 font-mono text-[10px] uppercase tracking-[1px] text-dim">
-                                Priority
-                            </div>
+                        {activeTab === 'signature' && (
+                            <VerificationFields
+                                config={verificationConfig}
+                                hasStoredSecret={!!initialData?.hasSecret}
+                                invalidField={invalidField}
+                                onConfigChange={(next) => {
+                                    setInvalidField(null);
+                                    setVerificationConfig(next);
+                                }}
+                                onSchemeChange={handleSchemeChange}
+                                onSecretChange={(next) => {
+                                    setInvalidField(null);
+                                    setSecret(next);
+                                }}
+                                scheme={scheme}
+                                secret={secret}
+                            />
+                        )}
 
-                            <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((priority) => (
-                                    <PriorityChip
-                                        active={
-                                            String(priority) === (templateFields.priority ?? '3')
-                                        }
-                                        key={priority}
-                                        onClick={() =>
-                                            handleTemplateFieldChange('priority', String(priority))
-                                        }
-                                        value={priority}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                        {activeTab === 'template' && (
+                            <WebhookTemplateTab
+                                fields={templateFields}
+                                onFieldChange={handleTemplateFieldChange}
+                                onUseTemplateChange={setUseTemplate}
+                                useTemplate={useTemplate}
+                            />
+                        )}
                     </div>
 
-                    {/* preview */}
-                    <div className="border-t border-line bg-deep px-5 py-4">
+                    {/* preview stays put so editing any tab shows its effect immediately */}
+                    <div className="shrink-0 border-t border-line bg-deep px-5 py-4">
                         <div className="mb-3 flex items-center">
                             <span className="font-mono text-[10px] uppercase tracking-[1.5px] text-dim">
                                 {showRaw ? 'Preview · Raw payload' : 'Preview · Notification'}
@@ -666,6 +671,7 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
                                                   }
                                                 : { color: 'var(--color-muted)' }
                                         }
+                                        type="button"
                                     >
                                         {option.charAt(0).toUpperCase() + option.slice(1)}
                                     </button>
@@ -698,11 +704,15 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
             </div>
 
             {/* save bar */}
-            <div className="flex justify-end gap-2 border-t border-line px-6 py-3">
+            <div className="flex items-center justify-end gap-3 border-t border-line px-6 py-3">
+                {saveError && (
+                    <span className="font-mono text-[11px] text-danger">{saveError}</span>
+                )}
                 <button
                     className="rounded-md bg-accent px-4 py-1.5 text-[12px] font-semibold text-bg hover:bg-accent-dim disabled:opacity-50"
-                    disabled={saving || (source === 'custom' && !customPayloadValid)}
+                    disabled={saving || !payloadValid}
                     onClick={() => void handleSave()}
+                    type="button"
                 >
                     {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Save webhook'}
                 </button>
@@ -711,32 +721,20 @@ export function WebhookCreate({ initialData }: WebhookCreateProps = {}) {
     );
 }
 
-function PriorityChip({
-    active,
-    onClick,
-    value,
-}: {
-    active: boolean;
-    onClick: () => void;
-    value: number;
-}) {
-    const hex = `var(--color-p${value})`;
+function parseConfig(raw: null | string | undefined): null | VerificationConfig {
+    if (!raw) {
+        return null;
+    }
 
-    return (
-        <button
-            className="flex flex-1 cursor-pointer items-center justify-center rounded-md border py-1.5 font-mono text-[11.5px] font-semibold"
-            onClick={onClick}
-            style={
-                active
-                    ? { background: withAlpha(hex, 13), borderColor: hex, color: hex }
-                    : {
-                          background: 'var(--color-elev)',
-                          borderColor: 'var(--color-line)',
-                          color: 'var(--color-dim)',
-                      }
-            }
-        >
-            {value}
-        </button>
-    );
+    try {
+        return JSON.parse(raw) as VerificationConfig;
+    } catch {
+        return null;
+    }
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+function samplePayloadFor(source: string): string {
+    return JSON.stringify(SOURCE_DATA[source]?.payload ?? {}, null, 2);
 }
