@@ -20,7 +20,7 @@ export function StatsStrip({ loading = false, metrics, subscription }: Props) {
     const max = Math.max(...volume, 1);
 
     return (
-        <div className="grid shrink-0 grid-cols-[repeat(4,1fr)_1.4fr] items-center gap-5.5 border-b border-line px-5.5 py-4.5">
+        <div className="grid shrink-0 grid-cols-2 items-center gap-4 border-b border-line px-4 py-3 sm:grid-cols-3 lg:grid-cols-[repeat(4,1fr)_1.4fr] lg:gap-5.5 lg:px-5.5 lg:py-4.5">
             <StatItem
                 label="last 24h"
                 loading={loading}
@@ -49,7 +49,7 @@ export function StatsStrip({ loading = false, metrics, subscription }: Props) {
                 value={subscription?.topic.displayName ?? '—'}
             />
 
-            <div>
+            <div className="col-span-2 sm:col-span-3 lg:col-span-1">
                 <p className="mb-1 font-mono text-[10px] uppercase tracking-[1.4px] text-dim">
                     VOLUME · 24H
                 </p>

@@ -25,7 +25,7 @@ export function PreviewColumn({ body, priority, tags, title, topicName }: Props)
         : 'fill in topic to see curl example';
 
     return (
-        <aside className="w-[380px] shrink-0 overflow-auto bg-deep p-6">
+        <aside className="hidden w-[380px] shrink-0 overflow-auto bg-deep p-6 lg:block">
             <SubHeading>PREVIEW · android push</SubHeading>
             <div className="mb-5 rounded-2xl border border-line bg-elev p-3.5">
                 <div className="mb-2 flex items-center gap-2 font-mono text-[10px] text-dim">

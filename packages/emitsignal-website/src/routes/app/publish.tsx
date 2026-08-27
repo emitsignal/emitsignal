@@ -101,7 +101,7 @@ function ComposePage() {
             )}
 
             <div className="flex min-h-0 flex-1">
-                <div className="min-w-0 flex-1 overflow-auto border-r border-line p-7">
+                <div className="min-w-0 flex-1 overflow-auto p-4 md:p-7 lg:border-r lg:border-line">
                     <SubHeading>topic</SubHeading>
                     <div className="mb-5.5">
                         <input

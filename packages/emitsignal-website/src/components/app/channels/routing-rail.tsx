@@ -94,7 +94,7 @@ export function RoutingRail({ subscription }: Props) {
             : buildCliExample({ bin: 'es', message: example, topicName, wrap: true });
 
     return (
-        <aside className="w-[320px] shrink-0 overflow-auto p-5.5">
+        <aside className="hidden w-[320px] shrink-0 overflow-auto p-5.5 lg:block">
             {description && (
                 <div className="mb-4.5">
                     <SubHeading>DESCRIPTION</SubHeading>

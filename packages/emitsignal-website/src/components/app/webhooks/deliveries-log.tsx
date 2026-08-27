@@ -115,7 +115,7 @@ export function DeliveriesLog({ webhookId }: { webhookId: string }) {
     return (
         <div className="flex min-h-0 flex-1">
             {/* list pane */}
-            <div className="w-[440px] shrink-0 overflow-auto border-r border-line">
+            <div className="hidden w-[440px] shrink-0 overflow-auto border-r border-line lg:block">
                 {deliveries.map((delivery) => {
                     const isActive = active?.id === delivery.id;
                     const summary = getSummary(delivery);

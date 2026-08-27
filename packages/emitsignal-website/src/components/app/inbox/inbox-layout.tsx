@@ -63,7 +63,9 @@ export function InboxLayout({ selectedId }: { selectedId: null | string }) {
                     onSelect={handleSelect}
                     selectedId={selectedId}
                 />
-                <InboxPreview loading={loading} message={selected} selectedId={selectedId} />
+                <div className="hidden min-w-0 flex-1 md:flex">
+                    <InboxPreview loading={loading} message={selected} selectedId={selectedId} />
+                </div>
             </div>
         </>
     );
@@ -160,7 +162,7 @@ function NotificationList({
 
     if (loading) {
         return (
-            <div className="w-[380px] shrink-0 overflow-hidden border-r border-line">
+            <div className="w-full shrink-0 overflow-hidden md:w-[300px] md:border-r md:border-line lg:w-[380px]">
                 <SkeletonMessageList />
             </div>
         );
@@ -168,14 +170,14 @@ function NotificationList({
 
     if (messages.length === 0) {
         return (
-            <div className="flex w-[380px] shrink-0 items-center justify-center border-r border-line p-4 font-mono text-[12px] text-dim">
+            <div className="flex w-full shrink-0 items-center justify-center p-4 font-mono text-[12px] text-dim md:w-[300px] md:border-r md:border-line lg:w-[380px]">
                 no messages yet · subscribe to a channel
             </div>
         );
     }
 
     return (
-        <div className="w-[380px] shrink-0 overflow-auto border-r border-line">
+        <div className="w-full shrink-0 overflow-auto md:w-[300px] md:border-r md:border-line lg:w-[380px]">
             {feedStyle === 'comfy' && (
                 <ComfyList messages={messages} onSelect={onSelect} selectedId={selectedId} />
             )}
@@ -293,7 +295,7 @@ function SubscribeButton() {
         <div className="flex items-center gap-1.5">
             <input
                 autoFocus
-                className="w-[180px] rounded-md border border-line bg-elev px-2.5 py-1.5 font-mono text-[12px] text-fg outline-none placeholder:text-dim"
+                className="w-[130px] rounded-md border border-line bg-elev px-2.5 py-1.5 font-mono text-[12px] text-fg outline-none placeholder:text-dim sm:w-[180px]"
                 maxLength={TOPIC_NAME_MAX_LENGTH}
                 onChange={(event) => setTopic(event.target.value)}
                 onKeyDown={(event) => {
