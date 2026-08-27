@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { Crown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { ChannelActionsMenu } from '#/components/app/channels/channel-actions-menu';
@@ -8,7 +9,7 @@ import { StatsStrip } from '#/components/app/channels/stats-strip';
 import { Toolbar } from '#/components/app/toolbar';
 import { Dot } from '#/components/ui/dot';
 import { Skeleton } from '#/components/ui/skeleton';
-import { useSubscriptions } from '#/ctx/subscriptions';
+import { useChannels } from '#/hooks/use-channels';
 import { useTopicMessages, useTopicMetrics } from '#/hooks/use-emit-signal';
 
 export const Route = createFileRoute('/app/channels')({
@@ -40,12 +41,40 @@ export const Route = createFileRoute('/app/channels')({
     },
 });
 
+function ChannelPill({
+    name,
+    onSelect,
+    owned,
+    selected,
+}: {
+    name: string;
+    onSelect: () => void;
+    owned?: boolean;
+    selected: boolean;
+}) {
+    return (
+        <button
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11.5px] ${
+                selected ? 'bg-accent/10 text-accent' : 'text-muted hover:bg-elev'
+            }`}
+            onClick={onSelect}
+        >
+            {owned && (
+                <span className="flex flex-shrink-0" title="You own this topic">
+                    <Crown className={selected ? 'text-accent' : 'text-dim'} size={11} />
+                </span>
+            )}
+            {name}
+        </button>
+    );
+}
+
 function ChannelView() {
     const { priority, tags, topic } = Route.useSearch();
-    const { loading: subscriptionsLoading, subscriptions } = useSubscriptions();
+    const { loading: channelsLoading, owned, subscriptions } = useChannels();
     const navigate = useNavigate();
 
-    const selectedTopic = topic || subscriptions[0]?.topic.name || '';
+    const selectedTopic = topic || subscriptions[0]?.topic.name || owned[0]?.name || '';
     const filters = { minPriority: priority, tags };
 
     const { addMessage, loading: metricsLoading, metrics } = useTopicMetrics(selectedTopic || null);
@@ -79,20 +108,23 @@ function ChannelView() {
     const matchingSubscriptions = subscriptions.filter(
         (subscription) => subscription.topic.name === selectedTopic,
     );
+    const selectedTopicRecord =
+        subscription?.topic ?? owned.find((topic) => topic.name === selectedTopic);
 
     return (
         <>
             <Toolbar
                 actions={
-                    subscription && (
+                    selectedTopicRecord && (
                         <ChannelActionsMenu
-                            onUnsubscribed={() =>
+                            onRemoved={() =>
                                 navigate({
                                     search: { priority, tags, topic: '' },
                                     to: '/app/channels',
                                 })
                             }
                             subscription={subscription}
+                            topic={selectedTopicRecord}
                             topicName={selectedTopic}
                         />
                     )
@@ -103,44 +135,64 @@ function ChannelView() {
                         <span className="font-normal text-dim">Channels /</span>
                         <span>{selectedTopic || 'select a channel'}</span>
                         {subscription && <Dot level={1} />}
+                        {selectedTopicRecord && !subscription && (
+                            <span className="font-mono text-[11px] font-normal text-dim">
+                                not subscribed
+                            </span>
+                        )}
                     </span>
                 }
             />
 
-            <div className="flex flex-wrap gap-4 border-b border-line px-5 py-3">
-                {subscriptionsLoading &&
+            <div className="flex flex-wrap items-center gap-4 border-b border-line px-5 py-3">
+                {channelsLoading &&
                     [72, 96, 64].map((width) => (
                         <Skeleton height={24} key={width} radius={12} width={width} />
                     ))}
 
-                {!subscriptionsLoading && subscriptions.length === 0 && (
+                {!channelsLoading && subscriptions.length === 0 && owned.length === 0 && (
                     <span className="px-1 font-mono text-[11.5px] text-dim">
                         no channels yet · subscribe to one from the inbox
                     </span>
                 )}
 
                 {subscriptions.map((subscription) => (
-                    <button
-                        className={`rounded-full px-3 py-1 font-mono text-[11.5px] ${
-                            subscription.topic.name === selectedTopic
-                                ? 'bg-accent/10 text-accent'
-                                : 'text-muted hover:bg-elev'
-                        }`}
+                    <ChannelPill
                         key={subscription.id}
-                        onClick={() =>
+                        name={subscription.topic.name}
+                        onSelect={() =>
                             navigate({
                                 search: { priority, tags, topic: subscription.topic.name },
                                 to: '/app/channels',
                             })
                         }
-                    >
-                        {subscription.topic.name}
-                    </button>
+                        owned={subscription.topic.isOwner}
+                        selected={subscription.topic.name === selectedTopic}
+                    />
+                ))}
+
+                {owned.length > 0 && subscriptions.length > 0 && (
+                    <span aria-hidden className="h-4 w-px bg-line" />
+                )}
+
+                {owned.map((topic) => (
+                    <ChannelPill
+                        key={topic.id}
+                        name={topic.name}
+                        onSelect={() =>
+                            navigate({
+                                search: { priority, tags, topic: topic.name },
+                                to: '/app/channels',
+                            })
+                        }
+                        owned={topic.isOwner}
+                        selected={topic.name === selectedTopic}
+                    />
                 ))}
             </div>
 
             <StatsStrip
-                loading={subscriptionsLoading || metricsLoading}
+                loading={channelsLoading || metricsLoading}
                 metrics={metrics ?? null}
                 subscription={subscription ?? null}
             />
