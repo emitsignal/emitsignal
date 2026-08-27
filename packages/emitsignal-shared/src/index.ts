@@ -6,5 +6,6 @@ export * from './priority.ts';
 export * from './publish-example.ts';
 export * from './topic.ts';
 export * from './url.ts';
+export * from './webhook-slug.ts';
 export * from './webhook-template.ts';
 export * from './webhook-verification.ts';
