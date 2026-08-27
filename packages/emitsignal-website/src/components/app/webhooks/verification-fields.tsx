@@ -6,12 +6,13 @@ import {
     VERIFICATION_LABELS,
     VERIFICATION_SCHEMES,
 } from '@emitsignal/shared';
-import { ChevronDown, Eye, EyeOff, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 
 interface VerificationFieldsProps {
     config: VerificationConfig;
     hasStoredSecret: boolean;
+    invalidField?: 'header' | 'secret' | null;
     onConfigChange: (config: VerificationConfig) => void;
     onSchemeChange: (scheme: VerificationScheme) => void;
     onSecretChange: (secret: string) => void;
@@ -26,6 +27,7 @@ const LABEL_CLASS = 'mb-2 font-mono text-[10px] uppercase tracking-[1.3px] text-
 export function VerificationFields({
     config,
     hasStoredSecret,
+    invalidField,
     onConfigChange,
     onSchemeChange,
     onSecretChange,
@@ -39,15 +41,8 @@ export function VerificationFields({
 
     return (
         <div className="border-b border-line px-6 py-4">
-            <div className="mb-3 flex items-center gap-2">
-                {verified ? (
-                    <ShieldCheck className="text-success" size={13} />
-                ) : (
-                    <ShieldAlert className="text-warn" size={13} />
-                )}
-                <span className="font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
-                    Signature verification
-                </span>
+            <div className="mb-3 font-mono text-[10px] uppercase tracking-[1.3px] text-dim">
+                Signature verification
             </div>
 
             <div className="grid grid-cols-[1.1fr_1.6fr] gap-5">
@@ -74,6 +69,7 @@ export function VerificationFields({
                 <div>
                     <div className={LABEL_CLASS}>
                         {verified ? 'Secret from the provider' : 'No secret required'}
+                        {verified && <span className="ml-1 text-danger">*</span>}
                     </div>
                     <div className="relative">
                         <input
@@ -87,6 +83,11 @@ export function VerificationFields({
                                     : 'Paste the signing secret'
                             }
                             spellCheck={false}
+                            style={
+                                invalidField === 'secret'
+                                    ? { borderColor: 'var(--color-danger)' }
+                                    : undefined
+                            }
                             type={secretVisible ? 'text' : 'password'}
                             value={secret}
                         />
@@ -114,7 +115,10 @@ export function VerificationFields({
             {needsConfig && (
                 <div className="mt-4 grid grid-cols-[1.6fr_1fr_1fr_1.1fr] gap-3">
                     <div>
-                        <div className={LABEL_CLASS}>Header</div>
+                        <div className={LABEL_CLASS}>
+                            Header
+                            <span className="ml-1 text-danger">*</span>
+                        </div>
                         <input
                             className={FIELD_CLASS}
                             onChange={(event) =>
@@ -122,6 +126,11 @@ export function VerificationFields({
                             }
                             placeholder="x-signature"
                             spellCheck={false}
+                            style={
+                                invalidField === 'header'
+                                    ? { borderColor: 'var(--color-danger)' }
+                                    : undefined
+                            }
                             value={config.header}
                         />
                     </div>
