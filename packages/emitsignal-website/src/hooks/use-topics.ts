@@ -15,6 +15,15 @@ export function useClaimTopic() {
     });
 }
 
+export function useReleaseTopic() {
+    const invalidate = useTopicOwnershipInvalidation();
+
+    return useMutation({
+        mutationFn: (name: string) => api.releaseTopic(name),
+        onSuccess: invalidate,
+    });
+}
+
 export function useTopics(query?: string) {
     const { data, error, isPending } = useQuery({
         // Keep the previous results visible while typing so the list doesn't flash.
@@ -45,9 +54,6 @@ export function useUpdateTopic() {
     });
 }
 
-// Claiming or re-configuring a topic changes ownership/access, which is
-// reflected in the subscriptions list (topic.isOwner/accessMode) and the
-// owner's "my topics" list, so both are invalidated on success.
 function useTopicOwnershipInvalidation() {
     const queryClient = useQueryClient();
 
@@ -55,6 +61,7 @@ function useTopicOwnershipInvalidation() {
         await Promise.all([
             queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
             queryClient.invalidateQueries({ queryKey: ['topics'] }),
+            queryClient.invalidateQueries({ queryKey: queryKeys.billing }),
         ]);
     };
 }

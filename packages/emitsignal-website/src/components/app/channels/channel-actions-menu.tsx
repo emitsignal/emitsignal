@@ -1,47 +1,23 @@
 import { Link } from '@tanstack/react-router';
-import { Book, Check, Crown, Globe, Lock, LogOut, Send, Settings2 } from 'lucide-react';
+import { Check, Crown, LogOut, Plus, Send, Settings2 } from 'lucide-react';
 import { useState } from 'react';
 
-import type { AccessMode, ListenSince, Subscription } from '#/lib/api';
+import type { AccessMode, ListenSince, Subscription, Topic } from '#/lib/api';
 
+import { ACCESS_MODE_OPTIONS } from '#/components/app/channels/access-mode';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useToast } from '#/ctx/toast';
 import { useBilling } from '#/hooks/use-billing';
-import { useClaimTopic, useUpdateTopic } from '#/hooks/use-topics';
+import { useClaimTopic, useReleaseTopic, useUpdateTopic } from '#/hooks/use-topics';
 import { api } from '#/lib/api';
 import { apiErrorMessage } from '#/lib/api-error';
 
 interface ChannelActionsMenuProps {
-    onUnsubscribed: () => void;
-    subscription: Subscription;
+    onRemoved: () => void;
+    subscription?: Subscription;
+    topic: Topic;
     topicName: string;
 }
-
-const ACCESS_MODE_OPTIONS: {
-    description: string;
-    icon: typeof Globe;
-    label: string;
-    value: AccessMode;
-}[] = [
-    {
-        description: 'Anyone can read and publish',
-        icon: Globe,
-        label: 'Public',
-        value: 'public',
-    },
-    {
-        description: 'Anyone can read; only members can publish',
-        icon: Book,
-        label: 'Read-only',
-        value: 'readonly',
-    },
-    {
-        description: 'Only members can read and publish',
-        icon: Lock,
-        label: 'Private',
-        value: 'private',
-    },
-];
 
 const LISTEN_SINCE_OPTIONS: {
     description: string;
@@ -73,20 +49,21 @@ interface ChannelSettingsDialogProps {
 }
 
 export function ChannelActionsMenu({
-    onUnsubscribed,
+    onRemoved,
     subscription,
+    topic,
     topicName,
 }: ChannelActionsMenuProps) {
     const [manageOpen, setManageOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const { billing } = useBilling();
-    const { unsubscribe, updateSubscription } = useSubscriptions();
+    const { subscribe, unsubscribe, updateSubscription } = useSubscriptions();
     const claimTopic = useClaimTopic();
     const toast = useToast();
 
-    const isClaimed = Boolean(subscription.topic.ownerId);
-    const isOwner = subscription.topic.isOwner ?? false;
+    const isClaimed = Boolean(topic.ownerId);
+    const isOwner = topic.isOwner ?? false;
     const isPaid = billing ? billing.plan !== 'free' : false;
 
     const handleClaim = async () => {
@@ -118,6 +95,18 @@ export function ChannelActionsMenu({
         }
     };
 
+    const handleSubscribe = async () => {
+        setMenuOpen(false);
+
+        try {
+            await subscribe(topicName);
+
+            toast(`Subscribed to ${topicName}`);
+        } catch (error) {
+            toast(apiErrorMessage(error, 'Failed to subscribe'), 'danger');
+        }
+    };
+
     const handleUnsubscribe = async () => {
         setMenuOpen(false);
 
@@ -125,7 +114,7 @@ export function ChannelActionsMenu({
             await unsubscribe(topicName);
 
             toast(`Unsubscribed from ${topicName}`, 'warn');
-            onUnsubscribed();
+            onRemoved();
         } catch (error) {
             toast(apiErrorMessage(error, 'Failed to unsubscribe'), 'danger');
         }
@@ -152,15 +141,17 @@ export function ChannelActionsMenu({
                             Send test notification
                         </MenuItem>
 
-                        <MenuItem
-                            icon={<Settings2 size={13} />}
-                            onClick={() => {
-                                setMenuOpen(false);
-                                setSettingsOpen(true);
-                            }}
-                        >
-                            Settings
-                        </MenuItem>
+                        {subscription && (
+                            <MenuItem
+                                icon={<Settings2 size={13} />}
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    setSettingsOpen(true);
+                                }}
+                            >
+                                Settings
+                            </MenuItem>
+                        )}
 
                         <div className="my-1 h-px bg-line" />
 
@@ -207,18 +198,27 @@ export function ChannelActionsMenu({
 
                         {(isOwner || !isClaimed) && <div className="my-1 h-px bg-line" />}
 
-                        <MenuItem
-                            danger
-                            icon={<LogOut size={13} />}
-                            onClick={() => void handleUnsubscribe()}
-                        >
-                            Unsubscribe
-                        </MenuItem>
+                        {subscription ? (
+                            <MenuItem
+                                danger
+                                icon={<LogOut size={13} />}
+                                onClick={() => void handleUnsubscribe()}
+                            >
+                                Unsubscribe
+                            </MenuItem>
+                        ) : (
+                            <MenuItem
+                                icon={<Plus size={13} />}
+                                onClick={() => void handleSubscribe()}
+                            >
+                                Subscribe
+                            </MenuItem>
+                        )}
                     </div>
                 </>
             )}
 
-            {settingsOpen && (
+            {settingsOpen && subscription && (
                 <ChannelSettingsDialog
                     onClose={() => setSettingsOpen(false)}
                     onFlash={toast}
@@ -232,7 +232,8 @@ export function ChannelActionsMenu({
                 <ManageTopicDialog
                     onClose={() => setManageOpen(false)}
                     onFlash={toast}
-                    subscription={subscription}
+                    onReleased={subscription ? undefined : onRemoved}
+                    topic={topic}
                     topicName={topicName}
                 />
             )}
@@ -399,20 +400,41 @@ function ChannelSettingsDialog({
 function ManageTopicDialog({
     onClose,
     onFlash,
-    subscription,
+    onReleased,
+    topic,
     topicName,
 }: {
     onClose: () => void;
     onFlash: (message: string, kind?: 'danger' | 'ok' | 'warn') => void;
-    subscription: Subscription;
+    onReleased?: () => void;
+    topic: Topic;
     topicName: string;
 }) {
-    const [description, setDescription] = useState(subscription.topic.description ?? '');
-    const [accessMode, setAccessMode] = useState<AccessMode>(
-        subscription.topic.accessMode ?? 'public',
-    );
+    const [description, setDescription] = useState(topic.description ?? '');
+    const [accessMode, setAccessMode] = useState<AccessMode>(topic.accessMode ?? 'public');
 
+    const releaseTopic = useReleaseTopic();
     const updateTopic = useUpdateTopic();
+
+    const handleRelease = async () => {
+        const confirmed = window.confirm(
+            `Release "${topicName}"? The name becomes claimable by anyone and its access resets to public. This frees one reserved-topic seat.`,
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await releaseTopic.mutateAsync(topicName);
+
+            onFlash(`Released ${topicName}. You no longer own this topic`, 'warn');
+            onClose();
+            onReleased?.();
+        } catch (error) {
+            onFlash(apiErrorMessage(error, 'Failed to release topic'), 'danger');
+        }
+    };
 
     const handleSave = async () => {
         try {
@@ -517,6 +539,41 @@ function ManageTopicDialog({
                             placeholder="Describe what this topic is for"
                             value={description}
                         />
+                    </div>
+
+                    <div>
+                        <div className="mb-2 font-mono text-[10px] uppercase tracking-[1.2px] text-danger">
+                            Danger zone
+                        </div>
+
+                        <div
+                            className="flex flex-col gap-3 rounded-lg border px-3.5 py-3"
+                            style={{
+                                borderColor:
+                                    'color-mix(in srgb, var(--color-danger) 35%, transparent)',
+                            }}
+                        >
+                            <div>
+                                <div className="text-[13.5px] font-medium">Release ownership</div>
+                                <div className="mt-1 text-[11.5px] leading-snug text-dim">
+                                    Frees one reserved-topic seat. The name becomes claimable by
+                                    anyone, access resets to public and every member role is
+                                    removed. Messages and subscriptions are kept.
+                                </div>
+                            </div>
+
+                            <button
+                                className="self-start rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold disabled:opacity-50"
+                                disabled={releaseTopic.isPending}
+                                onClick={() => void handleRelease()}
+                                style={{
+                                    borderColor: 'var(--color-danger)',
+                                    color: 'var(--color-danger)',
+                                }}
+                            >
+                                {releaseTopic.isPending ? 'Releasing...' : 'Release ownership'}
+                            </button>
+                        </div>
                     </div>
                 </div>
 

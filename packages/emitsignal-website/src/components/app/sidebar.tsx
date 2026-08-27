@@ -5,9 +5,9 @@ import { TOPIC_NAME_MAX_LENGTH } from '@emitsignal/shared/topic';
 import { Link, useNavigate } from '@tanstack/react-router';
 import {
     Bell,
+    Crown,
     Key,
     LayoutGrid,
-    Lock,
     LogOut,
     type LucideIcon,
     PanelLeftClose,
@@ -19,6 +19,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import type { Topic } from '#/lib/api';
+
+import { AccessModeIcon } from '#/components/app/channels/access-mode';
 import { ThemeToggle } from '#/components/app/theme-toggle';
 import { Avatar } from '#/components/ui/avatar';
 import { Dot } from '#/components/ui/dot';
@@ -28,6 +31,7 @@ import { useSidebar } from '#/ctx/sidebar';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useToast } from '#/ctx/toast';
 import { useBilling } from '#/hooks/use-billing';
+import { useChannels } from '#/hooks/use-channels';
 import { apiErrorMessage } from '#/lib/api-error';
 import { cn } from '#/lib/cn';
 import { hashTopicLevel } from '#/lib/priority';
@@ -49,7 +53,8 @@ export function Sidebar() {
     const { billing } = useBilling();
     const { signOut, user } = useSession();
     const { collapsed, mobileOpen, setMobileOpen, toggleCollapsed } = useSidebar();
-    const { subscribe, subscriptions } = useSubscriptions();
+    const { owned, subscriptions } = useChannels();
+    const { subscribe } = useSubscriptions();
     const navigate = useNavigate();
     const toast = useToast();
 
@@ -59,7 +64,7 @@ export function Sidebar() {
     const [newTopic, setNewTopic] = useState('');
     const [subscribing, setSubscribing] = useState(false);
 
-    const channelCount = subscriptions.length;
+    const channelCount = subscriptions.length + owned.length;
 
     // The drawer always renders at full width, so `collapsed` may only ever
     // hide things from `md` up — never on mobile.
@@ -186,30 +191,33 @@ export function Sidebar() {
                     )}
                 </div>
 
-                {subscriptions.length === 0 && (
+                {channelCount === 0 && (
                     <p className={cn('px-2.5 py-1 font-mono text-[10px] text-dim', railHidden)}>
                         no subscriptions yet
                     </p>
                 )}
 
                 {subscriptions.slice(0, 6).map((subscription) => (
-                    <Link
+                    <ChannelLink
+                        key={subscription.id}
+                        railHidden={railHidden}
+                        topic={subscription.topic}
+                    />
+                ))}
+
+                {owned.length > 0 && (
+                    <p
                         className={cn(
-                            'flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60',
+                            'mt-3 px-2.5 pb-1.5 pt-1 font-mono text-[9.5px] tracking-[1.5px] text-dim',
                             railHidden,
                         )}
-                        key={subscription.id}
-                        search={{ priority: undefined, tags: [], topic: subscription.topic.name }}
-                        to="/app/channels"
                     >
-                        <Dot level={hashTopicLevel(subscription.topic.name)} size={5} />
+                        NOT SUBSCRIBED
+                    </p>
+                )}
 
-                        <span className="flex-1 truncate">{subscription.topic.name}</span>
-
-                        {subscription.topic.accessMode !== 'public' && (
-                            <Lock className="flex-shrink-0 text-dim" size={12} />
-                        )}
-                    </Link>
+                {owned.slice(0, 6).map((topic) => (
+                    <ChannelLink key={topic.id} railHidden={railHidden} topic={topic} />
                 ))}
 
                 <div className="mt-auto">
@@ -259,6 +267,31 @@ export function Sidebar() {
                 </div>
             </aside>
         </>
+    );
+}
+
+function ChannelLink({ railHidden, topic }: { railHidden: string; topic: Topic }) {
+    return (
+        <Link
+            className={cn(
+                'flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60',
+                railHidden,
+            )}
+            search={{ priority: undefined, tags: [], topic: topic.name }}
+            to="/app/channels"
+        >
+            <Dot level={hashTopicLevel(topic.name)} size={5} />
+
+            <span className="flex-1 truncate">{topic.name}</span>
+
+            {topic.isOwner && (
+                <span className="flex flex-shrink-0" title="You own this topic">
+                    <Crown className="text-dim" size={12} />
+                </span>
+            )}
+
+            <AccessModeIcon accessMode={topic.accessMode} />
+        </Link>
     );
 }
 
