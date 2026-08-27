@@ -12,6 +12,7 @@ mock.module('#/http/auth/plugin', () => ({
 }));
 
 import { createWebhook } from '#/http/webhooks/create';
+import { signSlugReservation } from '#/lib/crypto/slug-reservation';
 import { resetUserPlansForTests, setUserPlanForTests } from '#/services/billing/get-user-plan';
 import { PLANS } from '#/services/billing/plans';
 
@@ -242,5 +243,135 @@ describe('POST /webhooks signing secrets', () => {
 
         expect(res.status).toBe(200);
         expect(storedData().verificationConfig).toBeNull();
+    });
+});
+
+describe('POST /webhooks reserved slug', () => {
+    const app = new Elysia().use(createWebhook);
+
+    function request(body: Record<string, unknown>) {
+        return new Request('http://localhost/webhooks', {
+            body: JSON.stringify({ topicName: 'deploys', ...body }),
+            headers: { 'Content-Type': 'application/json', 'x-test-user-id': 'user-1' },
+            method: 'POST',
+        });
+    }
+
+    beforeEach(() => {
+        resetUserPlansForTests();
+        setUserPlanForTests('user-1', 'free');
+        prismaMock.webhook.count.mockReset();
+        prismaMock.webhook.count.mockResolvedValue(0);
+        prismaMock.webhook.create.mockReset();
+        prismaMock.webhook.create.mockImplementation(
+            ({ data }: { data: Record<string, unknown> }) =>
+                Promise.resolve({
+                    createdAt: new Date(),
+                    id: 'wh-1',
+                    name: 'stripe webhook',
+                    slug: data.slug as string,
+                    source: 'stripe',
+                    status: 'active',
+                    template: null,
+                    topicName: 'deploys',
+                    verification: 'none',
+                    verificationConfig: null,
+                }),
+        );
+        prismaMock.topic.findUnique.mockResolvedValue(null);
+    });
+
+    const RESERVED = 'st_abcdefghijklmnop';
+
+    function reserved(slug = RESERVED) {
+        return { reservation: signSlugReservation(slug), slug, source: 'stripe' };
+    }
+
+    it('uses a slug the server reserved', async () => {
+        const res = await app.handle(request(reserved()));
+
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toMatchObject({ endpointUrl: `/h/${RESERVED}` });
+    });
+
+    it('rejects a slug sent without a reservation', async () => {
+        const res = await app.handle(request({ slug: RESERVED, source: 'stripe' }));
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug_reservation' });
+    });
+
+    it('rejects a reservation signed for a different slug', async () => {
+        const res = await app.handle(
+            request({
+                reservation: signSlugReservation('st_zzzzzzzzzzzzzzzz'),
+                slug: RESERVED,
+                source: 'stripe',
+            }),
+        );
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug_reservation' });
+    });
+
+    it('rejects a reservation that has expired', async () => {
+        const res = await app.handle(
+            request({
+                reservation: signSlugReservation(RESERVED, Date.now() - 2 * 60 * 60 * 1000),
+                slug: RESERVED,
+                source: 'stripe',
+            }),
+        );
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug_reservation' });
+    });
+
+    it('keeps a reserved slug whose prefix predates a source change', async () => {
+        const slug = 'gh_abcdefghijklmnop';
+
+        const res = await app.handle(
+            request({ reservation: signSlugReservation(slug), slug, source: 'stripe' }),
+        );
+
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toMatchObject({ endpointUrl: `/h/${slug}` });
+    });
+
+    it('rejects a well-formed vanity slug a client chose for itself', async () => {
+        const res = await app.handle(request({ slug: 'st_emitsignalcool12', source: 'stripe' }));
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug_reservation' });
+    });
+
+    it('rejects a vanity slug that does not fit the generated shape', async () => {
+        const slug = 'st_emitsignalcool';
+
+        const res = await app.handle(
+            request({ reservation: signSlugReservation(slug), slug, source: 'stripe' }),
+        );
+
+        expect(res.status).toBe(400);
+        await expect(res.json()).resolves.toEqual({ error: 'invalid_slug' });
+    });
+
+    it('returns 409 when the reserved slug was taken first', async () => {
+        prismaMock.webhook.create.mockImplementation(() =>
+            Promise.reject(Object.assign(new Error('unique'), { code: 'P2002' })),
+        );
+
+        const res = await app.handle(request(reserved()));
+
+        expect(res.status).toBe(409);
+        await expect(res.json()).resolves.toEqual({ error: 'slug_taken' });
+    });
+
+    it('generates a slug for the source when none is reserved', async () => {
+        const res = await app.handle(request({ source: 'stripe' }));
+        const body = (await res.json()) as { endpointUrl: string };
+
+        expect(res.status).toBe(200);
+        expect(body.endpointUrl).toMatch(/^\/h\/st_[a-z0-9]{16}$/);
     });
 });
