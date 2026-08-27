@@ -240,6 +240,8 @@ export function createApiClient(baseUrl: string) {
         createWebhook(
             input: {
                 name?: string;
+                reservation?: string;
+                slug?: string;
                 source?: string;
                 template?: null | string;
                 topicName: string;
@@ -414,6 +416,13 @@ export function createApiClient(baseUrl: string) {
             return request<Topic>(`/topics/${encodeURIComponent(name)}/claim`, {
                 method: 'DELETE',
             });
+        },
+
+        reserveWebhookSlug(source?: string) {
+            return request<{ endpointUrl: string; reservation: string; slug: string }>(
+                '/webhooks/slug',
+                { body: JSON.stringify({ source }), method: 'POST' },
+            );
         },
 
         subscribe(
