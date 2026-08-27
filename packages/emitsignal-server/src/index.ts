@@ -43,6 +43,7 @@ import { listDeliveries } from '#/http/webhooks/deliveries';
 import { getWebhook } from '#/http/webhooks/get';
 import { listWebhooks } from '#/http/webhooks/list';
 import { receiveWebhook } from '#/http/webhooks/receive';
+import { reserveWebhookSlug } from '#/http/webhooks/reserve-slug';
 import { streamWebhookDeliveries } from '#/http/webhooks/stream';
 import { updateWebhook } from '#/http/webhooks/update';
 import { auth } from '#/lib/auth';
@@ -91,6 +92,7 @@ const app = new Elysia({
     .use(claimSubscriptions)
     .use(claimTopic)
     .use(createWebhook)
+    .use(reserveWebhookSlug)
     .use(deletePushToken)
     .use(deleteWebhook)
     .use(getBilling)
