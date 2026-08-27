@@ -19,5 +19,5 @@
     "private": true,
     "type": "module",
     "types": "src/index.ts",
-    "version": "1.7.0"
+    "version": "1.8.0"
 }
