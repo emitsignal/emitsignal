@@ -3,11 +3,18 @@ import { cn } from '#/lib/cn';
 interface LogoProps {
     className?: string;
     label?: string;
+    labelClassName?: string;
     pulse?: boolean;
     size?: number;
 }
 
-export function Logo({ className, label = 'EmitSignal', pulse = false, size = 14 }: LogoProps) {
+export function Logo({
+    className,
+    label = 'EmitSignal',
+    labelClassName,
+    pulse = false,
+    size = 14,
+}: LogoProps) {
     return (
         <span
             className={cn('inline-flex items-center font-mono font-medium text-fg', className)}
@@ -24,7 +31,7 @@ export function Logo({ className, label = 'EmitSignal', pulse = false, size = 14
                     width: size * 0.55,
                 }}
             />
-            <span>{label}</span>
+            <span className={labelClassName}>{label}</span>
         </span>
     );
 }

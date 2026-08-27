@@ -18,6 +18,7 @@ vi.mock('#/ctx/feed-style', () => ({ useFeedStyle: () => ({ feedStyle: 'comfy' }
 vi.mock('#/ctx/subscriptions', () => ({ useSubscriptions: () => ({ subscribe: vi.fn() }) }));
 vi.mock('#/ctx/toast', () => ({ useToast: () => vi.fn() }));
 vi.mock('#/ctx/debug-sections', () => ({ useDebugSections: () => ({ sections: {} }) }));
+vi.mock('#/ctx/sidebar', () => ({ useSidebar: () => ({ setMobileOpen: vi.fn() }) }));
 
 describe('InboxLayout first load', () => {
     beforeEach(() => {

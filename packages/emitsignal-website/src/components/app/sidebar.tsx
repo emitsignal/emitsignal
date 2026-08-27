@@ -10,6 +10,8 @@ import {
     Lock,
     LogOut,
     type LucideIcon,
+    PanelLeftClose,
+    PanelLeftOpen,
     Plus,
     Settings,
     Terminal,
@@ -22,10 +24,12 @@ import { Avatar } from '#/components/ui/avatar';
 import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { useSession } from '#/ctx/session';
+import { useSidebar } from '#/ctx/sidebar';
 import { useSubscriptions } from '#/ctx/subscriptions';
 import { useToast } from '#/ctx/toast';
 import { useBilling } from '#/hooks/use-billing';
 import { apiErrorMessage } from '#/lib/api-error';
+import { cn } from '#/lib/cn';
 import { hashTopicLevel } from '#/lib/priority';
 
 interface NavItem {
@@ -44,6 +48,7 @@ const ACTIVE =
 export function Sidebar() {
     const { billing } = useBilling();
     const { signOut, user } = useSession();
+    const { collapsed, mobileOpen, setMobileOpen, toggleCollapsed } = useSidebar();
     const { subscribe, subscriptions } = useSubscriptions();
     const navigate = useNavigate();
     const toast = useToast();
@@ -55,6 +60,10 @@ export function Sidebar() {
     const [subscribing, setSubscribing] = useState(false);
 
     const channelCount = subscriptions.length;
+
+    // The drawer always renders at full width, so `collapsed` may only ever
+    // hide things from `md` up — never on mobile.
+    const railHidden = collapsed ? 'md:hidden' : '';
 
     const NAV: NavItem[] = [
         { exact: true, icon: Bell, label: 'Inbox', to: '/app/inbox' },
@@ -96,107 +105,160 @@ export function Sidebar() {
     };
 
     return (
-        <aside className="flex w-[250px] shrink-0 flex-col gap-0.5 border-r border-line p-2.5 pt-4">
-            <div className="px-2.5 pb-3.5 pt-1">
-                <Logo pulse size={13} />
-            </div>
-
-            {NAV.map((item) => (
-                <SidebarLink item={item} key={item.to} />
-            ))}
-
-            <div className="mt-4.5 flex items-center px-2.5 pb-1.5">
-                <p className="font-mono text-[9.5px] tracking-[1.5px] text-dim">CHANNELS</p>
-                {adding ? (
-                    <div className="ml-auto flex items-center gap-1">
-                        <input
-                            autoFocus
-                            className="w-[90px] rounded border border-line bg-elev px-1.5 py-0.5 font-mono text-[10px] text-fg outline-none placeholder:text-dim"
-                            maxLength={TOPIC_NAME_MAX_LENGTH}
-                            onChange={(event) => setNewTopic(event.target.value)}
-                            onKeyDown={(event) => {
-                                if (event.key === 'Enter') handleSubscribe();
-                                if (event.key === 'Escape') setAdding(false);
-                            }}
-                            placeholder="topic/name"
-                            value={newTopic}
-                        />
-                        <button
-                            className="font-mono text-[10px] text-accent hover:text-fg disabled:opacity-50"
-                            disabled={!newTopic.trim() || subscribing}
-                            onClick={handleSubscribe}
-                        >
-                            {subscribing ? '…' : 'ok'}
-                        </button>
-                    </div>
-                ) : (
-                    <button
-                        className="ml-auto flex h-4 w-4 items-center justify-center rounded text-dim hover:text-fg"
-                        onClick={() => setAdding(true)}
-                    >
-                        <Plus size={12} />
-                    </button>
-                )}
-            </div>
-
-            {subscriptions.length === 0 && (
-                <p className="px-2.5 py-1 font-mono text-[10px] text-dim">no subscriptions yet</p>
+        <>
+            {mobileOpen && (
+                <div
+                    className="fixed inset-0 z-40 md:hidden"
+                    onClick={() => setMobileOpen(false)}
+                    style={{ backdropFilter: 'blur(3px)', background: 'var(--color-scrim)' }}
+                />
             )}
 
-            {subscriptions.slice(0, 6).map((subscription) => (
-                <Link
-                    className="flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60"
-                    key={subscription.id}
-                    search={{ priority: undefined, tags: [], topic: subscription.topic.name }}
-                    to="/app/channels"
-                >
-                    <Dot level={hashTopicLevel(subscription.topic.name)} size={5} />
-
-                    <span className="flex-1 truncate">{subscription.topic.name}</span>
-
-                    {subscription.topic.accessMode !== 'public' && (
-                        <Lock className="flex-shrink-0 text-dim" size={12} />
+            <aside
+                aria-label="Primary"
+                className={cn(
+                    'fixed inset-y-0 left-0 z-50 flex w-[250px] shrink-0 flex-col gap-0.5 overflow-y-auto border-r border-line bg-bg p-2.5 pt-4 transition-transform duration-200',
+                    'md:static md:z-auto md:translate-x-0 md:transition-[width]',
+                    mobileOpen ? 'translate-x-0' : '-translate-x-full',
+                    collapsed && 'md:w-[56px] md:px-1.5',
+                )}
+            >
+                <div
+                    className={cn(
+                        'flex items-center gap-2 px-2.5 pb-3.5 pt-1',
+                        collapsed && 'md:flex-col md:gap-2.5 md:px-0',
                     )}
-                </Link>
-            ))}
+                >
+                    <Logo labelClassName={railHidden} pulse size={13} />
 
-            <div className="mt-auto">
-                <div className="px-2.5 pb-2 pt-2.5">
-                    <ThemeToggle />
+                    <button
+                        aria-expanded={!collapsed}
+                        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        className={cn(
+                            'ml-auto hidden h-6 w-6 cursor-pointer items-center justify-center rounded text-dim hover:bg-elev hover:text-fg md:flex',
+                            collapsed && 'md:ml-0',
+                        )}
+                        onClick={toggleCollapsed}
+                        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        type="button"
+                    >
+                        {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+                    </button>
                 </div>
 
-                {user && (
-                    <div className="flex items-center gap-2.5 border-t border-line p-2.5">
-                        <Avatar
-                            name={user.name || user.email}
-                            rounded={100}
-                            size={30}
-                            src={user.image}
-                        />
+                {NAV.map((item) => (
+                    <SidebarLink collapsed={collapsed} item={item} key={item.to} />
+                ))}
 
-                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                            <div className="flex items-center gap-1.5">
-                                <span className="truncate text-[12.5px] font-medium text-fg">
-                                    {user.name || user.email.split('@')[0]}
-                                </span>
+                <div className={cn('mt-4.5 flex items-center px-2.5 pb-1.5', railHidden)}>
+                    <p className="font-mono text-[9.5px] tracking-[1.5px] text-dim">CHANNELS</p>
+                    {adding ? (
+                        <div className="ml-auto flex items-center gap-1">
+                            <input
+                                autoFocus
+                                className="w-[90px] rounded border border-line bg-elev px-1.5 py-0.5 font-mono text-[10px] text-fg outline-none placeholder:text-dim"
+                                maxLength={TOPIC_NAME_MAX_LENGTH}
+                                onChange={(event) => setNewTopic(event.target.value)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') handleSubscribe();
+                                    if (event.key === 'Escape') setAdding(false);
+                                }}
+                                placeholder="topic/name"
+                                value={newTopic}
+                            />
+                            <button
+                                className="font-mono text-[10px] text-accent hover:text-fg disabled:opacity-50"
+                                disabled={!newTopic.trim() || subscribing}
+                                onClick={handleSubscribe}
+                            >
+                                {subscribing ? '…' : 'ok'}
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            aria-label="Subscribe to a channel"
+                            className="ml-auto flex h-4 w-4 items-center justify-center rounded text-dim hover:text-fg"
+                            onClick={() => setAdding(true)}
+                            title="Subscribe to a channel"
+                        >
+                            <Plus size={12} />
+                        </button>
+                    )}
+                </div>
 
-                                {plan && <PlanPill plan={plan} />}
+                {subscriptions.length === 0 && (
+                    <p className={cn('px-2.5 py-1 font-mono text-[10px] text-dim', railHidden)}>
+                        no subscriptions yet
+                    </p>
+                )}
+
+                {subscriptions.slice(0, 6).map((subscription) => (
+                    <Link
+                        className={cn(
+                            'flex items-center gap-2 rounded-md px-2.5 py-1 font-mono text-[11.5px] text-muted no-underline hover:bg-elev/60',
+                            railHidden,
+                        )}
+                        key={subscription.id}
+                        search={{ priority: undefined, tags: [], topic: subscription.topic.name }}
+                        to="/app/channels"
+                    >
+                        <Dot level={hashTopicLevel(subscription.topic.name)} size={5} />
+
+                        <span className="flex-1 truncate">{subscription.topic.name}</span>
+
+                        {subscription.topic.accessMode !== 'public' && (
+                            <Lock className="flex-shrink-0 text-dim" size={12} />
+                        )}
+                    </Link>
+                ))}
+
+                <div className="mt-auto">
+                    <div className={cn('px-2.5 pb-2 pt-2.5', collapsed && 'md:px-0')}>
+                        <ThemeToggle rail={collapsed} />
+                    </div>
+
+                    {user && (
+                        <div
+                            className={cn(
+                                'flex items-center gap-2.5 border-t border-line p-2.5',
+                                collapsed && 'md:flex-col md:gap-2 md:px-0',
+                            )}
+                        >
+                            <Avatar
+                                name={user.name || user.email}
+                                rounded={100}
+                                size={30}
+                                src={user.image}
+                            />
+
+                            <div className={cn('flex min-w-0 flex-1 flex-col gap-0.5', railHidden)}>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="truncate text-[12.5px] font-medium text-fg">
+                                        {user.name || user.email.split('@')[0]}
+                                    </span>
+
+                                    {plan && <PlanPill plan={plan} />}
+                                </div>
+
+                                <span className="truncate text-[11px] text-dim">{user.email}</span>
                             </div>
 
-                            <span className="truncate text-[11px] text-dim">{user.email}</span>
+                            <button
+                                aria-label="Sign out"
+                                className={cn(
+                                    'cursor-pointer self-start rounded p-1 text-dim hover:bg-elev hover:text-fg',
+                                    collapsed && 'md:self-auto',
+                                )}
+                                onClick={handleSignOut}
+                                title="Sign out"
+                            >
+                                <LogOut size={14} />
+                            </button>
                         </div>
-
-                        <button
-                            className="cursor-pointer self-start rounded p-1 text-dim hover:bg-elev hover:text-fg"
-                            onClick={handleSignOut}
-                            title="Sign out"
-                        >
-                            <LogOut size={14} />
-                        </button>
-                    </div>
-                )}
-            </div>
-        </aside>
+                    )}
+                </div>
+            </aside>
+        </>
     );
 }
 
@@ -216,25 +278,33 @@ function PlanPill({ plan }: { plan: PlanName }) {
     );
 }
 
-function SidebarLink({ item }: { item: NavItem }) {
+function SidebarLink({ collapsed, item }: { collapsed: boolean; item: NavItem }) {
     const Icon = item.icon;
+
+    const railHidden = collapsed ? 'md:hidden' : '';
+    const railCentered = collapsed ? 'md:justify-center md:px-0' : '';
 
     return (
         <Link
             activeOptions={item.exact ? { exact: true } : undefined}
-            activeProps={{ className: ACTIVE }}
-            className={INACTIVE}
+            activeProps={{ className: cn(ACTIVE, railCentered) }}
+            className={cn(INACTIVE, railCentered)}
+            title={collapsed ? item.label : undefined}
             to={item.to as never}
         >
             {({ isActive }) => (
                 <>
-                    <Icon size={14} />
+                    <Icon className="shrink-0" size={14} />
 
-                    <span className="flex-1">{item.label}</span>
+                    <span className={cn('flex-1', railHidden)}>{item.label}</span>
 
                     {item.badge !== undefined && item.badge > 0 && (
                         <span
-                            className={`font-mono text-[10px] ${isActive ? 'text-accent' : 'text-dim'}`}
+                            className={cn(
+                                'font-mono text-[10px]',
+                                isActive ? 'text-accent' : 'text-dim',
+                                railHidden,
+                            )}
                         >
                             {item.badge}
                         </span>

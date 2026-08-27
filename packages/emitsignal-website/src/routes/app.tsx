@@ -5,6 +5,7 @@ import { Sidebar } from '#/components/app/sidebar';
 import { DebugSectionsProvider } from '#/ctx/debug-sections';
 import { FeedStyleProvider } from '#/ctx/feed-style';
 import { RealtimeProvider } from '#/ctx/realtime';
+import { SidebarProvider } from '#/ctx/sidebar';
 import { SubscriptionsProvider } from '#/ctx/subscriptions';
 import { ThemeProvider, useTheme } from '#/ctx/theme';
 import { ToastProvider } from '#/ctx/toast';
@@ -16,6 +17,8 @@ import { readFeedStyleFromDocument } from '#/lib/feed-style';
 import { getFeedStyle } from '#/lib/feed-style.server';
 import { queryKeys, sessionQueryOptions } from '#/lib/query-client';
 import { buildSeoMeta } from '#/lib/seo';
+import { readSidebarStateFromDocument } from '#/lib/sidebar';
+import { getSidebarState } from '#/lib/sidebar.server';
 import { readThemePreferenceFromDocument } from '#/lib/theme';
 import { getThemePreference } from '#/lib/theme.server';
 
@@ -26,6 +29,10 @@ const resolveInitialTheme = createIsomorphicFn()
 const resolveInitialFeedStyle = createIsomorphicFn()
     .server(() => getFeedStyle())
     .client(() => readFeedStyleFromDocument());
+
+const resolveInitialSidebarState = createIsomorphicFn()
+    .server(() => getSidebarState())
+    .client(() => readSidebarStateFromDocument());
 
 const resolveInitialDebugSections = createIsomorphicFn()
     .server(() => getDebugSections())
@@ -83,6 +90,7 @@ export const Route = createFileRoute('/app')({
         return {
             debugSections: resolveInitialDebugSections(),
             feedStyle: resolveInitialFeedStyle(),
+            sidebar: resolveInitialSidebarState(),
             theme: resolveInitialTheme(),
         };
     },
@@ -105,19 +113,21 @@ function DashboardShell() {
 }
 
 function WebShell() {
-    const { debugSections, feedStyle, theme } = Route.useLoaderData();
+    const { debugSections, feedStyle, sidebar, theme } = Route.useLoaderData();
 
     return (
         <ThemeProvider initialTheme={theme}>
             <FeedStyleProvider initialFeedStyle={feedStyle}>
                 <DebugSectionsProvider initialSections={debugSections}>
-                    <SubscriptionsProvider>
-                        <ToastProvider>
-                            <RealtimeProvider>
-                                <DashboardShell />
-                            </RealtimeProvider>
-                        </ToastProvider>
-                    </SubscriptionsProvider>
+                    <SidebarProvider initialState={sidebar}>
+                        <SubscriptionsProvider>
+                            <ToastProvider>
+                                <RealtimeProvider>
+                                    <DashboardShell />
+                                </RealtimeProvider>
+                            </ToastProvider>
+                        </SubscriptionsProvider>
+                    </SidebarProvider>
                 </DebugSectionsProvider>
             </FeedStyleProvider>
         </ThemeProvider>
