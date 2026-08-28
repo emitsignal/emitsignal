@@ -1,15 +1,13 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
 
-export const listTopics = new Elysia().get(
+export const listTopics = new Elysia().use(authPlugin).get(
     '/topics',
-    async ({ headers, query }) => {
-        const userId = await resolveUserId({ headers });
-
+    async ({ query, userId }) => {
         if (!userId) {
             return [];
         }
@@ -42,6 +40,7 @@ export const listTopics = new Elysia().get(
         }));
     },
     {
+        authOptional: true,
         beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
         query: t.Object({
             q: t.Optional(t.String()),

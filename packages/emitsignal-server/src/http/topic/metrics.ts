@@ -1,15 +1,15 @@
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 import { duration } from '#/utils/duration';
 
-export const topicMetrics = new Elysia().get(
+export const topicMetrics = new Elysia().use(authPlugin).get(
     '/topics/:name/metrics',
-    async ({ headers, params, status }) => {
+    async ({ params, status, userId }) => {
         const topic = await prisma.topic.findUnique({
             select: {
                 _count: { select: { subscriptions: true } },
@@ -24,7 +24,6 @@ export const topicMetrics = new Elysia().get(
             return status(404, { error: 'topic_not_found' });
         }
 
-        const userId = await resolveUserId({ headers });
         const capabilities = await resolveTopicCapabilities(topic, userId);
 
         if (!capabilities.canRead) {
@@ -67,6 +66,7 @@ export const topicMetrics = new Elysia().get(
         };
     },
     {
+        authOptional: true,
         beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
     },
 );

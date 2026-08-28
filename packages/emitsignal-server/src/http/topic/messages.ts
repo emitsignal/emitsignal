@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
@@ -8,9 +8,9 @@ import { serializeMessage } from '#/services/message';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 import { parseTagsQueryParam } from '#/utils/tags';
 
-export const messages = new Elysia().get(
+export const messages = new Elysia().use(authPlugin).get(
     '/topics/:name/messages',
-    async ({ headers, params, query, status }) => {
+    async ({ params, query, status, userId }) => {
         const topic = await prisma.topic.findUnique({
             where: { name: params.name },
         });
@@ -18,7 +18,6 @@ export const messages = new Elysia().get(
             return status(404, { error: 'topic_not_found' });
         }
 
-        const userId = await resolveUserId({ headers });
         const capabilities = await resolveTopicCapabilities(topic, userId);
 
         if (!capabilities.canRead) {
@@ -52,6 +51,7 @@ export const messages = new Elysia().get(
         return { data, nextCursor };
     },
     {
+        authOptional: true,
         beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
         query: t.Object({
             cursor: t.Optional(t.String({ minLength: 1 })),

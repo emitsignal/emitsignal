@@ -3,7 +3,7 @@ import Elysia, { t } from 'elysia';
 
 import type { Topic } from '#/generated/prisma/client';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { topicNameCache } from '#/lib/cache';
 import { prisma } from '#/lib/prisma';
@@ -43,15 +43,10 @@ function serializeOwnedTopic(topic: Topic) {
 }
 
 export const claimTopic = new Elysia()
+    .use(authPlugin)
     .delete(
         '/topics/:name/claim',
-        async ({ headers, params, status }) => {
-            const userId = await resolveUserId({ headers });
-
-            if (!userId) {
-                return status(401, { error: 'missing_token' });
-            }
-
+        async ({ params, status, userId }) => {
             const name = params.name.toLowerCase();
             const topic = await prisma.topic.findUnique({ where: { name } });
 
@@ -84,18 +79,13 @@ export const claimTopic = new Elysia()
             };
         },
         {
+            authRequired: true,
             params: t.Object({ name: t.String() }),
         },
     )
     .post(
         '/topics/:name/claim',
-        async ({ body, headers, params, status }) => {
-            const userId = await resolveUserId({ headers });
-
-            if (!userId) {
-                return status(401, { error: 'missing_token' });
-            }
-
+        async ({ body, params, status, userId }) => {
             const name = params.name.toLowerCase();
 
             if (!isValidTopicName(name)) {
@@ -189,6 +179,7 @@ export const claimTopic = new Elysia()
             }
         },
         {
+            authRequired: true,
             beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
             body: t.Object({
                 accessMode: t.Optional(

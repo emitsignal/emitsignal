@@ -8,7 +8,6 @@
 import type { MessageEvent } from '#/lib/event-bus';
 import type { ServerLike } from '#/utils/ip';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { bus } from '#/lib/event-bus';
 import { prisma } from '#/lib/prisma';
 import { acquireSseSlot } from '#/lib/rate-limit';
@@ -22,11 +21,11 @@ const SSE_MAX_ANON = 3;
 const SSE_MAX_AUTH = 10;
 
 interface SseListenContext {
-    headers: Record<string, string | undefined>;
     query: { since?: string; topics?: string };
     request: Request;
     server: ServerLike;
     set: { headers: Record<string, number | string>; status?: number | string };
+    userId: null | string;
 }
 
 interface SseListenOptions {
@@ -35,11 +34,10 @@ interface SseListenOptions {
 }
 
 export async function handleSseListen(
-    { headers, query, request, server, set }: SseListenContext,
+    { query, request, server, set, userId }: SseListenContext,
     options: SseListenOptions,
 ) {
     const ip = getClientIP(request, server);
-    const userId = await resolveUserId({ headers });
     const sseKey = `rl:${options.slotScope}:${userId ?? ip}`;
     const max = userId ? SSE_MAX_AUTH : SSE_MAX_ANON;
 
