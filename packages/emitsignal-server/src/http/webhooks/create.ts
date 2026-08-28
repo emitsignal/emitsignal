@@ -1,7 +1,7 @@
 import { generateWebhookSlug, isValidWebhookSlug } from '@emitsignal/shared/webhook-slug';
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import {
     validateVerificationBody,
     verificationBodySchema,
@@ -14,15 +14,9 @@ import { PLANS } from '#/services/billing/plans';
 import { canPublishToTopicName } from '#/services/topic-access';
 import { schemeNeedsConfig } from '#/utils/webhook-signature';
 
-export const createWebhook = new Elysia().post(
+export const createWebhook = new Elysia().use(authPlugin).post(
     '/webhooks',
-    async ({ body, headers, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ body, status, userId }) => {
         if (!(await canPublishToTopicName(body.topicName, userId))) {
             return status(403, {
                 error: 'forbidden',
@@ -115,6 +109,7 @@ export const createWebhook = new Elysia().post(
         };
     },
     {
+        authRequired: true,
         body: t.Object({
             name: t.Optional(t.String()),
             reservation: t.Optional(t.String()),

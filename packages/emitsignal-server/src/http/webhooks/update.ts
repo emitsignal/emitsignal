@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import {
     validateVerificationBody,
     verificationBodySchema,
@@ -10,15 +10,9 @@ import { prisma } from '#/lib/prisma';
 import { canPublishToTopicName } from '#/services/topic-access';
 import { schemeNeedsConfig } from '#/utils/webhook-signature';
 
-export const updateWebhook = new Elysia().patch(
+export const updateWebhook = new Elysia().use(authPlugin).patch(
     '/webhooks/:id',
-    async ({ body, headers, params, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ body, params, status, userId }) => {
         const webhook = await prisma.webhook.findUnique({
             select: { secretCiphertext: true, userId: true, verification: true },
             where: { id: params.id },
@@ -104,6 +98,7 @@ export const updateWebhook = new Elysia().patch(
         return { ...safe, hasSecret: !!secretCiphertext, templated: !!updated.template };
     },
     {
+        authRequired: true,
         body: t.Object({
             name: t.Optional(t.String()),
             status: t.Optional(t.String()),

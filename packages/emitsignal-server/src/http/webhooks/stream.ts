@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { bus } from '#/lib/event-bus';
 import { acquireSseSlot } from '#/lib/rate-limit';
 import { createSseStream, sseHeaders } from '#/lib/sse';
@@ -8,15 +8,9 @@ import { getClientIP } from '#/utils/ip';
 
 const SSE_MAX_AUTH = 10;
 
-export const streamWebhookDeliveries = new Elysia().get(
+export const streamWebhookDeliveries = new Elysia().use(authPlugin).get(
     '/webhooks/stream',
-    async ({ headers, query, request, server, set, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ query, request, server, set, userId }) => {
         const ip = getClientIP(request, server);
         const sseKey = `rl:sse:webhooks:${userId ?? ip}`;
         const slot = await acquireSseSlot(sseKey, SSE_MAX_AUTH);
@@ -49,6 +43,7 @@ export const streamWebhookDeliveries = new Elysia().get(
         return new Response(stream, { headers: sseHeaders() });
     },
     {
+        authRequired: true,
         query: t.Object({ source: t.Optional(t.String()) }),
     },
 );

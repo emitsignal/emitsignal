@@ -1,17 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const listDeliveries = new Elysia().get(
+export const listDeliveries = new Elysia().use(authPlugin).get(
     '/webhooks/:id/deliveries',
-    async ({ headers, params, query, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ params, query, status, userId }) => {
         const webhook = await prisma.webhook.findUnique({
             select: { source: true, topicName: true, userId: true },
             where: { id: params.id },
@@ -60,6 +54,7 @@ export const listDeliveries = new Elysia().get(
         }));
     },
     {
+        authRequired: true,
         query: t.Object({ limit: t.Optional(t.Integer()) }),
     },
 );
