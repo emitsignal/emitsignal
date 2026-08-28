@@ -1,4 +1,4 @@
-import { isValidWebhookSlug } from '@emitsignal/shared/webhook-slug';
+import { generateWebhookSlug, isValidWebhookSlug } from '@emitsignal/shared/webhook-slug';
 import Elysia, { t } from 'elysia';
 
 import { resolveUserId } from '#/http/auth/plugin';
@@ -13,7 +13,6 @@ import { getUserPlan } from '#/services/billing/get-user-plan';
 import { PLANS } from '#/services/billing/plans';
 import { canPublishToTopicName } from '#/services/topic-access';
 import { schemeNeedsConfig } from '#/utils/webhook-signature';
-import { generateWebhookSlug } from '#/utils/webhook-slug';
 
 export const createWebhook = new Elysia().post(
     '/webhooks',
