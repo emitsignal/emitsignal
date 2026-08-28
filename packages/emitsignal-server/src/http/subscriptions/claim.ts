@@ -1,13 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const claimSubscriptions = new Elysia({ prefix: '/subscriptions' }).post(
+export const claimSubscriptions = new Elysia({ prefix: '/subscriptions' }).use(authPlugin).post(
     '/claim',
-    async ({ body, headers }) => {
-        const userId = await resolveUserId({ headers });
-
+    async ({ body, userId }) => {
         if (!userId) {
             return { claimed: 0 };
         }
@@ -23,6 +21,7 @@ export const claimSubscriptions = new Elysia({ prefix: '/subscriptions' }).post(
         return { claimed: count };
     },
     {
+        authOptional: true,
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
         }),

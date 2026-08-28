@@ -1,5 +1,6 @@
 import Elysia, { t } from 'elysia';
 
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
@@ -9,75 +10,80 @@ import { parseTagsQueryParam } from '#/utils/tags';
 
 import { resolveSubscriptions } from './resolve';
 
-export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' }).get(
-    '/messages',
-    async ({ headers, query }) => {
-        const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
+export const listSubscriptionMessages = new Elysia({ prefix: '/subscriptions' })
+    .use(authPlugin)
+    .get(
+        '/messages',
+        async ({ query, userId }) => {
+            const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, userId });
 
-        const subscriptions = query.topicName
-            ? rows.filter((row) => row.topic.name === query.topicName)
-            : rows;
+            const subscriptions = query.topicName
+                ? rows.filter((row) => row.topic.name === query.topicName)
+                : rows;
 
-        if (subscriptions.length === 0) {
-            return { data: [], nextCursor: null };
-        }
+            if (subscriptions.length === 0) {
+                return { data: [], nextCursor: null };
+            }
 
-        const tagsFilter = parseTagsQueryParam(query.tags);
+            const tagsFilter = parseTagsQueryParam(query.tags);
 
-        const messages = await prisma.message.findMany({
-            ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
-            include: {
-                _count: { select: { acknowledgments: true } },
-                topic: { select: { name: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-            take: query.limit,
-            where: {
-                OR: subscriptions.map((subscription) => {
-                    const { listenSince } = parseSubscriptionSettings(subscription.settings);
+            const messages = await prisma.message.findMany({
+                ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+                include: {
+                    _count: { select: { acknowledgments: true } },
+                    topic: { select: { name: true } },
+                },
+                orderBy: { createdAt: 'desc' },
+                take: query.limit,
+                where: {
+                    OR: subscriptions.map((subscription) => {
+                        const { listenSince } = parseSubscriptionSettings(subscription.settings);
 
-                    if (listenSince === 'always') {
-                        return { topicId: subscription.topicId };
-                    }
+                        if (listenSince === 'always') {
+                            return { topicId: subscription.topicId };
+                        }
 
-                    return {
-                        createdAt: { gte: subscription.createdAt },
-                        topicId: subscription.topicId,
-                    };
+                        return {
+                            createdAt: { gte: subscription.createdAt },
+                            topicId: subscription.topicId,
+                        };
+                    }),
+                    ...(query.minPriority !== undefined
+                        ? { priority: { gte: query.minPriority } }
+                        : {}),
+                    ...(tagsFilter.length > 0 ? { tags: { hasSome: tagsFilter } } : {}),
+                },
+            });
+
+            const data = await Promise.all(
+                messages.map(async (message) => {
+                    const serialized = await serializeMessage(
+                        message,
+                        message._count.acknowledgments,
+                        false,
+                    );
+
+                    return { ...serialized, topicName: message.topic.name };
                 }),
-                ...(query.minPriority !== undefined
-                    ? { priority: { gte: query.minPriority } }
-                    : {}),
-                ...(tagsFilter.length > 0 ? { tags: { hasSome: tagsFilter } } : {}),
-            },
-        });
+            );
 
-        const data = await Promise.all(
-            messages.map(async (message) => {
-                const serialized = await serializeMessage(
-                    message,
-                    message._count.acknowledgments,
-                    false,
-                );
+            const nextCursor =
+                messages.length === query.limit
+                    ? (messages[messages.length - 1]?.id ?? null)
+                    : null;
 
-                return { ...serialized, topicName: message.topic.name };
+            return { data, nextCursor };
+        },
+        {
+            authOptional: true,
+            beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
+            query: t.Object({
+                cursor: t.Optional(t.String({ minLength: 1 })),
+                deviceId: t.Optional(t.String({ minLength: 1 })),
+                limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
+                minPriority: t.Optional(t.Integer({ maximum: 5, minimum: 1 })),
+                tags: t.Optional(t.String({ minLength: 1 })),
+                topicName: t.Optional(t.String({ minLength: 1 })),
             }),
-        );
-
-        const nextCursor =
-            messages.length === query.limit ? (messages[messages.length - 1]?.id ?? null) : null;
-
-        return { data, nextCursor };
-    },
-    {
-        beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
-        query: t.Object({
-            cursor: t.Optional(t.String({ minLength: 1 })),
-            deviceId: t.Optional(t.String({ minLength: 1 })),
-            limit: t.Optional(t.Integer({ default: 50, maximum: 200, minimum: 1 })),
-            minPriority: t.Optional(t.Integer({ maximum: 5, minimum: 1 })),
-            tags: t.Optional(t.String({ minLength: 1 })),
-            topicName: t.Optional(t.String({ minLength: 1 })),
-        }),
-    },
-);
+        },
+    );

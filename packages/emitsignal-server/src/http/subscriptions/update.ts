@@ -1,17 +1,15 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 import {
     parseSubscriptionSettings,
     serializeSubscriptionSettings,
 } from '#/utils/subscription-settings';
 
-export const updateSubscription = new Elysia({ prefix: '/subscriptions' }).patch(
+export const updateSubscription = new Elysia({ prefix: '/subscriptions' }).use(authPlugin).patch(
     '/:id',
-    async ({ body, headers, params, status }) => {
-        const userId = await resolveUserId({ headers });
-
+    async ({ body, params, status, userId }) => {
         const subscription = await prisma.subscription.findUnique({
             include: { topic: true },
             where: { id: params.id },
@@ -62,6 +60,7 @@ export const updateSubscription = new Elysia({ prefix: '/subscriptions' }).patch
         };
     },
     {
+        authOptional: true,
         body: t.Object({
             deviceId: t.Optional(t.String({ minLength: 1 })),
             pushEnabled: t.Optional(t.Boolean()),
