@@ -1,18 +1,12 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { topicNameCache } from '#/lib/cache';
 import { prisma } from '#/lib/prisma';
 
-export const updateTopic = new Elysia().patch(
+export const updateTopic = new Elysia().use(authPlugin).patch(
     '/topics/:name',
-    async ({ body, headers, params, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ body, params, status, userId }) => {
         const name = params.name.toLowerCase();
         const topic = await prisma.topic.findUnique({ where: { name } });
 
@@ -47,6 +41,7 @@ export const updateTopic = new Elysia().patch(
         };
     },
     {
+        authRequired: true,
         body: t.Object({
             accessMode: t.Optional(
                 t.Union([t.Literal('public'), t.Literal('readonly'), t.Literal('private')]),

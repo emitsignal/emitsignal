@@ -1,7 +1,7 @@
 import { PAID_PLAN_NAMES } from '@emitsignal/shared';
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { bus } from '#/lib/event-bus';
 import { logger } from '#/lib/logger';
@@ -53,9 +53,9 @@ interface SetLike {
 type StatusFn = (code: number, body: Record<string, unknown>) => unknown;
 
 function publishRoute(path: string, deprecated: boolean) {
-    return new Elysia({ name: `publish${path}` }).post(
+    return new Elysia({ name: `publish${path}` }).use(authPlugin).post(
         path,
-        async ({ body, headers, params, set, status }) => {
+        async ({ body, params, set, status, userId }) => {
             if (deprecated) {
                 set.headers.deprecation = DEPRECATED_AT;
                 set.headers.link = SUCCESSOR_LINK;
@@ -105,7 +105,6 @@ function publishRoute(path: string, deprecated: boolean) {
 
             // Anonymous publishers are only throttled by the per-IP rate limiter;
             // daily plan quotas apply to authenticated users.
-            const userId = await resolveUserId({ headers });
 
             let inlineMax = ANON_INLINE_MAX;
             let emailsPerDay = 0;
@@ -322,6 +321,7 @@ function publishRoute(path: string, deprecated: boolean) {
             return { message: 'posted', messageId: message.id };
         },
         {
+            authOptional: true,
             beforeHandle: authAwareBeforeHandle(publishAnonLimiter, publishAuthLimiter, {
                 failClosedWhenAnonymous: true,
             }),
