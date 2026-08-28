@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { prisma } from '#/lib/prisma';
 import { TOPIC_NAME_MAX_LENGTH } from '#/services/topic';
 

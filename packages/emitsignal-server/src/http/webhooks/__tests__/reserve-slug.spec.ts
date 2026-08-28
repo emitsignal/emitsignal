@@ -4,7 +4,7 @@ import { Elysia } from 'elysia';
 import { prismaMock } from '#/__tests__/mocks';
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
-mock.module('#/http/auth/plugin', () => ({
+mock.module('#/http/auth/resolve-user-id', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));

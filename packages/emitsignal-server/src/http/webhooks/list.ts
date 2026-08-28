@@ -1,7 +1,7 @@
 import Elysia from 'elysia';
 
 import { Prisma } from '#/generated/prisma/client';
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { prisma } from '#/lib/prisma';
 import { duration } from '#/utils/duration';
 

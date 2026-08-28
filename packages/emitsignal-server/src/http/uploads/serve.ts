@@ -1,7 +1,7 @@
 import Elysia from 'elysia';
 import path from 'node:path';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { prisma } from '#/lib/prisma';
 import { environment } from '#/schema/environment';
 import { resolveTopicCapabilities } from '#/services/topic-access';

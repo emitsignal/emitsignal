@@ -3,7 +3,7 @@ import type { RateLimiterMemory, RateLimiterRedis } from 'rate-limiter-flexible'
 import * as Sentry from '@sentry/bun';
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { logger } from '#/lib/logger';
 import { globalAnonLimiter, globalAuthLimiter } from '#/lib/rate-limit';
 import { getClientIP, ServerLike } from '#/utils/ip';

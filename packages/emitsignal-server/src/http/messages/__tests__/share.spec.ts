@@ -7,7 +7,7 @@ const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resol
 
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 mock.module('#/lib/storage', () => ({ FileStorageService: fileStorageMock }));
-mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/http/auth/resolve-user-id', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { shareMessage } from '#/http/messages/share';
 

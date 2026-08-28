@@ -6,7 +6,7 @@ import { prismaMock } from '#/__tests__/mocks';
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
-mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/http/auth/resolve-user-id', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { listPushTokens } from '#/http/push-tokens/list';
 

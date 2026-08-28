@@ -1,6 +1,6 @@
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { logger } from '#/lib/logger';
 import { purgeQueue } from '#/lib/queue';
 import { captureTraceContext } from '#/lib/trace-context';

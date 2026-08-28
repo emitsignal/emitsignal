@@ -1,7 +1,7 @@
 import { PAID_PLAN_NAMES } from '@emitsignal/shared';
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { bus } from '#/lib/event-bus';
 import { logger } from '#/lib/logger';

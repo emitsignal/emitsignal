@@ -1,5 +1,5 @@
 import { Subscription, Topic } from '#/generated/prisma/client';
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { prisma } from '#/lib/prisma';
 
 export async function resolveSubscriptions({
