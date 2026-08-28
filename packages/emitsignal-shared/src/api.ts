@@ -64,6 +64,17 @@ export interface PushToken {
     updatedAt: string;
 }
 
+export interface SharedMessage {
+    message: Message;
+    sender: { image: null | string; name: null | string } | null;
+    topic: {
+        accessMode: AccessMode;
+        displayName: string;
+        name: string;
+        subscriberCount: number;
+    };
+}
+
 export interface Subscription {
     createdAt: number;
     id: string;
@@ -237,6 +248,12 @@ export function createApiClient(baseUrl: string) {
             });
         },
 
+        createMessageShare(id: string) {
+            return request<{ shareId: string }>(`/messages/${encodeURIComponent(id)}/share`, {
+                method: 'POST',
+            });
+        },
+
         createWebhook(
             input: {
                 name?: string;
@@ -269,6 +286,10 @@ export function createApiClient(baseUrl: string) {
 
         getMessage(id: string) {
             return request<Message>(`/messages/${encodeURIComponent(id)}`);
+        },
+
+        getSharedMessage(shareId: string) {
+            return request<SharedMessage>(`/share/${encodeURIComponent(shareId)}`);
         },
 
         getSuggestions(deviceId?: string) {

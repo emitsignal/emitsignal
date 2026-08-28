@@ -8,6 +8,7 @@
         "./priority": "./src/priority.ts",
         "./publish-example": "./src/publish-example.ts",
         "./random-token": "./src/random-token.ts",
+        "./share": "./src/share.ts",
         "./topic": "./src/topic.ts",
         "./url": "./src/url.ts",
         "./webhook-slug": "./src/webhook-slug.ts",
