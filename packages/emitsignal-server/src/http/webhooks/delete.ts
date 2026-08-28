@@ -1,17 +1,11 @@
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const deleteWebhook = new Elysia().delete(
+export const deleteWebhook = new Elysia().use(authPlugin).delete(
     '/webhooks/:id',
-    async ({ headers, params, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ params, status, userId }) => {
         const webhook = await prisma.webhook.findUnique({
             select: { userId: true },
             where: { id: params.id },
@@ -29,4 +23,5 @@ export const deleteWebhook = new Elysia().delete(
 
         return status(204);
     },
+    { authRequired: true },
 );

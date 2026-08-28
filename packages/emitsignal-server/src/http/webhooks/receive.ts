@@ -3,7 +3,7 @@ import Elysia, { t } from 'elysia';
 
 import type { Action } from '#/utils/actions';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { consumeLimit } from '#/http/plugins/rate-limit-plugin';
 import { decryptSecret } from '#/lib/crypto/secret-box';
 import { bus } from '#/lib/event-bus';
@@ -40,9 +40,11 @@ const REJECTED_PAYLOAD_PREVIEW_BYTES = 2 * 1024;
 // does not reproduce them, so the raw text has to survive parsing.
 const rawBodyByRequest = new WeakMap<Request, string>();
 
-export const receiveWebhook = new Elysia().post(
+export const receiveWebhook = new Elysia().use(authPlugin).post(
     '/h/:slug',
-    async ({ headers, params, request, status }) => {
+    async ({ headers, params, request, status, userId }) => {
+        const senderId = userId;
+
         const start = Date.now();
 
         const rawBody = rawBodyByRequest.get(request) ?? '';
@@ -125,7 +127,6 @@ export const receiveWebhook = new Elysia().post(
         // attribute the message to a sender when the caller authenticated the
         // request (Bearer session/API key, x-api-key, or cookie); otherwise the
         // inbound delivery has no known sender.
-        const senderId = await resolveUserId({ headers });
 
         // Webhook deliveries are immediate. Retention follows the webhook owner's
         // plan (the webhook belongs to a user even when the poster is anonymous).
@@ -199,6 +200,7 @@ export const receiveWebhook = new Elysia().post(
         return { messageId: message.id, ok: true };
     },
     {
+        authOptional: true,
         beforeHandle: ({ params, set }) =>
             consumeLimit(webhookReceiveLimiter, `webhook:${params.slug}`, set),
         body: t.Unknown(),
