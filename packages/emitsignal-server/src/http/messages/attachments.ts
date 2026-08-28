@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { uploadAnonLimiter, uploadAuthLimiter } from '#/lib/rate-limit';
@@ -11,9 +11,9 @@ import { PLANS } from '#/services/billing/plans';
 import { attachmentExpiresAt, messageRetentionDays } from '#/services/billing/retention';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 
-export const attachments = new Elysia({ prefix: '/messages' }).post(
+export const attachments = new Elysia({ prefix: '/messages' }).use(authPlugin).post(
     '/:id/attachments',
-    async ({ body, headers, params, status }) => {
+    async ({ body, params, status, userId }) => {
         if (!body.files?.length) {
             return status(400, { error: 'at_least_one_file_required' });
         }
@@ -35,8 +35,6 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         if (!message) {
             return status(404, { error: 'message_not_found' });
         }
-
-        const userId = await resolveUserId({ headers });
 
         const capabilities = await resolveTopicCapabilities(message.topic, userId);
 
@@ -126,6 +124,7 @@ export const attachments = new Elysia({ prefix: '/messages' }).post(
         return { attachments: results };
     },
     {
+        authOptional: true,
         beforeHandle: authAwareBeforeHandle(uploadAnonLimiter, uploadAuthLimiter, {
             failClosedWhenAnonymous: true,
         }),

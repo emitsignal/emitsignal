@@ -1,12 +1,12 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 
-export const acknowledge = new Elysia({ prefix: '/messages' }).post(
+export const acknowledge = new Elysia({ prefix: '/messages' }).use(authPlugin).post(
     '/:id/acknowledge',
-    async ({ body, headers, params, status }) => {
+    async ({ body, params, status, userId }) => {
         const message = await prisma.message.findUnique({
             select: {
                 topic: { select: { accessMode: true, id: true, ownerId: true } },
@@ -21,7 +21,6 @@ export const acknowledge = new Elysia({ prefix: '/messages' }).post(
         // Attribution comes from the authenticated session, never the request
         // body — otherwise anyone could forge acknowledgments for any user. Only
         // callers who can read the topic may acknowledge its messages.
-        const userId = await resolveUserId({ headers });
         const capabilities = await resolveTopicCapabilities(message.topic, userId);
 
         if (!capabilities.canRead) {
@@ -50,6 +49,7 @@ export const acknowledge = new Elysia({ prefix: '/messages' }).post(
         return { acknowledged: true, count };
     },
     {
+        authOptional: true,
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
         }),

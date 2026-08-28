@@ -1,17 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const updatePushToken = new Elysia({ prefix: '/push-tokens' }).patch(
+export const updatePushToken = new Elysia({ prefix: '/push-tokens' }).use(authPlugin).patch(
     '/:id',
-    async ({ body, headers, params: { id }, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ body, params: { id }, status, userId }) => {
         const token = await prisma.pushToken.findUnique({
             select: { userId: true },
             where: { id },
@@ -43,6 +37,7 @@ export const updatePushToken = new Elysia({ prefix: '/push-tokens' }).patch(
         return updated;
     },
     {
+        authRequired: true,
         body: t.Object({
             pushEnabled: t.Boolean(),
         }),

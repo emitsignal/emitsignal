@@ -1,7 +1,7 @@
 import Elysia, { t } from 'elysia';
 import path from 'node:path';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 import { AVATAR_MAX_SIZE, FileStorageService, isAllowedMimeType } from '#/lib/storage';
 
@@ -13,15 +13,10 @@ const AVATAR_EXTENSION_BY_MIME: Record<string, string> = {
 };
 
 export const userAvatar = new Elysia({ prefix: '/user' })
+    .use(authPlugin)
     .post(
         '/avatar',
-        async ({ body, headers, status }) => {
-            const userId = await resolveUserId({ headers });
-
-            if (!userId) {
-                return status(401, { error: 'unauthorized' });
-            }
-
+        async ({ body, status, userId }) => {
             const { file } = body;
 
             // Reject anything that isn't an allowlisted raster image. This blocks
@@ -64,36 +59,35 @@ export const userAvatar = new Elysia({ prefix: '/user' })
             return { imageUrl };
         },
         {
+            authRequired: true,
             body: t.Object({
                 file: t.File(),
             }),
         },
     )
-    .delete('/avatar', async ({ headers, status }) => {
-        const userId = await resolveUserId({ headers });
+    .delete(
+        '/avatar',
+        async ({ status, userId }) => {
+            const user = await prisma.user.findUnique({
+                select: { image: true },
+                where: { id: userId },
+            });
 
-        if (!userId) {
-            return status(401, { error: 'unauthorized' });
-        }
+            if (!user?.image) {
+                return status(204);
+            }
 
-        const user = await prisma.user.findUnique({
-            select: { image: true },
-            where: { id: userId },
-        });
+            const ext = path.extname(new URL(user.image).pathname);
+            const storageKey = `avatars/${userId}${ext}`;
 
-        if (!user?.image) {
+            await FileStorageService.provider.delete(storageKey, 'public');
+
+            await prisma.user.update({
+                data: { image: null },
+                where: { id: userId },
+            });
+
             return status(204);
-        }
-
-        const ext = path.extname(new URL(user.image).pathname);
-        const storageKey = `avatars/${userId}${ext}`;
-
-        await FileStorageService.provider.delete(storageKey, 'public');
-
-        await prisma.user.update({
-            data: { image: null },
-            where: { id: userId },
-        });
-
-        return status(204);
-    });
+        },
+        { authRequired: true },
+    );

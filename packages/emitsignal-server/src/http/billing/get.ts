@@ -2,7 +2,7 @@ import type { BillingInfo, PlanSubscriptionInfo } from '@emitsignal/shared';
 
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { authAwareBeforeHandle } from '#/http/plugins/rate-limit-plugin';
 import { prisma } from '#/lib/prisma';
 import { readAnonLimiter, readAuthLimiter } from '#/lib/rate-limit';
@@ -10,15 +10,9 @@ import { getUserPlan } from '#/services/billing/get-user-plan';
 import { isStripeBillingEnabled, PLANS } from '#/services/billing/plans';
 import { getDailyUsage } from '#/services/billing/usage';
 
-export const getBilling = new Elysia().get(
+export const getBilling = new Elysia().use(authPlugin).get(
     '/billing',
-    async ({ headers, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ userId }) => {
         const plan = await getUserPlan(userId);
 
         const [emailsToday, messagesToday, ownedTopics, webhooks, subscriptionRow] =
@@ -60,6 +54,7 @@ export const getBilling = new Elysia().get(
         return billing;
     },
     {
+        authRequired: true,
         beforeHandle: authAwareBeforeHandle(readAnonLimiter, readAuthLimiter),
     },
 );

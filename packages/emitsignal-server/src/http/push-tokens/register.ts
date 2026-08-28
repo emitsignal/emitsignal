@@ -1,13 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
+export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).use(authPlugin).post(
     '/',
-    async ({ body, headers, status }) => {
-        const userId = await resolveUserId({ headers });
-
+    async ({ body, status, userId }) => {
         const pushToken = await prisma.pushToken.findUnique({
             select: { id: true, userId: true },
             where: {
@@ -50,6 +48,7 @@ export const registerPushToken = new Elysia({ prefix: '/push-tokens' }).post(
         return { id: token.id };
     },
     {
+        authOptional: true,
         body: t.Object({
             appId: t.Optional(t.String({ maxLength: 200, minLength: 1 })),
             deviceId: t.String({ minLength: 1 }),
