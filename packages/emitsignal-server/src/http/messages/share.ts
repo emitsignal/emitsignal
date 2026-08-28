@@ -1,6 +1,6 @@
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { ensureMessageShareId } from '#/services/share';
 
 export const shareMessage = new Elysia({ prefix: '/messages' }).post(

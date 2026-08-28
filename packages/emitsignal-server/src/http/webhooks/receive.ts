@@ -3,7 +3,7 @@ import Elysia, { t } from 'elysia';
 
 import type { Action } from '#/utils/actions';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { consumeLimit } from '#/http/plugins/rate-limit-plugin';
 import { decryptSecret } from '#/lib/crypto/secret-box';
 import { bus } from '#/lib/event-bus';

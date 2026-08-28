@@ -13,7 +13,7 @@ mock.module('#/lib/queue', () => ({
     pushQueue: mockPushQueue,
     scheduleQueue: mockScheduleQueue,
 }));
-mock.module('#/http/auth/plugin', () => ({
+mock.module('#/http/auth/resolve-user-id', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));

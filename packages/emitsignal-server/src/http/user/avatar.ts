@@ -1,7 +1,7 @@
 import Elysia, { t } from 'elysia';
 import path from 'node:path';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { prisma } from '#/lib/prisma';
 import { AVATAR_MAX_SIZE, FileStorageService, isAllowedMimeType } from '#/lib/storage';
 

@@ -1,7 +1,7 @@
 import { generateWebhookSlug } from '@emitsignal/shared/webhook-slug';
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { signSlugReservation } from '#/lib/crypto/slug-reservation';
 
 export const reserveWebhookSlug = new Elysia().post(

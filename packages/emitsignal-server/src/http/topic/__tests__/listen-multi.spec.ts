@@ -16,7 +16,7 @@ mock.module('#/lib/event-bus', () => ({
 mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
 const resolveUserIdMock = mock<() => Promise<null | string>>(() => Promise.resolve(null));
-mock.module('#/http/auth/plugin', () => ({ resolveUserId: resolveUserIdMock }));
+mock.module('#/http/auth/resolve-user-id', () => ({ resolveUserId: resolveUserIdMock }));
 
 import { listenMulti } from '#/http/topic/listen-multi';
 

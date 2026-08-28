@@ -8,7 +8,7 @@
 import type { MessageEvent } from '#/lib/event-bus';
 import type { ServerLike } from '#/utils/ip';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { bus } from '#/lib/event-bus';
 import { prisma } from '#/lib/prisma';
 import { acquireSseSlot } from '#/lib/rate-limit';

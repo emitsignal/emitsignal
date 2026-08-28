@@ -7,7 +7,7 @@ mock.module('#/lib/prisma', () => ({ prisma: prismaMock }));
 
 // Header-driven so a leak into other test files behaves like the real module
 // (no test header → anonymous).
-mock.module('#/http/auth/plugin', () => ({
+mock.module('#/http/auth/resolve-user-id', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));

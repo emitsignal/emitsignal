@@ -1,7 +1,7 @@
 import { generateWebhookSlug, isValidWebhookSlug } from '@emitsignal/shared/webhook-slug';
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import {
     validateVerificationBody,
     verificationBodySchema,

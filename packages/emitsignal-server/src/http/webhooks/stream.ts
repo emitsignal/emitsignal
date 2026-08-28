@@ -1,6 +1,6 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/plugin';
+import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { bus } from '#/lib/event-bus';
 import { acquireSseSlot } from '#/lib/rate-limit';
 import { createSseStream, sseHeaders } from '#/lib/sse';

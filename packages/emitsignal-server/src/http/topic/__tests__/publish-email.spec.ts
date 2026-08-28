@@ -18,7 +18,7 @@ mock.module('#/lib/queue', () => ({
     scheduleQueue: mockScheduleQueue,
 }));
 mock.module('#/lib/email-service', () => ({ EmailService: { send: mockSend } }));
-mock.module('#/http/auth/plugin', () => ({
+mock.module('#/http/auth/resolve-user-id', () => ({
     resolveUserId: ({ headers }: { headers: Record<string, string | undefined> }) =>
         Promise.resolve(headers['x-test-user-id'] ?? null),
 }));
