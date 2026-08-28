@@ -227,6 +227,7 @@ model Message {
     priority          Int      @default(3) // 1=min..5=max
     scheduledAt       DateTime?
     senderId          String?
+    shareId           String?  @unique
     tags              String[] @default([])
     title             String
     topicId           String

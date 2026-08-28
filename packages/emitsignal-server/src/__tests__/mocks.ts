@@ -38,6 +38,9 @@ export const prismaMock = {
         ),
         findMany: mock<() => Promise<object[]>>(() => Promise.resolve([])),
         findUnique: mock<() => Promise<null | object>>(() => Promise.resolve(null)),
+        update: mock<(args?: Record<string, unknown>) => Promise<object>>(() =>
+            Promise.resolve({ id: 'msg-1' }),
+        ),
     },
     planSubscription: {
         findFirst: mock<(args?: Record<string, unknown>) => Promise<null | object>>(() =>
