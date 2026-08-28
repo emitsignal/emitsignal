@@ -3,13 +3,13 @@ import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Modal, Pressable, Share, StyleSheet, Text, View } from 'react-native';
 
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { type ActionMenuItem, NativeActionMenu } from '@/components/ui/native-action-menu';
 import { Fonts, type Palette } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api, WEB_URL } from '@/lib/api';
 import { apiErrorMessage } from '@/lib/api-error';
 
-interface MessageShareButtonProps {
+interface MessageActionsMenuProps {
     messageId: string;
     title: string;
 }
@@ -19,8 +19,8 @@ interface Refusal {
     topicName: string;
 }
 
-export function MessageShareButton({ messageId, title }: MessageShareButtonProps) {
-    const { palette, styles } = useThemedStyles(createStyles);
+export function MessageActionsMenu({ messageId, title }: MessageActionsMenuProps) {
+    const { styles } = useThemedStyles(createStyles);
     const [busy, setBusy] = useState(false);
     const [refusal, setRefusal] = useState<null | Refusal>(null);
     const [error, setError] = useState<null | string>(null);
@@ -80,6 +80,10 @@ export function MessageShareButton({ messageId, title }: MessageShareButtonProps
         }
     };
 
+    const menuItems: ActionMenuItem[] = [
+        { icon: 'square.and.arrow.up', label: 'Share', onPress: () => void share() },
+    ];
+
     const dismiss = () => {
         setRefusal(null);
         setError(null);
@@ -87,14 +91,7 @@ export function MessageShareButton({ messageId, title }: MessageShareButtonProps
 
     return (
         <>
-            <Pressable
-                accessibilityLabel="Share this message"
-                disabled={busy}
-                onPress={share}
-                style={styles.shareBtn}
-            >
-                <IconSymbol color={palette.fg} name="square.and.arrow.up" size={16} />
-            </Pressable>
+            <NativeActionMenu accessibilityLabel="Message actions" items={menuItems} />
 
             <Modal
                 animationType="fade"
@@ -166,14 +163,6 @@ const createStyles = (palette: Palette) =>
             paddingVertical: 11,
         },
         saveText: { color: palette.bg, fontSize: 13, fontWeight: '700' },
-        shareBtn: {
-            alignItems: 'center',
-            backgroundColor: palette.bgElev,
-            borderRadius: 8,
-            height: 32,
-            justifyContent: 'center',
-            width: 32,
-        },
         sheetActions: { flexDirection: 'row', gap: 10, marginTop: 18 },
         sheetBackdrop: {
             alignItems: 'center',
