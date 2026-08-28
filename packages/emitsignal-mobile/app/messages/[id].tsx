@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot } from '@/components/base-theme';
 import { MessageMedia } from '@/components/message-media';
+import { MessageShareButton } from '@/components/message-share-button';
 import { ScreenHeader } from '@/components/screen-header';
 import { SkeletonMessageDetail } from '@/components/skeleton';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -92,6 +93,7 @@ export default function MessageDetailScreen() {
         <SafeAreaView edges={['top']} style={styles.root}>
             <ScreenHeader
                 altName={message.topicName}
+                right={<MessageShareButton messageId={message.id} title={message.title} />}
                 subtitle={relativeTime(message.createdAt)}
                 title={message.topicName ?? 'message'}
             />
