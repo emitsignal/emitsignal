@@ -1,13 +1,14 @@
 import Elysia, { t } from 'elysia';
 
+import { authPlugin } from '#/http/auth/plugin';
 import { parseSubscriptionSettings } from '#/utils/subscription-settings';
 
 import { resolveSubscriptions } from './resolve';
 
-export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
+export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).use(authPlugin).get(
     '/',
-    async ({ headers, query }) => {
-        const { rows, userId } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
+    async ({ query, userId }) => {
+        const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, userId });
 
         return rows.map((subscription) => ({
             createdAt: subscription.createdAt.getTime(),
@@ -26,6 +27,7 @@ export const listSubscriptions = new Elysia({ prefix: '/subscriptions' }).get(
         }));
     },
     {
+        authOptional: true,
         query: t.Object({ deviceId: t.Optional(t.String({ minLength: 1 })) }),
     },
 );

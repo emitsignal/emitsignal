@@ -1,16 +1,14 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 import { getOrCreateTopic, TOPIC_NAME_MAX_LENGTH, TopicNameError } from '#/services/topic';
 import { resolveTopicCapabilities } from '#/services/topic-access';
 import { serializeSubscriptionSettings } from '#/utils/subscription-settings';
 
-export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
+export const subscribe = new Elysia({ prefix: '/subscriptions' }).use(authPlugin).post(
     '/',
-    async ({ body, headers, status }) => {
-        const userId = await resolveUserId({ headers });
-
+    async ({ body, status, userId }) => {
         let topic;
 
         try {
@@ -66,6 +64,7 @@ export const subscribe = new Elysia({ prefix: '/subscriptions' }).post(
         };
     },
     {
+        authOptional: true,
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
             pushEnabled: t.Optional(t.Boolean()),

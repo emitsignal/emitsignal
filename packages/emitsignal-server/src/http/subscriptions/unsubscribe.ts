@@ -1,14 +1,12 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 import { TOPIC_NAME_MAX_LENGTH } from '#/services/topic';
 
-export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
+export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).use(authPlugin).delete(
     '/',
-    async ({ body, headers }) => {
-        const userId = await resolveUserId({ headers });
-
+    async ({ body, userId }) => {
         const topic = await prisma.topic.findUnique({
             where: { name: body.topicName },
         });
@@ -37,6 +35,7 @@ export const unsubscribe = new Elysia({ prefix: '/subscriptions' }).delete(
         return { ok: true };
     },
     {
+        authOptional: true,
         body: t.Object({
             deviceId: t.String({ minLength: 1 }),
             topicName: t.String({ maxLength: TOPIC_NAME_MAX_LENGTH, minLength: 1 }),

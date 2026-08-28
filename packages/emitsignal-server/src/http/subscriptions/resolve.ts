@@ -1,16 +1,13 @@
 import { Subscription, Topic } from '#/generated/prisma/client';
-import { resolveUserId } from '#/http/auth/resolve-user-id';
 import { prisma } from '#/lib/prisma';
 
 export async function resolveSubscriptions({
     deviceId,
-    headers,
+    userId,
 }: {
     deviceId?: string;
-    headers: Record<string, string | undefined>;
+    userId: null | string;
 }) {
-    const userId = await resolveUserId({ headers });
-
     if (userId) {
         const subscriptions = await prisma.subscription.findMany({
             include: { topic: true },

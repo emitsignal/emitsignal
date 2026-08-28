@@ -1,6 +1,7 @@
 import Elysia, { t } from 'elysia';
 
 import { Prisma } from '#/generated/prisma/client';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 import { duration } from '#/utils/duration';
 
@@ -18,10 +19,10 @@ interface SubscriptionMetrics {
  * subscriptions — and there is no per-row query (no N+1). Backed by the
  * Message `@@index([topicId, createdAt])`.
  */
-export const subscriptionMetrics = new Elysia({ prefix: '/subscriptions' }).get(
+export const subscriptionMetrics = new Elysia({ prefix: '/subscriptions' }).use(authPlugin).get(
     '/metrics',
-    async ({ headers, query }) => {
-        const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, headers });
+    async ({ query, userId }) => {
+        const { rows } = await resolveSubscriptions({ deviceId: query.deviceId, userId });
 
         const result: Record<string, SubscriptionMetrics> = {};
 
@@ -68,6 +69,7 @@ export const subscriptionMetrics = new Elysia({ prefix: '/subscriptions' }).get(
         return result;
     },
     {
+        authOptional: true,
         query: t.Object({ deviceId: t.Optional(t.String({ minLength: 1 })) }),
     },
 );
