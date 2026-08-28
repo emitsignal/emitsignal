@@ -9,6 +9,7 @@ import { acknowledge } from '#/http/messages/acknowledge';
 import { attachments } from '#/http/messages/attachments';
 import { getMessage } from '#/http/messages/get';
 import { purgeSignals } from '#/http/messages/purge';
+import { shareMessage } from '#/http/messages/share';
 import { corsPlugin } from '#/http/plugins/cors-plugin';
 import { errorResponsePlugin } from '#/http/plugins/error-response-plugin';
 import { loggerPlugin } from '#/http/plugins/logger-plugin';
@@ -17,6 +18,7 @@ import { deletePushToken } from '#/http/push-tokens/delete';
 import { listPushTokens } from '#/http/push-tokens/list';
 import { registerPushToken } from '#/http/push-tokens/register';
 import { updatePushToken } from '#/http/push-tokens/update';
+import { getShare } from '#/http/share/get';
 import { stats } from '#/http/stats/get';
 import { claimSubscriptions } from '#/http/subscriptions/claim';
 import { listSubscriptions } from '#/http/subscriptions/list';
@@ -97,6 +99,7 @@ const app = new Elysia({
     .use(deleteWebhook)
     .use(getBilling)
     .use(getMessage)
+    .use(getShare)
     .use(getTopic)
     .use(getWebhook)
     .use(health)
@@ -114,6 +117,7 @@ const app = new Elysia({
     .use(receiveWebhook)
     .use(registerPushToken)
     .use(serveUpload)
+    .use(shareMessage)
     .use(stats)
     .use(streamWebhookDeliveries)
     .use(subscribe)
