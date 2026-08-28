@@ -1,5 +1,4 @@
 import { buildCurlExample } from '@emitsignal/shared/publish-example';
-import { externalUrlLabel } from '@emitsignal/shared/url';
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
@@ -8,8 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AttachmentPreview } from '@/components/attachment-preview';
 import { WChip, WCode, WDot } from '@/components/base-theme';
+import { MessageActionsMenu } from '@/components/message-actions-menu';
 import { MessageMedia } from '@/components/message-media';
-import { MessageShareButton } from '@/components/message-share-button';
 import { ScreenHeader } from '@/components/screen-header';
 import { SkeletonMessageDetail } from '@/components/skeleton';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -93,7 +92,7 @@ export default function MessageDetailScreen() {
         <SafeAreaView edges={['top']} style={styles.root}>
             <ScreenHeader
                 altName={message.topicName}
-                right={<MessageShareButton messageId={message.id} title={message.title} />}
+                right={<MessageActionsMenu messageId={message.id} title={message.title} />}
                 subtitle={relativeTime(message.createdAt)}
                 title={message.topicName ?? 'message'}
             />
@@ -174,34 +173,16 @@ export default function MessageDetailScreen() {
                                 }
 
                                 if (action.type === 'view') {
-                                    const host = externalUrlLabel(action.url);
-
                                     return (
                                         <Pressable
                                             key={i}
                                             onPress={() => action.url && handleView(action.url)}
                                             style={styles.actionBtn}
                                         >
-                                            <IconSymbol
-                                                color={palette.fg}
-                                                name="arrow.up.right.square"
-                                                size={14}
-                                            />
-
-                                            <View style={styles.actionLabel}>
-                                                <Text style={styles.actionText}>
-                                                    {action.label ?? 'View'}
-                                                </Text>
-
-                                                {host ? (
-                                                    <Text
-                                                        numberOfLines={1}
-                                                        style={styles.actionHost}
-                                                    >
-                                                        {host}
-                                                    </Text>
-                                                ) : null}
-                                            </View>
+                                            <IconSymbol color={palette.fg} name="globe" size={14} />
+                                            <Text style={styles.actionText}>
+                                                {action.label ?? 'View'}
+                                            </Text>
                                         </Pressable>
                                     );
                                 }
@@ -317,13 +298,6 @@ const createStyles = (palette: Palette) =>
             justifyContent: 'center',
             paddingVertical: 10,
         },
-        actionHost: {
-            color: palette.fgDim,
-            fontFamily: Fonts.mono,
-            fontSize: 10,
-            marginTop: 1,
-        },
-        actionLabel: { alignItems: 'center' },
         actionPrimary: { backgroundColor: palette.violet, borderColor: palette.violet },
         actionPrimaryText: { color: palette.bg, fontSize: 12.5, fontWeight: '600' },
         actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
