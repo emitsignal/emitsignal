@@ -1,4 +1,4 @@
-import type { Webhook } from '@emitsignal/shared/api';
+import type { SharedMessage, Webhook } from '@emitsignal/shared/api';
 import type { BillingInfo } from '@emitsignal/shared/billing';
 
 import { createServerFn } from '@tanstack/react-start';
@@ -33,6 +33,20 @@ async function authedGet<TResponse>(path: string): Promise<TResponse> {
 
     return response.json() as Promise<TResponse>;
 }
+
+export const fetchSharedMessageServer = createServerFn()
+    .validator((shareId: string) => shareId)
+    .handler(async ({ data: shareId }): Promise<null | SharedMessage> => {
+        const apiUrl = process.env.API_URL ?? API_URL;
+
+        const response = await fetch(`${apiUrl}/share/${encodeURIComponent(shareId)}`);
+
+        if (!response.ok) {
+            return null;
+        }
+
+        return (await response.json()) as SharedMessage;
+    });
 
 export const fetchBillingServer = createServerFn().handler(() =>
     authedGet<BillingInfo>('/billing'),

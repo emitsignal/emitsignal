@@ -3,6 +3,7 @@ import { buildCurlExample } from '@emitsignal/shared/publish-example';
 import type { Message } from '#/lib/api';
 
 import { MessageArticle } from '#/components/app/inbox/message-article';
+import { ShareButton } from '#/components/share/share-button';
 import { CodeBlock } from '#/components/ui/code-block';
 import { Dot } from '#/components/ui/dot';
 import { SkeletonMessageDetail } from '#/components/ui/skeleton';
@@ -88,6 +89,8 @@ export function InboxPreview({ loading = false, message, selectedId }: InboxPrev
                 <span className="ml-auto font-mono text-[11px] text-dim">
                     {channel} · {relativeTime(message.createdAt)}
                 </span>
+
+                <ShareButton message={message} />
             </div>
 
             <h2 className="m-0 mb-2.5 text-[26px] font-semibold tracking-[-0.6px]">
