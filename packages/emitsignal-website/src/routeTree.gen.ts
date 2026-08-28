@@ -29,6 +29,7 @@ import { Route as AppPublishRouteImport } from './routes/app/publish'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
+import { Route as SShareIdRouteImport } from './routes/s/$shareId'
 import { Route as AppInboxIndexRouteImport } from './routes/app/inbox/index'
 import { Route as AppInboxMessageIdRouteImport } from './routes/app/inbox/$messageId'
 import { Route as AppSettingsIndexRouteImport } from './routes/app/settings/index'
@@ -142,6 +143,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BlogRoute,
 } as any)
+const SShareIdRoute = SShareIdRouteImport.update({
+  id: '/s/$shareId',
+  path: '/s/$shareId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppInboxIndexRoute = AppInboxIndexRouteImport.update({
   id: '/inbox/',
   path: '/inbox/',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/app/publish': typeof AppPublishRoute
   '/app/settings': typeof AppSettingsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/s/$shareId': typeof SShareIdRoute
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/app/keys': typeof AppKeysRoute
   '/app/publish': typeof AppPublishRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/s/$shareId': typeof SShareIdRoute
   '/app': typeof AppIndexRoute
   '/blog': typeof BlogIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
@@ -289,6 +297,7 @@ export interface FileRoutesById {
   '/app/publish': typeof AppPublishRoute
   '/app/settings': typeof AppSettingsRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
+  '/s/$shareId': typeof SShareIdRoute
   '/app/': typeof AppIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/app/inbox/$messageId': typeof AppInboxMessageIdRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/app/publish'
     | '/app/settings'
     | '/blog/$slug'
+    | '/s/$shareId'
     | '/app/'
     | '/blog/'
     | '/app/inbox/$messageId'
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/app/keys'
     | '/app/publish'
     | '/blog/$slug'
+    | '/s/$shareId'
     | '/app'
     | '/blog'
     | '/app/inbox/$messageId'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/app/publish'
     | '/app/settings'
     | '/blog/$slug'
+    | '/s/$shareId'
     | '/app/'
     | '/blog/'
     | '/app/inbox/$messageId'
@@ -420,6 +432,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   VerifyRoute: typeof VerifyRoute
   ApiOgRoute: typeof ApiOgRoute
+  SShareIdRoute: typeof SShareIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -563,6 +576,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof BlogRoute
+    }
+    '/s/$shareId': {
+      id: '/s/$shareId'
+      path: '/s/$shareId'
+      fullPath: '/s/$shareId'
+      preLoaderRoute: typeof SShareIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/inbox/': {
       id: '/app/inbox/'
@@ -738,6 +758,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   VerifyRoute: VerifyRoute,
   ApiOgRoute: ApiOgRoute,
+  SShareIdRoute: SShareIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
