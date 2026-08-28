@@ -67,6 +67,7 @@ const MAPPING = {
     'server.rack': 'dns',
     'speaker.slash': 'volume-off',
     'square.and.arrow.down': 'file-download',
+    'square.and.arrow.up': 'share',
     // Base Theme
     'square.grid.2x2': 'grid-view',
     tag: 'label',

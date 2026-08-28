@@ -10,4 +10,7 @@ export const API_URL =
 export const PUBLISH_BASE_URL =
     process.env.EXPO_PUBLIC_PUBLISH_BASE_URL?.replace(/\/$/, '') ?? API_URL;
 
+export const WEB_URL =
+    process.env.EXPO_PUBLIC_WEB_URL?.replace(/\/$/, '') ?? 'https://emitsignal.com';
+
 export const { api, getAuthToken, setAuthToken, sseMultiUrl, sseUrl } = createApiClient(API_URL);
