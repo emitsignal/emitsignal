@@ -1,17 +1,11 @@
 import Elysia, { t } from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const deletePushToken = new Elysia({ prefix: '/push-tokens' }).delete(
+export const deletePushToken = new Elysia({ prefix: '/push-tokens' }).use(authPlugin).delete(
     '/:id',
-    async ({ headers, params: { id }, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ params: { id }, status, userId }) => {
         const pushToken = await prisma.pushToken.findUnique({
             select: { userId: true },
             where: { id },
@@ -30,6 +24,7 @@ export const deletePushToken = new Elysia({ prefix: '/push-tokens' }).delete(
         return status(204);
     },
     {
+        authRequired: true,
         params: t.Object({
             id: t.String(),
         }),

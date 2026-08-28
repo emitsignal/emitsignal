@@ -1,17 +1,11 @@
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { prisma } from '#/lib/prisma';
 
-export const listPushTokens = new Elysia({ prefix: '/push-tokens' }).get(
+export const listPushTokens = new Elysia({ prefix: '/push-tokens' }).use(authPlugin).get(
     '/',
-    async ({ headers, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ userId }) => {
         // `token` is deliberately absent: it is the delivery credential, and returning
         // it would let anyone reading this response push to the user's devices.
         const tokens = await prisma.pushToken.findMany({
@@ -31,4 +25,5 @@ export const listPushTokens = new Elysia({ prefix: '/push-tokens' }).get(
 
         return tokens;
     },
+    { authRequired: true },
 );

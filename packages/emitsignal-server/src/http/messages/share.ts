@@ -1,17 +1,11 @@
 import Elysia from 'elysia';
 
-import { resolveUserId } from '#/http/auth/resolve-user-id';
+import { authPlugin } from '#/http/auth/plugin';
 import { ensureMessageShareId } from '#/services/share';
 
-export const shareMessage = new Elysia({ prefix: '/messages' }).post(
+export const shareMessage = new Elysia({ prefix: '/messages' }).use(authPlugin).post(
     '/:id/share',
-    async ({ headers, params, status }) => {
-        const userId = await resolveUserId({ headers });
-
-        if (!userId) {
-            return status(401, { error: 'missing_token' });
-        }
-
+    async ({ params, status, userId }) => {
         const result = await ensureMessageShareId(params.id, userId);
 
         if (result.kind === 'not_found') {
@@ -28,4 +22,5 @@ export const shareMessage = new Elysia({ prefix: '/messages' }).post(
 
         return { shareId: result.shareId };
     },
+    { authRequired: true },
 );
