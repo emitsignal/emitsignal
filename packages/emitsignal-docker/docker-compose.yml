@@ -249,6 +249,7 @@ services:
                 VITE_SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
                 VITE_SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
         environment:
+            OG_SIGNING_SECRET: '${OG_SIGNING_SECRET}'
             # Same DSN as the client build (VITE_SENTRY_DSN): SSR and browser
             # are the same Sentry project, distinguished automatically by SDK name.
             SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
