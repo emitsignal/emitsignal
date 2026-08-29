@@ -45,10 +45,13 @@ export const Route = createFileRoute('/s/$shareId')({
 
         const ogImage =
             `${SITE_URL}/api/og` +
-            `?category=${encodeURIComponent(data.topic.name)}` +
+            `?date=${encodeURIComponent(new Date(data.message.createdAt).toISOString().slice(0, 10))}` +
             `&description=${encodeURIComponent(description)}` +
-            `&template=editorial` +
-            `&title=${encodeURIComponent(data.message.title)}`;
+            `&priority=${data.message.priority}` +
+            `&tags=${encodeURIComponent(data.message.tags.join(','))}` +
+            `&template=signal` +
+            `&title=${encodeURIComponent(data.message.title)}` +
+            `&topic=${encodeURIComponent(data.topic.name)}`;
 
         return buildSeoMeta({
             description,
