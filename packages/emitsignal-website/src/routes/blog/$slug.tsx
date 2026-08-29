@@ -25,16 +25,7 @@ export const Route = createFileRoute('/blog/$slug')({
         const path = `/blog/${params.slug}`;
         const title = `${frontmatter.title} - EmitSignal Blog`;
 
-        const ogImage =
-            `${SITE_URL}/api/og` +
-            `?author=${encodeURIComponent(author.name)}` +
-            `&category=${frontmatter.category}` +
-            `&date=${frontmatter.date}` +
-            `&description=${encodeURIComponent(description)}` +
-            `&readTime=${frontmatter.readTime}` +
-            `&template=${frontmatter.featured ? 'field' : 'editorial'}` +
-            `&title=${encodeURIComponent(frontmatter.title)}` +
-            `&views=${frontmatter.views}`;
+        const ogImage = data.ogImage;
 
         const articleSchema = {
             '@context': 'https://schema.org',

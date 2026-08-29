@@ -1,5 +1,3 @@
-import type { SharedMessage } from '@emitsignal/shared/api';
-
 import { shareUrl } from '@emitsignal/shared/share';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Bell, Globe, Share2 } from 'lucide-react';
@@ -13,10 +11,10 @@ import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { Pill } from '#/components/ui/pill';
 import { SubHeading } from '#/components/ui/sub-head';
-import { fetchSharedMessageServer } from '#/lib/api-server-fns';
+import { fetchSharedMessageServer, type SharedMessagePage } from '#/lib/api-server-fns';
 import { relativeTime } from '#/lib/format';
 import { priorityHex } from '#/lib/priority';
-import { buildSeoMeta, SITE_URL } from '#/lib/seo';
+import { buildSeoMeta } from '#/lib/seo';
 import { useSiteOrigin } from '#/lib/site-origin';
 
 const PRIORITY_LABELS: Record<number, string> = {
@@ -30,7 +28,7 @@ const PRIORITY_LABELS: Record<number, string> = {
 export const Route = createFileRoute('/s/$shareId')({
     component: SharePage,
     head: ({ loaderData, params }) => {
-        const data = loaderData as null | SharedMessage | undefined;
+        const data = loaderData as null | SharedMessagePage | undefined;
 
         if (!data) {
             return buildSeoMeta({
@@ -43,19 +41,9 @@ export const Route = createFileRoute('/s/$shareId')({
 
         const description = data.message.body.slice(0, 200);
 
-        const ogImage =
-            `${SITE_URL}/api/og` +
-            `?date=${encodeURIComponent(new Date(data.message.createdAt).toISOString().slice(0, 10))}` +
-            `&description=${encodeURIComponent(description)}` +
-            `&priority=${data.message.priority}` +
-            `&tags=${encodeURIComponent(data.message.tags.join(','))}` +
-            `&template=signal` +
-            `&title=${encodeURIComponent(data.message.title)}` +
-            `&topic=${encodeURIComponent(data.topic.name)}`;
-
         return buildSeoMeta({
             description,
-            image: ogImage,
+            image: data.ogImage,
             path: `/s/${params.shareId}`,
             title: `${data.message.title} — ${data.topic.name}`,
             type: 'article',
@@ -92,7 +80,7 @@ function NotPublic() {
 }
 
 function SharePage() {
-    const shared = Route.useLoaderData() as null | SharedMessage | undefined;
+    const shared = Route.useLoaderData() as null | SharedMessagePage | undefined;
     const { shareId } = Route.useParams();
     const { payload } = Route.useSearch();
     const origin = useSiteOrigin();

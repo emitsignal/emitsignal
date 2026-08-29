@@ -2,6 +2,10 @@ import { createServerFn } from '@tanstack/react-start';
 
 import type { PostFrontmatter, PostHeading, PostMeta } from './blog';
 
+import { AUTHORS } from './blog';
+import { signedOgUrl } from './og-signature';
+import { SITE_URL } from './seo';
+
 type MDXMetaModule = {
     frontmatter: PostFrontmatter;
     headings?: PostHeading[];
@@ -37,8 +41,22 @@ export type PostDetail = {
     frontmatter: PostFrontmatter;
     headings: PostHeading[];
     next: null | PostMeta;
+    ogImage: string;
     related: PostMeta[];
 };
+
+// Signed here, not in the route's head(), so the secret stays server-side.
+function postOgImage(frontmatter: PostFrontmatter): string {
+    return signedOgUrl(SITE_URL, {
+        author: AUTHORS[frontmatter.author].name,
+        category: frontmatter.category,
+        date: frontmatter.date,
+        description: frontmatter.excerpt,
+        readTime: String(frontmatter.readTime),
+        template: frontmatter.featured ? 'field' : 'editorial',
+        title: frontmatter.title,
+    });
+}
 
 export const fetchPostMeta = createServerFn()
     .validator((slug: string) => slug)
@@ -74,6 +92,7 @@ export const fetchPostMeta = createServerFn()
             frontmatter: meta.frontmatter,
             headings: meta.headings,
             next: next ?? null,
+            ogImage: postOgImage(meta.frontmatter),
             related: relatedPosts,
         };
     });

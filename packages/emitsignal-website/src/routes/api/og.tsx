@@ -4,6 +4,7 @@ import { Resvg } from '@resvg/resvg-js';
 import { createFileRoute } from '@tanstack/react-router';
 import satori from 'satori';
 
+import { verifyOgSignature } from '#/lib/og-signature';
 import { hashTopicLevel, PRIORITY_HEX, priorityHex, priorityLabel } from '#/lib/priority';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -843,6 +844,10 @@ export const Route = createFileRoute('/api/og')({
         handlers: {
             GET: async ({ request }) => {
                 const { searchParams } = new URL(request.url);
+
+                if (!verifyOgSignature(searchParams)) {
+                    return new Response('Invalid or missing signature', { status: 403 });
+                }
 
                 const props: CardProps = {
                     author: bounded(searchParams.get('author'), 80) ?? 'EmitSignal',
