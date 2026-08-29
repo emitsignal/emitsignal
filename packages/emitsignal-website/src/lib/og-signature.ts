@@ -3,7 +3,9 @@ import { createHmac } from 'node:crypto';
 const DEV_OG = 'emitsignal-dev-og-secret';
 
 export function ogSignature(parameters: URLSearchParams): string {
-    return createHmac('sha256', process.env.OG_SIGNING_SECRET ?? DEV_OG)
+    // `||`, not `??`: docker compose resolves an unset variable to an empty
+    // string, which would otherwise be used as the HMAC key.
+    return createHmac('sha256', process.env.OG_SIGNING_SECRET || DEV_OG)
         .update(canonicalQuery(parameters))
         .digest('hex')
         .slice(0, 16);
