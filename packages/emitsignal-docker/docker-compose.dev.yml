@@ -184,6 +184,7 @@ services:
                    cd /app/packages/emitsignal-website &&
                    bunx vite dev --port 5173 --host"
         environment:
+            OG_SIGNING_SECRET: 'emitsignal-dev-og-secret'
             VITE_API_URL: 'http://localhost:5100'
             VITE_SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
             VITE_SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
