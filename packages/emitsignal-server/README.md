@@ -87,7 +87,7 @@ data: {"id":"…","title":"…","body":"…","priority":4,"tags":[…],"actions"
 | `DATABASE_URL`          | —                           | PostgreSQL connection string                     |
 | `REDIS_URL`             | `redis://localhost:6379`    | Redis connection string (BullMQ + rate limiting) |
 | `JWT_SECRET`            | `emitsignal-dev-jwt-secret` | Secret for signing session tokens                |
-| `APP_URL`               | `http://localhost:5001`     | Public base URL (used in magic link emails)      |
+| `APP_URL`               | `http://localhost:5002`     | Public base URL (used in magic link emails)      |
 | `EMIT_SIGNAL_HTTP_PORT` | `5001`                      | HTTP server port                                 |
 | `EMAIL_PROVIDER`        | `log`                       | `log` \| `smtp` \| `resend`                      |
 | `EMAIL_FROM`            | `EmitSignal <noreply@…>`    | Sender address                                   |
