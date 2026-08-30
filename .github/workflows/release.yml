@@ -108,9 +108,17 @@ jobs:
                   fi
 
             # ── Track A: npm ────────────────────────────────────────────────
+            # NPM_CONFIG_TOKEN rather than a written .npmrc: a secret carrying a stray
+            # newline silently produced an empty `_authToken=` line, which bun reports as
+            # "missing authentication" — indistinguishable from an unset secret.
             - name: Publish to npm
               run: |
-                  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+                  NPM_CONFIG_TOKEN="$(printf '%s' "$NPM_TOKEN" | tr -d '[:space:]')"
+                  if [ -z "$NPM_CONFIG_TOKEN" ]; then
+                      echo "::error::NPM_TOKEN is empty or whitespace-only"
+                      exit 1
+                  fi
+                  export NPM_CONFIG_TOKEN
                   bun publish --access public
               env:
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
