@@ -1,6 +1,6 @@
 import { shareUrl } from '@emitsignal/shared/share';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { Globe, Share2, UserRound } from 'lucide-react';
+import { ArrowUpRight, Globe, Share2, UserRound } from 'lucide-react';
 
 import { MessageArticle } from '#/components/app/inbox/message-article';
 import { ShareTargets } from '#/components/share/share-targets';
@@ -12,6 +12,7 @@ import { Logo } from '#/components/ui/logo';
 import { Pill } from '#/components/ui/pill';
 import { fetchSharedMessageServer, type SharedMessagePage } from '#/lib/api-server-fns';
 import { relativeTime } from '#/lib/format';
+import { DOCS_URL } from '#/lib/links';
 import { priorityHex } from '#/lib/priority';
 import { buildSeoMeta } from '#/lib/seo';
 import { useSiteOrigin } from '#/lib/site-origin';
@@ -214,6 +215,16 @@ function SharePage() {
                     <span className="hidden text-faint sm:inline">
                         · push notifications with one curl
                     </span>
+                    <span className="text-faint">·</span>
+                    <a
+                        className="inline-flex items-center gap-1 text-dim no-underline hover:text-accent"
+                        href={DOCS_URL}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                        Read the docs
+                        <ArrowUpRight size={11} />
+                    </a>
                 </div>
             </main>
         </div>
