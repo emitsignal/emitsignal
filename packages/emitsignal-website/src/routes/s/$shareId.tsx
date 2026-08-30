@@ -41,9 +41,13 @@ export const Route = createFileRoute('/s/$shareId')({
 
         const description = data.message.body.slice(0, 200);
 
+        // Crawlable but not indexable: a share link is public to whoever holds it,
+        // not something to surface in search. Googlebot has to fetch the page to
+        // see this, so /s/ must stay allowed in robots.txt.
         return buildSeoMeta({
             description,
             image: data.ogImage,
+            noindex: true,
             path: `/s/${params.shareId}`,
             title: `${data.message.title} — ${data.topic.name}`,
             type: 'article',
