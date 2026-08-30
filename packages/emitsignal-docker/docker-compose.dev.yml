@@ -86,15 +86,15 @@ services:
                    bunx prisma db push &&
                    bun run --watch src/index.ts"
         environment:
-            API_URL: 'http://localhost:5100'
-            APP_URL: 'http://localhost:5200'
+            API_URL: 'http://localhost:5001'
+            APP_URL: 'http://localhost:5002'
             OTEL_ENABLED: 'true'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
             OTEL_SERVICE_NAME: 'emitsignal-server'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             EMAIL_FROM: 'EmitSignal Dev <dev@emitsignal.local>'
             EMAIL_PROVIDER: 'smtp'
-            EMIT_SIGNAL_HTTP_PORT: '5100'
+            EMIT_SIGNAL_HTTP_PORT: '5001'
             FILE_STORAGE_PROVIDER: 'local'
             BETTER_AUTH_SECRET: 'emitsignal-dev-better-auth-secret-32chars!!'
             LOG_INGESTION_ENABLED: '${LOG_INGESTION_ENABLED:-false}'
@@ -121,7 +121,7 @@ services:
         volumes:
             - ../../:/app
         ports:
-            - '5100:5100'
+            - '5001:5001'
         depends_on:
             otel-collector:
                 condition: service_started
@@ -140,8 +140,8 @@ services:
                    cd /app/packages/emitsignal-server &&
                    bun run --watch src/workers/all.ts"
         environment:
-            API_URL: 'http://localhost:5100'
-            APP_URL: 'http://localhost:5200'
+            API_URL: 'http://localhost:5001'
+            APP_URL: 'http://localhost:5002'
             DATABASE_URL: 'postgresql://emitsignal:emitsignal@postgres:5432/emitsignal'
             OTEL_ENABLED: 'true'
             OTEL_EXPORTER_OTLP_ENDPOINT: 'http://otel-collector:4318'
@@ -185,7 +185,7 @@ services:
                    bunx vite dev --port 5173 --host"
         environment:
             OG_SIGNING_SECRET: 'emitsignal-dev-og-secret'
-            VITE_API_URL: 'http://localhost:5100'
+            VITE_API_URL: 'http://localhost:5001'
             VITE_SENTRY_DSN: '${VITE_SENTRY_DSN:-}'
             VITE_SENTRY_ENABLED: '${VITE_SENTRY_ENABLED:-false}'
             # Same DSN as the client build (VITE_SENTRY_DSN): SSR and browser

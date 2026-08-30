@@ -72,7 +72,7 @@ RUN mkdir -p db uploads
 RUN chown -R bun:bun /app
 USER bun
 
-EXPOSE 5100
+EXPOSE 5001
 
 # Default: start the API server. Migrations run in the one-shot `migrate` service
 # (see docker-compose.yml), so they are intentionally NOT in this CMD.
