@@ -170,7 +170,7 @@ bun install
 docker compose -f packages/emitsignal-docker/docker-compose.dev.yml up
 ```
 
-That brings up the whole stack with hot reload — PostgreSQL, Redis, an SMTP inbox ([localhost:3134](http://localhost:3134)), all BullMQ workers, the API server ([localhost:5100](http://localhost:5100)) and the website ([localhost:5173](http://localhost:5173)).
+That brings up the whole stack with hot reload — PostgreSQL, Redis, an SMTP inbox ([localhost:3134](http://localhost:3134)), all BullMQ workers, the API server ([localhost:5001](http://localhost:5001)) and the website ([localhost:5173](http://localhost:5173)).
 
 <details>
 <summary>Run pieces by hand (without Docker)</summary>
