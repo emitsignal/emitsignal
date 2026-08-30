@@ -1,6 +1,6 @@
 import { shareUrl } from '@emitsignal/shared/share';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { Bell, Globe, Share2, UserRound } from 'lucide-react';
+import { Globe, Share2, UserRound } from 'lucide-react';
 
 import { MessageArticle } from '#/components/app/inbox/message-article';
 import { ShareTargets } from '#/components/share/share-targets';
@@ -10,7 +10,6 @@ import { CopyButton } from '#/components/ui/copy-button';
 import { Dot } from '#/components/ui/dot';
 import { Logo } from '#/components/ui/logo';
 import { Pill } from '#/components/ui/pill';
-import { SubHeading } from '#/components/ui/sub-head';
 import { fetchSharedMessageServer, type SharedMessagePage } from '#/lib/api-server-fns';
 import { relativeTime } from '#/lib/format';
 import { priorityHex } from '#/lib/priority';
@@ -112,7 +111,6 @@ function SharePage() {
                 <Link className="no-underline" to="/">
                     <Logo pulse size={14} />
                 </Link>
-                <span className="truncate font-mono text-[11px] text-dim">/ s / {shareId}</span>
                 <div className="flex-1" />
                 <Link
                     className="rounded-md border border-accent px-3 py-1.5 text-[12px] font-semibold text-accent no-underline hover:bg-accent/10"
@@ -209,33 +207,6 @@ function SharePage() {
                         </span>
                     </div>
                 </article>
-
-                <section className="mt-5.5 rounded-[14px] border border-line bg-elev p-5 sm:p-6">
-                    <div className="flex flex-wrap items-center gap-3.5">
-                        <div className="min-w-[220px] flex-1">
-                            <div className="mb-1 text-[16px] font-semibold">
-                                Get <span className="font-mono text-accent">{topic.name}</span> as
-                                it ships
-                            </div>
-                            <p className="m-0 text-[12.5px] leading-[1.5] text-muted">
-                                Subscribe for push, email, or a live terminal stream. Public topic —
-                                no invite needed.
-                            </p>
-                        </div>
-                        <Link
-                            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-[13px] font-semibold text-bg no-underline hover:bg-accent-dim"
-                            to="/sign-in"
-                        >
-                            <Bell size={13} />
-                            Subscribe
-                        </Link>
-                    </div>
-
-                    <div className="mt-4">
-                        <SubHeading>OR FOLLOW IT FROM YOUR TERMINAL</SubHeading>
-                        <CodeBlock code={`es subscribe ${topic.name}`} />
-                    </div>
-                </section>
 
                 <div className="mt-5.5 flex items-center justify-center gap-2 font-mono text-[11px] text-dim">
                     <span>Shared with</span>
