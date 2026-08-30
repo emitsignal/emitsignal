@@ -580,10 +580,15 @@ function renderCard(
     return <EditorialCard {...props} />;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// C · SIGNAL
+// Shared-message card for /s/:shareId. Content sits directly on the ground with
+// a priority-coloured rail across the top edge — no panel, unlike the blog cards.
+// ══════════════════════════════════════════════════════════════════════════════
 function SignalCard({ date, description, priority, tags, title, topic }: SignalCardProps) {
     const accent = priorityHex(priority);
     const topicColor = PRIORITY_HEX[hashTopicLevel(topic)];
-    const fs = adaptiveTitleSize(title, 54, 38);
+    const fs = adaptiveTitleSize(title, 64, 46);
 
     return (
         <div
@@ -593,21 +598,32 @@ function SignalCard({ date, description, priority, tags, title, topic }: SignalC
                 flexDirection: 'column',
                 height: '100%',
                 overflow: 'hidden',
-                padding: '46px 56px',
+                padding: '58px 64px 54px',
                 position: 'relative',
                 width: '100%',
             }}
         >
-            {/* Priority glow — top-right */}
+            {/* Priority rail — the only chrome on the card */}
+            <div
+                style={{
+                    backgroundColor: accent,
+                    height: 8,
+                    left: 0,
+                    position: 'absolute',
+                    top: 0,
+                    width: '100%',
+                }}
+            />
+
             <div
                 style={{
                     background: `radial-gradient(circle, ${accent} 0%, transparent 68%)`,
-                    height: 560,
-                    left: '58%',
-                    opacity: 0.28,
+                    height: 620,
+                    left: '56%',
+                    opacity: 0.22,
                     position: 'absolute',
-                    top: '-180px',
-                    width: 560,
+                    top: '-140px',
+                    width: 620,
                 }}
             />
 
@@ -649,186 +665,125 @@ function SignalCard({ date, description, priority, tags, title, topic }: SignalC
                     <PulseMark color="#a78bfa" size={26} />
                     <span>emitsignal</span>
                 </div>
-                <div
-                    style={{
-                        alignItems: 'center',
-                        border: '1px solid #232427',
-                        borderRadius: 999,
-                        color: '#a1a1a6',
-                        display: 'flex',
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        gap: 8,
-                        letterSpacing: 2,
-                        padding: '7px 14px',
-                        textTransform: 'uppercase',
-                    }}
-                >
+                <div style={{ alignItems: 'center', display: 'flex', gap: 10 }}>
                     <div
                         style={{
-                            backgroundColor: '#4ade80',
+                            backgroundColor: accent,
                             borderRadius: '50%',
-                            height: 7,
-                            width: 7,
+                            height: 8,
+                            width: 8,
                         }}
                     />
-                    Shared signal
-                </div>
-            </div>
-
-            {/* The message card */}
-            <div
-                style={{
-                    backgroundColor: '#0b0b0d',
-                    border: '1px solid #232427',
-                    borderRadius: 22,
-                    display: 'flex',
-                    flex: 1,
-                    flexDirection: 'column',
-                    marginTop: 30,
-                    overflow: 'hidden',
-                    padding: '34px 38px',
-                    position: 'relative',
-                }}
-            >
-                {/* Priority rail */}
-                <div
-                    style={{
-                        backgroundColor: accent,
-                        bottom: 0,
-                        left: 0,
-                        position: 'absolute',
-                        top: 0,
-                        width: 4,
-                    }}
-                />
-
-                {/* Topic row */}
-                <div style={{ alignItems: 'center', display: 'flex', gap: 14 }}>
-                    <AuthorAvatar color={topicColor} name={topic} size={44} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        <span
-                            style={{
-                                color: '#f7f7f8',
-                                fontFamily: 'Inter',
-                                fontSize: 19,
-                                fontWeight: 700,
-                                letterSpacing: -0.3,
-                            }}
-                        >
-                            {topic}
-                        </span>
-                        <span style={{ color: '#71717a', fontFamily: 'Inter', fontSize: 14 }}>
-                            public topic · {fmtDate(date)}
-                        </span>
-                    </div>
-
-                    <div style={{ display: 'flex', flex: 1 }} />
-
-                    <div
+                    <span
                         style={{
-                            alignItems: 'center',
-                            backgroundColor: `${accent}1f`,
-                            border: `1px solid ${accent}59`,
-                            borderRadius: 999,
                             color: accent,
-                            display: 'flex',
                             fontFamily: 'Inter',
                             fontSize: 14,
                             fontWeight: 700,
-                            gap: 8,
-                            letterSpacing: 1.2,
-                            padding: '8px 16px',
+                            letterSpacing: 2,
                             textTransform: 'uppercase',
                         }}
                     >
-                        <div
-                            style={{
-                                backgroundColor: accent,
-                                borderRadius: '50%',
-                                height: 8,
-                                width: 8,
-                            }}
-                        />
                         p{priority} · {priorityLabel(priority)}
-                    </div>
-                </div>
-
-                {/* Title + excerpt */}
-                <div
-                    style={{
-                        display: 'flex',
-                        flex: 1,
-                        flexDirection: 'column',
-                        gap: 16,
-                        justifyContent: 'center',
-                    }}
-                >
-                    <div
-                        style={{
-                            color: '#f7f7f8',
-                            fontFamily: 'Inter',
-                            fontSize: fs,
-                            fontWeight: 700,
-                            letterSpacing: -1.6,
-                            lineHeight: 1.08,
-                            maxWidth: 940,
-                        }}
-                    >
-                        {title}
-                    </div>
-                    <div
-                        style={{
-                            color: '#a1a1a6',
-                            fontFamily: 'Inter',
-                            fontSize: 19,
-                            lineHeight: 1.5,
-                            maxWidth: 900,
-                        }}
-                    >
-                        {truncate(description, 150)}
-                    </div>
-                </div>
-
-                {/* Tags */}
-                <div style={{ display: 'flex', gap: 10 }}>
-                    {tags.slice(0, 4).map((tag) => (
-                        <div
-                            key={tag}
-                            style={{
-                                backgroundColor: '#111114',
-                                border: '1px solid #232427',
-                                borderRadius: 8,
-                                color: '#a1a1a6',
-                                display: 'flex',
-                                fontFamily: 'Inter',
-                                fontSize: 14,
-                                padding: '6px 12px',
-                            }}
-                        >
-                            #{tag}
-                        </div>
-                    ))}
+                    </span>
                 </div>
             </div>
 
-            {/* Footer */}
+            {/* Topic line, title, excerpt */}
             <div
                 style={{
-                    alignItems: 'center',
-                    color: '#71717a',
                     display: 'flex',
-                    fontFamily: 'Inter',
-                    fontSize: 15,
-                    justifyContent: 'space-between',
-                    marginTop: 18,
+                    flex: 1,
+                    flexDirection: 'column',
+                    gap: 22,
+                    justifyContent: 'center',
                     position: 'relative',
                 }}
             >
-                <span>Subscribe for push, email, or a live terminal stream.</span>
-                <span style={{ color: '#a78bfa' }}>es subscribe {topic}</span>
+                <div style={{ alignItems: 'center', display: 'flex', gap: 12 }}>
+                    <TopicMark color={topicColor} name={topic} size={30} />
+                    <span
+                        style={{
+                            color: '#f7f7f8',
+                            fontFamily: 'Inter',
+                            fontSize: 19,
+                            fontWeight: 700,
+                            letterSpacing: -0.3,
+                        }}
+                    >
+                        {topic}
+                    </span>
+                    <span style={{ color: '#3f3f46', fontFamily: 'Inter', fontSize: 16 }}>·</span>
+                    <span style={{ color: '#71717a', fontFamily: 'Inter', fontSize: 16 }}>
+                        {fmtDate(date)}
+                    </span>
+                </div>
+
+                <div
+                    style={{
+                        color: '#f7f7f8',
+                        fontFamily: 'Inter',
+                        fontSize: fs,
+                        fontWeight: 700,
+                        letterSpacing: -2,
+                        lineHeight: 1.04,
+                        maxWidth: 1020,
+                    }}
+                >
+                    {title}
+                </div>
+
+                <div
+                    style={{
+                        color: '#a1a1a6',
+                        fontFamily: 'Inter',
+                        fontSize: 20,
+                        lineHeight: 1.5,
+                        maxWidth: 880,
+                    }}
+                >
+                    {truncate(description, 150)}
+                </div>
             </div>
+
+            {/* Tags */}
+            <div
+                style={{
+                    color: '#71717a',
+                    display: 'flex',
+                    fontFamily: 'Inter',
+                    fontSize: 16,
+                    gap: 14,
+                    position: 'relative',
+                }}
+            >
+                {tags.slice(0, 5).map((tag) => (
+                    <span key={tag}>#{tag}</span>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function TopicMark({ color, name, size }: { color: string; name: string; size: number }) {
+    return (
+        <div
+            style={{
+                alignItems: 'center',
+                background: `linear-gradient(180deg, ${color}, ${color}77)`,
+                borderRadius: 8,
+                color: '#000000',
+                display: 'flex',
+                flexShrink: 0,
+                fontSize: size * 0.36,
+                fontWeight: 700,
+                height: size,
+                justifyContent: 'center',
+                letterSpacing: -0.3,
+                width: size,
+            }}
+        >
+            {avatarInitials(name)}
         </div>
     );
 }
