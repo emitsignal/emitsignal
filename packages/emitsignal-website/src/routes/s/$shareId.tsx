@@ -1,6 +1,6 @@
 import { shareUrl } from '@emitsignal/shared/share';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { Bell, Globe, Share2 } from 'lucide-react';
+import { Bell, Globe, Share2, UserRound } from 'lucide-react';
 
 import { MessageArticle } from '#/components/app/inbox/message-article';
 import { ShareTargets } from '#/components/share/share-targets';
@@ -164,18 +164,30 @@ function SharePage() {
                         </h1>
 
                         <div className="mb-5.5 flex flex-wrap items-center gap-2.5 border-b border-line pb-5.5">
-                            <Avatar
-                                name={sender?.name ?? topic.name}
-                                rounded={100}
-                                size={26}
-                                src={sender?.image}
-                            />
-                            <span className="text-[13px] text-muted">
-                                Published by{' '}
-                                <span className="font-medium text-fg">
-                                    {sender?.name ?? 'a publisher'}
-                                </span>
-                            </span>
+                            {sender?.name ? (
+                                <>
+                                    <Avatar
+                                        name={sender.name}
+                                        rounded={100}
+                                        size={26}
+                                        src={sender.image}
+                                    />
+                                    <span className="text-[13px] text-muted">
+                                        Published by{' '}
+                                        <span className="font-medium text-fg">{sender.name}</span>
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="flex size-[26px] shrink-0 items-center justify-center rounded-full bg-elev text-dim">
+                                        <UserRound size={14} />
+                                    </span>
+                                    <span className="text-[13px] text-muted">
+                                        Published{' '}
+                                        <span className="font-medium text-fg">anonymously</span>
+                                    </span>
+                                </>
+                            )}
                             <span className="text-faint">·</span>
                             <span className="font-mono text-[11.5px] text-dim">
                                 {relativeTime(message.createdAt)}
