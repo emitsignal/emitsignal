@@ -26,6 +26,17 @@ No SDK required to send — if it can make an HTTP request, it can emit a signal
 
 # Quick look
 
+<p align="center">
+  <video src="./assets/emitsignal-cli.mp4" poster="./assets/emitsignal-cli-poster.png" width="100%" autoplay loop muted playsinline></video>
+</p>
+
+<p align="center">
+  <em>Install, log in, subscribe, publish — then watch signals stream in live.</em><br />
+  <sub>Video not playing? <a href="./assets/emitsignal-cli.mp4">Watch it here</a>.</sub>
+</p>
+
+<br />
+
 Two ways to send a signal: `curl` needs nothing installed, the CLI is nicer to live in.
 
 <details open>
