@@ -27,6 +27,7 @@ const MAPPING = {
     'bell.fill': 'notifications',
     'bell.slash': 'notifications-off',
     bolt: 'bolt',
+    book: 'menu-book',
     'camera.fill': 'photo-camera',
 
     'chart.bar': 'bar-chart',
@@ -37,6 +38,7 @@ const MAPPING = {
     'circle.fill': 'circle',
 
     clock: 'schedule',
+    crown: 'workspace-premium',
     'doc.on.doc': 'content-copy',
     'doc.text': 'description',
     ellipsis: 'more-horiz',
@@ -58,6 +60,7 @@ const MAPPING = {
     key: 'vpn-key',
     link: 'link',
     'list.bullet': 'list',
+    lock: 'lock',
     magnifyingglass: 'search',
     megaphone: 'campaign',
     'paperplane.fill': 'send',
