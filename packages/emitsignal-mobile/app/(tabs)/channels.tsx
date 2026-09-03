@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccessModeIcon, OwnerIcon } from '@/components/access-mode';
 import { ActivitySparkline, WDot, WLogo, WTopicAvatar } from '@/components/base-theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts, type Palette, PriorityColors } from '@/constants/theme';
@@ -187,7 +188,14 @@ function ChannelRow({
             <View style={{ flex: 1, minWidth: 0 }}>
                 <View style={styles.channelHeader}>
                     <WDot level={priority} size={5} />
-                    <Text style={styles.channelName}>{sub.topic.name}</Text>
+
+                    <Text numberOfLines={1} style={styles.channelName}>
+                        {sub.topic.name}
+                    </Text>
+
+                    {sub.topic.isOwner && <OwnerIcon />}
+
+                    <AccessModeIcon accessMode={sub.topic.accessMode} />
                 </View>
 
                 {description && (
@@ -224,6 +232,7 @@ const createStyles = (palette: Palette) =>
         },
         channelName: {
             color: palette.fg,
+            flexShrink: 1,
             fontFamily: Fonts.mono,
             fontSize: 13,
             fontWeight: '500',
