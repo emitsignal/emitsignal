@@ -35,5 +35,5 @@
         "watch-dist": "bun run scripts/watch-dist.ts"
     },
     "type": "module",
-    "version": "1.11.1"
+    "version": "1.12.0"
 }
