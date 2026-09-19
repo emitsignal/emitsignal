@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useEffect } from 'react';
 
@@ -10,16 +10,20 @@ export default function TabLayout() {
     const { isLoading: onboardingLoading, isOnboardingComplete } = useOnboarding();
     const { loading: sessionLoading, user } = useSession();
     const palette = usePalette();
+    const segments = useSegments();
 
     const isSignedIn = !!user?.id;
     const isAllowed = isOnboardingComplete || isSignedIn;
     const isLoading = onboardingLoading || sessionLoading;
+    // The root stack anchors (tabs) underneath /auth, so this layout stays mounted
+    // during the auth flow; redirecting from here would reset that flow.
+    const isInAuthFlow = segments[0] === 'auth';
 
     useEffect(() => {
-        if (!isLoading && !isAllowed) {
+        if (!isLoading && !isAllowed && !isInAuthFlow) {
             router.replace('/auth');
         }
-    }, [isLoading, isAllowed]);
+    }, [isLoading, isAllowed, isInAuthFlow]);
 
     if (isLoading || !isAllowed) {
         return null;
