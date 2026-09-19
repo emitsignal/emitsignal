@@ -29,7 +29,11 @@ export interface SessionUser {
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-    const { data, isPending } = authClient.useSession();
+    const { data, isPending, isRefetching } = authClient.useSession();
+
+    // better-auth flips isPending back to true on every focus refetch while signed
+    // out; treating that as loading re-runs the route guards and resets navigation.
+    const isInitialLoad = isPending && !isRefetching;
 
     useEffect(() => {
         if (data?.session?.token) {
@@ -37,10 +41,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             queryClient.invalidateQueries({ queryKey: queryKeys.feed(data.user.id) });
             queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions(data.user.id) });
-        } else if (!isPending) {
+        } else if (!isInitialLoad) {
             setAuthToken(null);
         }
-    }, [data?.session?.token, isPending]);
+    }, [data?.session?.token, isInitialLoad]);
 
     useEffect(() => {
         if (!data?.user?.id) {
@@ -80,7 +84,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             return { error: null };
         },
-        loading: isPending,
+        loading: isInitialLoad,
         signOut: async () => {
             await authClient.signOut();
             setAuthToken(null);
