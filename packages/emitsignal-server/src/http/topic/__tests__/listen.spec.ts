@@ -117,16 +117,16 @@ describe('GET /topics/:name/listen (SSE)', () => {
 
         it('includes attachments on replayed messages', async () => {
             prismaMock.message.findMany = mock(() => Promise.resolve([backlogMessage]));
-            prismaMock.attachment.findMany = mock(() =>
-                Promise.resolve([
-                    {
-                        filename: 'report.pdf',
-                        mimeType: 'application/pdf',
-                        size: 42,
-                        storageKey: 'abc.pdf',
-                    },
-                ]),
-            );
+            // Once, not a reassignment: prismaMock is shared across every spec file
+            // in the run, so a permanent override leaks into whichever spec runs next.
+            prismaMock.attachment.findMany.mockResolvedValueOnce([
+                {
+                    filename: 'report.pdf',
+                    mimeType: 'application/pdf',
+                    size: 42,
+                    storageKey: 'abc.pdf',
+                },
+            ]);
 
             const res = await app.handle(
                 new Request('http://localhost/topics/test-topic/listen?since=1700000000000'),
