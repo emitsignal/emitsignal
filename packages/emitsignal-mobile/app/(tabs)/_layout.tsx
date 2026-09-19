@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useSession } from '@/ctx/session';
 import { useOnboarding } from '@/hooks/use-onboarding';
 import { usePalette } from '@/hooks/use-palette';
+import { usePushPermissionPrompt } from '@/hooks/use-push-permission-prompt';
 
 export default function TabLayout() {
     const { isLoading: onboardingLoading, isOnboardingComplete } = useOnboarding();
@@ -24,6 +25,8 @@ export default function TabLayout() {
             router.replace('/auth');
         }
     }, [isLoading, isAllowed, isInAuthFlow]);
+
+    usePushPermissionPrompt(!isLoading && isAllowed && !isInAuthFlow);
 
     if (isLoading || !isAllowed) {
         return null;
