@@ -71,6 +71,7 @@ describe('GET /messages/:id', () => {
         );
 
         prismaMock.acknowledgment.count = mock(() => Promise.resolve(5));
+        prismaMock.attachment.findMany.mockResolvedValueOnce([]);
 
         const res = await app.handle(new Request('http://localhost/messages/msg-1'));
 
