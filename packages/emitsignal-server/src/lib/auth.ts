@@ -3,6 +3,7 @@ import { expo } from '@better-auth/expo';
 import { passkey } from '@better-auth/passkey';
 import { stripe } from '@better-auth/stripe';
 import { MagicLinkEmail, render } from '@emitsignal/emails';
+import { CLI_ORIGIN } from '@emitsignal/shared';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api';
@@ -293,6 +294,7 @@ export const auth = betterAuth({
         environment.APP_URL,
         'emitsignal://',
         'emitsignal-preview://',
+        CLI_ORIGIN,
         'exp://',
         ...(isAppleAuthEnabled ? ['https://appleid.apple.com'] : []),
         ...(isProduction ? [] : ['*']),
