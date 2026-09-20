@@ -2,13 +2,13 @@ import * as Updates from 'expo-updates';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 
-export type UpdateStatus = 'checking' | 'downloading' | 'idle';
-
 export interface AppUpdates {
     checkForUpdate: () => Promise<void>;
     isSupported: boolean;
     status: UpdateStatus;
 }
+
+export type UpdateStatus = 'checking' | 'downloading' | 'idle';
 
 export function useAppUpdates(): AppUpdates {
     const [status, setStatus] = useState<UpdateStatus>('idle');
