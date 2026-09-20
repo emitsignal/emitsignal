@@ -4,9 +4,11 @@ import { PLANS } from '@emitsignal/shared/billing';
 import { SegmentedControl } from '@expo/ui/community/segmented-control';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import * as Updates from 'expo-updates';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -36,6 +38,7 @@ import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
 import { getAppIdentity } from '@/lib/app-identity';
+import { relativeTime } from '@/lib/format';
 import { queryKeys } from '@/lib/query-client';
 
 const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
@@ -57,6 +60,9 @@ const FEED_STYLE_OPTIONS: { description: string; label: string; value: FeedStyle
         value: 'priority',
     },
 ];
+
+const TAPS_TO_UNLOCK_BUILD_INFO = 7;
+const TAP_RESET_DELAY = 1500;
 
 const DEBUG_ITEMS = [
     { key: 'showPayload' as const, label: 'Show payload' },
@@ -267,16 +273,61 @@ export default function SettingsScreen() {
 
 function AboutSection() {
     const { palette, styles } = useThemedStyles(createStyles);
+    const { sections, setSection } = useDebugSections();
     const { checkForUpdate, isSupported, status } = useAppUpdates();
+    const tapCount = useRef(0);
+    const tapResetTimer = useRef<null | ReturnType<typeof setTimeout>>(null);
+
+    useEffect(() => {
+        return () => {
+            if (tapResetTimer.current) {
+                clearTimeout(tapResetTimer.current);
+            }
+        };
+    }, []);
+
+    const handleVersionPress = () => {
+        if (sections.showBuildInfo) {
+            return;
+        }
+
+        tapCount.current += 1;
+
+        if (tapResetTimer.current) {
+            clearTimeout(tapResetTimer.current);
+        }
+
+        if (tapCount.current >= TAPS_TO_UNLOCK_BUILD_INFO) {
+            tapCount.current = 0;
+            setSection('showBuildInfo', true);
+            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+            return;
+        }
+
+        // Without this, taps minutes apart would still add up to an unlock.
+        tapResetTimer.current = setTimeout(() => {
+            tapCount.current = 0;
+        }, TAP_RESET_DELAY);
+    };
+
+    const buildInfo = [
+        { label: 'Channel', value: Updates.channel ?? 'none' },
+        { label: 'Runtime', value: Updates.runtimeVersion ?? '—' },
+        { label: 'Source', value: Updates.isEmbeddedLaunch ? 'embedded bundle' : 'ota update' },
+        { label: 'Update', value: Updates.updateId ?? 'embedded' },
+        { label: 'Published', value: Updates.createdAt ? relativeTime(Updates.createdAt) : '—' },
+        { label: 'Mode', value: String(Constants.expoConfig?.extra?.appMode ?? 'production') },
+    ];
 
     return (
         <>
             <SectionLabel>ABOUT</SectionLabel>
             <View style={styles.group}>
-                <View style={styles.row}>
+                <Pressable onPress={handleVersionPress} style={styles.row}>
                     <Text style={styles.rowLabel}>Version</Text>
                     <Text style={styles.rowValue}>{Constants.expoConfig?.version ?? '—'}</Text>
-                </View>
+                </Pressable>
 
                 <Pressable
                     disabled={status !== 'idle'}
@@ -296,6 +347,31 @@ function AboutSection() {
                     )}
                 </Pressable>
             </View>
+
+            {sections.showBuildInfo ? (
+                <>
+                    <SectionLabel>BUILD INFO</SectionLabel>
+                    <View style={styles.group}>
+                        {buildInfo.map(({ label, value }, index) => (
+                            <View
+                                key={label}
+                                style={[
+                                    styles.row,
+                                    index === buildInfo.length - 1 && styles.rowLast,
+                                ]}
+                            >
+                                <Text style={styles.rowLabel}>{label}</Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={[styles.rowValue, { flexShrink: 1 }]}
+                                >
+                                    {value}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                </>
+            ) : null}
         </>
     );
 }

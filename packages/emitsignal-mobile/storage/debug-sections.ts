@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const DEBUG_SECTIONS_KEY = '@emitsignal/debug_sections';
 
 export interface DebugSections {
+    showBuildInfo: boolean;
     showCurl: boolean;
     showDelivery: boolean;
     showPayload: boolean;
@@ -10,6 +11,7 @@ export interface DebugSections {
 }
 
 const DEFAULTS: DebugSections = {
+    showBuildInfo: false,
     showCurl: false,
     showDelivery: false,
     showPayload: false,

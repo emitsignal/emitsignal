@@ -14,6 +14,7 @@ const DebugSectionsContext = createContext<DebugSectionsContextType | undefined>
 export function DebugSectionsProvider({ children }: { children: React.ReactNode }) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [sections, setSections] = useState<DebugSections>({
+        showBuildInfo: false,
         showCurl: false,
         showDelivery: false,
         showPayload: false,
