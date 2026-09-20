@@ -2,7 +2,7 @@ import type { Command } from 'commander';
 
 import { relativeTime } from '@emitsignal/shared';
 
-import { getBaseUrl, getToken } from '../config.ts';
+import { authRequest } from '../auth-request.ts';
 import { color, emptyState, err, highlightJson, ok } from '../output.ts';
 
 interface ApiKey {
@@ -23,7 +23,7 @@ export function registerKeysCommand(program: Command): void {
         .option('--json', 'Machine-readable output')
         .action(async (opts) => {
             try {
-                const { apiKeys } = await keysRequest<{ apiKeys: ApiKey[] }>('/api-key/list');
+                const { apiKeys } = await authRequest<{ apiKeys: ApiKey[] }>('/api-key/list');
 
                 if (opts.json) {
                     return console.log(highlightJson(apiKeys));
@@ -74,7 +74,7 @@ export function registerKeysCommand(program: Command): void {
                     body['expiresIn'] = expiresIn;
                 }
 
-                const key = await keysRequest<{ key: string } & ApiKey>('/api-key/create', {
+                const key = await authRequest<{ key: string } & ApiKey>('/api-key/create', {
                     body: JSON.stringify(body),
                     method: 'POST',
                 });
@@ -111,7 +111,7 @@ export function registerKeysCommand(program: Command): void {
                     return ok(`permanently deleted key ${color.fgDim(id)}`);
                 }
 
-                const { apiKeys } = await keysRequest<{ apiKeys: ApiKey[] }>('/api-key/list');
+                const { apiKeys } = await authRequest<{ apiKeys: ApiKey[] }>('/api-key/list');
                 const key = apiKeys.find((candidate) => candidate.id === id);
 
                 if (!key) {
@@ -121,7 +121,7 @@ export function registerKeysCommand(program: Command): void {
                 }
 
                 if (key.enabled) {
-                    await keysRequest<void>('/api-key/update', {
+                    await authRequest<void>('/api-key/update', {
                         body: JSON.stringify({ enabled: false, keyId: id }),
                         method: 'POST',
                     });
@@ -143,7 +143,7 @@ export function registerKeysCommand(program: Command): void {
 }
 
 function deleteKey(id: string): Promise<void> {
-    return keysRequest<void>('/api-key/delete', {
+    return authRequest<void>('/api-key/delete', {
         body: JSON.stringify({ keyId: id }),
         method: 'POST',
     });
@@ -159,27 +159,4 @@ function expiresToSeconds(value: string): null | number {
     const amount = parseInt(match[1]!, 10);
 
     return match[2] === 'y' ? amount * 365 * 86_400 : amount * 86_400;
-}
-
-async function keysRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const token = getToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${getBaseUrl()}/api/auth${path}`, { ...init, headers });
-
-    if (!res.ok) {
-        const text = await res.text().catch(() => res.statusText);
-
-        throw new Error(`${res.status} ${text}`);
-    }
-
-    if (res.status === 204) {
-        return undefined as T;
-    }
-
-    return res.json() as Promise<T>;
 }
