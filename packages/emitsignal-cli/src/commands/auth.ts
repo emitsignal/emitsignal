@@ -2,7 +2,8 @@ import type { Command } from 'commander';
 
 import * as readline from 'node:readline';
 
-import { getBaseUrl, getToken, readConfig, writeConfig } from '../config.ts';
+import { authRequest } from '../auth-request.ts';
+import { getToken, readConfig, writeConfig } from '../config.ts';
 import { arrow, color, err, ok } from '../output.ts';
 
 interface AuthUser {
@@ -65,25 +66,8 @@ export function registerAuthCommands(program: Command): void {
         });
 }
 
-async function authRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const response = await fetch(`${getBaseUrl()}/api/auth${path}`, {
-        ...init,
-        headers: { 'Content-Type': 'application/json', ...init.headers },
-    });
-
-    if (!response.ok) {
-        const text = await response.text().catch(() => response.statusText);
-
-        throw new Error(`${response.status} ${text}`);
-    }
-
-    return (await response.json()) as T;
-}
-
 async function getCurrentUser(token: string): Promise<AuthUser | null> {
-    const session = await authRequest<{ user: AuthUser } | null>('/get-session', {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    const session = await authRequest<{ user: AuthUser } | null>('/get-session', { token });
 
     return session?.user ?? null;
 }
@@ -96,6 +80,7 @@ async function requestSignInCode(email: string): Promise<void> {
     await authRequest('/email-otp/send-verification-otp', {
         body: JSON.stringify({ email, type: 'sign-in' }),
         method: 'POST',
+        token: null,
     });
 }
 
@@ -106,5 +91,6 @@ async function verifySignInCode(
     return authRequest('/sign-in/email-otp', {
         body: JSON.stringify({ email, otp }),
         method: 'POST',
+        token: null,
     });
 }
