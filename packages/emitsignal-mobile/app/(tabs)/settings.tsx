@@ -31,6 +31,7 @@ import { useDevice } from '@/ctx/device';
 import { useFeedStyle } from '@/ctx/feed-style';
 import { useSession } from '@/ctx/session';
 import { useTheme } from '@/ctx/theme';
+import { useAppUpdates } from '@/hooks/use-app-updates';
 import { useTabBarInset } from '@/hooks/use-tab-bar-inset';
 import { useThemedStyles } from '@/hooks/use-themed-styles';
 import { api } from '@/lib/api';
@@ -258,15 +259,44 @@ export default function SettingsScreen() {
                     ))}
                 </View>
 
-                <SectionLabel>ABOUT</SectionLabel>
-                <View style={styles.group}>
-                    <View style={[styles.row, styles.rowLast]}>
-                        <Text style={styles.rowLabel}>Version</Text>
-                        <Text style={styles.rowValue}>{Constants.expoConfig?.version ?? '—'}</Text>
-                    </View>
-                </View>
+                <AboutSection />
             </ScrollView>
         </SafeAreaView>
+    );
+}
+
+function AboutSection() {
+    const { palette, styles } = useThemedStyles(createStyles);
+    const { checkForUpdate, isSupported, status } = useAppUpdates();
+
+    return (
+        <>
+            <SectionLabel>ABOUT</SectionLabel>
+            <View style={styles.group}>
+                <View style={styles.row}>
+                    <Text style={styles.rowLabel}>Version</Text>
+                    <Text style={styles.rowValue}>{Constants.expoConfig?.version ?? '—'}</Text>
+                </View>
+
+                <Pressable
+                    disabled={status !== 'idle'}
+                    onPress={checkForUpdate}
+                    style={[styles.row, styles.rowLast]}
+                >
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.rowLabel}>Check for updates</Text>
+                        {isSupported ? null : (
+                            <Text style={styles.rowHint}>Not available in development builds</Text>
+                        )}
+                    </View>
+                    {status === 'idle' ? (
+                        <IconSymbol color={palette.fgDim} name="chevron.right" size={14} />
+                    ) : (
+                        <ActivityIndicator color={palette.violet} size="small" />
+                    )}
+                </Pressable>
+            </View>
+        </>
     );
 }
 
